@@ -1,11 +1,14 @@
 """Main RefastApp class."""
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, TypeVar, TYPE_CHECKING
 
 from fastapi import APIRouter
 
 from refast.router import RefastRouter
+
+if TYPE_CHECKING:
+    from refast.context import Context
 
 PageFunc = TypeVar("PageFunc", bound=Callable[..., Any])
 
@@ -58,6 +61,13 @@ class RefastApp:
         if self._router is None:
             self._router = RefastRouter(self)
         return self._router.api_router
+
+    @property
+    def active_contexts(self) -> list["Context"]:
+        """Get all active WebSocket contexts."""
+        if self._router is None:
+            return []
+        return self._router.active_contexts
 
     @property
     def pages(self) -> dict[str, Callable]:

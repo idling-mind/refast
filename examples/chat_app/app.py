@@ -113,7 +113,7 @@ async def send_message(ctx: Context):
     ctx.state.set("message_text", "")
     
     # TODO: Broadcast to all connected clients
-    await ctx.broadcast("chat:message", message.to_dict())
+    # await ctx.broadcast("chat:message", message.to_dict())
 
 
 def render_message(message: Message, current_user: str):

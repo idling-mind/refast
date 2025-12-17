@@ -106,6 +106,11 @@ class RefastRouter:
         html = self._render_html_shell(component, ctx)
         return HTMLResponse(content=html)
 
+    @property
+    def active_contexts(self) -> list["Context"]:
+        """Get all active WebSocket contexts."""
+        return list(self._websocket_contexts.values())
+
     async def _websocket_handler(self, websocket: WebSocket) -> None:
         """Handle WebSocket connections for real-time updates."""
         await websocket.accept()

@@ -7,14 +7,15 @@ This example demonstrates how to build a real-time dashboard that updates automa
 - **Server-Sent Updates**: The server pushes updates to the client using WebSockets.
 - **Background Tasks**: Uses `asyncio` to run a background task that generates data.
 - **Global State**: Maintains shared state across all connected clients.
-- **Dynamic UI**: Updates the entire dashboard UI periodically.
+- **Client-Specific State**: Maintains unique state (Client ID, update counter) for each connected client.
+- **Dynamic UI**: Updates the entire dashboard UI periodically with mixed global and client-specific data.
 
 ## How it Works
 
 1.  A global `dashboard_data` dictionary holds the current state.
 2.  A background task `update_dashboard_task` runs every 2 seconds.
 3.  The task updates the global data and then iterates through all active WebSocket connections.
-4.  For each connection, it calls `ctx.replace()` to push the new UI structure.
+4.  For each connection, it updates client-specific state (counter) and calls `ctx.replace()` to push the new UI structure.
 
 ## Running the Example
 

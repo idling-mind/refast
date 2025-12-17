@@ -58,10 +58,14 @@ def render_metric_card(title: str, value: str, status: str = "default"):
         ]
     )
 
-def render_dashboard():
-    """Render the dashboard based on global data."""
+def render_dashboard(ctx: Context):
+    """Render the dashboard based on global data and client-specific state."""
     cpu_color = get_status_color(dashboard_data["cpu_usage"])
     mem_color = get_status_color(dashboard_data["memory_usage"])
+    
+    # Client-specific data
+    client_id = ctx.state.get("client_id", "Connecting...")
+    personal_counter = ctx.state.get("personal_counter", 0)
     
     return Container(
         id="dashboard-root",
@@ -78,9 +82,16 @@ def render_dashboard():
                             Text("Real-time server metrics", class_name="text-muted-foreground"),
                         ]
                     ),
-                    Badge(
-                        f"Last updated: {dashboard_data['last_updated']}", 
-                        variant="outline"
+                    Row(
+                        gap=2,
+                        children=[
+                            Badge(f"Client: {client_id}", variant="secondary"),
+                            Badge(f"Updates: {personal_counter}", variant="outline"),
+                            Badge(
+                                f"Last updated: {dashboard_data['last_updated']}", 
+                                variant="outline"
+                            )
+                        ]
                     )
                 ]
             ),
@@ -135,7 +146,7 @@ def render_dashboard():
 
 @ui.page("/")
 def home(ctx: Context):
-    return render_dashboard()
+    return render_dashboard(ctx)
 
 async def update_dashboard_task():
     """Background task to update dashboard data."""
@@ -160,7 +171,15 @@ async def update_dashboard_task():
         # Push updates to all connected clients
         for ctx in ui.active_contexts:
             try:
-                await ctx.replace("dashboard-root", render_dashboard())
+                # Initialize client ID if not present
+                if not ctx.state.get("client_id"):
+                    ctx.state.set("client_id", f"#{random.randint(1000, 9999)}")
+                
+                # Update personal counter
+                count = ctx.state.get("personal_counter", 0)
+                ctx.state.set("personal_counter", count + 1)
+                
+                await ctx.replace("dashboard-root", render_dashboard(ctx))
             except Exception as e:
                 print(f"Error updating client: {e}")
 

@@ -152,3 +152,19 @@ class TestRouter:
         router2 = app.router
         
         assert router1 is router2
+
+
+class TestActiveContexts:
+    """Tests for active_contexts property."""
+
+    def test_active_contexts_empty_initially(self):
+        """Test active_contexts is empty initially."""
+        app = RefastApp()
+        assert app.active_contexts == []
+
+    def test_active_contexts_delegates_to_router(self):
+        """Test active_contexts delegates to router."""
+        app = RefastApp()
+        # Access router to initialize it
+        _ = app.router
+        assert app.active_contexts == []

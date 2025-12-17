@@ -117,7 +117,23 @@ class TestRefastRouter:
         client = TestClient(app)
         
         response = client.get("/ui/")
-        assert 'id="root"' in response.text
+        assert 'id="refast-root"' in response.text
+    
+    def test_active_contexts_property(self):
+        """Test active_contexts property returns values from _websocket_contexts."""
+        app = RefastApp()
+        # Initialize router
+        _ = app.router
+        refast_router = app._router
+        
+        assert refast_router.active_contexts == []
+        
+        # Mock a context
+        mock_ws = object()
+        mock_ctx = object()
+        refast_router._websocket_contexts[mock_ws] = mock_ctx
+        
+        assert refast_router.active_contexts == [mock_ctx]
 
 
 class TestWebSocketEndpoint:

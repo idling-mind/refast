@@ -1,0 +1,139 @@
+"""Typography components."""
+
+from typing import Any, Literal
+
+from refast.components.base import Component
+
+
+class Heading(Component):
+    """
+    Heading component for titles.
+
+    Example:
+        ```python
+        Heading("Welcome", level=1)
+        Heading("Section Title", level=2, class_name="text-blue-500")
+        ```
+    """
+
+    component_type: str = "Heading"
+
+    def __init__(
+        self,
+        text: str,
+        level: Literal[1, 2, 3, 4, 5, 6] = 1,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.text = text
+        self.level = level
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "level": self.level,
+                "className": self.class_name,
+                **self.extra_props,
+            },
+            "children": [self.text],
+        }
+
+
+class Paragraph(Component):
+    """Paragraph text component."""
+
+    component_type: str = "Paragraph"
+
+    def __init__(
+        self,
+        text: str,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.text = text
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self.extra_props,
+            },
+            "children": [self.text],
+        }
+
+
+class Code(Component):
+    """Code display component."""
+
+    component_type: str = "Code"
+
+    def __init__(
+        self,
+        code: str,
+        language: str | None = None,
+        inline: bool = False,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.code = code
+        self.language = language
+        self.inline = inline
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "language": self.language,
+                "inline": self.inline,
+                "className": self.class_name,
+                **self.extra_props,
+            },
+            "children": [self.code],
+        }
+
+
+class Link(Component):
+    """Link component for navigation."""
+
+    component_type: str = "Link"
+
+    def __init__(
+        self,
+        text: str,
+        href: str,
+        target: Literal["_self", "_blank", "_parent", "_top"] = "_self",
+        on_click: Any = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.text = text
+        self.href = href
+        self.target = target
+        self.on_click = on_click
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "href": self.href,
+                "target": self.target,
+                "onClick": self.on_click.serialize() if self.on_click else None,
+                "className": self.class_name,
+                **self.extra_props,
+            },
+            "children": [self.text],
+        }

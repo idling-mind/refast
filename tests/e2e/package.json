@@ -1,0 +1,16 @@
+{
+  "name": "refast-e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cross-env PLAYWRIGHT_BROWSERS_PATH=C:\\Local\\pw-browsers playwright test",
+    "test:headed": "cross-env PLAYWRIGHT_BROWSERS_PATH=C:\\Local\\pw-browsers playwright test --headed",
+    "test:ui": "cross-env PLAYWRIGHT_BROWSERS_PATH=C:\\Local\\pw-browsers playwright test --ui",
+    "test:debug": "cross-env PLAYWRIGHT_BROWSERS_PATH=C:\\Local\\pw-browsers playwright test --debug",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "cross-env": "^7.0.3"
+  }
+}

@@ -1,0 +1,200 @@
+import React, { createContext, useContext, useCallback, useMemo, useRef, useEffect } from 'react';
+import { EventMessage, UpdateMessage, ComponentTree } from '../types';
+
+interface EventManagerContextValue {
+  invokeCallback: (callbackId: string, data: Record<string, unknown>) => void;
+  emitEvent: (eventType: string, data: unknown) => void;
+  subscribe: (channel: string) => void;
+  unsubscribe: (channel: string) => void;
+  onUpdate: (handler: (message: UpdateMessage) => void) => () => void;
+}
+
+const EventManagerContext = createContext<EventManagerContextValue | null>(null);
+
+interface EventManagerProviderProps {
+  children: React.ReactNode;
+  websocket: WebSocket | null;
+  onComponentUpdate?: (id: string, component: ComponentTree | null, operation?: string) => void;
+}
+
+/**
+ * Provides event management to the component tree.
+ */
+export function EventManagerProvider({
+  children,
+  websocket,
+  onComponentUpdate,
+}: EventManagerProviderProps): React.ReactElement {
+  const updateHandlers = useRef<Set<(message: UpdateMessage) => void>>(new Set());
+
+  // Handle incoming messages
+  useEffect(() => {
+    if (!websocket) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const message: UpdateMessage = JSON.parse(event.data);
+
+        // Notify all handlers
+        updateHandlers.current.forEach((handler) => handler(message));
+
+        // Handle component updates
+        if (message.type === 'update' && onComponentUpdate) {
+          const { operation, targetId, component, children, props } = message;
+
+          if (targetId) {
+            // Build the update object based on operation type
+            let updateObj: ComponentTree | null = component || null;
+            
+            if (operation === 'update_children' && children) {
+              updateObj = { type: '', id: '', props: {}, children } as ComponentTree;
+            } else if (operation === 'update_props' && props) {
+              updateObj = { type: '', id: '', props, children: [] } as ComponentTree;
+            }
+            
+            onComponentUpdate(targetId, updateObj, operation);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    websocket.addEventListener('message', handleMessage);
+    return () => websocket.removeEventListener('message', handleMessage);
+  }, [websocket, onComponentUpdate]);
+
+  const invokeCallback = useCallback(
+    (callbackId: string, data: Record<string, unknown>) => {
+      if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+        console.warn('WebSocket not connected');
+        return;
+      }
+
+      const message: EventMessage = {
+        type: 'callback',
+        callbackId,
+        data,
+      };
+
+      websocket.send(JSON.stringify(message));
+    },
+    [websocket]
+  );
+
+  const emitEvent = useCallback(
+    (eventType: string, data: unknown) => {
+      if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+        console.warn('WebSocket not connected');
+        return;
+      }
+
+      const message: EventMessage = {
+        type: 'event',
+        eventType,
+        data: data as Record<string, unknown>,
+      };
+
+      websocket.send(JSON.stringify(message));
+    },
+    [websocket]
+  );
+
+  const subscribe = useCallback(
+    (channel: string) => {
+      if (!websocket || websocket.readyState !== WebSocket.OPEN) return;
+
+      const message: EventMessage = {
+        type: 'subscribe',
+        eventType: channel,
+      };
+
+      websocket.send(JSON.stringify(message));
+    },
+    [websocket]
+  );
+
+  const unsubscribe = useCallback(
+    (channel: string) => {
+      if (!websocket || websocket.readyState !== WebSocket.OPEN) return;
+
+      const message: EventMessage = {
+        type: 'unsubscribe',
+        eventType: channel,
+      };
+
+      websocket.send(JSON.stringify(message));
+    },
+    [websocket]
+  );
+
+  const onUpdate = useCallback(
+    (handler: (message: UpdateMessage) => void) => {
+      updateHandlers.current.add(handler);
+      return () => {
+        updateHandlers.current.delete(handler);
+      };
+    },
+    []
+  );
+
+  const value = useMemo(
+    () => ({
+      invokeCallback,
+      emitEvent,
+      subscribe,
+      unsubscribe,
+      onUpdate,
+    }),
+    [invokeCallback, emitEvent, subscribe, unsubscribe, onUpdate]
+  );
+
+  return (
+    <EventManagerContext.Provider value={value}>
+      {children}
+    </EventManagerContext.Provider>
+  );
+}
+
+/**
+ * Hook to access the event manager.
+ */
+export function useEventManager(): EventManagerContextValue {
+  const context = useContext(EventManagerContext);
+
+  if (!context) {
+    throw new Error('useEventManager must be used within EventManagerProvider');
+  }
+
+  return context;
+}
+
+/**
+ * Hook to listen for specific event types.
+ */
+export function useEvent(
+  eventType: string,
+  handler: (data: unknown) => void
+): void {
+  const { onUpdate } = useEventManager();
+
+  useEffect(() => {
+    return onUpdate((message) => {
+      if (message.type === 'event' && message.eventType === eventType) {
+        handler(message.data);
+      }
+    });
+  }, [eventType, handler, onUpdate]);
+}
+
+/**
+ * Hook to subscribe to a channel on mount.
+ */
+export function useChannel(channel: string): void {
+  const { subscribe, unsubscribe } = useEventManager();
+
+  useEffect(() => {
+    subscribe(channel);
+    return () => unsubscribe(channel);
+  }, [channel, subscribe, unsubscribe]);
+}

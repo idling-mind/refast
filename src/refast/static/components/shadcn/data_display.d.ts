@@ -1,0 +1,105 @@
+import { default as React } from 'react';
+
+interface TableProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * Table component - shadcn-styled table.
+ */
+export declare function Table({ id, className, children, 'data-refast-id': dataRefastId, }: TableProps): React.ReactElement;
+interface TableHeaderProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TableHeader component - table header section.
+ */
+export declare function TableHeader({ id, className, children, 'data-refast-id': dataRefastId, }: TableHeaderProps): React.ReactElement;
+interface TableBodyProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TableBody component - table body section.
+ */
+export declare function TableBody({ id, className, children, 'data-refast-id': dataRefastId, }: TableBodyProps): React.ReactElement;
+interface TableRowProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TableRow component - table row.
+ */
+export declare function TableRow({ id, className, children, 'data-refast-id': dataRefastId, }: TableRowProps): React.ReactElement;
+interface TableHeadProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TableHead component - table header cell.
+ */
+export declare function TableHead({ id, className, children, 'data-refast-id': dataRefastId, }: TableHeadProps): React.ReactElement;
+interface TableCellProps {
+    id?: string;
+    className?: string;
+    colSpan?: number;
+    rowSpan?: number;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TableCell component - table data cell.
+ */
+export declare function TableCell({ id, className, colSpan, rowSpan, children, 'data-refast-id': dataRefastId, }: TableCellProps): React.ReactElement;
+interface AvatarProps {
+    id?: string;
+    className?: string;
+    src?: string;
+    alt?: string;
+    fallback?: string;
+    size?: 'sm' | 'md' | 'lg';
+    'data-refast-id'?: string;
+}
+/**
+ * Avatar component - user avatar.
+ */
+export declare function Avatar({ id, className, src, alt, fallback, size, 'data-refast-id': dataRefastId, }: AvatarProps): React.ReactElement;
+interface ImageProps {
+    id?: string;
+    className?: string;
+    src: string;
+    alt?: string;
+    width?: number | string;
+    height?: number | string;
+    objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+    fallback?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * Image component - responsive image.
+ */
+export declare function Image({ id, className, src, alt, width, height, objectFit, fallback, 'data-refast-id': dataRefastId, }: ImageProps): React.ReactElement;
+interface TooltipProps {
+    id?: string;
+    className?: string;
+    content: string;
+    side?: 'top' | 'right' | 'bottom' | 'left';
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * Tooltip component - hover tooltip.
+ */
+export declare function Tooltip({ id, className, content, side, children, 'data-refast-id': dataRefastId, }: TooltipProps): React.ReactElement;
+export {};

@@ -155,9 +155,7 @@ class MemorySessionStore(SessionStore):
         count = 0
 
         async with self._lock:
-            expired_ids = [
-                sid for sid, entry in self._store.items() if now > entry.expires_at
-            ]
+            expired_ids = [sid for sid, entry in self._store.items() if now > entry.expires_at]
 
             for sid in expired_ids:
                 del self._store[sid]

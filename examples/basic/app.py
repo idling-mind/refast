@@ -9,20 +9,19 @@ This example demonstrates:
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
     CardDescription,
+    CardHeader,
+    CardTitle,
+    Column,
+    Container,
+    Row,
+    Text,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Counter Example")
@@ -34,17 +33,17 @@ async def increment(ctx: Context):
     count = ctx.state.get("count", 0)
     ctx.state.set("count", count + 1)
     print("Incremented count to", ctx.state.get("count"))
-    
+
     # Update just the text content
     await ctx.update_text("count-value", str(ctx.state.get("count")))
-    
+
 
 async def decrement(ctx: Context):
     """Decrement the counter."""
     count = ctx.state.get("count", 0)
     ctx.state.set("count", max(0, count - 1))
     print("Decremented count to", ctx.state.get("count"))
-    
+
     # Update just the text content
     await ctx.update_text("count-value", str(ctx.state.get("count")))
 
@@ -53,7 +52,7 @@ async def reset(ctx: Context):
     """Reset the counter to zero."""
     ctx.state.set("count", 0)
     print("Reset count to", ctx.state.get("count"))
-    
+
     # Update just the text content
     await ctx.update_text("count-value", str(ctx.state.get("count")))
 
@@ -63,7 +62,7 @@ async def reset(ctx: Context):
 def home(ctx: Context):
     """Home page with a counter."""
     count = ctx.state.get("count", 0)
-    
+
     return Container(
         id="main-container",
         class_name="max-w-md mx-auto mt-10",
@@ -74,9 +73,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("Counter Example"),
-                            CardDescription(
-                                "A simple counter to demonstrate Refast basics"
-                            ),
+                            CardDescription("A simple counter to demonstrate Refast basics"),
                         ]
                     ),
                     CardContent(
@@ -133,7 +130,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             )
         ],
     )
@@ -193,4 +190,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -8,27 +8,30 @@ This example demonstrates:
 """
 
 from fastapi import FastAPI
-from refast import RefastApp, Context
+
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
+    Alert,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
     CardDescription,
+    CardHeader,
+    CardTitle,
+    Column,
+    Container,
     Input,
-    Alert,
 )
 
 ui = RefastApp(title="Form Validation Example")
+
 
 async def update_field(ctx: Context, name: str, value: str):
     """Update form field in state."""
     form_data = ctx.state.get("form_data", {})
     form_data[name] = value
     ctx.state.set("form_data", form_data)
+
 
 async def handle_submit(ctx: Context):
     """Validate and submit the form."""
@@ -37,7 +40,7 @@ async def handle_submit(ctx: Context):
     email = form_data.get("email", "")
     password = form_data.get("password", "")
     confirm_password = form_data.get("confirm_password", "")
-    
+
     errors = []
     if not name:
         errors.append("Name is required")
@@ -47,21 +50,22 @@ async def handle_submit(ctx: Context):
         errors.append("Password must be at least 6 characters")
     if password != confirm_password:
         errors.append("Passwords do not match")
-    
+
     if errors:
         ctx.state.set("errors", errors)
         ctx.state.set("success", False)
     else:
         ctx.state.set("errors", [])
         ctx.state.set("success", True)
-    
+
     await ctx.replace("form-container", render_form(ctx))
+
 
 def render_form(ctx: Context):
     errors = ctx.state.get("errors", [])
     success = ctx.state.get("success", False)
     form_data = ctx.state.get("form_data", {})
-    
+
     return Container(
         id="form-container",
         class_name="max-w-md mx-auto mt-10 p-4",
@@ -81,19 +85,17 @@ def render_form(ctx: Context):
                                 children=[
                                     # Error Alerts
                                     *[
-                                        Alert(
-                                            variant="destructive",
-                                            title="Error",
-                                            message=err
-                                        ) for err in errors
+                                        Alert(variant="destructive", title="Error", message=err)
+                                        for err in errors
                                     ],
                                     # Success Alert
                                     Alert(
                                         variant="success",
                                         title="Success",
-                                        message="Account created successfully!"
-                                    ) if success else None,
-                                    
+                                        message="Account created successfully!",
+                                    )
+                                    if success
+                                    else None,
                                     # Form Fields
                                     Input(
                                         id="input-name",
@@ -126,27 +128,30 @@ def render_form(ctx: Context):
                                         label="Confirm Password",
                                         type="password",
                                         value=form_data.get("confirm_password", ""),
-                                        on_change=ctx.callback(update_field, name="confirm_password"),
+                                        on_change=ctx.callback(
+                                            update_field, name="confirm_password"
+                                        ),
                                     ),
-                                    
                                     # Submit Button
                                     Button(
                                         "Register",
                                         on_click=ctx.callback(handle_submit),
                                         class_name="w-full",
                                     ),
-                                ]
+                                ],
                             )
                         ]
-                    )
+                    ),
                 ]
             )
-        ]
+        ],
     )
+
 
 @ui.page("/")
 def home(ctx: Context):
     return render_form(ctx)
+
 
 # Create FastAPI app
 app = FastAPI()
@@ -154,4 +159,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

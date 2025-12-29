@@ -1,16 +1,14 @@
 """Tests for control components (Stage 9)."""
 
-import pytest
-from datetime import date, time
 
 from refast.components.shadcn.controls import (
-    Switch,
+    Calendar,
+    DatePicker,
     Slider,
+    Switch,
     Toggle,
     ToggleGroup,
     ToggleGroupItem,
-    DatePicker,
-    Calendar,
 )
 
 

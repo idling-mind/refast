@@ -1,9 +1,8 @@
 """Tests for Slot component."""
 
-import pytest
 
-from refast.components.slot import Slot
 from refast.components.base import Text
+from refast.components.slot import Slot
 
 
 class TestSlot:

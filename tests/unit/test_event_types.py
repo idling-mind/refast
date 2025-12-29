@@ -1,12 +1,12 @@
 """Tests for event types."""
 
-import pytest
 from datetime import datetime
+
 from refast.events.types import (
-    Event,
-    EventType,
     Callback,
     CallbackEvent,
+    Event,
+    EventType,
 )
 
 

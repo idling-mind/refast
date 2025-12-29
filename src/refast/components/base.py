@@ -71,7 +71,7 @@ class Component(ABC):
         """Serialize extra_props, handling Callback objects."""
         result = {}
         for key, value in self.extra_props.items():
-            if hasattr(value, 'serialize') and callable(value.serialize):
+            if hasattr(value, "serialize") and callable(value.serialize):
                 # Convert snake_case to camelCase for event handlers
                 camel_key = self._to_camel_case(key)
                 result[camel_key] = value.serialize()
@@ -82,8 +82,8 @@ class Component(ABC):
     @staticmethod
     def _to_camel_case(snake_str: str) -> str:
         """Convert snake_case to camelCase."""
-        components = snake_str.split('_')
-        return components[0] + ''.join(x.title() for x in components[1:])
+        components = snake_str.split("_")
+        return components[0] + "".join(x.title() for x in components[1:])
 
     @abstractmethod
     def render(self) -> dict[str, Any]:

@@ -162,9 +162,7 @@ class EventStream:
             List of connections for the session
         """
         conn_ids = self._session_connections.get(session_id, set())
-        return [
-            self._connections[cid] for cid in conn_ids if cid in self._connections
-        ]
+        return [self._connections[cid] for cid in conn_ids if cid in self._connections]
 
     def get_all_connections(self) -> list[WebSocketConnection]:
         """
@@ -228,9 +226,7 @@ class EventStream:
                 self._session_connections[session_id].discard(conn.id)
             logger.info(f"WebSocket cleaned up: {conn.id}")
 
-    async def receive(
-        self, conn: WebSocketConnection
-    ) -> AsyncIterator[dict[str, Any]]:
+    async def receive(self, conn: WebSocketConnection) -> AsyncIterator[dict[str, Any]]:
         """
         Async generator to receive messages from a connection.
 

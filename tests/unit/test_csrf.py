@@ -185,9 +185,7 @@ class TestCSRFProtection:
         assert token == "header-token"
 
     @pytest.mark.asyncio
-    async def test_validate_request_safe_methods(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_validate_request_safe_methods(self, csrf: CSRFProtection) -> None:
         """Test that safe methods pass validation."""
         for method in ["GET", "HEAD", "OPTIONS", "TRACE"]:
             request = MagicMock()
@@ -197,9 +195,7 @@ class TestCSRFProtection:
             assert result is True
 
     @pytest.mark.asyncio
-    async def test_validate_request_post_without_token(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_validate_request_post_without_token(self, csrf: CSRFProtection) -> None:
         """Test POST request fails without token."""
         request = MagicMock()
         request.method = "POST"
@@ -210,9 +206,7 @@ class TestCSRFProtection:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_validate_request_post_with_matching_tokens(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_validate_request_post_with_matching_tokens(self, csrf: CSRFProtection) -> None:
         """Test POST request succeeds with matching tokens."""
         token = csrf.generate_token()
 
@@ -225,9 +219,7 @@ class TestCSRFProtection:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_validate_request_post_with_mismatched_tokens(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_validate_request_post_with_mismatched_tokens(self, csrf: CSRFProtection) -> None:
         """Test POST request fails with mismatched tokens."""
         token1 = csrf.generate_token()
         token2 = csrf.generate_token()
@@ -250,9 +242,7 @@ class TestCSRFProtectDecorator:
         return CSRFProtection(secret_key="test-secret")
 
     @pytest.mark.asyncio
-    async def test_decorator_passes_valid_request(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_decorator_passes_valid_request(self, csrf: CSRFProtection) -> None:
         """Test decorator allows valid CSRF request."""
         token = csrf.generate_token()
 
@@ -269,9 +259,7 @@ class TestCSRFProtectDecorator:
         assert result == {"status": "ok"}
 
     @pytest.mark.asyncio
-    async def test_decorator_blocks_invalid_request(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_decorator_blocks_invalid_request(self, csrf: CSRFProtection) -> None:
         """Test decorator blocks invalid CSRF request."""
         from fastapi import HTTPException
 
@@ -291,9 +279,7 @@ class TestCSRFProtectDecorator:
         assert "CSRF" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_decorator_custom_error_message(
-        self, csrf: CSRFProtection
-    ) -> None:
+    async def test_decorator_custom_error_message(self, csrf: CSRFProtection) -> None:
         """Test decorator with custom error message."""
         from fastapi import HTTPException
 

@@ -1,19 +1,18 @@
 """Tests for data display components."""
 
-import pytest
 
+from refast.components.base import Text
 from refast.components.shadcn.data_display import (
-    Table,
+    Accordion,
+    Avatar,
+    Badge,
     DataTable,
     List,
-    Badge,
-    Avatar,
-    Tooltip,
-    Tabs,
     TabItem,
-    Accordion,
+    Table,
+    Tabs,
+    Tooltip,
 )
-from refast.components.base import Text
 
 
 class MockCallback:

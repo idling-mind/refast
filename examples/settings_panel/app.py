@@ -10,41 +10,27 @@ This example demonstrates:
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
-    Button,
-    Card,
-    CardHeader,
-    CardContent,
-    CardTitle,
-    CardDescription,
-    Input,
-    Textarea,
-    Select,
-    Switch,
-    Checkbox,
-    Label,
-    Separator,
     Avatar,
     Badge,
-    Accordion,
-    Tabs,
-    TabItem,
-    Sidebar,
-    SidebarHeader,
-    SidebarContent,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarGroupContent,
+    Button,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Column,
+    Container,
+    Input,
+    Label,
+    Row,
+    Select,
+    Separator,
+    Switch,
+    Text,
+    Textarea,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Settings Panel")
@@ -92,7 +78,7 @@ async def change_section(ctx: Context):
 def home(ctx: Context):
     """Settings page."""
     active_section = ctx.state.get("active_section", "profile")
-    
+
     # Default settings state
     email_notifications = ctx.state.get("email_notifications", True)
     push_notifications = ctx.state.get("push_notifications", False)
@@ -100,7 +86,7 @@ def home(ctx: Context):
     weekly_digest = ctx.state.get("weekly_digest", True)
     theme = ctx.state.get("theme", "system")
     language = ctx.state.get("language", "en")
-    
+
     # Menu items
     menu_items = [
         {"id": "profile", "label": "Profile", "icon": "user"},
@@ -109,10 +95,10 @@ def home(ctx: Context):
         {"id": "security", "label": "Security", "icon": "shield"},
         {"id": "billing", "label": "Billing", "icon": "credit-card"},
     ]
-    
+
     # Build content based on active section
     content = None
-    
+
     if active_section == "profile":
         content = Card(
             children=[
@@ -140,18 +126,20 @@ def home(ctx: Context):
                                         Column(
                                             gap=2,
                                             children=[
-                                                Button(label="Change Avatar", variant="outline", size="sm"),
+                                                Button(
+                                                    label="Change Avatar",
+                                                    variant="outline",
+                                                    size="sm",
+                                                ),
                                                 Text(
                                                     "JPG, GIF or PNG. Max size 2MB.",
-                                                    class_name="text-xs text-muted-foreground"
+                                                    class_name="text-xs text-muted-foreground",
                                                 ),
                                             ],
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Name fields
                                 Row(
                                     gap=4,
@@ -182,7 +170,6 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 # Email
                                 Column(
                                     gap=2,
@@ -196,7 +183,6 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 # Username
                                 Column(
                                     gap=2,
@@ -207,7 +193,11 @@ def home(ctx: Context):
                                             children=[
                                                 Container(
                                                     class_name="bg-muted px-3 py-2 rounded-l-md border border-r-0",
-                                                    children=[Text("@", class_name="text-muted-foreground")],
+                                                    children=[
+                                                        Text(
+                                                            "@", class_name="text-muted-foreground"
+                                                        )
+                                                    ],
                                                 ),
                                                 Input(
                                                     name="username",
@@ -219,7 +209,6 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 # Bio
                                 Column(
                                     gap=2,
@@ -233,11 +222,10 @@ def home(ctx: Context):
                                         ),
                                         Text(
                                             "Brief description for your profile. URLs are hyperlinked.",
-                                            class_name="text-xs text-muted-foreground"
+                                            class_name="text-xs text-muted-foreground",
                                         ),
                                     ],
                                 ),
-                                
                                 # Save button
                                 Row(
                                     justify="end",
@@ -254,7 +242,7 @@ def home(ctx: Context):
                 ),
             ],
         )
-    
+
     elif active_section == "notifications":
         content = Card(
             children=[
@@ -277,10 +265,12 @@ def home(ctx: Context):
                                         Column(
                                             gap=1,
                                             children=[
-                                                Text("Email Notifications", class_name="font-medium"),
+                                                Text(
+                                                    "Email Notifications", class_name="font-medium"
+                                                ),
                                                 Text(
                                                     "Receive emails about your account activity",
-                                                    class_name="text-sm text-muted-foreground"
+                                                    class_name="text-sm text-muted-foreground",
                                                 ),
                                             ],
                                         ),
@@ -292,9 +282,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Push notifications
                                 Row(
                                     justify="between",
@@ -303,10 +291,12 @@ def home(ctx: Context):
                                         Column(
                                             gap=1,
                                             children=[
-                                                Text("Push Notifications", class_name="font-medium"),
+                                                Text(
+                                                    "Push Notifications", class_name="font-medium"
+                                                ),
                                                 Text(
                                                     "Receive push notifications on your devices",
-                                                    class_name="text-sm text-muted-foreground"
+                                                    class_name="text-sm text-muted-foreground",
                                                 ),
                                             ],
                                         ),
@@ -318,9 +308,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Marketing emails
                                 Row(
                                     justify="between",
@@ -332,7 +320,7 @@ def home(ctx: Context):
                                                 Text("Marketing Emails", class_name="font-medium"),
                                                 Text(
                                                     "Receive emails about new products and features",
-                                                    class_name="text-sm text-muted-foreground"
+                                                    class_name="text-sm text-muted-foreground",
                                                 ),
                                             ],
                                         ),
@@ -344,9 +332,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Weekly digest
                                 Row(
                                     justify="between",
@@ -358,7 +344,7 @@ def home(ctx: Context):
                                                 Text("Weekly Digest", class_name="font-medium"),
                                                 Text(
                                                     "Get a weekly summary of your activity",
-                                                    class_name="text-sm text-muted-foreground"
+                                                    class_name="text-sm text-muted-foreground",
                                                 ),
                                             ],
                                         ),
@@ -370,7 +356,6 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 # Save button
                                 Row(
                                     justify="end",
@@ -388,7 +373,7 @@ def home(ctx: Context):
                 ),
             ],
         )
-    
+
     elif active_section == "appearance":
         content = Card(
             children=[
@@ -451,7 +436,9 @@ def home(ctx: Context):
                                                                 Container(
                                                                     class_name="w-16 h-12 bg-gradient-to-r from-white to-slate-900 border rounded",
                                                                 ),
-                                                                Text("System", class_name="text-sm"),
+                                                                Text(
+                                                                    "System", class_name="text-sm"
+                                                                ),
                                                             ],
                                                         ),
                                                     ],
@@ -460,9 +447,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Language selection
                                 Column(
                                     gap=2,
@@ -480,9 +465,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Font size
                                 Column(
                                     gap=2,
@@ -498,7 +481,6 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 # Save button
                                 Row(
                                     justify="end",
@@ -516,7 +498,7 @@ def home(ctx: Context):
                 ),
             ],
         )
-    
+
     elif active_section == "security":
         content = Card(
             children=[
@@ -540,29 +522,39 @@ def home(ctx: Context):
                                             gap=2,
                                             children=[
                                                 Label("Current Password"),
-                                                Input(name="current_password", type="password", placeholder="••••••••"),
+                                                Input(
+                                                    name="current_password",
+                                                    type="password",
+                                                    placeholder="••••••••",
+                                                ),
                                             ],
                                         ),
                                         Column(
                                             gap=2,
                                             children=[
                                                 Label("New Password"),
-                                                Input(name="new_password", type="password", placeholder="••••••••"),
+                                                Input(
+                                                    name="new_password",
+                                                    type="password",
+                                                    placeholder="••••••••",
+                                                ),
                                             ],
                                         ),
                                         Column(
                                             gap=2,
                                             children=[
                                                 Label("Confirm New Password"),
-                                                Input(name="confirm_new_password", type="password", placeholder="••••••••"),
+                                                Input(
+                                                    name="confirm_new_password",
+                                                    type="password",
+                                                    placeholder="••••••••",
+                                                ),
                                             ],
                                         ),
                                         Button(label="Update Password", variant="outline"),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Two-factor auth
                                 Row(
                                     justify="between",
@@ -575,22 +567,25 @@ def home(ctx: Context):
                                                     gap=2,
                                                     align="center",
                                                     children=[
-                                                        Text("Two-Factor Authentication", class_name="font-medium"),
-                                                        Badge(label="Recommended", variant="secondary"),
+                                                        Text(
+                                                            "Two-Factor Authentication",
+                                                            class_name="font-medium",
+                                                        ),
+                                                        Badge(
+                                                            label="Recommended", variant="secondary"
+                                                        ),
                                                     ],
                                                 ),
                                                 Text(
                                                     "Add an extra layer of security to your account",
-                                                    class_name="text-sm text-muted-foreground"
+                                                    class_name="text-sm text-muted-foreground",
                                                 ),
                                             ],
                                         ),
                                         Button(label="Enable", variant="outline"),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Active sessions
                                 Column(
                                     gap=4,
@@ -610,13 +605,19 @@ def home(ctx: Context):
                                                                     gap=2,
                                                                     align="center",
                                                                     children=[
-                                                                        Text("Windows • Chrome", class_name="font-medium"),
-                                                                        Badge(label="Current", variant="success"),
+                                                                        Text(
+                                                                            "Windows • Chrome",
+                                                                            class_name="font-medium",
+                                                                        ),
+                                                                        Badge(
+                                                                            label="Current",
+                                                                            variant="success",
+                                                                        ),
                                                                     ],
                                                                 ),
                                                                 Text(
                                                                     "Last active: Now",
-                                                                    class_name="text-xs text-muted-foreground"
+                                                                    class_name="text-xs text-muted-foreground",
                                                                 ),
                                                             ],
                                                         ),
@@ -634,14 +635,21 @@ def home(ctx: Context):
                                                         Column(
                                                             gap=1,
                                                             children=[
-                                                                Text("iPhone • Safari", class_name="font-medium"),
+                                                                Text(
+                                                                    "iPhone • Safari",
+                                                                    class_name="font-medium",
+                                                                ),
                                                                 Text(
                                                                     "Last active: 2 hours ago",
-                                                                    class_name="text-xs text-muted-foreground"
+                                                                    class_name="text-xs text-muted-foreground",
                                                                 ),
                                                             ],
                                                         ),
-                                                        Button(label="Revoke", variant="ghost", size="sm"),
+                                                        Button(
+                                                            label="Revoke",
+                                                            variant="ghost",
+                                                            size="sm",
+                                                        ),
                                                     ],
                                                 ),
                                             ],
@@ -654,7 +662,7 @@ def home(ctx: Context):
                 ),
             ],
         )
-    
+
     elif active_section == "billing":
         content = Card(
             children=[
@@ -684,13 +692,19 @@ def home(ctx: Context):
                                                             gap=2,
                                                             align="center",
                                                             children=[
-                                                                Text("Pro Plan", class_name="text-xl font-bold"),
-                                                                Badge(label="Active", variant="success"),
+                                                                Text(
+                                                                    "Pro Plan",
+                                                                    class_name="text-xl font-bold",
+                                                                ),
+                                                                Badge(
+                                                                    label="Active",
+                                                                    variant="success",
+                                                                ),
                                                             ],
                                                         ),
                                                         Text(
                                                             "$29/month • Renews on Jan 15, 2025",
-                                                            class_name="text-sm text-muted-foreground"
+                                                            class_name="text-sm text-muted-foreground",
                                                         ),
                                                     ],
                                                 ),
@@ -699,9 +713,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Payment method
                                 Column(
                                     gap=4,
@@ -728,14 +740,23 @@ def home(ctx: Context):
                                                                 Container(
                                                                     class_name="w-12 h-8 bg-blue-600 rounded flex items-center justify-center",
                                                                     children=[
-                                                                        Text("VISA", class_name="text-white text-xs font-bold"),
+                                                                        Text(
+                                                                            "VISA",
+                                                                            class_name="text-white text-xs font-bold",
+                                                                        ),
                                                                     ],
                                                                 ),
                                                                 Column(
                                                                     gap=0,
                                                                     children=[
-                                                                        Text("•••• •••• •••• 4242", class_name="font-medium"),
-                                                                        Text("Expires 12/25", class_name="text-xs text-muted-foreground"),
+                                                                        Text(
+                                                                            "•••• •••• •••• 4242",
+                                                                            class_name="font-medium",
+                                                                        ),
+                                                                        Text(
+                                                                            "Expires 12/25",
+                                                                            class_name="text-xs text-muted-foreground",
+                                                                        ),
                                                                     ],
                                                                 ),
                                                             ],
@@ -747,9 +768,7 @@ def home(ctx: Context):
                                         ),
                                     ],
                                 ),
-                                
                                 Separator(),
-                                
                                 # Billing history
                                 Column(
                                     gap=4,
@@ -765,7 +784,11 @@ def home(ctx: Context):
                                                         Text("Dec 15, 2024"),
                                                         Text("$29.00"),
                                                         Badge(label="Paid", variant="success"),
-                                                        Button(label="Download", variant="ghost", size="sm"),
+                                                        Button(
+                                                            label="Download",
+                                                            variant="ghost",
+                                                            size="sm",
+                                                        ),
                                                     ],
                                                 ),
                                                 Row(
@@ -775,7 +798,11 @@ def home(ctx: Context):
                                                         Text("Nov 15, 2024"),
                                                         Text("$29.00"),
                                                         Badge(label="Paid", variant="success"),
-                                                        Button(label="Download", variant="ghost", size="sm"),
+                                                        Button(
+                                                            label="Download",
+                                                            variant="ghost",
+                                                            size="sm",
+                                                        ),
                                                     ],
                                                 ),
                                                 Row(
@@ -785,7 +812,11 @@ def home(ctx: Context):
                                                         Text("Oct 15, 2024"),
                                                         Text("$29.00"),
                                                         Badge(label="Paid", variant="success"),
-                                                        Button(label="Download", variant="ghost", size="sm"),
+                                                        Button(
+                                                            label="Download",
+                                                            variant="ghost",
+                                                            size="sm",
+                                                        ),
                                                     ],
                                                 ),
                                             ],
@@ -798,7 +829,7 @@ def home(ctx: Context):
                 ),
             ],
         )
-    
+
     return Container(
         class_name="min-h-screen bg-background",
         children=[
@@ -817,9 +848,13 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 label=item["label"],
-                                                variant="default" if active_section == item["id"] else "ghost",
+                                                variant="default"
+                                                if active_section == item["id"]
+                                                else "ghost",
                                                 class_name="w-full justify-start",
-                                                on_click=ctx.callback(change_section, section=item["id"]),
+                                                on_click=ctx.callback(
+                                                    change_section, section=item["id"]
+                                                ),
                                             )
                                             for item in menu_items
                                         ],
@@ -828,7 +863,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Main content
                     Container(
                         class_name="flex-1 p-8",
@@ -852,4 +886,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

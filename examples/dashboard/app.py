@@ -8,34 +8,34 @@ This example demonstrates:
 - Responsive grid layout
 """
 
+import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import random
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Grid,
-    Text,
+    Avatar,
+    Badge,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
     CardDescription,
-    Badge,
+    CardHeader,
+    CardTitle,
+    Column,
+    Container,
+    Grid,
     Progress,
+    Row,
     Table,
-    TableHeader,
     TableBody,
-    TableRow,
-    TableHead,
     TableCell,
-    Avatar,
+    TableHead,
+    TableHeader,
+    TableRow,
+    Text,
 )
 
 
@@ -63,17 +63,19 @@ def generate_users():
     names = ["Alice Johnson", "Bob Smith", "Carol White", "David Brown", "Eve Davis"]
     roles = ["Admin", "Editor", "Viewer", "Editor", "Admin"]
     statuses = ["active", "active", "inactive", "active", "active"]
-    
+
     users = []
     for i, name in enumerate(names):
-        users.append(User(
-            id=i + 1,
-            name=name,
-            email=f"{name.lower().replace(' ', '.')}@example.com",
-            role=roles[i],
-            status=statuses[i],
-            last_active=datetime.now() - timedelta(hours=random.randint(1, 72)),
-        ))
+        users.append(
+            User(
+                id=i + 1,
+                name=name,
+                email=f"{name.lower().replace(' ', '.')}@example.com",
+                role=roles[i],
+                status=statuses[i],
+                last_active=datetime.now() - timedelta(hours=random.randint(1, 72)),
+            )
+        )
     return users
 
 
@@ -98,7 +100,7 @@ def render_metric_card(metric: Metric, index: int):
     """Render a metric card."""
     trend_color = "text-green-600" if metric.trend == "up" else "text-red-600"
     trend_icon = "↑" if metric.trend == "up" else "↓"
-    
+
     return Card(
         id=f"metric-{index}",
         children=[
@@ -132,16 +134,16 @@ def render_metric_card(metric: Metric, index: int):
                             ),
                         ],
                     )
-                ]
+                ],
             )
-        ]
+        ],
     )
 
 
 def render_user_row(user: User):
     """Render a user table row."""
     status_variant = "success" if user.status == "active" else "secondary"
-    
+
     return TableRow(
         id=f"user-row-{user.id}",
         children=[
@@ -167,11 +169,7 @@ def render_user_row(user: User):
                 ]
             ),
             TableCell(children=[Text(user.role)]),
-            TableCell(
-                children=[
-                    Badge(user.status.capitalize(), variant=status_variant)
-                ]
-            ),
+            TableCell(children=[Badge(user.status.capitalize(), variant=status_variant)]),
             TableCell(
                 children=[
                     Text(
@@ -197,7 +195,7 @@ def render_sidebar(ctx: Context, active_page: str):
         ("Analytics", "/analytics", "📈"),
         ("Settings", "/settings", "⚙️"),
     ]
-    
+
     return Container(
         id="sidebar",
         class_name="w-64 bg-gray-900 text-white p-4 min-h-screen",
@@ -216,7 +214,7 @@ def render_sidebar(ctx: Context, active_page: str):
                         children=[
                             Container(
                                 class_name=f"px-4 py-2 rounded-lg cursor-pointer "
-                                          f"{'bg-gray-800' if item[1] == active_page else 'hover:bg-gray-800'}",
+                                f"{'bg-gray-800' if item[1] == active_page else 'hover:bg-gray-800'}",
                                 children=[
                                     Row(
                                         gap=3,
@@ -333,26 +331,25 @@ def dashboard(ctx: Context):
                                                                         children=[Text("Status")]
                                                                     ),
                                                                     TableHead(
-                                                                        children=[Text("Last Active")]
+                                                                        children=[
+                                                                            Text("Last Active")
+                                                                        ]
                                                                     ),
-                                                                    TableHead(
-                                                                        children=[Text("")]
-                                                                    ),
+                                                                    TableHead(children=[Text("")]),
                                                                 ],
                                                             )
                                                         ]
                                                     ),
                                                     TableBody(
                                                         children=[
-                                                            render_user_row(user)
-                                                            for user in USERS
+                                                            render_user_row(user) for user in USERS
                                                         ]
                                                     ),
                                                 ],
                                             )
                                         ]
                                     ),
-                                ]
+                                ],
                             ),
                             # Activity section
                             Grid(
@@ -437,7 +434,9 @@ def dashboard(ctx: Context):
                                                                     Column(
                                                                         gap=0,
                                                                         children=[
-                                                                            Text("New user registered"),
+                                                                            Text(
+                                                                                "New user registered"
+                                                                            ),
                                                                             Text(
                                                                                 "5 minutes ago",
                                                                                 class_name="text-sm text-gray-500",
@@ -455,7 +454,9 @@ def dashboard(ctx: Context):
                                                                     Column(
                                                                         gap=0,
                                                                         children=[
-                                                                            Text("Report generated"),
+                                                                            Text(
+                                                                                "Report generated"
+                                                                            ),
                                                                             Text(
                                                                                 "12 minutes ago",
                                                                                 class_name="text-sm text-gray-500",
@@ -473,7 +474,9 @@ def dashboard(ctx: Context):
                                                                     Column(
                                                                         gap=0,
                                                                         children=[
-                                                                            Text("Settings updated"),
+                                                                            Text(
+                                                                                "Settings updated"
+                                                                            ),
                                                                             Text(
                                                                                 "1 hour ago",
                                                                                 class_name="text-sm text-gray-500",
@@ -505,4 +508,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

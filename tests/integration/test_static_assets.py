@@ -1,11 +1,12 @@
 """Tests for static file serving and asset bundling."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import Text
 from refast.router import STATIC_DIR
 
@@ -61,10 +62,10 @@ class TestBuildScript:
         """Test that build script is valid Python."""
         project_root = Path(__file__).parent.parent.parent
         build_script = project_root / "scripts" / "build.py"
-        
+
         with open(build_script) as f:
             content = f.read()
-        
+
         # This will raise SyntaxError if invalid
         compile(content, str(build_script), "exec")
 
@@ -72,9 +73,9 @@ class TestBuildScript:
         """Test that build script has main function."""
         project_root = Path(__file__).parent.parent.parent
         build_script = project_root / "scripts" / "build.py"
-        
+
         with open(build_script) as f:
             content = f.read()
-        
+
         assert "def main(" in content
         assert "if __name__" in content

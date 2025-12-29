@@ -1,8 +1,7 @@
 """Tests for typography components."""
 
-import pytest
 
-from refast.components.shadcn.typography import Heading, Paragraph, Code, Link
+from refast.components.shadcn.typography import Code, Heading, Link, Paragraph
 
 
 class MockCallback:

@@ -7,10 +7,10 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from refast import RefastApp, Context
-from refast.components import Container, Text, Button, Input, Column
-from refast.session.stores.memory import MemorySessionStore
+from refast import Context, RefastApp
+from refast.components import Button, Column, Container, Text
 from refast.session.middleware import SessionMiddleware
+from refast.session.stores.memory import MemorySessionStore
 
 
 def extract_initial_data(html_content: str) -> dict:
@@ -76,7 +76,7 @@ class TestFullFlow:
         response = client.get("/ui/")
         assert response.status_code == 200
         assert "text/html" in response.headers.get("content-type", "")
-        
+
         # Extract and verify the component tree from HTML
         data = extract_initial_data(response.text)
         assert "type" in data

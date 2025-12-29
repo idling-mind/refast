@@ -164,7 +164,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                         "X-RateLimit-Limit": str(info["limit"]),
                         "X-RateLimit-Remaining": "0",
                         "X-RateLimit-Reset": str(info["reset"]),
-                    }
+                    },
                 )
 
         # Process request
@@ -219,6 +219,4 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
         # Permissions Policy (formerly Feature-Policy)
-        response.headers["Permissions-Policy"] = (
-            "geolocation=(), microphone=(), camera=()"
-        )
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"

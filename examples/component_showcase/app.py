@@ -9,90 +9,75 @@ This example demonstrates:
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
-    Button,
-    Card,
-    CardHeader,
-    CardContent,
-    CardTitle,
-    CardDescription,
-    CardFooter,
-    # Controls
-    Switch,
-    Slider,
-    Toggle,
-    ToggleGroup,
-    ToggleGroupItem,
-    Calendar,
-    Combobox,
-    # Navigation
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-    Tabs,
-    TabItem,
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-    Menubar,
-    MenubarMenu,
-    MenubarTrigger,
-    MenubarContent,
-    MenubarItem,
-    MenubarSeparator,
     # Overlays
     AlertDialog,
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogAction,
     AlertDialogCancel,
-    Sheet,
-    SheetTrigger,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    HoverCard,
-    HoverCardTrigger,
-    HoverCardContent,
-    # Utility
-    Separator,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
     AspectRatio,
-    ScrollArea,
-    Collapsible,
-    CollapsibleTrigger,
-    CollapsibleContent,
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselPrevious,
-    CarouselNext,
+    Avatar,
     # Feedback
     Badge,
-    Avatar,
-    Label,
+    # Navigation
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+    Column,
+    Combobox,
+    Container,
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
     Input,
+    Label,
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Row,
+    ScrollArea,
+    # Utility
+    Separator,
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+    Slider,
+    # Controls
+    Switch,
+    TabItem,
+    Tabs,
+    Text,
+    ToggleGroup,
+    ToggleGroupItem,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Component Showcase")
@@ -143,7 +128,7 @@ def home(ctx: Context):
     notifications = ctx.state.get("notifications", False)
     volume = ctx.state.get("volume", 50)
     current_page = ctx.state.get("current_page", 1)
-    
+
     return Container(
         class_name="max-w-6xl mx-auto p-8",
         children=[
@@ -155,33 +140,27 @@ def home(ctx: Context):
                     Text("Component Showcase", class_name="text-4xl font-bold"),
                     Text(
                         "Explore all the Radix UI components available in Refast",
-                        class_name="text-lg text-muted-foreground"
+                        class_name="text-lg text-muted-foreground",
                     ),
                 ],
             ),
-            
             # Breadcrumb navigation
             Breadcrumb(
                 class_name="mb-6",
                 children=[
                     BreadcrumbList(
                         children=[
-                            BreadcrumbItem(
-                                children=[BreadcrumbLink(label="Home", href="/")]
-                            ),
+                            BreadcrumbItem(children=[BreadcrumbLink(label="Home", href="/")]),
                             BreadcrumbSeparator(),
                             BreadcrumbItem(
                                 children=[BreadcrumbLink(label="Components", href="/components")]
                             ),
                             BreadcrumbSeparator(),
-                            BreadcrumbItem(
-                                children=[BreadcrumbPage(label="Showcase")]
-                            ),
+                            BreadcrumbItem(children=[BreadcrumbPage(label="Showcase")]),
                         ]
                     )
                 ],
             ),
-            
             # Tabs for different component categories
             Tabs(
                 default_value="controls",
@@ -192,9 +171,7 @@ def home(ctx: Context):
                     TabItem(value="utility", label="Utility"),
                 ],
             ),
-            
             Separator(class_name="my-6"),
-            
             # Controls Section
             Card(
                 class_name="mb-6",
@@ -221,7 +198,7 @@ def home(ctx: Context):
                                                     Label("Email Notifications"),
                                                     Text(
                                                         "Receive emails about your account",
-                                                        class_name="text-sm text-muted-foreground"
+                                                        class_name="text-sm text-muted-foreground",
                                                     ),
                                                 ],
                                             ),
@@ -232,7 +209,7 @@ def home(ctx: Context):
                                                     Text(
                                                         "ON" if notifications else "OFF",
                                                         id="switch-status",
-                                                        class_name="text-sm"
+                                                        class_name="text-sm",
                                                     ),
                                                     Switch(
                                                         checked=notifications,
@@ -242,9 +219,7 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
-                                    
                                     Separator(),
-                                    
                                     # Slider
                                     Column(
                                         gap=2,
@@ -256,7 +231,7 @@ def home(ctx: Context):
                                                     Text(
                                                         f"{volume}%",
                                                         id="slider-value",
-                                                        class_name="text-sm"
+                                                        class_name="text-sm",
                                                     ),
                                                 ],
                                             ),
@@ -268,9 +243,7 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
-                                    
                                     Separator(),
-                                    
                                     # Toggle Group
                                     Column(
                                         gap=2,
@@ -286,9 +259,7 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
-                                    
                                     Separator(),
-                                    
                                     # Combobox
                                     Column(
                                         gap=2,
@@ -311,7 +282,6 @@ def home(ctx: Context):
                     ),
                 ],
             ),
-            
             # Overlays Section
             Card(
                 class_name="mb-6",
@@ -333,15 +303,16 @@ def home(ctx: Context):
                                         children=[
                                             AlertDialogTrigger(
                                                 children=Button(
-                                                    label="Delete Item",
-                                                    variant="destructive"
+                                                    label="Delete Item", variant="destructive"
                                                 )
                                             ),
                                             AlertDialogContent(
                                                 children=[
                                                     AlertDialogHeader(
                                                         children=[
-                                                            AlertDialogTitle(title="Are you absolutely sure?"),
+                                                            AlertDialogTitle(
+                                                                title="Are you absolutely sure?"
+                                                            ),
                                                             AlertDialogDescription(
                                                                 description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
                                                             ),
@@ -352,7 +323,9 @@ def home(ctx: Context):
                                                             AlertDialogCancel(label="Cancel"),
                                                             AlertDialogAction(
                                                                 label="Delete",
-                                                                on_click=ctx.callback(on_confirm_delete)
+                                                                on_click=ctx.callback(
+                                                                    on_confirm_delete
+                                                                ),
                                                             ),
                                                         ]
                                                     ),
@@ -360,12 +333,13 @@ def home(ctx: Context):
                                             ),
                                         ]
                                     ),
-                                    
                                     # Sheet
                                     Sheet(
                                         children=[
                                             SheetTrigger(
-                                                children=Button(label="Open Settings", variant="outline")
+                                                children=Button(
+                                                    label="Open Settings", variant="outline"
+                                                )
                                             ),
                                             SheetContent(
                                                 side="right",
@@ -383,10 +357,14 @@ def home(ctx: Context):
                                                         class_name="py-4",
                                                         children=[
                                                             Input(placeholder="Name", name="name"),
-                                                            Input(placeholder="Email", name="email"),
+                                                            Input(
+                                                                placeholder="Email", name="email"
+                                                            ),
                                                             Button(
                                                                 label="Save Changes",
-                                                                on_click=ctx.callback(on_sheet_save)
+                                                                on_click=ctx.callback(
+                                                                    on_sheet_save
+                                                                ),
                                                             ),
                                                         ],
                                                     ),
@@ -394,37 +372,52 @@ def home(ctx: Context):
                                             ),
                                         ]
                                     ),
-                                    
                                     # Popover
                                     Popover(
                                         children=[
                                             PopoverTrigger(
-                                                children=Button(label="Quick Actions", variant="secondary")
+                                                children=Button(
+                                                    label="Quick Actions", variant="secondary"
+                                                )
                                             ),
                                             PopoverContent(
                                                 children=[
                                                     Column(
                                                         gap=2,
                                                         children=[
-                                                            Text("Quick Actions", class_name="font-semibold"),
+                                                            Text(
+                                                                "Quick Actions",
+                                                                class_name="font-semibold",
+                                                            ),
                                                             Separator(),
-                                                            Button(label="Edit", variant="ghost", size="sm"),
-                                                            Button(label="Share", variant="ghost", size="sm"),
-                                                            Button(label="Archive", variant="ghost", size="sm"),
+                                                            Button(
+                                                                label="Edit",
+                                                                variant="ghost",
+                                                                size="sm",
+                                                            ),
+                                                            Button(
+                                                                label="Share",
+                                                                variant="ghost",
+                                                                size="sm",
+                                                            ),
+                                                            Button(
+                                                                label="Archive",
+                                                                variant="ghost",
+                                                                size="sm",
+                                                            ),
                                                         ],
                                                     ),
                                                 ],
                                             ),
                                         ]
                                     ),
-                                    
                                     # HoverCard
                                     HoverCard(
                                         children=[
                                             HoverCardTrigger(
                                                 children=Text(
                                                     "@refast",
-                                                    class_name="text-blue-600 cursor-pointer underline"
+                                                    class_name="text-blue-600 cursor-pointer underline",
                                                 )
                                             ),
                                             HoverCardContent(
@@ -434,15 +427,18 @@ def home(ctx: Context):
                                                         children=[
                                                             Avatar(
                                                                 src="https://github.com/shadcn.png",
-                                                                alt="@refast"
+                                                                alt="@refast",
                                                             ),
                                                             Column(
                                                                 gap=1,
                                                                 children=[
-                                                                    Text("Refast Framework", class_name="font-semibold"),
+                                                                    Text(
+                                                                        "Refast Framework",
+                                                                        class_name="font-semibold",
+                                                                    ),
                                                                     Text(
                                                                         "Python + React UI Framework",
-                                                                        class_name="text-sm text-muted-foreground"
+                                                                        class_name="text-sm text-muted-foreground",
                                                                     ),
                                                                     Badge(text="Open Source"),
                                                                 ],
@@ -459,7 +455,6 @@ def home(ctx: Context):
                     ),
                 ],
             ),
-            
             # Utility Section
             Card(
                 class_name="mb-6",
@@ -482,12 +477,14 @@ def home(ctx: Context):
                                                 justify="between",
                                                 align="center",
                                                 children=[
-                                                    Text("Advanced Options", class_name="font-medium"),
+                                                    Text(
+                                                        "Advanced Options", class_name="font-medium"
+                                                    ),
                                                     CollapsibleTrigger(
                                                         children=Button(
                                                             label="Toggle",
                                                             variant="ghost",
-                                                            size="sm"
+                                                            size="sm",
                                                         )
                                                     ),
                                                 ],
@@ -499,7 +496,9 @@ def home(ctx: Context):
                                                         children=[
                                                             CardContent(
                                                                 children=[
-                                                                    Text("Hidden content revealed!"),
+                                                                    Text(
+                                                                        "Hidden content revealed!"
+                                                                    ),
                                                                 ]
                                                             ),
                                                         ],
@@ -508,9 +507,7 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
-                                    
                                     Separator(),
-                                    
                                     # Scroll Area
                                     Column(
                                         gap=2,
@@ -529,16 +526,14 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
-                                    
                                     Separator(),
-                                    
                                     # Aspect Ratio
                                     Column(
                                         gap=2,
                                         children=[
                                             Label("16:9 Aspect Ratio"),
                                             AspectRatio(
-                                                ratio=16/9,
+                                                ratio=16 / 9,
                                                 class_name="bg-muted rounded-md",
                                                 children=[
                                                     Container(
@@ -557,7 +552,6 @@ def home(ctx: Context):
                     ),
                 ],
             ),
-            
             # Pagination
             Row(
                 justify="center",
@@ -567,24 +561,39 @@ def home(ctx: Context):
                         children=[
                             PaginationContent(
                                 children=[
+                                    PaginationItem(children=[PaginationPrevious(href="#")]),
                                     PaginationItem(
-                                        children=[PaginationPrevious(href="#")]
+                                        children=[
+                                            PaginationLink(
+                                                label="1",
+                                                href="#",
+                                                page=1,
+                                                is_active=(current_page == 1),
+                                            )
+                                        ]
                                     ),
                                     PaginationItem(
-                                        children=[PaginationLink(label="1", href="#", page=1, is_active=(current_page == 1))]
+                                        children=[
+                                            PaginationLink(
+                                                label="2",
+                                                href="#",
+                                                page=2,
+                                                is_active=(current_page == 2),
+                                            )
+                                        ]
                                     ),
                                     PaginationItem(
-                                        children=[PaginationLink(label="2", href="#", page=2, is_active=(current_page == 2))]
+                                        children=[
+                                            PaginationLink(
+                                                label="3",
+                                                href="#",
+                                                page=3,
+                                                is_active=(current_page == 3),
+                                            )
+                                        ]
                                     ),
-                                    PaginationItem(
-                                        children=[PaginationLink(label="3", href="#", page=3, is_active=(current_page == 3))]
-                                    ),
-                                    PaginationItem(
-                                        children=[PaginationEllipsis()]
-                                    ),
-                                    PaginationItem(
-                                        children=[PaginationNext(href="#")]
-                                    ),
+                                    PaginationItem(children=[PaginationEllipsis()]),
+                                    PaginationItem(children=[PaginationNext(href="#")]),
                                 ],
                             ),
                         ],
@@ -602,4 +611,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

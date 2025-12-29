@@ -1,18 +1,17 @@
 """Tests for layout components."""
 
-import pytest
 
-from refast.components.shadcn.layout import (
-    Row,
-    Column,
-    Stack,
-    Grid,
-    Flex,
-    Center,
-    Spacer,
-    Divider,
-)
 from refast.components.base import Text
+from refast.components.shadcn.layout import (
+    Center,
+    Column,
+    Divider,
+    Flex,
+    Grid,
+    Row,
+    Spacer,
+    Stack,
+)
 
 
 class TestRow:

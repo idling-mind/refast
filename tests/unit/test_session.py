@@ -1,13 +1,13 @@
 """Tests for Session and SessionData classes."""
 
-import pytest
-from datetime import timedelta, timezone, datetime
+from datetime import UTC, datetime, timedelta
+
 from refast.session.session import Session, SessionData
 
 
 def _now_utc() -> datetime:
     """Get current UTC time."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class TestSessionData:

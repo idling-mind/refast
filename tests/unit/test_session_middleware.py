@@ -3,6 +3,7 @@
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
+
 from refast.session.middleware import SessionMiddleware, get_session
 from refast.session.stores.memory import MemorySessionStore
 
@@ -94,6 +95,7 @@ class TestGetSessionDependency:
     def app_with_dependency(self):
         """Create app using get_session dependency."""
         from fastapi import Depends
+
         from refast.session.session import Session
 
         app = FastAPI()
@@ -105,9 +107,7 @@ class TestGetSessionDependency:
             return {"id": session.id}
 
         @app.get("/set/{key}/{value}")
-        async def set_val(
-            key: str, value: str, session: Session = Depends(get_session)
-        ):
+        async def set_val(key: str, value: str, session: Session = Depends(get_session)):
             session.set(key, value)
             return {"set": key}
 
@@ -142,9 +142,7 @@ class TestSessionMiddlewareOptions:
         """Test custom cookie name."""
         app = FastAPI()
         store = MemorySessionStore()
-        app.add_middleware(
-            SessionMiddleware, store=store, cookie_name="my_session"
-        )
+        app.add_middleware(SessionMiddleware, store=store, cookie_name="my_session")
 
         @app.get("/")
         async def home(request: Request):

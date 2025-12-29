@@ -1,7 +1,9 @@
 """Tests for MemorySessionStore."""
 
-import pytest
 import asyncio
+
+import pytest
+
 from refast.session.stores.memory import MemorySessionStore
 
 

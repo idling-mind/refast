@@ -2,15 +2,15 @@
 
 import pytest
 
-from refast.components.registry import (
-    register_component,
-    get_component,
-    list_components,
-    get_component_packages,
-    clear_registry,
-    ReactComponent,
-)
 from refast.components.base import Component
+from refast.components.registry import (
+    ReactComponent,
+    clear_registry,
+    get_component,
+    get_component_packages,
+    list_components,
+    register_component,
+)
 
 
 @pytest.fixture(autouse=True)

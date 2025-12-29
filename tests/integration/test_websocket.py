@@ -6,12 +6,11 @@ import re
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from starlette.websockets import WebSocketDisconnect
 
-from refast import RefastApp, Context
-from refast.components import Container, Text, Button
-from refast.session.stores.memory import MemorySessionStore
+from refast import Context, RefastApp
+from refast.components import Button, Container, Text
 from refast.session.middleware import SessionMiddleware
+from refast.session.stores.memory import MemorySessionStore
 
 
 def extract_initial_data(html_content: str) -> dict:

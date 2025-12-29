@@ -228,6 +228,7 @@ class RateLimiter:
         Returns:
             Decorated function or decorator
         """
+
         def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(f)
             async def wrapper(request: Request, *args: Any, **kwargs: Any) -> Any:
@@ -248,7 +249,7 @@ class RateLimiter:
                                 "X-RateLimit-Remaining": str(info["remaining"]),
                                 "X-RateLimit-Reset": str(info["reset"]),
                                 "Retry-After": str(info["reset"]),
-                            }
+                            },
                         )
 
                     return await f(request, *args, **kwargs)

@@ -98,25 +98,16 @@ class InputSanitizer:
     """
 
     # Pattern for script tags and their contents
-    SCRIPT_PATTERN = re.compile(
-        r'<script[^>]*>.*?</script>',
-        re.IGNORECASE | re.DOTALL
-    )
+    SCRIPT_PATTERN = re.compile(r"<script[^>]*>.*?</script>", re.IGNORECASE | re.DOTALL)
 
     # Pattern for event handlers (onclick, onload, onerror, etc.)
-    EVENT_PATTERN = re.compile(
-        r'\s+on\w+\s*=\s*["\'][^"\']*["\']',
-        re.IGNORECASE
-    )
+    EVENT_PATTERN = re.compile(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', re.IGNORECASE)
 
     # Pattern for javascript: URLs
-    JS_URL_PATTERN = re.compile(
-        r'javascript\s*:',
-        re.IGNORECASE
-    )
+    JS_URL_PATTERN = re.compile(r"javascript\s*:", re.IGNORECASE)
 
     # Pattern for HTML tags
-    TAG_PATTERN = re.compile(r'<[^>]+>')
+    TAG_PATTERN = re.compile(r"<[^>]+>")
 
     def __init__(self, config: SanitizeConfig | None = None):
         self.config = config or SanitizeConfig()
@@ -142,13 +133,13 @@ class InputSanitizer:
 
         # Strip script tags and contents first
         if cfg.strip_scripts:
-            result = self.SCRIPT_PATTERN.sub('', result)
-            result = self.EVENT_PATTERN.sub('', result)
-            result = self.JS_URL_PATTERN.sub('', result)
+            result = self.SCRIPT_PATTERN.sub("", result)
+            result = self.EVENT_PATTERN.sub("", result)
+            result = self.JS_URL_PATTERN.sub("", result)
 
         # Strip all HTML tags
         if cfg.strip_tags:
-            result = self.TAG_PATTERN.sub('', result)
+            result = self.TAG_PATTERN.sub("", result)
 
         # Escape HTML entities
         if cfg.escape_html:
@@ -156,7 +147,7 @@ class InputSanitizer:
 
         # Apply max length
         if cfg.max_length and len(result) > cfg.max_length:
-            result = result[:cfg.max_length]
+            result = result[: cfg.max_length]
 
         return result
 
@@ -279,7 +270,7 @@ class InputSanitizer:
             field_type = rules.get("type", "string")
 
             if field_type == "email":
-                if not isinstance(value, str) or not re.match(r'^[^@]+@[^@]+\.[^@]+$', value):
+                if not isinstance(value, str) or not re.match(r"^[^@]+@[^@]+\.[^@]+$", value):
                     errors.append(f"{field_name} is not a valid email")
                     continue
 

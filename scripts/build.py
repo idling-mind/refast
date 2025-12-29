@@ -15,7 +15,7 @@ from pathlib import Path
 path_vars = [
     "T:\\cae\\ett\\pygkn-uv",
     "C:\\tools\\tools\\node-v22.14.0-win-x64",
-    "C:\\Local\\npm\\global"
+    "C:\\Local\\npm\\global",
 ]
 os.environ["PATH"] = os.pathsep.join(path_vars + [os.environ.get("PATH", "")])
 
@@ -97,7 +97,7 @@ def build_frontend(frontend_dir: Path) -> bool:
         shell=sys.platform == "win32",
     )
     if result.returncode != 0:
-        print(f"Error building frontend:")
+        print("Error building frontend:")
         if result.stdout:
             print(f"stdout:\n{result.stdout}")
         if result.stderr:
@@ -110,14 +110,14 @@ def build_frontend(frontend_dir: Path) -> bool:
 def copy_assets(frontend_dir: Path, static_dir: Path) -> bool:
     """Copy built assets to static directory."""
     dist_dir = frontend_dir / "dist"
-    
+
     if not dist_dir.exists():
         print(f"Error: dist directory not found at {dist_dir}")
         return False
-    
+
     # Ensure static directory exists
     static_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Clear existing assets (except __init__.py)
     for item in static_dir.iterdir():
         if item.name != "__init__.py" and item.name != "__pycache__":
@@ -125,10 +125,10 @@ def copy_assets(frontend_dir: Path, static_dir: Path) -> bool:
                 shutil.rmtree(item)
             else:
                 item.unlink()
-    
+
     # Copy new assets
     print(f"Copying assets from {dist_dir} to {static_dir}")
-    
+
     copied_files = []
     for item in dist_dir.iterdir():
         dest = static_dir / item.name
@@ -137,7 +137,7 @@ def copy_assets(frontend_dir: Path, static_dir: Path) -> bool:
         else:
             shutil.copy2(item, dest)
         copied_files.append(item.name)
-    
+
     print(f"Copied files: {', '.join(copied_files)}")
     return True
 
@@ -147,14 +147,14 @@ def print_summary(static_dir: Path) -> None:
     print("\n" + "=" * 50)
     print("Build Summary")
     print("=" * 50)
-    
+
     total_size = 0
     for item in static_dir.rglob("*"):
         if item.is_file() and item.name not in ("__init__.py",):
             size = item.stat().st_size
             total_size += size
             print(f"  {item.relative_to(static_dir)}: {size / 1024:.2f} KB")
-    
+
     print("-" * 50)
     print(f"Total size: {total_size / 1024:.2f} KB")
     print("=" * 50)
@@ -174,30 +174,30 @@ def main() -> int:
         help="Clean static directory before building",
     )
     args = parser.parse_args()
-    
+
     project_root = get_project_root()
     frontend_dir = get_frontend_dir()
     static_dir = get_static_dir()
-    
+
     print(f"Project root: {project_root}")
     print(f"Frontend dir: {frontend_dir}")
     print(f"Static dir: {static_dir}")
     print()
-    
+
     # Check prerequisites
     if not check_node():
         print("Error: Node.js is not installed or not in PATH")
         return 1
-    
+
     if not check_npm():
         print("Error: npm is not installed or not in PATH")
         return 1
-    
+
     # Check frontend directory exists
     if not frontend_dir.exists():
         print(f"Error: Frontend directory not found at {frontend_dir}")
         return 1
-    
+
     # Clean if requested
     if args.clean:
         print("Cleaning static directory...")
@@ -207,23 +207,23 @@ def main() -> int:
                     shutil.rmtree(item)
                 else:
                     item.unlink()
-    
+
     # Install dependencies
     if not args.skip_install:
         if not install_dependencies(frontend_dir):
             return 1
-    
+
     # Build frontend
     if not build_frontend(frontend_dir):
         return 1
-    
+
     # Copy assets
     if not copy_assets(frontend_dir, static_dir):
         return 1
-    
+
     # Print summary
     print_summary(static_dir)
-    
+
     print("\nBuild completed successfully!")
     return 0
 

@@ -1,7 +1,9 @@
 """Tests for BroadcastManager."""
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
+
 from refast.events.broadcast import BroadcastManager, BroadcastMessage
 from refast.events.stream import EventStream, WebSocketConnection
 

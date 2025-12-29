@@ -1,8 +1,8 @@
 """Tests for EventManager."""
 
 import pytest
+
 from refast.events.manager import EventManager
-from refast.events.types import Event
 
 
 class TestEventManagerRegistration:

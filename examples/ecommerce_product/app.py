@@ -12,43 +12,32 @@ This example demonstrates:
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Grid,
-    Text,
+    AspectRatio,
+    Avatar,
+    Badge,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
-    CardDescription,
-    Input,
-    Select,
-    Badge,
-    Avatar,
-    Separator,
-    Label,
-    Tabs,
-    TabItem,
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselPrevious,
     CarouselNext,
-    AspectRatio,
+    CarouselPrevious,
+    Column,
+    Container,
+    Grid,
+    Label,
+    Progress,
+    Row,
+    Separator,
+    TabItem,
+    Tabs,
+    Text,
     ToggleGroup,
     ToggleGroupItem,
-    Accordion,
-    Progress,
-    Tooltip,
-    HoverCard,
-    HoverCardTrigger,
-    HoverCardContent,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Product Page")
@@ -156,8 +145,7 @@ async def add_to_cart(ctx: Context):
     color = ctx.state.get("selected_color", "Black")
     quantity = ctx.state.get("quantity", 1)
     await ctx.show_toast(
-        f"Added {quantity}x {PRODUCT['name']} ({color}) to cart!",
-        variant="success"
+        f"Added {quantity}x {PRODUCT['name']} ({color}) to cart!", variant="success"
     )
 
 
@@ -176,12 +164,12 @@ async def change_quantity(ctx: Context):
     """Handle quantity change."""
     action = ctx.event_data.get("action")
     quantity = ctx.state.get("quantity", 1)
-    
+
     if action == "increment":
         quantity = min(10, quantity + 1)
     elif action == "decrement":
         quantity = max(1, quantity - 1)
-    
+
     ctx.state.set("quantity", quantity)
     await ctx.refresh()
 
@@ -196,9 +184,9 @@ def render_star_rating(rating: float, size: str = "sm"):
     full_stars = int(rating)
     has_half = rating - full_stars >= 0.5
     empty_stars = 5 - full_stars - (1 if has_half else 0)
-    
+
     size_class = "text-sm" if size == "sm" else "text-lg"
-    
+
     stars = []
     for _ in range(full_stars):
         stars.append(Text("★", class_name=f"{size_class} text-yellow-500"))
@@ -206,7 +194,7 @@ def render_star_rating(rating: float, size: str = "sm"):
         stars.append(Text("★", class_name=f"{size_class} text-yellow-500 opacity-50"))
     for _ in range(empty_stars):
         stars.append(Text("☆", class_name=f"{size_class} text-yellow-500"))
-    
+
     return Row(gap=0, children=stars)
 
 
@@ -237,11 +225,21 @@ def render_review_card(review: dict):
                                                         gap=2,
                                                         align="center",
                                                         children=[
-                                                            Text(review["author"], class_name="font-medium"),
-                                                            Badge(text="Verified", variant="success") if review["verified"] else None,
+                                                            Text(
+                                                                review["author"],
+                                                                class_name="font-medium",
+                                                            ),
+                                                            Badge(
+                                                                text="Verified", variant="success"
+                                                            )
+                                                            if review["verified"]
+                                                            else None,
                                                         ],
                                                     ),
-                                                    Text(review["date"], class_name="text-xs text-muted-foreground"),
+                                                    Text(
+                                                        review["date"],
+                                                        class_name="text-xs text-muted-foreground",
+                                                    ),
                                                 ],
                                             ),
                                         ],
@@ -253,7 +251,10 @@ def render_review_card(review: dict):
                                 gap=1,
                                 children=[
                                     Text(review["title"], class_name="font-medium"),
-                                    Text(review["content"], class_name="text-sm text-muted-foreground"),
+                                    Text(
+                                        review["content"],
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
                                 ],
                             ),
                         ],
@@ -290,13 +291,19 @@ def render_related_product(product: dict):
                             Column(
                                 gap=1,
                                 children=[
-                                    Text(product["name"], class_name="font-medium text-sm line-clamp-2"),
+                                    Text(
+                                        product["name"],
+                                        class_name="font-medium text-sm line-clamp-2",
+                                    ),
                                     Row(
                                         gap=2,
                                         align="center",
                                         children=[
                                             render_star_rating(product["rating"]),
-                                            Text(f"({product['rating']})", class_name="text-xs text-muted-foreground"),
+                                            Text(
+                                                f"({product['rating']})",
+                                                class_name="text-xs text-muted-foreground",
+                                            ),
                                         ],
                                     ),
                                     Text(f"${product['price']}", class_name="font-bold"),
@@ -317,9 +324,9 @@ def home(ctx: Context):
     selected_color = ctx.state.get("selected_color", "Black")
     quantity = ctx.state.get("quantity", 1)
     selected_tab = ctx.state.get("selected_tab", "description")
-    
+
     discount_percent = int((1 - PRODUCT["price"] / PRODUCT["original_price"]) * 100)
-    
+
     return Container(
         class_name="max-w-7xl mx-auto p-8",
         children=[
@@ -340,7 +347,6 @@ def home(ctx: Context):
                             Text(PRODUCT["name"], class_name="text-foreground"),
                         ],
                     ),
-                    
                     # Product main section
                     Row(
                         gap=12,
@@ -363,7 +369,10 @@ def home(ctx: Context):
                                                                     Container(
                                                                         class_name="flex items-center justify-center h-full",
                                                                         children=[
-                                                                            Text("🎧", class_name="text-9xl"),
+                                                                            Text(
+                                                                                "🎧",
+                                                                                class_name="text-9xl",
+                                                                            ),
                                                                         ],
                                                                     ),
                                                                 ],
@@ -391,7 +400,6 @@ def home(ctx: Context):
                                     ),
                                 ],
                             ),
-                            
                             # Product info
                             Container(
                                 class_name="flex-1",
@@ -403,44 +411,51 @@ def home(ctx: Context):
                                             Row(
                                                 gap=2,
                                                 children=[
-                                                    Text(PRODUCT["brand"], class_name="text-muted-foreground"),
-                                                    Badge(text=f"{discount_percent}% OFF", variant="destructive"),
+                                                    Text(
+                                                        PRODUCT["brand"],
+                                                        class_name="text-muted-foreground",
+                                                    ),
+                                                    Badge(
+                                                        text=f"{discount_percent}% OFF",
+                                                        variant="destructive",
+                                                    ),
                                                     Badge(text="Bestseller", variant="secondary"),
                                                 ],
                                             ),
-                                            
                                             # Title
                                             Text(PRODUCT["name"], class_name="text-3xl font-bold"),
-                                            
                                             # Rating
                                             Row(
                                                 gap=2,
                                                 align="center",
                                                 children=[
                                                     render_star_rating(PRODUCT["rating"], "lg"),
-                                                    Text(f"{PRODUCT['rating']}", class_name="font-medium"),
+                                                    Text(
+                                                        f"{PRODUCT['rating']}",
+                                                        class_name="font-medium",
+                                                    ),
                                                     Text(
                                                         f"({PRODUCT['reviews_count']} reviews)",
-                                                        class_name="text-muted-foreground"
+                                                        class_name="text-muted-foreground",
                                                     ),
                                                 ],
                                             ),
-                                            
                                             # Price
                                             Row(
                                                 gap=3,
                                                 align="baseline",
                                                 children=[
-                                                    Text(f"${PRODUCT['price']}", class_name="text-3xl font-bold"),
+                                                    Text(
+                                                        f"${PRODUCT['price']}",
+                                                        class_name="text-3xl font-bold",
+                                                    ),
                                                     Text(
                                                         f"${PRODUCT['original_price']}",
-                                                        class_name="text-xl text-muted-foreground line-through"
+                                                        class_name="text-xl text-muted-foreground line-through",
                                                     ),
                                                 ],
                                             ),
-                                            
                                             Separator(),
-                                            
                                             # Color selection
                                             Column(
                                                 gap=3,
@@ -449,7 +464,10 @@ def home(ctx: Context):
                                                         gap=2,
                                                         children=[
                                                             Label("Color:"),
-                                                            Text(selected_color, class_name="font-medium"),
+                                                            Text(
+                                                                selected_color,
+                                                                class_name="font-medium",
+                                                            ),
                                                         ],
                                                     ),
                                                     ToggleGroup(
@@ -457,13 +475,14 @@ def home(ctx: Context):
                                                         value=selected_color,
                                                         on_value_change=ctx.callback(select_color),
                                                         children=[
-                                                            ToggleGroupItem(value=color, label=color)
+                                                            ToggleGroupItem(
+                                                                value=color, label=color
+                                                            )
                                                             for color in PRODUCT["colors"]
                                                         ],
                                                     ),
                                                 ],
                                             ),
-                                            
                                             # Quantity selector
                                             Column(
                                                 gap=3,
@@ -476,25 +495,33 @@ def home(ctx: Context):
                                                                 label="-",
                                                                 variant="outline",
                                                                 class_name="rounded-r-none",
-                                                                on_click=ctx.callback(change_quantity, action="decrement"),
+                                                                on_click=ctx.callback(
+                                                                    change_quantity,
+                                                                    action="decrement",
+                                                                ),
                                                             ),
                                                             Container(
                                                                 class_name="w-16 h-10 border-y flex items-center justify-center",
                                                                 children=[
-                                                                    Text(str(quantity), class_name="font-medium"),
+                                                                    Text(
+                                                                        str(quantity),
+                                                                        class_name="font-medium",
+                                                                    ),
                                                                 ],
                                                             ),
                                                             Button(
                                                                 label="+",
                                                                 variant="outline",
                                                                 class_name="rounded-l-none",
-                                                                on_click=ctx.callback(change_quantity, action="increment"),
+                                                                on_click=ctx.callback(
+                                                                    change_quantity,
+                                                                    action="increment",
+                                                                ),
                                                             ),
                                                         ],
                                                     ),
                                                 ],
                                             ),
-                                            
                                             # Add to cart buttons
                                             Row(
                                                 gap=3,
@@ -520,7 +547,6 @@ def home(ctx: Context):
                                                     ),
                                                 ],
                                             ),
-                                            
                                             # Stock status
                                             Row(
                                                 gap=2,
@@ -529,26 +555,38 @@ def home(ctx: Context):
                                                     Container(
                                                         class_name="w-2 h-2 rounded-full bg-green-500",
                                                     ),
-                                                    Text("In Stock", class_name="text-green-600 font-medium"),
-                                                    Text("- Ships within 24 hours", class_name="text-muted-foreground"),
+                                                    Text(
+                                                        "In Stock",
+                                                        class_name="text-green-600 font-medium",
+                                                    ),
+                                                    Text(
+                                                        "- Ships within 24 hours",
+                                                        class_name="text-muted-foreground",
+                                                    ),
                                                 ],
                                             ),
-                                            
                                             Separator(),
-                                            
                                             # Key features
                                             Column(
                                                 gap=2,
                                                 children=[
-                                                    Text("Key Features:", class_name="font-semibold"),
+                                                    Text(
+                                                        "Key Features:", class_name="font-semibold"
+                                                    ),
                                                     Column(
                                                         gap=1,
                                                         children=[
                                                             Row(
                                                                 gap=2,
                                                                 children=[
-                                                                    Text("✓", class_name="text-green-600"),
-                                                                    Text(feature, class_name="text-sm"),
+                                                                    Text(
+                                                                        "✓",
+                                                                        class_name="text-green-600",
+                                                                    ),
+                                                                    Text(
+                                                                        feature,
+                                                                        class_name="text-sm",
+                                                                    ),
                                                                 ],
                                                             )
                                                             for feature in PRODUCT["features"][:4]
@@ -562,7 +600,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Product details tabs
                     Card(
                         children=[
@@ -574,7 +611,10 @@ def home(ctx: Context):
                                         children=[
                                             TabItem(value="description", label="Description"),
                                             TabItem(value="specifications", label="Specifications"),
-                                            TabItem(value="reviews", label=f"Reviews ({PRODUCT['reviews_count']})"),
+                                            TabItem(
+                                                value="reviews",
+                                                label=f"Reviews ({PRODUCT['reviews_count']})",
+                                            ),
                                         ],
                                     ),
                                     Container(
@@ -585,15 +625,19 @@ def home(ctx: Context):
                                                 children=[
                                                     # Description content
                                                     Text(PRODUCT["description"]),
-                                                    
-                                                    Text("Features:", class_name="font-semibold mt-4"),
+                                                    Text(
+                                                        "Features:", class_name="font-semibold mt-4"
+                                                    ),
                                                     Column(
                                                         gap=2,
                                                         children=[
                                                             Row(
                                                                 gap=2,
                                                                 children=[
-                                                                    Text("•", class_name="text-primary"),
+                                                                    Text(
+                                                                        "•",
+                                                                        class_name="text-primary",
+                                                                    ),
                                                                     Text(feature),
                                                                 ],
                                                             )
@@ -608,7 +652,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Reviews section
                     Column(
                         gap=4,
@@ -621,7 +664,6 @@ def home(ctx: Context):
                                     Button(label="Write a Review", variant="outline"),
                                 ],
                             ),
-                            
                             # Rating summary
                             Card(
                                 children=[
@@ -635,15 +677,22 @@ def home(ctx: Context):
                                                         gap=2,
                                                         align="center",
                                                         children=[
-                                                            Text(str(PRODUCT["rating"]), class_name="text-5xl font-bold"),
-                                                            render_star_rating(PRODUCT["rating"], "lg"),
+                                                            Text(
+                                                                str(PRODUCT["rating"]),
+                                                                class_name="text-5xl font-bold",
+                                                            ),
+                                                            render_star_rating(
+                                                                PRODUCT["rating"], "lg"
+                                                            ),
                                                             Text(
                                                                 f"Based on {PRODUCT['reviews_count']} reviews",
-                                                                class_name="text-sm text-muted-foreground"
+                                                                class_name="text-sm text-muted-foreground",
                                                             ),
                                                         ],
                                                     ),
-                                                    Separator(orientation="vertical", class_name="h-32"),
+                                                    Separator(
+                                                        orientation="vertical", class_name="h-32"
+                                                    ),
                                                     Column(
                                                         gap=2,
                                                         class_name="flex-1",
@@ -652,45 +701,87 @@ def home(ctx: Context):
                                                                 gap=2,
                                                                 align="center",
                                                                 children=[
-                                                                    Text("5★", class_name="w-8 text-sm"),
-                                                                    Progress(value=70, class_name="flex-1"),
-                                                                    Text("70%", class_name="w-10 text-sm text-right"),
+                                                                    Text(
+                                                                        "5★",
+                                                                        class_name="w-8 text-sm",
+                                                                    ),
+                                                                    Progress(
+                                                                        value=70,
+                                                                        class_name="flex-1",
+                                                                    ),
+                                                                    Text(
+                                                                        "70%",
+                                                                        class_name="w-10 text-sm text-right",
+                                                                    ),
                                                                 ],
                                                             ),
                                                             Row(
                                                                 gap=2,
                                                                 align="center",
                                                                 children=[
-                                                                    Text("4★", class_name="w-8 text-sm"),
-                                                                    Progress(value=20, class_name="flex-1"),
-                                                                    Text("20%", class_name="w-10 text-sm text-right"),
+                                                                    Text(
+                                                                        "4★",
+                                                                        class_name="w-8 text-sm",
+                                                                    ),
+                                                                    Progress(
+                                                                        value=20,
+                                                                        class_name="flex-1",
+                                                                    ),
+                                                                    Text(
+                                                                        "20%",
+                                                                        class_name="w-10 text-sm text-right",
+                                                                    ),
                                                                 ],
                                                             ),
                                                             Row(
                                                                 gap=2,
                                                                 align="center",
                                                                 children=[
-                                                                    Text("3★", class_name="w-8 text-sm"),
-                                                                    Progress(value=7, class_name="flex-1"),
-                                                                    Text("7%", class_name="w-10 text-sm text-right"),
+                                                                    Text(
+                                                                        "3★",
+                                                                        class_name="w-8 text-sm",
+                                                                    ),
+                                                                    Progress(
+                                                                        value=7, class_name="flex-1"
+                                                                    ),
+                                                                    Text(
+                                                                        "7%",
+                                                                        class_name="w-10 text-sm text-right",
+                                                                    ),
                                                                 ],
                                                             ),
                                                             Row(
                                                                 gap=2,
                                                                 align="center",
                                                                 children=[
-                                                                    Text("2★", class_name="w-8 text-sm"),
-                                                                    Progress(value=2, class_name="flex-1"),
-                                                                    Text("2%", class_name="w-10 text-sm text-right"),
+                                                                    Text(
+                                                                        "2★",
+                                                                        class_name="w-8 text-sm",
+                                                                    ),
+                                                                    Progress(
+                                                                        value=2, class_name="flex-1"
+                                                                    ),
+                                                                    Text(
+                                                                        "2%",
+                                                                        class_name="w-10 text-sm text-right",
+                                                                    ),
                                                                 ],
                                                             ),
                                                             Row(
                                                                 gap=2,
                                                                 align="center",
                                                                 children=[
-                                                                    Text("1★", class_name="w-8 text-sm"),
-                                                                    Progress(value=1, class_name="flex-1"),
-                                                                    Text("1%", class_name="w-10 text-sm text-right"),
+                                                                    Text(
+                                                                        "1★",
+                                                                        class_name="w-8 text-sm",
+                                                                    ),
+                                                                    Progress(
+                                                                        value=1, class_name="flex-1"
+                                                                    ),
+                                                                    Text(
+                                                                        "1%",
+                                                                        class_name="w-10 text-sm text-right",
+                                                                    ),
                                                                 ],
                                                             ),
                                                         ],
@@ -701,16 +792,11 @@ def home(ctx: Context):
                                     ),
                                 ],
                             ),
-                            
                             # Individual reviews
                             Column(
                                 gap=0,
-                                children=[
-                                    render_review_card(review)
-                                    for review in REVIEWS
-                                ],
+                                children=[render_review_card(review) for review in REVIEWS],
                             ),
-                            
                             Row(
                                 justify="center",
                                 children=[
@@ -719,7 +805,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Related products
                     Column(
                         gap=4,
@@ -729,8 +814,7 @@ def home(ctx: Context):
                                 columns=4,
                                 gap=4,
                                 children=[
-                                    render_related_product(product)
-                                    for product in RELATED_PRODUCTS
+                                    render_related_product(product) for product in RELATED_PRODUCTS
                                 ],
                             ),
                         ],
@@ -748,4 +832,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -85,9 +85,7 @@ class EventManager:
             handler: The handler to remove
         """
         if event_type in self._handlers:
-            self._handlers[event_type] = [
-                h for h in self._handlers[event_type] if h != handler
-            ]
+            self._handlers[event_type] = [h for h in self._handlers[event_type] if h != handler]
 
     def get_handlers(self, event_type: str) -> list[EventHandler]:
         """
@@ -123,9 +121,7 @@ class EventManager:
         """
         return self._callbacks.get(callback_id)
 
-    def add_middleware(
-        self, middleware: Callable[..., Awaitable[Any]]
-    ) -> None:
+    def add_middleware(self, middleware: Callable[..., Awaitable[Any]]) -> None:
         """
         Add middleware that runs before event handlers.
 
@@ -202,7 +198,7 @@ class EventManager:
         merged_args = {**bound_args, **call_args}
 
         # Set event_data on context so callbacks can access it via ctx.event_data
-        if hasattr(ctx, 'set_event_data'):
+        if hasattr(ctx, "set_event_data"):
             ctx.set_event_data(merged_args)
 
         try:

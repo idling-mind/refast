@@ -57,9 +57,7 @@ class SessionData:
             data=d.get("data", {}),
             created_at=datetime.fromisoformat(d["created_at"]),
             updated_at=datetime.fromisoformat(d["updated_at"]),
-            expires_at=(
-                datetime.fromisoformat(d["expires_at"]) if d.get("expires_at") else None
-            ),
+            expires_at=(datetime.fromisoformat(d["expires_at"]) if d.get("expires_at") else None),
         )
 
 

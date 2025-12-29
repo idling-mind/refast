@@ -1,8 +1,7 @@
 """Tests for base component classes."""
 
-import pytest
 
-from refast.components.base import Component, Container, Text, Fragment
+from refast.components.base import Container, Fragment, Text
 
 
 class TestComponent:
@@ -84,11 +83,7 @@ class TestContainer:
 
     def test_container_renders_nested(self):
         """Test Container renders nested components."""
-        container = Container(
-            children=[
-                Container(children=[Text("Nested")])
-            ]
-        )
+        container = Container(children=[Container(children=[Text("Nested")])])
         rendered = container.render()
         assert len(rendered["children"]) == 1
         assert rendered["children"][0]["type"] == "Container"

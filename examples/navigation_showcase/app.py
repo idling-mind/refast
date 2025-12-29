@@ -12,63 +12,56 @@ This example demonstrates:
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
-    Button,
-    Card,
-    CardHeader,
-    CardContent,
-    CardTitle,
-    CardDescription,
-    Input,
-    Badge,
-    Separator,
-    Label,
-    # Navigation components
     Breadcrumb,
-    BreadcrumbList,
+    BreadcrumbEllipsis,
     BreadcrumbItem,
     BreadcrumbLink,
+    BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-    BreadcrumbEllipsis,
-    NavigationMenu,
-    NavigationMenuList,
-    NavigationMenuItem,
-    NavigationMenuTrigger,
-    NavigationMenuContent,
-    NavigationMenuLink,
-    Menubar,
-    MenubarMenu,
-    MenubarTrigger,
-    MenubarContent,
-    MenubarItem,
-    MenubarSeparator,
-    MenubarCheckboxItem,
-    MenubarRadioGroup,
-    MenubarRadioItem,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Column,
     Command,
-    CommandInput,
-    CommandList,
     CommandEmpty,
     CommandGroup,
+    CommandInput,
     CommandItem,
+    CommandList,
     CommandSeparator,
+    Container,
+    Label,
+    Menubar,
+    MenubarCheckboxItem,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarSeparator,
+    MenubarTrigger,
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
     Pagination,
     PaginationContent,
+    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-    PaginationPrevious,
     PaginationNext,
-    PaginationEllipsis,
-    Tabs,
+    PaginationPrevious,
+    Row,
+    Separator,
     TabItem,
+    Tabs,
+    Text,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Navigation Showcase")
@@ -99,7 +92,7 @@ async def on_page_change(ctx: Context):
 def home(ctx: Context):
     """Navigation showcase page."""
     current_page = ctx.state.get("current_page", 1)
-    
+
     return Container(
         class_name="max-w-6xl mx-auto p-8",
         children=[
@@ -113,11 +106,10 @@ def home(ctx: Context):
                             Text("Navigation Components", class_name="text-3xl font-bold"),
                             Text(
                                 "Explore the navigation components available in Refast",
-                                class_name="text-muted-foreground"
+                                class_name="text-muted-foreground",
                             ),
                         ],
                     ),
-                    
                     # Menubar Section
                     Card(
                         children=[
@@ -147,7 +139,9 @@ def home(ctx: Context):
                                                             MenubarSeparator(),
                                                             MenubarItem(label="Share"),
                                                             MenubarSeparator(),
-                                                            MenubarItem(label="Print", shortcut="⌘P"),
+                                                            MenubarItem(
+                                                                label="Print", shortcut="⌘P"
+                                                            ),
                                                         ]
                                                     ),
                                                 ]
@@ -157,12 +151,20 @@ def home(ctx: Context):
                                                     MenubarTrigger(label="Edit"),
                                                     MenubarContent(
                                                         children=[
-                                                            MenubarItem(label="Undo", shortcut="⌘Z"),
-                                                            MenubarItem(label="Redo", shortcut="⇧⌘Z"),
+                                                            MenubarItem(
+                                                                label="Undo", shortcut="⌘Z"
+                                                            ),
+                                                            MenubarItem(
+                                                                label="Redo", shortcut="⇧⌘Z"
+                                                            ),
                                                             MenubarSeparator(),
                                                             MenubarItem(label="Cut", shortcut="⌘X"),
-                                                            MenubarItem(label="Copy", shortcut="⌘C"),
-                                                            MenubarItem(label="Paste", shortcut="⌘V"),
+                                                            MenubarItem(
+                                                                label="Copy", shortcut="⌘C"
+                                                            ),
+                                                            MenubarItem(
+                                                                label="Paste", shortcut="⌘V"
+                                                            ),
                                                         ]
                                                     ),
                                                 ]
@@ -181,8 +183,12 @@ def home(ctx: Context):
                                                                 checked=True,
                                                             ),
                                                             MenubarSeparator(),
-                                                            MenubarItem(label="Zoom In", shortcut="⌘+"),
-                                                            MenubarItem(label="Zoom Out", shortcut="⌘-"),
+                                                            MenubarItem(
+                                                                label="Zoom In", shortcut="⌘+"
+                                                            ),
+                                                            MenubarItem(
+                                                                label="Zoom Out", shortcut="⌘-"
+                                                            ),
                                                         ]
                                                     ),
                                                 ]
@@ -206,14 +212,15 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Breadcrumb Section
                     Card(
                         children=[
                             CardHeader(
                                 children=[
                                     CardTitle("Breadcrumb"),
-                                    CardDescription("Navigation breadcrumbs showing location hierarchy"),
+                                    CardDescription(
+                                        "Navigation breadcrumbs showing location hierarchy"
+                                    ),
                                 ]
                             ),
                             CardContent(
@@ -231,15 +238,29 @@ def home(ctx: Context):
                                                             BreadcrumbList(
                                                                 children=[
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbLink(label="Home", href="/")]
+                                                                        children=[
+                                                                            BreadcrumbLink(
+                                                                                label="Home",
+                                                                                href="/",
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                     BreadcrumbSeparator(),
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbLink(label="Products", href="/products")]
+                                                                        children=[
+                                                                            BreadcrumbLink(
+                                                                                label="Products",
+                                                                                href="/products",
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                     BreadcrumbSeparator(),
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbPage(label="Electronics")]
+                                                                        children=[
+                                                                            BreadcrumbPage(
+                                                                                label="Electronics"
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                 ]
                                                             )
@@ -247,9 +268,7 @@ def home(ctx: Context):
                                                     ),
                                                 ],
                                             ),
-                                            
                                             Separator(),
-                                            
                                             # With ellipsis
                                             Column(
                                                 gap=2,
@@ -260,19 +279,35 @@ def home(ctx: Context):
                                                             BreadcrumbList(
                                                                 children=[
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbLink(label="Home", href="/")]
+                                                                        children=[
+                                                                            BreadcrumbLink(
+                                                                                label="Home",
+                                                                                href="/",
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                     BreadcrumbSeparator(),
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbEllipsis()]
+                                                                        children=[
+                                                                            BreadcrumbEllipsis()
+                                                                        ]
                                                                     ),
                                                                     BreadcrumbSeparator(),
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbLink(label="Categories", href="/categories")]
+                                                                        children=[
+                                                                            BreadcrumbLink(
+                                                                                label="Categories",
+                                                                                href="/categories",
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                     BreadcrumbSeparator(),
                                                                     BreadcrumbItem(
-                                                                        children=[BreadcrumbPage(label="Current Page")]
+                                                                        children=[
+                                                                            BreadcrumbPage(
+                                                                                label="Current Page"
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                 ]
                                                             )
@@ -286,7 +321,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Navigation Menu Section
                     Card(
                         children=[
@@ -304,7 +338,9 @@ def home(ctx: Context):
                                                 children=[
                                                     NavigationMenuItem(
                                                         children=[
-                                                            NavigationMenuTrigger(label="Getting Started"),
+                                                            NavigationMenuTrigger(
+                                                                label="Getting Started"
+                                                            ),
                                                             NavigationMenuContent(
                                                                 children=[
                                                                     Container(
@@ -314,10 +350,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Introduction", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Introduction",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "Learn the basics of Refast and get started quickly.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -325,10 +364,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Installation", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Installation",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "Step-by-step guide to install and set up.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -340,7 +382,9 @@ def home(ctx: Context):
                                                     ),
                                                     NavigationMenuItem(
                                                         children=[
-                                                            NavigationMenuTrigger(label="Components"),
+                                                            NavigationMenuTrigger(
+                                                                label="Components"
+                                                            ),
                                                             NavigationMenuContent(
                                                                 children=[
                                                                     Container(
@@ -350,10 +394,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Button", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Button",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "Displays a button or a component that looks like a button.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -361,10 +408,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Card", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Card",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "Displays a card with header, content, and footer.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -372,10 +422,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Dialog", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Dialog",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "A modal dialog that interrupts the user.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -383,10 +436,13 @@ def home(ctx: Context):
                                                                                 gap=1,
                                                                                 class_name="p-3 rounded-md hover:bg-muted",
                                                                                 children=[
-                                                                                    Text("Input", class_name="font-medium"),
+                                                                                    Text(
+                                                                                        "Input",
+                                                                                        class_name="font-medium",
+                                                                                    ),
                                                                                     Text(
                                                                                         "Displays a form input field.",
-                                                                                        class_name="text-sm text-muted-foreground"
+                                                                                        class_name="text-sm text-muted-foreground",
                                                                                     ),
                                                                                 ],
                                                                             ),
@@ -412,14 +468,15 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Command Palette Section
                     Card(
                         children=[
                             CardHeader(
                                 children=[
                                     CardTitle("Command Palette"),
-                                    CardDescription("Searchable command menu with keyboard shortcuts"),
+                                    CardDescription(
+                                        "Searchable command menu with keyboard shortcuts"
+                                    ),
                                 ]
                             ),
                             CardContent(
@@ -438,21 +495,24 @@ def home(ctx: Context):
                                                                 label="Calendar",
                                                                 icon="calendar",
                                                                 on_select=ctx.callback(
-                                                                    on_command_select, command="Calendar"
+                                                                    on_command_select,
+                                                                    command="Calendar",
                                                                 ),
                                                             ),
                                                             CommandItem(
                                                                 label="Search",
                                                                 icon="search",
                                                                 on_select=ctx.callback(
-                                                                    on_command_select, command="Search"
+                                                                    on_command_select,
+                                                                    command="Search",
                                                                 ),
                                                             ),
                                                             CommandItem(
                                                                 label="Settings",
                                                                 icon="settings",
                                                                 on_select=ctx.callback(
-                                                                    on_command_select, command="Settings"
+                                                                    on_command_select,
+                                                                    command="Settings",
                                                                 ),
                                                             ),
                                                         ],
@@ -465,14 +525,16 @@ def home(ctx: Context):
                                                                 label="New File",
                                                                 icon="file-plus",
                                                                 on_select=ctx.callback(
-                                                                    on_command_select, command="New File"
+                                                                    on_command_select,
+                                                                    command="New File",
                                                                 ),
                                                             ),
                                                             CommandItem(
                                                                 label="New Folder",
                                                                 icon="folder-plus",
                                                                 on_select=ctx.callback(
-                                                                    on_command_select, command="New Folder"
+                                                                    on_command_select,
+                                                                    command="New Folder",
                                                                 ),
                                                             ),
                                                         ],
@@ -485,7 +547,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-                    
                     # Tabs Section
                     Card(
                         children=[
@@ -509,14 +570,16 @@ def home(ctx: Context):
                                     Container(
                                         class_name="mt-4 p-4 border rounded-md",
                                         children=[
-                                            Text("Tab content goes here", class_name="text-muted-foreground"),
+                                            Text(
+                                                "Tab content goes here",
+                                                class_name="text-muted-foreground",
+                                            ),
                                         ],
                                     ),
                                 ],
                             ),
                         ],
                     ),
-                    
                     # Pagination Section
                     Card(
                         children=[
@@ -537,11 +600,10 @@ def home(ctx: Context):
                                                 children=[
                                                     Text(
                                                         f"Current Page: {current_page}",
-                                                        class_name="text-lg font-medium"
+                                                        class_name="text-lg font-medium",
                                                     ),
                                                 ],
                                             ),
-                                            
                                             # Pagination
                                             Row(
                                                 justify="center",
@@ -556,7 +618,11 @@ def home(ctx: Context):
                                                                                 href="#",
                                                                                 on_click=ctx.callback(
                                                                                     on_page_change,
-                                                                                    page=max(1, current_page - 1)
+                                                                                    page=max(
+                                                                                        1,
+                                                                                        current_page
+                                                                                        - 1,
+                                                                                    ),
                                                                                 ),
                                                                             )
                                                                         ]
@@ -567,9 +633,13 @@ def home(ctx: Context):
                                                                                 label="1",
                                                                                 href="#",
                                                                                 page=1,
-                                                                                is_active=(current_page == 1),
+                                                                                is_active=(
+                                                                                    current_page
+                                                                                    == 1
+                                                                                ),
                                                                                 on_click=ctx.callback(
-                                                                                    on_page_change, page=1
+                                                                                    on_page_change,
+                                                                                    page=1,
                                                                                 ),
                                                                             )
                                                                         ]
@@ -580,9 +650,13 @@ def home(ctx: Context):
                                                                                 label="2",
                                                                                 href="#",
                                                                                 page=2,
-                                                                                is_active=(current_page == 2),
+                                                                                is_active=(
+                                                                                    current_page
+                                                                                    == 2
+                                                                                ),
                                                                                 on_click=ctx.callback(
-                                                                                    on_page_change, page=2
+                                                                                    on_page_change,
+                                                                                    page=2,
                                                                                 ),
                                                                             )
                                                                         ]
@@ -593,15 +667,21 @@ def home(ctx: Context):
                                                                                 label="3",
                                                                                 href="#",
                                                                                 page=3,
-                                                                                is_active=(current_page == 3),
+                                                                                is_active=(
+                                                                                    current_page
+                                                                                    == 3
+                                                                                ),
                                                                                 on_click=ctx.callback(
-                                                                                    on_page_change, page=3
+                                                                                    on_page_change,
+                                                                                    page=3,
                                                                                 ),
                                                                             )
                                                                         ]
                                                                     ),
                                                                     PaginationItem(
-                                                                        children=[PaginationEllipsis()]
+                                                                        children=[
+                                                                            PaginationEllipsis()
+                                                                        ]
                                                                     ),
                                                                     PaginationItem(
                                                                         children=[
@@ -609,9 +689,13 @@ def home(ctx: Context):
                                                                                 label="10",
                                                                                 href="#",
                                                                                 page=10,
-                                                                                is_active=(current_page == 10),
+                                                                                is_active=(
+                                                                                    current_page
+                                                                                    == 10
+                                                                                ),
                                                                                 on_click=ctx.callback(
-                                                                                    on_page_change, page=10
+                                                                                    on_page_change,
+                                                                                    page=10,
                                                                                 ),
                                                                             )
                                                                         ]
@@ -622,7 +706,11 @@ def home(ctx: Context):
                                                                                 href="#",
                                                                                 on_click=ctx.callback(
                                                                                     on_page_change,
-                                                                                    page=min(10, current_page + 1)
+                                                                                    page=min(
+                                                                                        10,
+                                                                                        current_page
+                                                                                        + 1,
+                                                                                    ),
                                                                                 ),
                                                                             )
                                                                         ]
@@ -652,4 +740,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

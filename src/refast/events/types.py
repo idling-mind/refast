@@ -78,9 +78,7 @@ class Event:
             type=data.get("type", "unknown"),
             data=data.get("data", {}),
             timestamp=(
-                datetime.fromisoformat(data["timestamp"])
-                if "timestamp" in data
-                else _now_utc()
+                datetime.fromisoformat(data["timestamp"]) if "timestamp" in data else _now_utc()
             ),
             source=data.get("source", "client"),
             session_id=data.get("sessionId"),

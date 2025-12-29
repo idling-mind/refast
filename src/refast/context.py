@@ -96,6 +96,7 @@ class Context(Generic[T]):
         """Access the session."""
         if self._session is None:
             from refast.session.session import Session
+
             self._session = Session()
         return self._session
 
@@ -134,107 +135,125 @@ class Context(Generic[T]):
     async def push_update(self) -> None:
         """Push state updates to the frontend."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "state_update",
-                "state": self._state,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "state_update",
+                    "state": self._state,
+                }
+            )
 
     async def replace(self, target_id: str, component: Any) -> None:
         """Replace a component in the frontend."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "replace",
-                "targetId": target_id,
-                "component": component.render() if hasattr(component, "render") else component,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "replace",
+                    "targetId": target_id,
+                    "component": component.render() if hasattr(component, "render") else component,
+                }
+            )
 
     async def append(self, target_id: str, component: Any) -> None:
         """Append a component to a container."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "append",
-                "targetId": target_id,
-                "component": component.render() if hasattr(component, "render") else component,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "append",
+                    "targetId": target_id,
+                    "component": component.render() if hasattr(component, "render") else component,
+                }
+            )
 
     async def prepend(self, target_id: str, component: Any) -> None:
         """Prepend a component to a container."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "prepend",
-                "targetId": target_id,
-                "component": component.render() if hasattr(component, "render") else component,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "prepend",
+                    "targetId": target_id,
+                    "component": component.render() if hasattr(component, "render") else component,
+                }
+            )
 
     async def remove(self, target_id: str) -> None:
         """Remove a component from the frontend."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "remove",
-                "targetId": target_id,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "remove",
+                    "targetId": target_id,
+                }
+            )
 
     async def update_props(self, target_id: str, props: dict[str, Any]) -> None:
         """Update props of an existing component."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "update_props",
-                "targetId": target_id,
-                "props": props,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "update_props",
+                    "targetId": target_id,
+                    "props": props,
+                }
+            )
 
     async def update_text(self, target_id: str, text: str) -> None:
         """Update the text content of a component."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "update",
-                "operation": "update_children",
-                "targetId": target_id,
-                "children": [text],
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "update_children",
+                    "targetId": target_id,
+                    "children": [text],
+                }
+            )
 
     async def navigate(self, path: str) -> None:
         """Navigate to a different page."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "navigate",
-                "path": path,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "navigate",
+                    "path": path,
+                }
+            )
 
     async def refresh(self, path: str | None = None) -> None:
         """
         Refresh the current page by re-rendering it.
-        
+
         This re-renders the page with the current state and sends the
         updated component tree directly via WebSocket, preserving state.
-        
+
         Args:
             path: Optional path to refresh. If not provided, uses "/" as default.
         """
         if self._websocket and self._app:
             # Default to root path if not specified
             page_path = path or "/"
-            
+
             # Find and render the page
             page_func = self._app._pages.get(page_path)
             if page_func is None:
                 page_func = self._app._pages.get("/")  # Fallback to index
-            
+
             if page_func is not None:
                 # Re-render the page with current state
                 component = page_func(self)
                 component_data = component.render() if hasattr(component, "render") else {}
-                
+
                 # Send the rendered component tree via WebSocket
-                await self._websocket.send_json({
-                    "type": "refresh",
-                    "component": component_data,
-                })
+                await self._websocket.send_json(
+                    {
+                        "type": "refresh",
+                        "component": component_data,
+                    }
+                )
 
     async def show_toast(
         self,
@@ -243,26 +262,32 @@ class Context(Generic[T]):
         duration: int = 3000,
     ) -> None:
         """Show a toast notification."""
-        print(f"[Refast Context] show_toast called: message={message}, variant={variant}, websocket={self._websocket is not None}")
+        print(
+            f"[Refast Context] show_toast called: message={message}, variant={variant}, websocket={self._websocket is not None}"
+        )
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "toast",
-                "message": message,
-                "variant": variant,
-                "duration": duration,
-            })
-            print(f"[Refast Context] Toast sent via WebSocket")
+            await self._websocket.send_json(
+                {
+                    "type": "toast",
+                    "message": message,
+                    "variant": variant,
+                    "duration": duration,
+                }
+            )
+            print("[Refast Context] Toast sent via WebSocket")
         else:
-            print(f"[Refast Context] WARNING: WebSocket is None, toast not sent!")
+            print("[Refast Context] WARNING: WebSocket is None, toast not sent!")
 
     async def push_event(self, event_type: str, data: Any) -> None:
         """Push an event to the frontend."""
         if self._websocket:
-            await self._websocket.send_json({
-                "type": "event",
-                "eventType": event_type,
-                "data": data,
-            })
+            await self._websocket.send_json(
+                {
+                    "type": "event",
+                    "eventType": event_type,
+                    "data": data,
+                }
+            )
 
     async def broadcast(self, event_type: str, data: Any) -> None:
         """Broadcast an event to all connected clients."""

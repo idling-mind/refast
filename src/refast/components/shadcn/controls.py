@@ -1,6 +1,6 @@
 """Advanced form control components based on shadcn/ui."""
 
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from refast.components.base import Component
 
@@ -168,7 +168,9 @@ class Toggle(Component):
                 "disabled": self.disabled,
                 "variant": self.variant,
                 "size": self.size,
-                "onPressedChange": self.on_pressed_change.serialize() if self.on_pressed_change else None,
+                "onPressedChange": self.on_pressed_change.serialize()
+                if self.on_pressed_change
+                else None,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -203,7 +205,7 @@ class ToggleGroup(Component):
         variant: Literal["default", "outline"] = "default",
         size: Literal["sm", "default", "lg"] = "default",
         on_value_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -485,7 +487,7 @@ class InputOTP(Component):
         pattern: str | None = None,  # Regex pattern for each character
         on_change: Any = None,
         on_complete: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -538,7 +540,7 @@ class InputOTPGroup(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -624,4 +626,3 @@ class InputOTPSeparator(Component):
             },
             "children": [],
         }
-

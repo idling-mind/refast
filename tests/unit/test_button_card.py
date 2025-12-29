@@ -1,10 +1,9 @@
 """Tests for button and card components."""
 
-import pytest
 
-from refast.components.shadcn.button import Button, IconButton
-from refast.components.shadcn.card import Card, CardHeader, CardContent, CardFooter
 from refast.components.base import Text
+from refast.components.shadcn.button import Button, IconButton
+from refast.components.shadcn.card import Card, CardContent, CardFooter, CardHeader
 
 
 class MockCallback:

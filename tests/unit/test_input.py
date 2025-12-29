@@ -1,8 +1,7 @@
 """Tests for input components."""
 
-import pytest
 
-from refast.components.shadcn.input import Input, Textarea, Select, Checkbox, Radio
+from refast.components.shadcn.input import Checkbox, Input, Radio, Select, Textarea
 
 
 class MockCallback:

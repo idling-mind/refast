@@ -1,17 +1,16 @@
 """Tests for utility components (Stage 9)."""
 
-import pytest
 
 from refast.components.shadcn.utility import (
-    Separator,
     AspectRatio,
-    ScrollArea,
-    Collapsible,
     Carousel,
     CarouselItem,
-    ResizablePanelGroup,
-    ResizablePanel,
+    Collapsible,
     ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
+    ScrollArea,
+    Separator,
     ThemeSwitcher,
 )
 

@@ -76,9 +76,7 @@ class CSRFConfig:
     cookie_httponly: bool = False  # Must be False for JS to read the cookie
     cookie_samesite: str = "lax"
     header_name: str = "X-CSRF-Token"
-    safe_methods: set[str] = field(
-        default_factory=lambda: {"GET", "HEAD", "OPTIONS", "TRACE"}
-    )
+    safe_methods: set[str] = field(default_factory=lambda: {"GET", "HEAD", "OPTIONS", "TRACE"})
 
 
 class CSRFProtection:
@@ -133,11 +131,7 @@ class CSRFProtection:
 
         # Create signature
         message = f"{random_b64}.{timestamp}"
-        signature = hmac.new(
-            self.secret_key,
-            message.encode(),
-            hashlib.sha256
-        ).digest()
+        signature = hmac.new(self.secret_key, message.encode(), hashlib.sha256).digest()
         signature_b64 = base64.urlsafe_b64encode(signature).decode().rstrip("=")
 
         token = f"{random_b64}.{timestamp}.{signature_b64}"
@@ -177,9 +171,7 @@ class CSRFProtection:
             # Verify signature
             message = f"{random_b64}.{timestamp_str}"
             expected_signature = hmac.new(
-                self.secret_key,
-                message.encode(),
-                hashlib.sha256
+                self.secret_key, message.encode(), hashlib.sha256
             ).digest()
             expected_b64 = base64.urlsafe_b64encode(expected_signature).decode()
             expected_b64 = expected_b64.rstrip("=")
@@ -297,6 +289,7 @@ def csrf_protect(
     Returns:
         Decorator function
     """
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         async def wrapper(request: Request, *args: Any, **kwargs: Any) -> Any:

@@ -168,9 +168,7 @@ class Dialog(Component):
                 "title": self.title,
                 "description": self.description,
                 "open": self.open,
-                "onOpenChange": (
-                    self.on_open_change.serialize() if self.on_open_change else None
-                ),
+                "onOpenChange": (self.on_open_change.serialize() if self.on_open_change else None),
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },

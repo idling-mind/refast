@@ -1,7 +1,9 @@
 """Tests for WebSocket stream."""
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+
 from refast.events.stream import EventStream, WebSocketConnection
 from refast.events.types import Event
 

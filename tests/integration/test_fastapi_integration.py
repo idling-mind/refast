@@ -1,11 +1,10 @@
 """Test FastAPI integration."""
 
-import pytest
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from refast import RefastApp, Context
-from refast.components import Text, Container, Column, Button
+from refast import Context, RefastApp
+from refast.components import Button, Container, Text
 
 
 class TestFastAPIIntegration:

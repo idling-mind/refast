@@ -144,9 +144,7 @@ class TestRateLimiter:
 
     def test_get_key_custom_func(self) -> None:
         """Test custom key function."""
-        limiter = RateLimiter(
-            key_func=lambda r: r.headers.get("API-Key", "unknown")
-        )
+        limiter = RateLimiter(key_func=lambda r: r.headers.get("API-Key", "unknown"))
 
         request = MagicMock()
         request.headers = {"API-Key": "my-api-key"}
@@ -175,9 +173,7 @@ class TestRateLimiter:
             assert info["remaining"] == 5 - (i + 1)
 
     @pytest.mark.asyncio
-    async def test_is_allowed_at_limit(
-        self, limiter: RateLimiter, mock_request: MagicMock
-    ) -> None:
+    async def test_is_allowed_at_limit(self, limiter: RateLimiter, mock_request: MagicMock) -> None:
         """Test request is blocked at limit."""
         # Max out requests
         for _ in range(5):
@@ -190,9 +186,7 @@ class TestRateLimiter:
         assert info["reset"] == 60
 
     @pytest.mark.asyncio
-    async def test_different_keys_separate_limits(
-        self, limiter: RateLimiter
-    ) -> None:
+    async def test_different_keys_separate_limits(self, limiter: RateLimiter) -> None:
         """Test different keys have separate rate limits."""
         request1 = MagicMock()
         request1.client.host = "1.1.1.1"
@@ -215,9 +209,7 @@ class TestRateLimiter:
         assert allowed2 is True
 
     @pytest.mark.asyncio
-    async def test_clear_resets_limits(
-        self, limiter: RateLimiter, mock_request: MagicMock
-    ) -> None:
+    async def test_clear_resets_limits(self, limiter: RateLimiter, mock_request: MagicMock) -> None:
         """Test clearing resets all limits."""
         # Max out requests
         for _ in range(5):
@@ -235,9 +227,7 @@ class TestRateLimiter:
         assert allowed is True
 
     @pytest.mark.asyncio
-    async def test_get_stats(
-        self, limiter: RateLimiter, mock_request: MagicMock
-    ) -> None:
+    async def test_get_stats(self, limiter: RateLimiter, mock_request: MagicMock) -> None:
         """Test getting rate limiter stats."""
         # Make some requests
         for _ in range(3):
@@ -258,9 +248,7 @@ class TestRateLimiterDecorator:
         return RateLimiter(max_requests=3, window_seconds=60)
 
     @pytest.mark.asyncio
-    async def test_decorator_allows_under_limit(
-        self, limiter: RateLimiter
-    ) -> None:
+    async def test_decorator_allows_under_limit(self, limiter: RateLimiter) -> None:
         """Test decorator allows requests under limit."""
         request = MagicMock()
         request.client.host = "127.0.0.1"
@@ -274,9 +262,7 @@ class TestRateLimiterDecorator:
         assert result == {"status": "ok"}
 
     @pytest.mark.asyncio
-    async def test_decorator_blocks_over_limit(
-        self, limiter: RateLimiter
-    ) -> None:
+    async def test_decorator_blocks_over_limit(self, limiter: RateLimiter) -> None:
         """Test decorator blocks requests over limit."""
         request = MagicMock()
         request.client.host = "127.0.0.1"
@@ -327,9 +313,7 @@ class TestRateLimiterDecorator:
         assert result == {"status": "ok"}
 
     @pytest.mark.asyncio
-    async def test_rate_limit_headers(
-        self, limiter: RateLimiter
-    ) -> None:
+    async def test_rate_limit_headers(self, limiter: RateLimiter) -> None:
         """Test rate limit headers in exception."""
         request = MagicMock()
         request.client.host = "127.0.0.1"

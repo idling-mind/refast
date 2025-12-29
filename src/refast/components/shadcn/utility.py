@@ -110,7 +110,7 @@ class ScrollArea(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         type: Literal["auto", "always", "scroll", "hover"] = "hover",
         scroll_hide_delay: int = 600,
         id: str | None = None,
@@ -190,7 +190,7 @@ class Collapsible(Component):
         default_open: bool = False,
         on_open_change: Any = None,
         disabled: bool = False,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -307,7 +307,7 @@ class Carousel(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         opts: dict[str, Any] | None = None,
         id: str | None = None,
@@ -341,7 +341,7 @@ class CarouselContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -465,7 +465,7 @@ class ResizablePanelGroup(Component):
     def __init__(
         self,
         direction: Literal["horizontal", "vertical"] = "horizontal",
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         on_layout: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -590,8 +590,7 @@ class Toaster(Component):
     def __init__(
         self,
         position: Literal[
-            "top-left", "top-center", "top-right",
-            "bottom-left", "bottom-center", "bottom-right"
+            "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"
         ] = "bottom-right",
         expand: bool = False,
         duration: int = 4000,
@@ -828,4 +827,3 @@ class ThemeSwitcher(Component):
             },
             "children": [],
         }
-

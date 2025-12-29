@@ -1,20 +1,19 @@
 """Tests for navigation components (Stage 9)."""
 
-import pytest
 
 from refast.components.shadcn.navigation import (
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbSeparator,
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    Menubar,
-    MenubarItem,
     Command,
     CommandInput,
     CommandItem,
+    Menubar,
+    MenubarItem,
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
 )
 
 

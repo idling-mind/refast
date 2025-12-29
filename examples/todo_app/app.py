@@ -7,39 +7,39 @@ This example demonstrates:
 - State persistence within session
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
-import uuid
 
 from fastapi import FastAPI
 
-from refast import RefastApp, Context
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
+    Badge,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
     CardDescription,
-    Input,
+    CardHeader,
+    CardTitle,
     Checkbox,
-    Badge,
+    Column,
+    Container,
+    Input,
+    Row,
+    Text,
 )
 
 
 @dataclass
 class Todo:
     """A todo item."""
+
     id: str
     text: str
     completed: bool = False
     created_at: datetime = field(default_factory=datetime.now)
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
@@ -48,7 +48,7 @@ class Todo:
             "completed": self.completed,
             "created_at": self.created_at.isoformat(),
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "Todo":
         """Create from dictionary."""
@@ -64,13 +64,13 @@ class Todo:
 ui = RefastApp(title="Todo App")
 
 
-def get_todos(ctx: Context) -> List[Todo]:
+def get_todos(ctx: Context) -> list[Todo]:
     """Get all todos from state."""
     todos_data = ctx.state.get("todos", [])
     return [Todo.from_dict(t) for t in todos_data]
 
 
-def save_todos(ctx: Context, todos: List[Todo]) -> None:
+def save_todos(ctx: Context, todos: list[Todo]) -> None:
     """Save todos to state."""
     ctx.state.set("todos", [t.to_dict() for t in todos])
 
@@ -79,7 +79,7 @@ async def add_todo(ctx: Context, text: str = ""):
     """Add a new todo item."""
     if not text.strip():
         return
-    
+
     todos = get_todos(ctx)
     new_todo = Todo(
         id=str(uuid.uuid4()),
@@ -87,7 +87,7 @@ async def add_todo(ctx: Context, text: str = ""):
     )
     todos.append(new_todo)
     save_todos(ctx, todos)
-    
+
     # Clear input
     ctx.state.set("new_todo_text", "")
 
@@ -155,7 +155,7 @@ def home(ctx: Context):
     todos = get_todos(ctx)
     active_count = sum(1 for t in todos if not t.completed)
     completed_count = sum(1 for t in todos if t.completed)
-    
+
     return Container(
         id="main-container",
         class_name="max-w-lg mx-auto mt-10 px-4",
@@ -172,9 +172,7 @@ def home(ctx: Context):
                                     Column(
                                         children=[
                                             CardTitle("Todo App"),
-                                            CardDescription(
-                                                "Manage your tasks efficiently"
-                                            ),
+                                            CardDescription("Manage your tasks efficiently"),
                                         ]
                                     ),
                                     Row(
@@ -186,7 +184,9 @@ def home(ctx: Context):
                                             ),
                                             Badge(
                                                 f"{completed_count} done",
-                                                variant="success" if completed_count > 0 else "secondary",
+                                                variant="success"
+                                                if completed_count > 0
+                                                else "secondary",
                                             ),
                                         ],
                                     ),
@@ -226,10 +226,9 @@ def home(ctx: Context):
                                     Column(
                                         id="todo-list",
                                         gap=2,
-                                        children=[
-                                            render_todo_item(ctx, todo)
-                                            for todo in todos
-                                        ] if todos else [
+                                        children=[render_todo_item(ctx, todo) for todo in todos]
+                                        if todos
+                                        else [
                                             Text(
                                                 "No todos yet. Add one above!",
                                                 class_name="text-center text-gray-500 py-8",
@@ -249,12 +248,14 @@ def home(ctx: Context):
                                                 on_click=ctx.callback(clear_completed),
                                             ),
                                         ],
-                                    ) if todos else Container(),
+                                    )
+                                    if todos
+                                    else Container(),
                                 ],
                             )
                         ]
                     ),
-                ]
+                ],
             )
         ],
     )
@@ -267,4 +268,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

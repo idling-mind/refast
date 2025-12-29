@@ -182,9 +182,7 @@ class TestInputSanitizer:
         assert len(result["tags"]) == 3
         assert len(result["users"]) == 2
 
-    def test_sanitize_dict_preserves_non_strings(
-        self, sanitizer: InputSanitizer
-    ) -> None:
+    def test_sanitize_dict_preserves_non_strings(self, sanitizer: InputSanitizer) -> None:
         """Test that non-string values are preserved."""
         data = {
             "count": 42,
@@ -207,96 +205,66 @@ class TestInputSanitizerValidate:
     def test_validate_required_field(self) -> None:
         """Test required field validation."""
         with pytest.raises(ValueError, match="email is required"):
-            InputSanitizer.validate(
-                {},
-                {"email": {"type": "email", "required": True}}
-            )
+            InputSanitizer.validate({}, {"email": {"type": "email", "required": True}})
 
     def test_validate_required_field_present(self) -> None:
         """Test required field when present."""
         result = InputSanitizer.validate(
-            {"email": "test@example.com"},
-            {"email": {"type": "email", "required": True}}
+            {"email": "test@example.com"}, {"email": {"type": "email", "required": True}}
         )
         assert result["email"] == "test@example.com"
 
     def test_validate_optional_field_missing(self) -> None:
         """Test optional field can be missing."""
-        result = InputSanitizer.validate(
-            {},
-            {"name": {"type": "string", "required": False}}
-        )
+        result = InputSanitizer.validate({}, {"name": {"type": "string", "required": False}})
         assert "name" not in result
 
     def test_validate_email_type(self) -> None:
         """Test email type validation."""
         # Valid email
         result = InputSanitizer.validate(
-            {"email": "test@example.com"},
-            {"email": {"type": "email"}}
+            {"email": "test@example.com"}, {"email": {"type": "email"}}
         )
         assert result["email"] == "test@example.com"
 
         # Invalid email
         with pytest.raises(ValueError, match="not a valid email"):
-            InputSanitizer.validate(
-                {"email": "not-an-email"},
-                {"email": {"type": "email"}}
-            )
+            InputSanitizer.validate({"email": "not-an-email"}, {"email": {"type": "email"}})
 
     def test_validate_int_type(self) -> None:
         """Test integer type validation."""
-        result = InputSanitizer.validate(
-            {"age": "25"},
-            {"age": {"type": "int"}}
-        )
+        result = InputSanitizer.validate({"age": "25"}, {"age": {"type": "int"}})
         assert result["age"] == 25
         assert isinstance(result["age"], int)
 
         # Also works with "integer"
-        result = InputSanitizer.validate(
-            {"count": "10"},
-            {"count": {"type": "integer"}}
-        )
+        result = InputSanitizer.validate({"count": "10"}, {"count": {"type": "integer"}})
         assert result["count"] == 10
 
     def test_validate_int_invalid(self) -> None:
         """Test invalid integer."""
         with pytest.raises(ValueError, match="must be an integer"):
-            InputSanitizer.validate(
-                {"age": "not-a-number"},
-                {"age": {"type": "int"}}
-            )
+            InputSanitizer.validate({"age": "not-a-number"}, {"age": {"type": "int"}})
 
     def test_validate_float_type(self) -> None:
         """Test float type validation."""
-        result = InputSanitizer.validate(
-            {"price": "19.99"},
-            {"price": {"type": "float"}}
-        )
+        result = InputSanitizer.validate({"price": "19.99"}, {"price": {"type": "float"}})
         assert result["price"] == 19.99
         assert isinstance(result["price"], float)
 
         # Also works with "number"
-        result = InputSanitizer.validate(
-            {"amount": "100.50"},
-            {"amount": {"type": "number"}}
-        )
+        result = InputSanitizer.validate({"amount": "100.50"}, {"amount": {"type": "number"}})
         assert result["amount"] == 100.50
 
     def test_validate_float_invalid(self) -> None:
         """Test invalid float."""
         with pytest.raises(ValueError, match="must be a number"):
-            InputSanitizer.validate(
-                {"price": "expensive"},
-                {"price": {"type": "float"}}
-            )
+            InputSanitizer.validate({"price": "expensive"}, {"price": {"type": "float"}})
 
     def test_validate_sanitizes_strings(self) -> None:
         """Test that strings are sanitized by default."""
         result = InputSanitizer.validate(
-            {"name": "<script>bad</script>Alice"},
-            {"name": {"type": "string"}}
+            {"name": "<script>bad</script>Alice"}, {"name": {"type": "string"}}
         )
         assert "script" not in result["name"].lower()
         assert "Alice" in result["name"]
@@ -304,26 +272,21 @@ class TestInputSanitizerValidate:
     def test_validate_sanitize_html_disabled(self) -> None:
         """Test disabling HTML sanitization."""
         result = InputSanitizer.validate(
-            {"html": "<b>Bold</b>"},
-            {"html": {"type": "string", "sanitize_html": False}}
+            {"html": "<b>Bold</b>"}, {"html": {"type": "string", "sanitize_html": False}}
         )
         assert "<b>" in result["html"]
 
     def test_validate_max_length(self) -> None:
         """Test max length truncation."""
         result = InputSanitizer.validate(
-            {"name": "This is a very long name"},
-            {"name": {"type": "string", "max_length": 10}}
+            {"name": "This is a very long name"}, {"name": {"type": "string", "max_length": 10}}
         )
         assert len(result["name"]) <= 10
 
     def test_validate_min_length(self) -> None:
         """Test min length validation."""
         with pytest.raises(ValueError, match="at least 5 characters"):
-            InputSanitizer.validate(
-                {"name": "Hi"},
-                {"name": {"type": "string", "min_length": 5}}
-            )
+            InputSanitizer.validate({"name": "Hi"}, {"name": {"type": "string", "min_length": 5}})
 
     def test_validate_multiple_errors(self) -> None:
         """Test multiple validation errors."""
@@ -333,7 +296,7 @@ class TestInputSanitizerValidate:
                 {
                     "email": {"type": "email", "required": True},
                     "name": {"type": "string", "required": True},
-                }
+                },
             )
 
         error_message = str(exc_info.value)
@@ -347,13 +310,16 @@ class TestSanitizeDecorator:
     @pytest.mark.asyncio
     async def test_decorator_sanitizes_dict_kwargs(self) -> None:
         """Test decorator sanitizes dict arguments."""
+
         @sanitize
         async def handler(data: dict) -> dict:
             return data
 
-        result = await handler(data={
-            "name": "<script>bad</script>Alice",
-        })
+        result = await handler(
+            data={
+                "name": "<script>bad</script>Alice",
+            }
+        )
 
         assert "script" not in str(result).lower()
         assert "Alice" in str(result)
@@ -361,6 +327,7 @@ class TestSanitizeDecorator:
     @pytest.mark.asyncio
     async def test_decorator_passes_non_dict_unchanged(self) -> None:
         """Test decorator passes non-dict values unchanged."""
+
         @sanitize
         async def handler(name: str, age: int) -> tuple[str, int]:
             return name, age
@@ -371,6 +338,7 @@ class TestSanitizeDecorator:
     @pytest.mark.asyncio
     async def test_decorator_preserves_function_metadata(self) -> None:
         """Test decorator preserves function name and docstring."""
+
         @sanitize
         async def my_handler(data: dict) -> dict:
             """Handler docstring."""

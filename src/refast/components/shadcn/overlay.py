@@ -38,7 +38,7 @@ class AlertDialog(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -336,7 +336,7 @@ class Sheet(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -606,7 +606,7 @@ class Popover(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -733,7 +733,7 @@ class HoverCard(Component):
         on_open_change: Any = None,
         open_delay: int = 700,
         close_delay: int = 300,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -864,7 +864,7 @@ class DropdownMenu(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -932,7 +932,7 @@ class DropdownMenuContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         side: Literal["top", "right", "bottom", "left"] = "bottom",
         side_offset: int = 4,
         align: Literal["start", "center", "end"] = "start",
@@ -1083,7 +1083,9 @@ class DropdownMenuCheckboxItem(Component):
             "id": self.id,
             "props": {
                 "checked": self.checked,
-                "onCheckedChange": self.on_checked_change.serialize() if self.on_checked_change else None,
+                "onCheckedChange": self.on_checked_change.serialize()
+                if self.on_checked_change
+                else None,
                 "disabled": self.disabled,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
@@ -1101,7 +1103,7 @@ class DropdownMenuRadioGroup(Component):
         self,
         value: str = "",
         on_value_change: Any = None,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1163,7 +1165,7 @@ class DropdownMenuSub(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1224,7 +1226,7 @@ class DropdownMenuSubContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1269,7 +1271,7 @@ class ContextMenu(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1328,7 +1330,7 @@ class ContextMenuContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1440,7 +1442,9 @@ class ContextMenuCheckboxItem(Component):
             "id": self.id,
             "props": {
                 "checked": self.checked,
-                "onCheckedChange": self.on_checked_change.serialize() if self.on_checked_change else None,
+                "onCheckedChange": self.on_checked_change.serialize()
+                if self.on_checked_change
+                else None,
                 "disabled": self.disabled,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
@@ -1477,7 +1481,7 @@ class Drawer(Component):
         open: bool | None = None,
         on_open_change: Any = None,
         should_scale_background: bool = True,
-        children: Union[list["Component"], None] = None,
+        children: list["Component"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1717,4 +1721,3 @@ class DrawerClose(Component):
             },
             "children": self._render_children(),
         }
-

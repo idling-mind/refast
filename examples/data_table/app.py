@@ -8,46 +8,40 @@ This example demonstrates:
 - Badge status indicators
 """
 
-from fastapi import FastAPI
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
-from refast import RefastApp, Context
+from fastapi import FastAPI
+
+from refast import Context, RefastApp
 from refast.components import (
-    Container,
-    Column,
-    Row,
-    Text,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    Avatar,
+    Badge,
     Button,
     Card,
-    CardHeader,
     CardContent,
-    CardTitle,
-    CardDescription,
-    Input,
-    Select,
-    Badge,
-    DataTable,
     Checkbox,
-    Avatar,
+    Column,
+    Container,
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-    AlertDialog,
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogAction,
-    AlertDialogCancel,
-    Separator,
-    Label,
+    DropdownMenuTrigger,
+    Input,
+    Row,
+    Select,
+    Text,
 )
-
 
 # Create the Refast app
 ui = RefastApp(title="Data Table Example")
@@ -58,18 +52,22 @@ def generate_sample_users():
     """Generate sample user data."""
     statuses = ["active", "inactive", "pending"]
     roles = ["Admin", "Editor", "Viewer"]
-    
+
     users = []
     for i in range(1, 51):
         status = random.choice(statuses)
-        users.append({
-            "id": i,
-            "name": f"User {i}",
-            "email": f"user{i}@example.com",
-            "role": random.choice(roles),
-            "status": status,
-            "created_at": (datetime.now() - timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
-        })
+        users.append(
+            {
+                "id": i,
+                "name": f"User {i}",
+                "email": f"user{i}@example.com",
+                "role": random.choice(roles),
+                "status": status,
+                "created_at": (datetime.now() - timedelta(days=random.randint(1, 365))).strftime(
+                    "%Y-%m-%d"
+                ),
+            }
+        )
     return users
 
 
@@ -105,16 +103,16 @@ async def on_select_all(ctx: Context):
     selected = ctx.state.get("selected_ids", [])
     filtered_users = get_filtered_users(ctx)
     page_users = get_page_users(filtered_users, ctx)
-    
+
     page_ids = [u["id"] for u in page_users]
-    
+
     if all(id in selected for id in page_ids):
         # Deselect all on page
         selected = [id for id in selected if id not in page_ids]
     else:
         # Select all on page
         selected = list(set(selected + page_ids))
-    
+
     ctx.state.set("selected_ids", selected)
     await ctx.refresh()
 
@@ -123,12 +121,12 @@ async def on_select_row(ctx: Context):
     """Handle row selection."""
     user_id = ctx.event_data.get("user_id")
     selected = ctx.state.get("selected_ids", [])
-    
+
     if user_id in selected:
         selected.remove(user_id)
     else:
         selected.append(user_id)
-    
+
     ctx.state.set("selected_ids", selected)
     await ctx.refresh()
 
@@ -165,15 +163,15 @@ def get_filtered_users(ctx: Context):
     """Get filtered users based on search and status."""
     query = ctx.state.get("search_query", "")
     status_filter = ctx.state.get("filter_status", "all")
-    
+
     users = SAMPLE_USERS
-    
+
     if query:
         users = [u for u in users if query in u["name"].lower() or query in u["email"].lower()]
-    
+
     if status_filter != "all":
         users = [u for u in users if u["status"] == status_filter]
-    
+
     return users
 
 
@@ -204,14 +202,14 @@ def home(ctx: Context):
     selected_ids = ctx.state.get("selected_ids", [])
     current_page = ctx.state.get("current_page", 1)
     per_page = 10
-    
+
     filtered_users = get_filtered_users(ctx)
     page_users = get_page_users(filtered_users, ctx, per_page)
     total_pages = (len(filtered_users) + per_page - 1) // per_page
-    
+
     page_ids = [u["id"] for u in page_users]
     all_selected = len(page_ids) > 0 and all(id in selected_ids for id in page_ids)
-    
+
     return Container(
         class_name="max-w-7xl mx-auto p-8",
         children=[
@@ -227,7 +225,7 @@ def home(ctx: Context):
                             Text("Users", class_name="text-3xl font-bold"),
                             Text(
                                 f"{len(filtered_users)} total users",
-                                class_name="text-muted-foreground"
+                                class_name="text-muted-foreground",
                             ),
                         ],
                     ),
@@ -235,16 +233,13 @@ def home(ctx: Context):
                         gap=2,
                         children=[
                             Button(
-                                label="Export",
-                                variant="outline",
-                                on_click=ctx.callback(on_export)
+                                label="Export", variant="outline", on_click=ctx.callback(on_export)
                             ),
                             Button(label="Add User", variant="default"),
                         ],
                     ),
                 ],
             ),
-            
             Card(
                 children=[
                     CardContent(
@@ -286,8 +281,10 @@ def home(ctx: Context):
                                         children=[
                                             Text(
                                                 f"{len(selected_ids)} selected",
-                                                class_name="text-sm text-muted-foreground"
-                                            ) if selected_ids else None,
+                                                class_name="text-sm text-muted-foreground",
+                                            )
+                                            if selected_ids
+                                            else None,
                                             AlertDialog(
                                                 children=[
                                                     AlertDialogTrigger(
@@ -302,7 +299,9 @@ def home(ctx: Context):
                                                         children=[
                                                             AlertDialogHeader(
                                                                 children=[
-                                                                    AlertDialogTitle(title="Delete Users"),
+                                                                    AlertDialogTitle(
+                                                                        title="Delete Users"
+                                                                    ),
                                                                     AlertDialogDescription(
                                                                         description=f"Are you sure you want to delete {len(selected_ids)} users? This action cannot be undone."
                                                                     ),
@@ -310,22 +309,27 @@ def home(ctx: Context):
                                                             ),
                                                             AlertDialogFooter(
                                                                 children=[
-                                                                    AlertDialogCancel(label="Cancel"),
+                                                                    AlertDialogCancel(
+                                                                        label="Cancel"
+                                                                    ),
                                                                     AlertDialogAction(
                                                                         label="Delete",
-                                                                        on_click=ctx.callback(on_bulk_delete)
+                                                                        on_click=ctx.callback(
+                                                                            on_bulk_delete
+                                                                        ),
                                                                     ),
                                                                 ]
                                                             ),
                                                         ]
                                                     ),
                                                 ]
-                                            ) if selected_ids else None,
+                                            )
+                                            if selected_ids
+                                            else None,
                                         ],
                                     ),
                                 ],
                             ),
-                            
                             # Table
                             Container(
                                 class_name="border rounded-md",
@@ -347,10 +351,12 @@ def home(ctx: Context):
                                             Text("Role", class_name="w-24 font-medium text-sm"),
                                             Text("Status", class_name="w-24 font-medium text-sm"),
                                             Text("Created", class_name="w-28 font-medium text-sm"),
-                                            Text("Actions", class_name="w-20 font-medium text-sm text-right"),
+                                            Text(
+                                                "Actions",
+                                                class_name="w-20 font-medium text-sm text-right",
+                                            ),
                                         ],
                                     ),
-                                    
                                     # Table rows
                                     Column(
                                         children=[
@@ -365,7 +371,7 @@ def home(ctx: Context):
                                                                 checked=user["id"] in selected_ids,
                                                                 on_change=ctx.callback(
                                                                     on_select_row,
-                                                                    user_id=user["id"]
+                                                                    user_id=user["id"],
                                                                 ),
                                                             ),
                                                         ],
@@ -382,8 +388,14 @@ def home(ctx: Context):
                                                             Column(
                                                                 gap=0,
                                                                 children=[
-                                                                    Text(user["name"], class_name="font-medium text-sm"),
-                                                                    Text(user["email"], class_name="text-xs text-muted-foreground"),
+                                                                    Text(
+                                                                        user["name"],
+                                                                        class_name="font-medium text-sm",
+                                                                    ),
+                                                                    Text(
+                                                                        user["email"],
+                                                                        class_name="text-xs text-muted-foreground",
+                                                                    ),
                                                                 ],
                                                             ),
                                                         ],
@@ -393,7 +405,10 @@ def home(ctx: Context):
                                                         class_name="w-24",
                                                         children=[get_status_badge(user["status"])],
                                                     ),
-                                                    Text(user["created_at"], class_name="w-28 text-sm text-muted-foreground"),
+                                                    Text(
+                                                        user["created_at"],
+                                                        class_name="w-28 text-sm text-muted-foreground",
+                                                    ),
                                                     Container(
                                                         class_name="w-20 text-right",
                                                         children=[
@@ -412,16 +427,22 @@ def home(ctx: Context):
                                                                                 label="Edit",
                                                                                 on_select=ctx.callback(
                                                                                     on_edit_user,
-                                                                                    user_id=user["id"]
+                                                                                    user_id=user[
+                                                                                        "id"
+                                                                                    ],
                                                                                 ),
                                                                             ),
-                                                                            DropdownMenuItem(label="View Profile"),
+                                                                            DropdownMenuItem(
+                                                                                label="View Profile"
+                                                                            ),
                                                                             DropdownMenuSeparator(),
                                                                             DropdownMenuItem(
                                                                                 label="Delete",
                                                                                 on_select=ctx.callback(
                                                                                     on_delete_user,
-                                                                                    user_id=user["id"]
+                                                                                    user_id=user[
+                                                                                        "id"
+                                                                                    ],
                                                                                 ),
                                                                             ),
                                                                         ]
@@ -437,7 +458,6 @@ def home(ctx: Context):
                                     ),
                                 ],
                             ),
-                            
                             # Pagination
                             Row(
                                 justify="between",
@@ -446,7 +466,7 @@ def home(ctx: Context):
                                 children=[
                                     Text(
                                         f"Showing {(current_page - 1) * per_page + 1} to {min(current_page * per_page, len(filtered_users))} of {len(filtered_users)} users",
-                                        class_name="text-sm text-muted-foreground"
+                                        class_name="text-sm text-muted-foreground",
                                     ),
                                     Row(
                                         gap=1,
@@ -456,18 +476,22 @@ def home(ctx: Context):
                                                 variant="outline",
                                                 size="sm",
                                                 disabled=current_page == 1,
-                                                on_click=ctx.callback(on_page_change, page=current_page - 1),
+                                                on_click=ctx.callback(
+                                                    on_page_change, page=current_page - 1
+                                                ),
                                             ),
                                             *[
                                                 Button(
                                                     label=str(p),
-                                                    variant="default" if p == current_page else "outline",
+                                                    variant="default"
+                                                    if p == current_page
+                                                    else "outline",
                                                     size="sm",
                                                     on_click=ctx.callback(on_page_change, page=p),
                                                 )
                                                 for p in range(
                                                     max(1, current_page - 2),
-                                                    min(total_pages + 1, current_page + 3)
+                                                    min(total_pages + 1, current_page + 3),
                                                 )
                                             ],
                                             Button(
@@ -475,7 +499,9 @@ def home(ctx: Context):
                                                 variant="outline",
                                                 size="sm",
                                                 disabled=current_page >= total_pages,
-                                                on_click=ctx.callback(on_page_change, page=current_page + 1),
+                                                on_click=ctx.callback(
+                                                    on_page_change, page=current_page + 1
+                                                ),
                                             ),
                                         ],
                                     ),
@@ -496,4 +522,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

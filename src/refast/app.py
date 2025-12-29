@@ -1,7 +1,7 @@
 """Main RefastApp class."""
 
 from collections.abc import Callable
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from fastapi import APIRouter
 
@@ -91,9 +91,11 @@ class RefastApp:
                 return Container(...)
             ```
         """
+
         def decorator(func: PageFunc) -> PageFunc:
             self._pages[path] = func
             return func
+
         return decorator
 
     def on_event(self, event_type: str) -> Callable[[Callable], Callable]:
@@ -106,9 +108,11 @@ class RefastApp:
         Returns:
             Decorator function
         """
+
         def decorator(func: Callable) -> Callable:
             self._event_handlers[event_type] = func
             return func
+
         return decorator
 
     def register_callback(self, callback_id: str, func: Callable) -> None:

@@ -59,9 +59,7 @@ class RedisSessionStore(SessionStore):
             ValueError: If neither redis_url nor client is provided
         """
         if not REDIS_AVAILABLE:
-            raise ImportError(
-                "Redis is not installed. Install with: pip install refast[redis]"
-            )
+            raise ImportError("Redis is not installed. Install with: pip install refast[redis]")
 
         self._prefix = prefix
         self._default_ttl = default_ttl

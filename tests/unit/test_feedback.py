@@ -1,17 +1,15 @@
 """Tests for feedback components."""
 
-import pytest
 
 from refast.components.shadcn.feedback import (
     Alert,
-    Toast,
-    Modal,
     Dialog,
-    Spinner,
+    Modal,
     Progress,
     Skeleton,
+    Spinner,
+    Toast,
 )
-from refast.components.base import Text
 
 
 class MockCallback:

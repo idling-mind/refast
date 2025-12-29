@@ -102,4 +102,32 @@ interface TooltipProps {
  * Tooltip component - hover tooltip.
  */
 export declare function Tooltip({ id, className, content, side, children, 'data-refast-id': dataRefastId, }: TooltipProps): React.ReactElement;
+interface TabsProps {
+    id?: string;
+    className?: string;
+    defaultValue?: string;
+    value?: string;
+    onValueChange?: (value: string) => void;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * Tabs component - tab container.
+ * Children should be TabItem components that will be rendered in a tabbed interface.
+ */
+export declare function Tabs({ id, className, defaultValue, value, onValueChange, children, 'data-refast-id': dataRefastId, }: TabsProps): React.ReactElement;
+interface TabItemProps {
+    id?: string;
+    className?: string;
+    value: string;
+    label: string;
+    disabled?: boolean;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * TabItem component - individual tab panel.
+ * The visibility is controlled by the parent Tabs component.
+ */
+export declare function TabItem({ id, className, value, label, disabled, children, 'data-refast-id': dataRefastId, }: TabItemProps): React.ReactElement;
 export {};

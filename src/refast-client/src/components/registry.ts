@@ -11,7 +11,40 @@ import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup } fr
 import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Toast, Skeleton } from './shadcn/feedback';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip } from './shadcn/data_display';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem } from './shadcn/data_display';
+
+// Import new Stage 9 components - Controls
+import { Switch, Slider, Toggle, ToggleGroup, ToggleGroupItem, DatePicker, Calendar, Combobox, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from './shadcn/controls';
+
+// Import new Stage 9 components - Navigation
+import {
+  Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis,
+  NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink,
+  Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis,
+  Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem, MenubarSeparator, MenubarCheckboxItem, MenubarRadioGroup, MenubarRadioItem, MenubarSub, MenubarSubTrigger, MenubarSubContent,
+  Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator, CommandShortcut,
+  Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger
+} from './shadcn/navigation';
+
+// Import new Stage 9 components - Overlay
+import {
+  AlertDialog, Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
+  SheetTitle, SheetDescription, SheetClose,
+  Drawer, HoverCard, Popover,
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSub,
+  DropdownMenuSubTrigger, DropdownMenuSubContent,
+  ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
+  ContextMenuSeparator, ContextMenuCheckboxItem
+} from './shadcn/overlay';
+
+// Import new Stage 9 components - Utility
+import {
+  Separator, AspectRatio, ScrollArea, Collapsible,
+  Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
+  Resizable, ResizablePanel, ResizableHandle
+} from './shadcn/utility';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ComponentType = React.ComponentType<any>;
@@ -119,3 +152,119 @@ componentRegistry.register('TableCell', TableCell);
 componentRegistry.register('Avatar', Avatar);
 componentRegistry.register('Image', Image);
 componentRegistry.register('Tooltip', Tooltip);
+componentRegistry.register('Tabs', Tabs);
+componentRegistry.register('TabItem', TabItem);
+
+// Register control components (Stage 9)
+componentRegistry.register('Switch', Switch);
+componentRegistry.register('Slider', Slider);
+componentRegistry.register('Toggle', Toggle);
+componentRegistry.register('ToggleGroup', ToggleGroup);
+componentRegistry.register('ToggleGroupItem', ToggleGroupItem);
+componentRegistry.register('DatePicker', DatePicker);
+componentRegistry.register('Calendar', Calendar);
+componentRegistry.register('Combobox', Combobox);
+componentRegistry.register('InputOTP', InputOTP);
+componentRegistry.register('InputOTPGroup', InputOTPGroup);
+componentRegistry.register('InputOTPSlot', InputOTPSlot);
+componentRegistry.register('InputOTPSeparator', InputOTPSeparator);
+
+// Register navigation components (Stage 9)
+componentRegistry.register('Breadcrumb', Breadcrumb);
+componentRegistry.register('BreadcrumbList', BreadcrumbList);
+componentRegistry.register('BreadcrumbItem', BreadcrumbItem);
+componentRegistry.register('BreadcrumbLink', BreadcrumbLink);
+componentRegistry.register('BreadcrumbPage', BreadcrumbPage);
+componentRegistry.register('BreadcrumbSeparator', BreadcrumbSeparator);
+componentRegistry.register('BreadcrumbEllipsis', BreadcrumbEllipsis);
+componentRegistry.register('NavigationMenu', NavigationMenu);
+componentRegistry.register('NavigationMenuList', NavigationMenuList);
+componentRegistry.register('NavigationMenuItem', NavigationMenuItem);
+componentRegistry.register('NavigationMenuTrigger', NavigationMenuTrigger);
+componentRegistry.register('NavigationMenuContent', NavigationMenuContent);
+componentRegistry.register('NavigationMenuLink', NavigationMenuLink);
+componentRegistry.register('Pagination', Pagination);
+componentRegistry.register('PaginationContent', PaginationContent);
+componentRegistry.register('PaginationItem', PaginationItem);
+componentRegistry.register('PaginationLink', PaginationLink);
+componentRegistry.register('PaginationPrevious', PaginationPrevious);
+componentRegistry.register('PaginationNext', PaginationNext);
+componentRegistry.register('PaginationEllipsis', PaginationEllipsis);
+componentRegistry.register('Menubar', Menubar);
+componentRegistry.register('MenubarMenu', MenubarMenu);
+componentRegistry.register('MenubarTrigger', MenubarTrigger);
+componentRegistry.register('MenubarContent', MenubarContent);
+componentRegistry.register('MenubarItem', MenubarItem);
+componentRegistry.register('MenubarSeparator', MenubarSeparator);
+componentRegistry.register('MenubarCheckboxItem', MenubarCheckboxItem);
+componentRegistry.register('MenubarRadioGroup', MenubarRadioGroup);
+componentRegistry.register('MenubarRadioItem', MenubarRadioItem);
+componentRegistry.register('MenubarSub', MenubarSub);
+componentRegistry.register('MenubarSubTrigger', MenubarSubTrigger);
+componentRegistry.register('MenubarSubContent', MenubarSubContent);
+componentRegistry.register('Command', Command);
+componentRegistry.register('CommandInput', CommandInput);
+componentRegistry.register('CommandList', CommandList);
+componentRegistry.register('CommandEmpty', CommandEmpty);
+componentRegistry.register('CommandGroup', CommandGroup);
+componentRegistry.register('CommandItem', CommandItem);
+componentRegistry.register('CommandSeparator', CommandSeparator);
+componentRegistry.register('CommandShortcut', CommandShortcut);
+componentRegistry.register('Sidebar', Sidebar);
+componentRegistry.register('SidebarHeader', SidebarHeader);
+componentRegistry.register('SidebarContent', SidebarContent);
+componentRegistry.register('SidebarFooter', SidebarFooter);
+componentRegistry.register('SidebarGroup', SidebarGroup);
+componentRegistry.register('SidebarGroupLabel', SidebarGroupLabel);
+componentRegistry.register('SidebarGroupContent', SidebarGroupContent);
+componentRegistry.register('SidebarMenu', SidebarMenu);
+componentRegistry.register('SidebarMenuItem', SidebarMenuItem);
+componentRegistry.register('SidebarMenuButton', SidebarMenuButton);
+componentRegistry.register('SidebarTrigger', SidebarTrigger);
+
+// Register overlay components (Stage 9)
+componentRegistry.register('AlertDialog', AlertDialog);
+componentRegistry.register('Sheet', Sheet);
+componentRegistry.register('SheetTrigger', SheetTrigger);
+componentRegistry.register('SheetContent', SheetContent);
+componentRegistry.register('SheetHeader', SheetHeader);
+componentRegistry.register('SheetFooter', SheetFooter);
+componentRegistry.register('SheetTitle', SheetTitle);
+componentRegistry.register('SheetDescription', SheetDescription);
+componentRegistry.register('SheetClose', SheetClose);
+componentRegistry.register('Drawer', Drawer);
+componentRegistry.register('HoverCard', HoverCard);
+componentRegistry.register('Popover', Popover);
+componentRegistry.register('DropdownMenu', DropdownMenu);
+componentRegistry.register('DropdownMenuTrigger', DropdownMenuTrigger);
+componentRegistry.register('DropdownMenuContent', DropdownMenuContent);
+componentRegistry.register('DropdownMenuItem', DropdownMenuItem);
+componentRegistry.register('DropdownMenuLabel', DropdownMenuLabel);
+componentRegistry.register('DropdownMenuSeparator', DropdownMenuSeparator);
+componentRegistry.register('DropdownMenuCheckboxItem', DropdownMenuCheckboxItem);
+componentRegistry.register('DropdownMenuRadioGroup', DropdownMenuRadioGroup);
+componentRegistry.register('DropdownMenuRadioItem', DropdownMenuRadioItem);
+componentRegistry.register('DropdownMenuSub', DropdownMenuSub);
+componentRegistry.register('DropdownMenuSubTrigger', DropdownMenuSubTrigger);
+componentRegistry.register('DropdownMenuSubContent', DropdownMenuSubContent);
+componentRegistry.register('ContextMenu', ContextMenu);
+componentRegistry.register('ContextMenuTrigger', ContextMenuTrigger);
+componentRegistry.register('ContextMenuContent', ContextMenuContent);
+componentRegistry.register('ContextMenuItem', ContextMenuItem);
+componentRegistry.register('ContextMenuSeparator', ContextMenuSeparator);
+componentRegistry.register('ContextMenuCheckboxItem', ContextMenuCheckboxItem);
+
+// Register utility components (Stage 9)
+componentRegistry.register('Separator', Separator);
+componentRegistry.register('AspectRatio', AspectRatio);
+componentRegistry.register('ScrollArea', ScrollArea);
+componentRegistry.register('Collapsible', Collapsible);
+componentRegistry.register('Carousel', Carousel);
+componentRegistry.register('CarouselContent', CarouselContent);
+componentRegistry.register('CarouselItem', CarouselItem);
+componentRegistry.register('CarouselPrevious', CarouselPrevious);
+componentRegistry.register('CarouselNext', CarouselNext);
+componentRegistry.register('Resizable', Resizable);
+componentRegistry.register('ResizablePanel', ResizablePanel);
+componentRegistry.register('ResizableHandle', ResizableHandle);
+

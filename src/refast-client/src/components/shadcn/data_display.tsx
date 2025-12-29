@@ -333,3 +333,156 @@ export function Tooltip({
     </div>
   );
 }
+
+// Tabs Context
+interface TabsContextValue {
+  activeTab: string;
+  setActiveTab: (value: string) => void;
+}
+
+const TabsContext = React.createContext<TabsContextValue | null>(null);
+
+interface TabsProps {
+  id?: string;
+  className?: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * Tabs component - tab container.
+ * Children should be TabItem components that will be rendered in a tabbed interface.
+ */
+export function Tabs({
+  id,
+  className,
+  defaultValue = '',
+  value,
+  onValueChange,
+  children,
+  'data-refast-id': dataRefastId,
+}: TabsProps): React.ReactElement {
+  const [activeTab, setActiveTab] = React.useState(value || defaultValue);
+
+  // Extract tab information from children by looking at their rendered output
+  const childArray = React.Children.toArray(children);
+  
+  // Collect tab metadata from children
+  const tabMeta: Array<{ value: string; label: string; disabled: boolean }> = [];
+  
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child)) {
+      const props = child.props as Record<string, unknown>;
+      // TabItem passes value and label as props
+      if (props.value !== undefined) {
+        tabMeta.push({
+          value: String(props.value || ''),
+          label: String(props.label || props.value || ''),
+          disabled: Boolean(props.disabled),
+        });
+      }
+    }
+  });
+
+  // Initialize activeTab if not set
+  React.useEffect(() => {
+    if (!activeTab && tabMeta.length > 0) {
+      setActiveTab(tabMeta[0].value);
+    }
+  }, [activeTab, tabMeta]);
+
+  const handleTabChange = (tabValue: string) => {
+    setActiveTab(tabValue);
+    onValueChange?.(tabValue);
+  };
+
+  const contextValue = React.useMemo(
+    () => ({ activeTab, setActiveTab: handleTabChange }),
+    [activeTab]
+  );
+
+  return (
+    <TabsContext.Provider value={contextValue}>
+      <div id={id} className={cn('w-full', className)} data-refast-id={dataRefastId}>
+        {/* Tab buttons */}
+        <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          {tabMeta.map((tab) => {
+            const isActive = activeTab === tab.value;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => !tab.disabled && handleTabChange(tab.value)}
+                disabled={tab.disabled}
+                className={cn(
+                  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:bg-background/50'
+                )}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Tab content - rendered children handle visibility via context */}
+        <div className="mt-2">
+          {childArray.map((child, index) => {
+            if (React.isValidElement(child)) {
+              const props = child.props as Record<string, unknown>;
+              const tabValue = String(props.value || '');
+              // Only show the active tab's content
+              if (tabValue !== activeTab) {
+                return null;
+              }
+              return <React.Fragment key={tabValue || index}>{child}</React.Fragment>;
+            }
+            return null;
+          })}
+        </div>
+      </div>
+    </TabsContext.Provider>
+  );
+}
+
+interface TabItemProps {
+  id?: string;
+  className?: string;
+  value: string;
+  label: string;
+  disabled?: boolean;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * TabItem component - individual tab panel.
+ * The visibility is controlled by the parent Tabs component.
+ */
+export function TabItem({
+  id,
+  className,
+  value,
+  label,
+  disabled = false,
+  children,
+  'data-refast-id': dataRefastId,
+}: TabItemProps): React.ReactElement {
+  return (
+    <div
+      id={id}
+      className={cn('ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', className)}
+      role="tabpanel"
+      data-value={value}
+      data-label={label}
+      data-disabled={disabled}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </div>
+  );
+}

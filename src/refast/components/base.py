@@ -67,6 +67,24 @@ class Component(ABC):
                 result.append(str(child))
         return result
 
+    def _serialize_extra_props(self) -> dict[str, Any]:
+        """Serialize extra_props, handling Callback objects."""
+        result = {}
+        for key, value in self.extra_props.items():
+            if hasattr(value, 'serialize') and callable(value.serialize):
+                # Convert snake_case to camelCase for event handlers
+                camel_key = self._to_camel_case(key)
+                result[camel_key] = value.serialize()
+            else:
+                result[key] = value
+        return result
+
+    @staticmethod
+    def _to_camel_case(snake_str: str) -> str:
+        """Convert snake_case to camelCase."""
+        components = snake_str.split('_')
+        return components[0] + ''.join(x.title() for x in components[1:])
+
     @abstractmethod
     def render(self) -> dict[str, Any]:
         """
@@ -119,7 +137,7 @@ class Container(Component):
             "props": {
                 "className": self.class_name,
                 "style": self.style,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -155,7 +173,7 @@ class Text(Component):
             "props": {
                 "className": self.class_name,
                 "style": self.style,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.content],
         }

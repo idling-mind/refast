@@ -32,7 +32,7 @@ export interface CallbackRef {
  * Update message from backend.
  */
 export interface UpdateMessage {
-    type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event';
+    type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh';
     operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children';
     targetId?: string;
     component?: ComponentTree;
@@ -42,6 +42,7 @@ export interface UpdateMessage {
     path?: string;
     message?: string;
     variant?: string;
+    duration?: number;
     eventType?: string;
     data?: unknown;
 }

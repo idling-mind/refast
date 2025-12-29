@@ -52,9 +52,155 @@ class Table(Component):
                 "striped": self.striped,
                 "hoverable": self.hoverable,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
+        }
+
+
+class TableHeader(Component):
+    """Table header section."""
+
+    component_type: str = "TableHeader"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class TableBody(Component):
+    """Table body section."""
+
+    component_type: str = "TableBody"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class TableRow(Component):
+    """Table row."""
+
+    component_type: str = "TableRow"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class TableHead(Component):
+    """Table header cell."""
+
+    component_type: str = "TableHead"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class TableCell(Component):
+    """Table data cell."""
+
+    component_type: str = "TableCell"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        col_span: int | None = None,
+        row_span: int | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+        self.col_span = col_span
+        self.row_span = row_span
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "colSpan": self.col_span,
+                "rowSpan": self.row_span,
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
         }
 
 
@@ -98,7 +244,7 @@ class DataTable(Component):
                 "pageSize": self.page_size,
                 "onRowClick": self.on_row_click.serialize() if self.on_row_click else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -129,7 +275,7 @@ class List(Component):
             "props": {
                 "ordered": self.ordered,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -161,7 +307,7 @@ class Badge(Component):
             "props": {
                 "variant": self.variant,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.text],
         }
@@ -198,7 +344,7 @@ class Avatar(Component):
                 "fallback": self.fallback,
                 "size": self.size,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -232,7 +378,7 @@ class Tooltip(Component):
                 "content": self.content,
                 "side": self.side,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -271,7 +417,7 @@ class Tabs(Component):
                     self.on_value_change.serialize() if self.on_value_change else None
                 ),
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -308,7 +454,7 @@ class TabItem(Component):
                 "label": self.label,
                 "disabled": self.disabled,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -345,7 +491,7 @@ class Accordion(Component):
                 "collapsible": self.collapsible,
                 "defaultValue": self.default_value,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }

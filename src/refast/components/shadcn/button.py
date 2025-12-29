@@ -57,7 +57,7 @@ class Button(Component):
                 "type": self.button_type,
                 "onClick": self.on_click.serialize() if self.on_click else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.label],
         }
@@ -102,7 +102,7 @@ class IconButton(Component):
                 "onClick": self.on_click.serialize() if self.on_click else None,
                 "ariaLabel": self.aria_label,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }

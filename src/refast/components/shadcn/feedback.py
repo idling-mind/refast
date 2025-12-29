@@ -53,7 +53,7 @@ class Alert(Component):
                 "dismissible": self.dismissible,
                 "onDismiss": self.on_dismiss.serialize() if self.on_dismiss else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -90,7 +90,7 @@ class Toast(Component):
                 "variant": self.variant,
                 "duration": self.duration,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -130,7 +130,7 @@ class Modal(Component):
                 "onClose": self.on_close.serialize() if self.on_close else None,
                 "size": self.size,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -172,7 +172,7 @@ class Dialog(Component):
                     self.on_open_change.serialize() if self.on_open_change else None
                 ),
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -200,7 +200,7 @@ class Spinner(Component):
             "props": {
                 "size": self.size,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -237,7 +237,7 @@ class Progress(Component):
                 "label": self.label,
                 "showValue": self.show_value,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -271,7 +271,7 @@ class Skeleton(Component):
                 "height": self.height,
                 "variant": self.variant,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }

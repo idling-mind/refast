@@ -10,6 +10,7 @@ export { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, } f
 export { Slot } from './components/shadcn/slot';
 export { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, } from './components/shadcn/typography';
 export { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Toast, Skeleton, } from './components/shadcn/feedback';
+export { ToastManager } from './components/ToastManager';
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, } from './components/shadcn/data_display';
 export { EventManagerProvider, useEventManager, useEvent, useChannel, } from './events/EventManager';
 export { useWebSocket, buildWebSocketUrl, WebSocketClient, } from './events/WebSocketClient';

@@ -1,0 +1,605 @@
+"""Component Showcase - Demonstrates all Stage 9 Radix UI Components.
+
+This example demonstrates:
+- Controls: Switch, Slider, Toggle, Calendar, DatePicker, Combobox
+- Navigation: Breadcrumb, Tabs, Pagination, Menubar
+- Overlays: AlertDialog, Sheet, Drawer, Popover, HoverCard
+- Utility: Separator, AspectRatio, ScrollArea, Collapsible, Carousel
+"""
+
+from fastapi import FastAPI
+
+from refast import RefastApp, Context
+from refast.components import (
+    Container,
+    Column,
+    Row,
+    Text,
+    Button,
+    Card,
+    CardHeader,
+    CardContent,
+    CardTitle,
+    CardDescription,
+    CardFooter,
+    # Controls
+    Switch,
+    Slider,
+    Toggle,
+    ToggleGroup,
+    ToggleGroupItem,
+    Calendar,
+    Combobox,
+    # Navigation
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Tabs,
+    TabItem,
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationPrevious,
+    PaginationNext,
+    PaginationEllipsis,
+    Menubar,
+    MenubarMenu,
+    MenubarTrigger,
+    MenubarContent,
+    MenubarItem,
+    MenubarSeparator,
+    # Overlays
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogAction,
+    AlertDialogCancel,
+    Sheet,
+    SheetTrigger,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    HoverCard,
+    HoverCardTrigger,
+    HoverCardContent,
+    # Utility
+    Separator,
+    AspectRatio,
+    ScrollArea,
+    Collapsible,
+    CollapsibleTrigger,
+    CollapsibleContent,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselPrevious,
+    CarouselNext,
+    # Feedback
+    Badge,
+    Avatar,
+    Label,
+    Input,
+)
+
+
+# Create the Refast app
+ui = RefastApp(title="Component Showcase")
+
+
+# Callback handlers
+async def on_switch_change(ctx: Context):
+    """Handle switch toggle."""
+    current = ctx.state.get("notifications", False)
+    ctx.state.set("notifications", not current)
+    await ctx.update_text("switch-status", "ON" if not current else "OFF")
+
+
+async def on_slider_change(ctx: Context):
+    """Handle slider change."""
+    value = ctx.event_data.get("value", 50)
+    ctx.state.set("volume", value)
+    await ctx.update_text("slider-value", f"{value}%")
+
+
+async def on_toggle_change(ctx: Context):
+    """Handle toggle."""
+    current = ctx.state.get("bold", False)
+    ctx.state.set("bold", not current)
+
+
+async def on_page_change(ctx: Context):
+    """Handle pagination."""
+    page = ctx.event_data.get("page", 1)
+    ctx.state.set("current_page", page)
+    await ctx.update_text("page-display", f"Page {page}")
+
+
+async def on_confirm_delete(ctx: Context):
+    """Handle delete confirmation."""
+    await ctx.show_toast("Item deleted successfully", variant="success")
+
+
+async def on_sheet_save(ctx: Context):
+    """Handle sheet save."""
+    await ctx.show_toast("Settings saved!", variant="success")
+
+
+# Main page
+@ui.page("/")
+def home(ctx: Context):
+    """Component showcase home page."""
+    notifications = ctx.state.get("notifications", False)
+    volume = ctx.state.get("volume", 50)
+    current_page = ctx.state.get("current_page", 1)
+    
+    return Container(
+        class_name="max-w-6xl mx-auto p-8",
+        children=[
+            # Header
+            Column(
+                gap=2,
+                class_name="mb-8",
+                children=[
+                    Text("Component Showcase", class_name="text-4xl font-bold"),
+                    Text(
+                        "Explore all the Radix UI components available in Refast",
+                        class_name="text-lg text-muted-foreground"
+                    ),
+                ],
+            ),
+            
+            # Breadcrumb navigation
+            Breadcrumb(
+                class_name="mb-6",
+                children=[
+                    BreadcrumbList(
+                        children=[
+                            BreadcrumbItem(
+                                children=[BreadcrumbLink(label="Home", href="/")]
+                            ),
+                            BreadcrumbSeparator(),
+                            BreadcrumbItem(
+                                children=[BreadcrumbLink(label="Components", href="/components")]
+                            ),
+                            BreadcrumbSeparator(),
+                            BreadcrumbItem(
+                                children=[BreadcrumbPage(label="Showcase")]
+                            ),
+                        ]
+                    )
+                ],
+            ),
+            
+            # Tabs for different component categories
+            Tabs(
+                default_value="controls",
+                children=[
+                    TabItem(value="controls", label="Controls"),
+                    TabItem(value="navigation", label="Navigation"),
+                    TabItem(value="overlays", label="Overlays"),
+                    TabItem(value="utility", label="Utility"),
+                ],
+            ),
+            
+            Separator(class_name="my-6"),
+            
+            # Controls Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Form Controls"),
+                            CardDescription("Interactive form elements"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=6,
+                                children=[
+                                    # Switch
+                                    Row(
+                                        justify="between",
+                                        align="center",
+                                        children=[
+                                            Column(
+                                                gap=1,
+                                                children=[
+                                                    Label("Email Notifications"),
+                                                    Text(
+                                                        "Receive emails about your account",
+                                                        class_name="text-sm text-muted-foreground"
+                                                    ),
+                                                ],
+                                            ),
+                                            Row(
+                                                gap=2,
+                                                align="center",
+                                                children=[
+                                                    Text(
+                                                        "ON" if notifications else "OFF",
+                                                        id="switch-status",
+                                                        class_name="text-sm"
+                                                    ),
+                                                    Switch(
+                                                        checked=notifications,
+                                                        on_change=ctx.callback(on_switch_change),
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    
+                                    Separator(),
+                                    
+                                    # Slider
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Row(
+                                                justify="between",
+                                                children=[
+                                                    Label("Volume"),
+                                                    Text(
+                                                        f"{volume}%",
+                                                        id="slider-value",
+                                                        class_name="text-sm"
+                                                    ),
+                                                ],
+                                            ),
+                                            Slider(
+                                                value=[volume],
+                                                max=100,
+                                                step=1,
+                                                on_value_change=ctx.callback(on_slider_change),
+                                            ),
+                                        ],
+                                    ),
+                                    
+                                    Separator(),
+                                    
+                                    # Toggle Group
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Text Formatting"),
+                                            ToggleGroup(
+                                                type="multiple",
+                                                children=[
+                                                    ToggleGroupItem(value="bold", label="B"),
+                                                    ToggleGroupItem(value="italic", label="I"),
+                                                    ToggleGroupItem(value="underline", label="U"),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    
+                                    Separator(),
+                                    
+                                    # Combobox
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Select Framework"),
+                                            Combobox(
+                                                placeholder="Choose a framework...",
+                                                options=[
+                                                    {"value": "react", "label": "React"},
+                                                    {"value": "vue", "label": "Vue"},
+                                                    {"value": "angular", "label": "Angular"},
+                                                    {"value": "svelte", "label": "Svelte"},
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            
+            # Overlays Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Overlays & Popups"),
+                            CardDescription("Dialogs, sheets, popovers, and more"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Row(
+                                gap=4,
+                                wrap=True,
+                                children=[
+                                    # Alert Dialog
+                                    AlertDialog(
+                                        children=[
+                                            AlertDialogTrigger(
+                                                children=Button(
+                                                    label="Delete Item",
+                                                    variant="destructive"
+                                                )
+                                            ),
+                                            AlertDialogContent(
+                                                children=[
+                                                    AlertDialogHeader(
+                                                        children=[
+                                                            AlertDialogTitle(title="Are you absolutely sure?"),
+                                                            AlertDialogDescription(
+                                                                description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    AlertDialogFooter(
+                                                        children=[
+                                                            AlertDialogCancel(label="Cancel"),
+                                                            AlertDialogAction(
+                                                                label="Delete",
+                                                                on_click=ctx.callback(on_confirm_delete)
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                    
+                                    # Sheet
+                                    Sheet(
+                                        children=[
+                                            SheetTrigger(
+                                                children=Button(label="Open Settings", variant="outline")
+                                            ),
+                                            SheetContent(
+                                                side="right",
+                                                children=[
+                                                    SheetHeader(
+                                                        children=[
+                                                            SheetTitle(title="Settings"),
+                                                            SheetDescription(
+                                                                description="Configure your preferences"
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    Column(
+                                                        gap=4,
+                                                        class_name="py-4",
+                                                        children=[
+                                                            Input(placeholder="Name", name="name"),
+                                                            Input(placeholder="Email", name="email"),
+                                                            Button(
+                                                                label="Save Changes",
+                                                                on_click=ctx.callback(on_sheet_save)
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                    
+                                    # Popover
+                                    Popover(
+                                        children=[
+                                            PopoverTrigger(
+                                                children=Button(label="Quick Actions", variant="secondary")
+                                            ),
+                                            PopoverContent(
+                                                children=[
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Text("Quick Actions", class_name="font-semibold"),
+                                                            Separator(),
+                                                            Button(label="Edit", variant="ghost", size="sm"),
+                                                            Button(label="Share", variant="ghost", size="sm"),
+                                                            Button(label="Archive", variant="ghost", size="sm"),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                    
+                                    # HoverCard
+                                    HoverCard(
+                                        children=[
+                                            HoverCardTrigger(
+                                                children=Text(
+                                                    "@refast",
+                                                    class_name="text-blue-600 cursor-pointer underline"
+                                                )
+                                            ),
+                                            HoverCardContent(
+                                                children=[
+                                                    Row(
+                                                        gap=4,
+                                                        children=[
+                                                            Avatar(
+                                                                src="https://github.com/shadcn.png",
+                                                                alt="@refast"
+                                                            ),
+                                                            Column(
+                                                                gap=1,
+                                                                children=[
+                                                                    Text("Refast Framework", class_name="font-semibold"),
+                                                                    Text(
+                                                                        "Python + React UI Framework",
+                                                                        class_name="text-sm text-muted-foreground"
+                                                                    ),
+                                                                    Badge(text="Open Source"),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            
+            # Utility Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Utility Components"),
+                            CardDescription("Layout helpers and utility components"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=6,
+                                children=[
+                                    # Collapsible
+                                    Collapsible(
+                                        children=[
+                                            Row(
+                                                justify="between",
+                                                align="center",
+                                                children=[
+                                                    Text("Advanced Options", class_name="font-medium"),
+                                                    CollapsibleTrigger(
+                                                        children=Button(
+                                                            label="Toggle",
+                                                            variant="ghost",
+                                                            size="sm"
+                                                        )
+                                                    ),
+                                                ],
+                                            ),
+                                            CollapsibleContent(
+                                                children=[
+                                                    Card(
+                                                        class_name="mt-2",
+                                                        children=[
+                                                            CardContent(
+                                                                children=[
+                                                                    Text("Hidden content revealed!"),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    
+                                    Separator(),
+                                    
+                                    # Scroll Area
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Scroll Area Example"),
+                                            ScrollArea(
+                                                class_name="h-48 w-full rounded-md border p-4",
+                                                children=[
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Text(f"Item {i}") for i in range(1, 21)
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    
+                                    Separator(),
+                                    
+                                    # Aspect Ratio
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("16:9 Aspect Ratio"),
+                                            AspectRatio(
+                                                ratio=16/9,
+                                                class_name="bg-muted rounded-md",
+                                                children=[
+                                                    Container(
+                                                        class_name="flex items-center justify-center h-full",
+                                                        children=[
+                                                            Text("16:9 Content Area"),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            
+            # Pagination
+            Row(
+                justify="center",
+                class_name="mt-8",
+                children=[
+                    Pagination(
+                        children=[
+                            PaginationContent(
+                                children=[
+                                    PaginationItem(
+                                        children=[PaginationPrevious(href="#")]
+                                    ),
+                                    PaginationItem(
+                                        children=[PaginationLink(label="1", href="#", page=1, is_active=(current_page == 1))]
+                                    ),
+                                    PaginationItem(
+                                        children=[PaginationLink(label="2", href="#", page=2, is_active=(current_page == 2))]
+                                    ),
+                                    PaginationItem(
+                                        children=[PaginationLink(label="3", href="#", page=3, is_active=(current_page == 3))]
+                                    ),
+                                    PaginationItem(
+                                        children=[PaginationEllipsis()]
+                                    ),
+                                    PaginationItem(
+                                        children=[PaginationNext(href="#")]
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+# Create FastAPI app and include Refast
+app = FastAPI()
+app.include_router(ui.router)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

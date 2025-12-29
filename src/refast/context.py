@@ -75,6 +75,16 @@ class Context(Generic[T]):
         self._state: State = State()
         self._session: Session | None = None
         self._pending_updates: list[dict[str, Any]] = []
+        self._event_data: dict[str, Any] = {}
+
+    @property
+    def event_data(self) -> dict[str, Any]:
+        """Access the event data from a callback invocation."""
+        return self._event_data
+
+    def set_event_data(self, data: dict[str, Any]) -> None:
+        """Set the event data (called by event manager)."""
+        self._event_data = data
 
     @property
     def state(self) -> State:
@@ -196,6 +206,18 @@ class Context(Generic[T]):
                 "path": path,
             })
 
+    async def refresh(self) -> None:
+        """
+        Refresh the current page by re-rendering it.
+        
+        This causes the frontend to request a fresh render of the current page,
+        which is useful after state changes that affect the entire page layout.
+        """
+        if self._websocket:
+            await self._websocket.send_json({
+                "type": "refresh",
+            })
+
     async def show_toast(
         self,
         message: str,
@@ -203,6 +225,7 @@ class Context(Generic[T]):
         duration: int = 3000,
     ) -> None:
         """Show a toast notification."""
+        print(f"[Refast Context] show_toast called: message={message}, variant={variant}, websocket={self._websocket is not None}")
         if self._websocket:
             await self._websocket.send_json({
                 "type": "toast",
@@ -210,6 +233,9 @@ class Context(Generic[T]):
                 "variant": variant,
                 "duration": duration,
             })
+            print(f"[Refast Context] Toast sent via WebSocket")
+        else:
+            print(f"[Refast Context] WARNING: WebSocket is None, toast not sent!")
 
     async def push_event(self, event_type: str, data: Any) -> None:
         """Push an event to the frontend."""

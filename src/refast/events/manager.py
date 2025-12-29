@@ -201,6 +201,10 @@ class EventManager:
         # Merge args (call_args override bound_args)
         merged_args = {**bound_args, **call_args}
 
+        # Set event_data on context so callbacks can access it via ctx.event_data
+        if hasattr(ctx, 'set_event_data'):
+            ctx.set_event_data(merged_args)
+
         try:
             if asyncio.iscoroutinefunction(callback):
                 return await callback(ctx, **merged_args)

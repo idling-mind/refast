@@ -46,7 +46,7 @@ class Form(Component):
             "props": {
                 "onSubmit": self.on_submit.serialize() if self.on_submit else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -86,7 +86,7 @@ class FormField(Component):
                 "hint": self.hint,
                 "required": self.required,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -119,7 +119,7 @@ class Label(Component):
                 "htmlFor": self.html_for,
                 "required": self.required,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.text],
         }

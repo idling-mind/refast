@@ -3,14 +3,14 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     dts({ insertTypesEntry: true }),
   ],
   define: {
-    // Replace process.env.NODE_ENV with production string for browser builds
-    'process.env.NODE_ENV': JSON.stringify('production'),
+    // Replace process.env.NODE_ENV - use 'production' for builds, preserve mode for tests
+    'process.env.NODE_ENV': JSON.stringify(mode === 'test' ? 'development' : 'production'),
   },
   build: {
     lib: {
@@ -52,4 +52,4 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
   },
-});
+}));

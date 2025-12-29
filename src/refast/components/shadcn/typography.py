@@ -37,7 +37,7 @@ class Heading(Component):
             "props": {
                 "level": self.level,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.text],
         }
@@ -64,7 +64,7 @@ class Paragraph(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.text],
         }
@@ -97,7 +97,7 @@ class Code(Component):
                 "language": self.language,
                 "inline": self.inline,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.code],
         }
@@ -133,7 +133,7 @@ class Link(Component):
                 "target": self.target,
                 "onClick": self.on_click.serialize() if self.on_click else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [self.text],
         }

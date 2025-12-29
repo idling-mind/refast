@@ -49,7 +49,7 @@ class Card(Component):
                 "description": self.description,
                 "onClick": self.on_click.serialize() if self.on_click else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -83,7 +83,7 @@ class CardHeader(Component):
                 "title": self.title,
                 "description": self.description,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -111,7 +111,7 @@ class CardContent(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -139,7 +139,7 @@ class CardFooter(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -171,7 +171,7 @@ class CardTitle(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -203,7 +203,7 @@ class CardDescription(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }

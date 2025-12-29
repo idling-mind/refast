@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
@@ -38,6 +38,13 @@ class RefastRouter:
         self.api_router.add_api_websocket_route(
             "/ws",
             self._websocket_handler,
+        )
+
+        # API endpoint for fetching page component tree (used for refresh)
+        self.api_router.add_api_route(
+            "/api/page",
+            self._api_page_handler,
+            methods=["GET"],
         )
 
         # Static file serving for Refast client
@@ -106,6 +113,41 @@ class RefastRouter:
         html = self._render_html_shell(component, ctx)
         return HTMLResponse(content=html)
 
+    async def _api_page_handler(self, request: Request) -> JSONResponse:
+        """Handle API requests for page component tree (used for refresh)."""
+        from refast.context import Context
+
+        # Get the referer header to determine which page to render
+        referer = request.headers.get("referer", "/")
+        
+        # Extract path from referer URL
+        from urllib.parse import urlparse
+        parsed = urlparse(referer)
+        page_path = parsed.path if parsed.path else "/"
+        
+        # Normalize path
+        if page_path != "/" and page_path.endswith("/"):
+            page_path = page_path.rstrip("/")
+
+        # Find the page
+        page_func = self.app._pages.get(page_path)
+        if page_func is None:
+            page_func = self.app._pages.get("/")  # Fallback to index
+
+        if page_func is None:
+            return JSONResponse(
+                content={"error": "Page not found"}, 
+                status_code=404
+            )
+
+        # Create context and render page
+        ctx = Context(request=request, app=self.app)
+        component = page_func(ctx)
+
+        # Return component tree as JSON
+        component_data = component.render() if hasattr(component, "render") else {}
+        return JSONResponse(content=component_data)
+
     @property
     def active_contexts(self) -> list["Context"]:
         """Get all active WebSocket contexts."""
@@ -152,6 +194,9 @@ class RefastRouter:
 
             callback = self.app.get_callback(callback_id)
             if callback:
+                # Set the event data on the context so callbacks can access it
+                ctx.set_event_data(callback_data)
+                
                 # Filter callback_data to only include parameters the callback accepts
                 sig = inspect.signature(callback)
                 params = sig.parameters

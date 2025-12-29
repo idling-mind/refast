@@ -208,6 +208,7 @@ def home(ctx: Context):
                                                 children=[
                                                     Input(
                                                         id="new-todo-input",
+                                                        name="new_todo_text",
                                                         placeholder="What needs to be done?",
                                                         value=ctx.state.get("new_todo_text", ""),
                                                     )

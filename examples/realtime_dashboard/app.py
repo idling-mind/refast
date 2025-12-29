@@ -8,6 +8,7 @@ This example demonstrates:
 
 import asyncio
 import random
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
 
@@ -182,16 +183,23 @@ async def update_dashboard_task():
                 await ctx.replace("dashboard-root", render_dashboard(ctx))
             except Exception as e:
                 print(f"Error updating client: {e}")
-
         await asyncio.sleep(2)  # Update every 2 seconds
 
-# Create FastAPI app
-app = FastAPI()
-app.include_router(ui.router)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create background task
+    task = asyncio.create_task(update_dashboard_task())
+    yield
+    # Shutdown: cancel background task
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
 
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(update_dashboard_task())
+# Create FastAPI app
+app = FastAPI(lifespan=lifespan)
+app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn

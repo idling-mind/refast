@@ -26,6 +26,40 @@ export function EventManagerProvider({
   onComponentUpdate,
 }: EventManagerProviderProps): React.ReactElement {
   const updateHandlers = useRef<Set<(message: UpdateMessage) => void>>(new Set());
+  const websocketRef = useRef<WebSocket | null>(websocket);
+  
+  // Keep websocket ref updated
+  useEffect(() => {
+    websocketRef.current = websocket;
+  }, [websocket]);
+
+  // Listen for custom refast:callback events from components
+  useEffect(() => {
+    const handleCallbackEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        callbackId: string;
+        data: Record<string, unknown>;
+      }>;
+      
+      const { callbackId, data } = customEvent.detail;
+      
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        const message = {
+          type: 'callback',
+          callbackId,
+          data,
+        };
+        websocketRef.current.send(JSON.stringify(message));
+      } else {
+        console.warn('WebSocket not connected, cannot invoke callback');
+      }
+    };
+
+    window.addEventListener('refast:callback', handleCallbackEvent);
+    return () => {
+      window.removeEventListener('refast:callback', handleCallbackEvent);
+    };
+  }, []);
 
   // Handle incoming messages
   useEffect(() => {
@@ -34,6 +68,8 @@ export function EventManagerProvider({
     const handleMessage = (event: MessageEvent) => {
       try {
         const message: UpdateMessage = JSON.parse(event.data);
+        console.log('[Refast EventManager] Received WebSocket message:', message.type, message);
+        console.log('[Refast EventManager] Number of update handlers:', updateHandlers.current.size);
 
         // Notify all handlers
         updateHandlers.current.forEach((handler) => handler(message));

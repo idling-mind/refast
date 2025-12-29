@@ -92,7 +92,6 @@ async def update_message_text(ctx: Context, value: str):
 async def send_message(ctx: Context):
     """Send a new message."""
     text = ctx.state.get("message_text", "")
-    print("Sending message:", text)
     if not text.strip():
         return
     
@@ -111,6 +110,11 @@ async def send_message(ctx: Context):
     
     # Clear input
     ctx.state.set("message_text", "")
+    print(f"Sent message from {username}: {text.strip()}")
+    print(f"All messages: {[m.to_dict() for m in MESSAGES]}")
+    
+    # Use replace() for efficient partial update - only update the messages list
+    await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
     
     # TODO: Broadcast to all connected clients
     # await ctx.broadcast("chat:message", message.to_dict())
@@ -130,7 +134,7 @@ def render_message(message: Message, current_user: str):
                 size="sm",
             ),
             Container(
-                class_name=f"max-w-xs p-3 rounded-lg {'bg-blue-500 text-white' if is_own else 'bg-gray-100'}",
+                class_name=f"max-w-xs p-3 rounded-lg {'bg-blue-500 text-blue-200' if is_own else 'bg-gray-100'}",
                 children=[
                     Column(
                         gap=1,
@@ -148,6 +152,33 @@ def render_message(message: Message, current_user: str):
                     )
                 ],
             ),
+        ],
+    )
+
+
+def render_messages_list(messages: list[Message], current_user: str):
+    """Render the messages list component."""
+    return Column(
+        id="messages-list",
+        gap=3,
+        class_name="py-4",
+        children=[
+            render_message(msg, current_user)
+            for msg in messages
+        ] if messages else [
+            Container(
+                class_name="text-center py-16",
+                children=[
+                    Text(
+                        "No messages yet",
+                        class_name="text-gray-400",
+                    ),
+                    Text(
+                        "Start the conversation!",
+                        class_name="text-gray-400 text-sm",
+                    ),
+                ],
+            )
         ],
     )
 
@@ -193,29 +224,7 @@ def chat(ctx: Context):
                     CardContent(
                         class_name="flex-1 overflow-y-auto",
                         children=[
-                            Column(
-                                id="messages-list",
-                                gap=3,
-                                class_name="py-4",
-                                children=[
-                                    render_message(msg, username)
-                                    for msg in MESSAGES
-                                ] if MESSAGES else [
-                                    Container(
-                                        class_name="text-center py-16",
-                                        children=[
-                                            Text(
-                                                "No messages yet",
-                                                class_name="text-gray-400",
-                                            ),
-                                            Text(
-                                                "Start the conversation!",
-                                                class_name="text-gray-400 text-sm",
-                                            ),
-                                        ],
-                                    )
-                                ],
-                            )
+                            render_messages_list(MESSAGES, username)
                         ]
                     ),
                     # Input area

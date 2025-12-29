@@ -51,7 +51,7 @@ class Row(Component):
                 "gap": self.gap,
                 "wrap": self.wrap,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -98,7 +98,7 @@ class Column(Component):
                 "align": self.align,
                 "gap": self.gap,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -136,7 +136,7 @@ class Stack(Component):
                 "spacing": self.spacing,
                 "direction": self.direction,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -184,7 +184,7 @@ class Grid(Component):
                 "rows": self.rows,
                 "gap": self.gap,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -227,7 +227,7 @@ class Flex(Component):
                 "wrap": self.wrap,
                 "gap": self.gap,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -255,7 +255,7 @@ class Center(Component):
             "id": self.id,
             "props": {
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
@@ -274,7 +274,7 @@ class Spacer(Component):
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {"size": self.size, **self.extra_props},
+            "props": {"size": self.size, **self._serialize_extra_props()},
             "children": [],
         }
 
@@ -301,7 +301,7 @@ class Divider(Component):
             "props": {
                 "orientation": self.orientation,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }

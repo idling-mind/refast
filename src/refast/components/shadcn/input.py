@@ -70,7 +70,7 @@ class Input(Component):
                 "onBlur": self.on_blur.serialize() if self.on_blur else None,
                 "onFocus": self.on_focus.serialize() if self.on_focus else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -119,7 +119,7 @@ class Textarea(Component):
                 "disabled": self.disabled,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -168,7 +168,7 @@ class Select(Component):
                 "disabled": self.disabled,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -208,7 +208,7 @@ class Checkbox(Component):
                 "disabled": self.disabled,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }
@@ -251,7 +251,7 @@ class Radio(Component):
                 "disabled": self.disabled,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "className": self.class_name,
-                **self.extra_props,
+                **self._serialize_extra_props(),
             },
             "children": [],
         }

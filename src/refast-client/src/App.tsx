@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import { ComponentRenderer } from './components/ComponentRenderer';
+import { ToastManager } from './components/ToastManager';
 import { EventManagerProvider, useEventManager } from './events/EventManager';
 import { useWebSocket, buildWebSocketUrl } from './events/WebSocketClient';
 import { useStateManager } from './state/StateManager';
@@ -55,6 +56,34 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
   // State management
   const { componentTree, setComponentTree, updateComponent, handleUpdate } =
     useStateManager(tree || undefined);
+
+  // Fetch page data from server
+  const fetchPage = useCallback(async () => {
+    try {
+      const path = window.location.pathname;
+      const response = await fetch(`/api/page?path=${encodeURIComponent(path)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.component) {
+          setComponentTree(data.component);
+        }
+      }
+    } catch (error) {
+      console.error('[Refast] Failed to fetch page:', error);
+    }
+  }, [setComponentTree]);
+
+  // Listen for refresh events
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchPage();
+    };
+
+    window.addEventListener('refast:refresh', handleRefresh);
+    return () => {
+      window.removeEventListener('refast:refresh', handleRefresh);
+    };
+  }, [fetchPage]);
 
   // Initialize with server data
   useEffect(() => {
@@ -132,6 +161,7 @@ function RefastAppContent({
       data-reconnect-attempts={reconnectAttempts}
     >
       <ComponentRenderer tree={tree} />
+      <ToastManager />
     </div>
   );
 }

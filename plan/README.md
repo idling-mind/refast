@@ -8,39 +8,52 @@ Refast is a Python + React UI framework that enables building reactive web appli
 
 ## Stages
 
-| Stage | File | Description | Dependencies |
-|-------|------|-------------|--------------|
-| 1 | [stage-1-core.md](./stage-1-core.md) | Core framework foundation | None |
-| 2 | [stage-2-components.md](./stage-2-components.md) | Component system | Stage 1 |
-| 3 | [stage-3-events.md](./stage-3-events.md) | Event handling & WebSocket | Stage 1, 2 |
-| 4 | [stage-4-sessions.md](./stage-4-sessions.md) | Session management | Stage 1 |
-| 5 | [stage-5-security.md](./stage-5-security.md) | Security features | Stage 1, 4 |
-| 6 | [stage-6-frontend.md](./stage-6-frontend.md) | React frontend client | Stage 2, 3 |
-| 7 | [stage-7-integration.md](./stage-7-integration.md) | Full integration | All previous |
-| 8 | [stage-8-docs.md](./stage-8-docs.md) | Documentation app | Stage 7 |
+### Completed Stages (in `./completed/`)
+
+| Stage | File | Description | Status |
+|-------|------|-------------|--------|
+| 1 | [stage-1-core.md](./completed/stage-1-core.md) | Core framework foundation | ✅ Complete |
+| 2 | [stage-2-components.md](./completed/stage-2-components.md) | Component system | ✅ Complete |
+| 3 | [stage-3-events.md](./completed/stage-3-events.md) | Event handling & WebSocket | ✅ Complete |
+| 4 | [stage-4-sessions.md](./completed/stage-4-sessions.md) | Session management | ✅ Complete |
+| 5 | [stage-5-security.md](./completed/stage-5-security.md) | Security features | ✅ Complete |
+| 6 | [stage-6-frontend.md](./completed/stage-6-frontend.md) | React frontend client | ✅ Complete |
+| 7 | [stage-7-integration.md](./completed/stage-7-integration.md) | Full integration | ✅ Complete |
+
+### In Progress / Upcoming
+
+| Stage | File | Description | Status |
+|-------|------|-------------|--------|
+| 8 | [stage-8-docs.md](./stage-8-docs.md) | Documentation app | 🔴 Not Started |
+| 9 | [stage-9-shadcn-components.md](./stage-9-shadcn-components.md) | Comprehensive shadcn/ui components | 🔴 Not Started |
+| 10 | [stage-10-charts.md](./stage-10-charts.md) | shadcn/ui charts with Recharts | 🔴 Not Started |
 
 ## Execution Order
 
 ```
-Stage 1 (Core)
+Stage 1 (Core) ✅
     │
-    ├──► Stage 2 (Components)
+    ├──► Stage 2 (Components) ✅
     │         │
     │         └──────────────┐
     │                        │
-    ├──► Stage 4 (Sessions)  │
+    ├──► Stage 4 (Sessions) ✅│
     │         │              │
     │         ▼              ▼
-    └──► Stage 5 (Security)  Stage 3 (Events)
+    └──► Stage 5 (Security) ✅ Stage 3 (Events) ✅
               │              │
               │              ▼
-              └────────► Stage 6 (Frontend)
+              └────────► Stage 6 (Frontend) ✅
                               │
                               ▼
-                        Stage 7 (Integration)
+                        Stage 7 (Integration) ✅
                               │
                               ▼
                         Stage 8 (Documentation)
+                              │
+                        ┌─────┴─────┐
+                        ▼           ▼
+              Stage 9 (shadcn)  Stage 10 (Charts)
 ```
 
 ## How to Use These Plans

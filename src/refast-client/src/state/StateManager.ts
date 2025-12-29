@@ -57,6 +57,7 @@ export function useStateManager(initialTree?: ComponentTree) {
    */
   const handleUpdate = useCallback(
     (message: UpdateMessage) => {
+      console.log('[Refast StateManager] Received message:', message.type, message);
       switch (message.type) {
         case 'update':
           if (message.targetId && message.operation) {
@@ -84,15 +85,24 @@ export function useStateManager(initialTree?: ComponentTree) {
 
         case 'toast':
           // Trigger a custom event for toast notifications
+          console.log('[Refast StateManager] Dispatching toast event:', message.message);
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
               new CustomEvent('refast:toast', {
                 detail: {
                   message: message.message,
                   variant: message.variant,
+                  duration: message.duration,
                 },
               })
             );
+          }
+          break;
+
+        case 'refresh':
+          // Trigger a page refresh by dispatching a custom event
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('refast:refresh'));
           }
           break;
       }

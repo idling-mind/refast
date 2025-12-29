@@ -177,6 +177,7 @@ from refast.components.shadcn.utility import (
     ScrollArea,
     ScrollBar,
     Separator,
+    ThemeSwitcher,
     Toaster,
 )
 
@@ -368,4 +369,5 @@ __all__ = [
     "Empty",
     "Kbd",
     "LoadingOverlay",
+    "ThemeSwitcher",
 ]

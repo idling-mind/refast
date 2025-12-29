@@ -4,13 +4,18 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
-from refast.components import Button, Container, Text
+from refast.components import Button, Container, Text, ThemeSwitcher
 
 ui = RefastApp(title="Hello World App")
 
 async def print_message(ctx: Context):
+    if ctx.state.get("prefix") == "Clicked":
+        ctx.state["prefix"] = "Clicked Again"
+    else:
+        ctx.state["prefix"] = "Clicked"
     await ctx.show_toast("Button clicked!", variant="success")
     print("Hello from the hello.py example!")
+    await ctx.refresh()
 
 @ui.page("/")
 def hello_world_page(ctx: Context):
@@ -18,6 +23,7 @@ def hello_world_page(ctx: Context):
         [
             Text("Hello, World!", id="hello-text", size="xl", weight="bold"),
             Button("Click Me", on_click=ctx.callback(print_message)),
+            ThemeSwitcher(default_theme="system"),
         ],
         class_name="flex flex-row items-center justify-center h-screen gap-4 m-8 p-6",
     )
@@ -29,7 +35,9 @@ async def update_value():
         for ctx in ui.active_contexts:
             if not ctx.state.get("counter"):
                 ctx.state["counter"] = 0
-            await ctx.replace("hello-text", Text(f"hi {ctx.state.get('counter')}", id="hello-text", size="xl", weight="bold"))
+            if not ctx.state.get("prefix"):
+                ctx.state["prefix"] = "Hello"
+            await ctx.replace("hello-text", Text(f"{ctx.state.get('prefix')} {ctx.state.get('counter')}", id="hello-text", size="xl", weight="bold"))
             ctx.state["counter"] += 1
         await asyncio.sleep(5)
 

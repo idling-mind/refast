@@ -696,6 +696,313 @@ export function InputOTPSeparator({
 }
 
 // ============================================================================
+// ThemeSwitcher
+// ============================================================================
+
+type Theme = 'light' | 'dark' | 'system';
+
+export interface ThemeSwitcherProps extends Omit<BaseProps, 'onChange'> {
+  defaultTheme?: Theme;
+  storageKey?: string;
+  showSystemOption?: boolean;
+  mode?: 'toggle' | 'dropdown';
+  onChange?: (theme: Theme) => void;
+}
+
+// Sun icon component
+function SunIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="m4.93 4.93 1.41 1.41" />
+      <path d="m17.66 17.66 1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="m6.34 17.66-1.41 1.41" />
+      <path d="m19.07 4.93-1.41 1.41" />
+    </svg>
+  );
+}
+
+// Moon icon component
+function MoonIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  );
+}
+
+// Monitor icon component for system theme
+function MonitorIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="14" x="2" y="3" rx="2" />
+      <line x1="8" x2="16" y1="21" y2="21" />
+      <line x1="12" x2="12" y1="17" y2="21" />
+    </svg>
+  );
+}
+
+/**
+ * Get the effective theme based on system preference
+ */
+function getSystemTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+/**
+ * Apply theme to the document
+ */
+function applyTheme(theme: Theme) {
+  if (typeof document === 'undefined') return;
+  
+  const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
+  const root = document.documentElement;
+  
+  root.classList.remove('light', 'dark');
+  root.classList.add(effectiveTheme);
+}
+
+export function ThemeSwitcher({
+  defaultTheme = 'system',
+  storageKey = 'refast-theme',
+  showSystemOption = true,
+  mode = 'toggle',
+  onChange,
+  className,
+  ...props
+}: ThemeSwitcherProps) {
+  const [theme, setThemeState] = React.useState<Theme>(() => {
+    // Try to get from localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(storageKey) as Theme | null;
+      if (stored && ['light', 'dark', 'system'].includes(stored)) {
+        return stored;
+      }
+    }
+    return defaultTheme;
+  });
+  
+  const [mounted, setMounted] = React.useState(false);
+
+  // Apply theme on mount and when theme changes
+  React.useEffect(() => {
+    setMounted(true);
+    applyTheme(theme);
+  }, [theme]);
+
+  // Listen for system theme changes
+  React.useEffect(() => {
+    if (theme !== 'system') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => applyTheme('system');
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  const setTheme = React.useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(storageKey, newTheme);
+    }
+    onChange?.(newTheme);
+  }, [storageKey, onChange]);
+
+  // Toggle between light and dark (for toggle mode)
+  const toggleTheme = React.useCallback(() => {
+    const currentEffective = theme === 'system' ? getSystemTheme() : theme;
+    const newTheme = currentEffective === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  }, [theme, setTheme]);
+
+  // Get current effective theme for display
+  const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <button
+        className={cn(
+          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'text-sm font-medium ring-offset-background transition-colors',
+          'hover:bg-accent hover:text-accent-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'disabled:pointer-events-none disabled:opacity-50',
+          className
+        )}
+        disabled
+        {...props}
+      >
+        <span className="h-5 w-5" />
+      </button>
+    );
+  }
+
+  if (mode === 'toggle') {
+    return (
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className={cn(
+          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'text-sm font-medium ring-offset-background transition-colors',
+          'hover:bg-accent hover:text-accent-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'disabled:pointer-events-none disabled:opacity-50',
+          className
+        )}
+        aria-label={`Switch to ${effectiveTheme === 'light' ? 'dark' : 'light'} theme`}
+        {...props}
+      >
+        {effectiveTheme === 'light' ? (
+          <SunIcon className="h-5 w-5" />
+        ) : (
+          <MoonIcon className="h-5 w-5" />
+        )}
+      </button>
+    );
+  }
+
+  // Dropdown mode
+  const [isOpen, setIsOpen] = React.useState(false);
+  
+  return (
+    <div className={cn('relative', className)} {...props}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'text-sm font-medium ring-offset-background transition-colors',
+          'hover:bg-accent hover:text-accent-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+        )}
+        aria-label="Select theme"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+      >
+        {effectiveTheme === 'light' ? (
+          <SunIcon className="h-5 w-5" />
+        ) : (
+          <MoonIcon className="h-5 w-5" />
+        )}
+      </button>
+      
+      {isOpen && (
+        <>
+          {/* Backdrop to close on click outside */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          <div
+            className={cn(
+              'absolute right-0 top-full z-50 mt-2 min-w-[8rem]',
+              'rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+              'animate-in fade-in-0 zoom-in-95'
+            )}
+            role="menu"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setTheme('light');
+                setIsOpen(false);
+              }}
+              className={cn(
+                'relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
+                'hover:bg-accent hover:text-accent-foreground',
+                theme === 'light' && 'bg-accent'
+              )}
+              role="menuitem"
+            >
+              <SunIcon className="h-4 w-4" />
+              Light
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => {
+                setTheme('dark');
+                setIsOpen(false);
+              }}
+              className={cn(
+                'relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
+                'hover:bg-accent hover:text-accent-foreground',
+                theme === 'dark' && 'bg-accent'
+              )}
+              role="menuitem"
+            >
+              <MoonIcon className="h-4 w-4" />
+              Dark
+            </button>
+            
+            {showSystemOption && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTheme('system');
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  'relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
+                  'hover:bg-accent hover:text-accent-foreground',
+                  theme === 'system' && 'bg-accent'
+                )}
+                role="menuitem"
+              >
+                <MonitorIcon className="h-4 w-4" />
+                System
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
 // Export all
 // ============================================================================
 
@@ -716,4 +1023,5 @@ export const UtilityComponents = {
   InputOTPGroup,
   InputOTPSlot,
   InputOTPSeparator,
+  ThemeSwitcher,
 };

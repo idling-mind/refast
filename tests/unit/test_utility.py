@@ -12,6 +12,7 @@ from refast.components.shadcn.utility import (
     ResizablePanelGroup,
     ResizablePanel,
     ResizableHandle,
+    ThemeSwitcher,
 )
 
 
@@ -246,3 +247,74 @@ class TestResizableHandle:
         handle = ResizableHandle(with_handle=True)
         rendered = handle.render()
         assert rendered["props"]["withHandle"] is True
+
+
+class TestThemeSwitcher:
+    """Tests for ThemeSwitcher component."""
+
+    def test_theme_switcher_renders(self):
+        """Test ThemeSwitcher renders correctly."""
+        switcher = ThemeSwitcher()
+        rendered = switcher.render()
+        assert rendered["type"] == "ThemeSwitcher"
+
+    def test_theme_switcher_default_theme_system(self):
+        """Test ThemeSwitcher with default system theme."""
+        switcher = ThemeSwitcher()
+        rendered = switcher.render()
+        assert rendered["props"]["defaultTheme"] == "system"
+
+    def test_theme_switcher_default_theme_light(self):
+        """Test ThemeSwitcher with light default theme."""
+        switcher = ThemeSwitcher(default_theme="light")
+        rendered = switcher.render()
+        assert rendered["props"]["defaultTheme"] == "light"
+
+    def test_theme_switcher_default_theme_dark(self):
+        """Test ThemeSwitcher with dark default theme."""
+        switcher = ThemeSwitcher(default_theme="dark")
+        rendered = switcher.render()
+        assert rendered["props"]["defaultTheme"] == "dark"
+
+    def test_theme_switcher_storage_key(self):
+        """Test ThemeSwitcher with custom storage key."""
+        switcher = ThemeSwitcher(storage_key="my-app-theme")
+        rendered = switcher.render()
+        assert rendered["props"]["storageKey"] == "my-app-theme"
+
+    def test_theme_switcher_toggle_mode(self):
+        """Test ThemeSwitcher in toggle mode."""
+        switcher = ThemeSwitcher(mode="toggle")
+        rendered = switcher.render()
+        assert rendered["props"]["mode"] == "toggle"
+
+    def test_theme_switcher_dropdown_mode(self):
+        """Test ThemeSwitcher in dropdown mode."""
+        switcher = ThemeSwitcher(mode="dropdown")
+        rendered = switcher.render()
+        assert rendered["props"]["mode"] == "dropdown"
+
+    def test_theme_switcher_show_system_option(self):
+        """Test ThemeSwitcher with show_system_option."""
+        switcher = ThemeSwitcher(show_system_option=False)
+        rendered = switcher.render()
+        assert rendered["props"]["showSystemOption"] is False
+
+    def test_theme_switcher_with_callback(self):
+        """Test ThemeSwitcher with on_change callback."""
+        cb = MockCallback()
+        switcher = ThemeSwitcher(on_change=cb)
+        rendered = switcher.render()
+        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+
+    def test_theme_switcher_class_name(self):
+        """Test ThemeSwitcher with custom class name."""
+        switcher = ThemeSwitcher(class_name="my-theme-switcher")
+        rendered = switcher.render()
+        assert rendered["props"]["className"] == "my-theme-switcher"
+
+    def test_theme_switcher_with_id(self):
+        """Test ThemeSwitcher with custom id."""
+        switcher = ThemeSwitcher(id="theme-toggle")
+        rendered = switcher.render()
+        assert rendered["id"] == "theme-toggle"

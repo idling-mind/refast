@@ -756,3 +756,76 @@ class LoadingOverlay(Component):
             "children": [],
         }
 
+
+class ThemeSwitcher(Component):
+    """
+    Theme switcher component for toggling between light and dark themes.
+
+    This component provides a button to switch between light and dark themes.
+    It supports system theme detection and persistence via localStorage.
+
+    Example:
+        ```python
+        # Basic usage with default themes
+        ThemeSwitcher()
+
+        # With specific default theme
+        ThemeSwitcher(default_theme="dark")
+
+        # With callback for theme changes
+        ThemeSwitcher(
+            on_change=ctx.callback(handle_theme_change),
+        )
+
+        # With custom storage key
+        ThemeSwitcher(storage_key="my-app-theme")
+        ```
+
+    Args:
+        default_theme: Default theme to use if no preference is stored.
+            One of "light", "dark", or "system". Defaults to "system".
+        storage_key: LocalStorage key for persisting theme preference.
+            Defaults to "refast-theme".
+        show_system_option: Whether to show the system option in dropdown mode.
+            Defaults to True.
+        mode: Display mode - "toggle" for simple switch, "dropdown" for menu.
+            Defaults to "toggle".
+        on_change: Callback fired when theme changes. Receives the new theme value.
+    """
+
+    component_type: str = "ThemeSwitcher"
+
+    def __init__(
+        self,
+        default_theme: Literal["light", "dark", "system"] = "system",
+        storage_key: str = "refast-theme",
+        show_system_option: bool = True,
+        mode: Literal["toggle", "dropdown"] = "toggle",
+        on_change: Any = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.default_theme = default_theme
+        self.storage_key = storage_key
+        self.show_system_option = show_system_option
+        self.mode = mode
+        self.on_change = on_change
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "defaultTheme": self.default_theme,
+                "storageKey": self.storage_key,
+                "showSystemOption": self.show_system_option,
+                "mode": self.mode,
+                "onChange": self.on_change.serialize() if self.on_change else None,
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
+        }
+

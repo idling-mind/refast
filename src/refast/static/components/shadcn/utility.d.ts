@@ -85,6 +85,15 @@ export declare function InputOTPSlot({ index, char, hasFakeCaret, isActive, clas
 export interface InputOTPSeparatorProps extends BaseProps {
 }
 export declare function InputOTPSeparator({ className, ...props }: InputOTPSeparatorProps): import("react/jsx-runtime").JSX.Element;
+type Theme = 'light' | 'dark' | 'system';
+export interface ThemeSwitcherProps extends Omit<BaseProps, 'onChange'> {
+    defaultTheme?: Theme;
+    storageKey?: string;
+    showSystemOption?: boolean;
+    mode?: 'toggle' | 'dropdown';
+    onChange?: (theme: Theme) => void;
+}
+export declare function ThemeSwitcher({ defaultTheme, storageKey, showSystemOption, mode, onChange, className, ...props }: ThemeSwitcherProps): import("react/jsx-runtime").JSX.Element;
 export declare const UtilityComponents: {
     Separator: typeof Separator;
     AspectRatio: typeof AspectRatio;
@@ -102,4 +111,6 @@ export declare const UtilityComponents: {
     InputOTPGroup: typeof InputOTPGroup;
     InputOTPSlot: typeof InputOTPSlot;
     InputOTPSeparator: typeof InputOTPSeparator;
+    ThemeSwitcher: typeof ThemeSwitcher;
 };
+export {};

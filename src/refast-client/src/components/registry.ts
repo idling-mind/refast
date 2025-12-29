@@ -43,7 +43,7 @@ import {
 import {
   Separator, AspectRatio, ScrollArea, Collapsible,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
-  Resizable, ResizablePanel, ResizableHandle
+  Resizable, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -267,4 +267,5 @@ componentRegistry.register('CarouselNext', CarouselNext);
 componentRegistry.register('Resizable', Resizable);
 componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
+componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
 

@@ -33,6 +33,7 @@ class Input(Component):
         required: bool = False,
         disabled: bool = False,
         readonly: bool = False,
+        debounce: int = 0,
         on_change: Any = None,
         on_blur: Any = None,
         on_focus: Any = None,
@@ -49,6 +50,7 @@ class Input(Component):
         self.required = required
         self.disabled = disabled
         self.readonly = readonly
+        self.debounce = debounce
         self.on_change = on_change
         self.on_blur = on_blur
         self.on_focus = on_focus
@@ -66,6 +68,7 @@ class Input(Component):
                 "required": self.required,
                 "disabled": self.disabled,
                 "readOnly": self.readonly,
+                "debounce": self.debounce,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "onBlur": self.on_blur.serialize() if self.on_blur else None,
                 "onFocus": self.on_focus.serialize() if self.on_focus else None,
@@ -90,6 +93,7 @@ class Textarea(Component):
         rows: int = 3,
         required: bool = False,
         disabled: bool = False,
+        debounce: int = 0,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -103,6 +107,7 @@ class Textarea(Component):
         self.rows = rows
         self.required = required
         self.disabled = disabled
+        self.debounce = debounce
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
@@ -117,6 +122,7 @@ class Textarea(Component):
                 "rows": self.rows,
                 "required": self.required,
                 "disabled": self.disabled,
+                "debounce": self.debounce,
                 "onChange": self.on_change.serialize() if self.on_change else None,
                 "className": self.class_name,
                 **self._serialize_extra_props(),

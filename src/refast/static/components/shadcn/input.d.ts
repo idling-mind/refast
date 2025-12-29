@@ -10,6 +10,7 @@ interface InputProps {
     disabled?: boolean;
     required?: boolean;
     name?: string;
+    debounce?: number;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
     onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
@@ -18,7 +19,7 @@ interface InputProps {
 /**
  * Input component - shadcn-styled text input.
  */
-export declare function Input({ id, className, type, placeholder, value, defaultValue, disabled, required, name, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: InputProps): React.ReactElement;
+export declare function Input({ id, className, type, placeholder, value, defaultValue, disabled, required, name, debounce, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: InputProps): React.ReactElement;
 interface TextareaProps {
     id?: string;
     className?: string;
@@ -29,6 +30,7 @@ interface TextareaProps {
     required?: boolean;
     rows?: number;
     name?: string;
+    debounce?: number;
     onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
     onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
@@ -37,7 +39,7 @@ interface TextareaProps {
 /**
  * Textarea component - shadcn-styled textarea.
  */
-export declare function Textarea({ id, className, placeholder, value, defaultValue, disabled, required, rows, name, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: TextareaProps): React.ReactElement;
+export declare function Textarea({ id, className, placeholder, value, defaultValue, disabled, required, rows, name, debounce, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: TextareaProps): React.ReactElement;
 interface SelectOption {
     value: string;
     label: string;

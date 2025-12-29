@@ -11,6 +11,7 @@ interface InputProps {
   disabled?: boolean;
   required?: boolean;
   name?: string;
+  debounce?: number;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
@@ -30,25 +31,69 @@ export function Input({
   disabled = false,
   required = false,
   name,
+  debounce = 0,
   onChange,
   onBlur,
   onFocus,
   'data-refast-id': dataRefastId,
 }: InputProps): React.ReactElement {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
+  const debounceTimeout = React.useRef<number | null>(null);
+  const onChangeRef = React.useRef(onChange);
+  const lastValueRef = React.useRef(value);
 
   React.useEffect(() => {
-    if (value !== undefined) {
-      setLocalValue(value);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  React.useEffect(() => {
+    if (value !== undefined && value !== lastValueRef.current) {
+      lastValueRef.current = value;
+      if (!debounceTimeout.current) {
+        setLocalValue(value);
+      }
     }
   }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(e.target.value);
-    if (onChange) {
-      onChange(e);
+  React.useEffect(() => () => {
+    if (debounceTimeout.current !== null) {
+      window.clearTimeout(debounceTimeout.current);
+      debounceTimeout.current = null;
     }
-  };
+  }, []);
+
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const nextValue = e.target.value;
+      setLocalValue(nextValue);
+
+      if (!onChangeRef.current) {
+        return;
+      }
+
+      if (debounce > 0) {
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+        }
+
+        const syntheticEvent = {
+          ...e,
+          target: { ...e.target, value: nextValue },
+          currentTarget: { ...e.currentTarget, value: nextValue },
+        } as React.ChangeEvent<HTMLInputElement>;
+
+        debounceTimeout.current = window.setTimeout(() => {
+          debounceTimeout.current = null;
+          onChangeRef.current?.(syntheticEvent);
+        }, debounce);
+
+        return;
+      }
+
+      onChangeRef.current(e);
+    },
+    [debounce]
+  );
 
   return (
     <input
@@ -85,6 +130,7 @@ interface TextareaProps {
   required?: boolean;
   rows?: number;
   name?: string;
+  debounce?: number;
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
   onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
@@ -104,25 +150,69 @@ export function Textarea({
   required = false,
   rows = 3,
   name,
+  debounce = 0,
   onChange,
   onBlur,
   onFocus,
   'data-refast-id': dataRefastId,
 }: TextareaProps): React.ReactElement {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
+  const debounceTimeout = React.useRef<number | null>(null);
+  const onChangeRef = React.useRef(onChange);
+  const lastValueRef = React.useRef(value);
 
   React.useEffect(() => {
-    if (value !== undefined) {
-      setLocalValue(value);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  React.useEffect(() => {
+    if (value !== undefined && value !== lastValueRef.current) {
+      lastValueRef.current = value;
+      if (!debounceTimeout.current) {
+        setLocalValue(value);
+      }
     }
   }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLocalValue(e.target.value);
-    if (onChange) {
-      onChange(e);
+  React.useEffect(() => () => {
+    if (debounceTimeout.current !== null) {
+      window.clearTimeout(debounceTimeout.current);
+      debounceTimeout.current = null;
     }
-  };
+  }, []);
+
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const nextValue = e.target.value;
+      setLocalValue(nextValue);
+
+      if (!onChangeRef.current) {
+        return;
+      }
+
+      if (debounce > 0) {
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+        }
+
+        const syntheticEvent = {
+          ...e,
+          target: { ...e.target, value: nextValue },
+          currentTarget: { ...e.currentTarget, value: nextValue },
+        } as React.ChangeEvent<HTMLTextAreaElement>;
+
+        debounceTimeout.current = window.setTimeout(() => {
+          debounceTimeout.current = null;
+          onChangeRef.current?.(syntheticEvent);
+        }, debounce);
+
+        return;
+      }
+
+      onChangeRef.current(e);
+    },
+    [debounce]
+  );
 
   return (
     <textarea

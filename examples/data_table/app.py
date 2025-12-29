@@ -265,6 +265,7 @@ def home(ctx: Context):
                                                 value=search_query,
                                                 on_change=ctx.callback(on_search),
                                                 class_name="w-64",
+                                                debounce=300,
                                             ),
                                             Select(
                                                 name="filter_status",

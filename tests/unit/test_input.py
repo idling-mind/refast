@@ -63,6 +63,12 @@ class TestInput:
         assert rendered["props"]["onBlur"] == {"callbackId": "cb-123"}
         assert rendered["props"]["onFocus"] == {"callbackId": "cb-123"}
 
+    def test_input_with_debounce(self):
+        """Test Input debounce prop."""
+        inp = Input(name="search", debounce=300)
+        rendered = inp.render()
+        assert rendered["props"]["debounce"] == 300
+
 
 class TestTextarea:
     """Tests for Textarea component."""
@@ -81,6 +87,12 @@ class TestTextarea:
         ta = Textarea(name="test", on_change=cb)
         rendered = ta.render()
         assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_debounce(self):
+        """Test Textarea debounce prop."""
+        ta = Textarea(name="bio", debounce=150)
+        rendered = ta.render()
+        assert rendered["props"]["debounce"] == 150
 
 
 class TestSelect:

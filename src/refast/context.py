@@ -262,9 +262,6 @@ class Context(Generic[T]):
         duration: int = 3000,
     ) -> None:
         """Show a toast notification."""
-        print(
-            f"[Refast Context] show_toast called: message={message}, variant={variant}, websocket={self._websocket is not None}"
-        )
         if self._websocket:
             await self._websocket.send_json(
                 {
@@ -274,9 +271,6 @@ class Context(Generic[T]):
                     "duration": duration,
                 }
             )
-            print("[Refast Context] Toast sent via WebSocket")
-        else:
-            print("[Refast Context] WARNING: WebSocket is None, toast not sent!")
 
     async def push_event(self, event_type: str, data: Any) -> None:
         """Push an event to the frontend."""

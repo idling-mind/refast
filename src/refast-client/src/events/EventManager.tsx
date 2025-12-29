@@ -68,8 +68,6 @@ export function EventManagerProvider({
     const handleMessage = (event: MessageEvent) => {
       try {
         const message: UpdateMessage = JSON.parse(event.data);
-        console.log('[Refast EventManager] Received WebSocket message:', message.type, message);
-        console.log('[Refast EventManager] Number of update handlers:', updateHandlers.current.size);
 
         // Notify all handlers
         updateHandlers.current.forEach((handler) => handler(message));

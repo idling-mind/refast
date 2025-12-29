@@ -45,12 +45,8 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     url: wsUrl || config.wsUrl || buildWebSocketUrl('/ws'),
     reconnect: true,
     maxReconnectAttempts: 10,
-    onOpen: () => {
-      console.log('[Refast] WebSocket connected');
-    },
-    onClose: () => {
-      console.log('[Refast] WebSocket disconnected');
-    },
+    onOpen: () => {},
+    onClose: () => {},
   });
 
   // State management

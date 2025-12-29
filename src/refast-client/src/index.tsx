@@ -128,7 +128,6 @@ function initializeRefast(): void {
   const rootElement = document.getElementById('refast-root');
   
   if (rootElement && window.__REFAST_INITIAL_DATA__) {
-    console.log('[Refast] Auto-initializing React app');
     const root = createRoot(rootElement);
     root.render(React.createElement(RefastApp));
   }

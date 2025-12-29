@@ -47,13 +47,11 @@ export function ToastManager({ className }: ToastManagerProps): React.ReactEleme
   // Listen for refast:toast events
   useEffect(() => {
     const handleToastEvent = (event: CustomEvent<{ message: string; variant?: string; duration?: number }>) => {
-      console.log('[Refast ToastManager] Received toast event:', event.detail);
       const { message, variant = 'default', duration = 3000 } = event.detail;
       addToast(message, variant, duration);
     };
 
     window.addEventListener('refast:toast', handleToastEvent as EventListener);
-    console.log('[Refast ToastManager] Listening for refast:toast events');
     return () => {
       window.removeEventListener('refast:toast', handleToastEvent as EventListener);
     };

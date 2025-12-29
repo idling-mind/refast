@@ -8,31 +8,45 @@ from refast.components import Button, Container, Text, ThemeSwitcher
 
 ui = RefastApp(title="Hello World App")
 
-async def print_message(ctx: Context):
-    if ctx.state.get("prefix") == "Clicked":
-        ctx.state["prefix"] = "Clicked Again"
-    else:
-        ctx.state["prefix"] = "Clicked"
-    await ctx.show_toast("Button clicked!", variant="success")
-    print("Hello from the hello.py example!")
+async def start_refresh(ctx: Context):
+    ctx.state["refresh"] = "on"
+    await ctx.show_toast("Refresh started", variant="success")
+    await ctx.refresh()
+
+async def stop_refresh(ctx: Context):
+    ctx.state["refresh"] = "off"
+    await ctx.show_toast("Refresh stopped", variant="success")
     await ctx.refresh()
 
 @ui.page("/")
 def hello_world_page(ctx: Context):
+    print("Rendering Hello World Page")
+    text = f"{ctx.state.get('prefix', 'Hello')} {ctx.state.get('counter', 0)}"
+    refresh_state = True if ctx.state.get("refresh", "off") == "on" else False
     return Container(
         [
-            Text("Hello, World!", id="hello-text", size="xl", weight="bold"),
-            Button("Click Me", on_click=ctx.callback(print_message)),
+            Container(
+                [Text(text, id="hello-text")],
+                class_name="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800",
+            ),
+            Container(
+                [
+                Button("Start Refresh", on_click=ctx.callback(start_refresh), disabled=refresh_state),
+                Button("Stop refresh", on_click=ctx.callback(stop_refresh), disabled=not refresh_state),
+                ],
+                class_name="flex flex-row gap-4",
+            ),
             ThemeSwitcher(default_theme="system"),
         ],
-        class_name="flex flex-row items-center justify-center h-screen gap-4 m-8 p-6",
+        class_name="flex flex-col gap-6 items-center justify-center min-h-screen gap-4 bg-gray-100 dark:bg-gray-900",
     )
 
 async def update_value():
     print("Starting periodic updates...")
     while True:
-        print("active contexts:", ui.active_contexts)
         for ctx in ui.active_contexts:
+            if ctx.state.get("refresh", "off") == "off":
+                continue
             if not ctx.state.get("counter"):
                 ctx.state["counter"] = 0
             if not ctx.state.get("prefix"):

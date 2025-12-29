@@ -2,6 +2,162 @@ import { useState, useCallback } from 'react';
 import { ComponentTree, UpdateMessage, StateManagerState } from '../types';
 
 /**
+ * Deep equality check for component props.
+ */
+function propsEqual(
+  props1: Record<string, unknown> | undefined,
+  props2: Record<string, unknown> | undefined
+): boolean {
+  if (props1 === props2) return true;
+  if (!props1 || !props2) return false;
+  
+  const keys1 = Object.keys(props1);
+  const keys2 = Object.keys(props2);
+  
+  if (keys1.length !== keys2.length) return false;
+  
+  for (const key of keys1) {
+    const val1 = props1[key];
+    const val2 = props2[key];
+    
+    // Skip callback comparison (they have unique IDs each render)
+    if (key === 'onClick' || key === 'onChange' || key === 'onSubmit' || key === 'onInput') {
+      // Compare callback IDs if both are objects with callbackId
+      if (typeof val1 === 'object' && val1 !== null && 'callbackId' in val1 &&
+          typeof val2 === 'object' && val2 !== null && 'callbackId' in val2) {
+        // Callbacks are considered equal if they exist (ID will differ)
+        continue;
+      }
+    }
+    
+    if (typeof val1 === 'object' && typeof val2 === 'object') {
+      if (JSON.stringify(val1) !== JSON.stringify(val2)) return false;
+    } else if (val1 !== val2) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+/**
+ * Check if two children arrays are equal.
+ */
+function childrenEqual(
+  children1: (ComponentTree | string)[],
+  children2: (ComponentTree | string)[]
+): boolean {
+  if (children1.length !== children2.length) return false;
+  
+  for (let i = 0; i < children1.length; i++) {
+    const c1 = children1[i];
+    const c2 = children2[i];
+    
+    if (typeof c1 === 'string' && typeof c2 === 'string') {
+      if (c1 !== c2) return false;
+    } else if (typeof c1 !== 'string' && typeof c2 !== 'string') {
+      if (!componentsEqual(c1, c2)) return false;
+    } else {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+/**
+ * Check if two components are structurally equal.
+ */
+function componentsEqual(comp1: ComponentTree, comp2: ComponentTree): boolean {
+  if (comp1.type !== comp2.type) return false;
+  if (comp1.id !== comp2.id) return false;
+  if (!propsEqual(comp1.props, comp2.props)) return false;
+  if (!childrenEqual(comp1.children, comp2.children)) return false;
+  return true;
+}
+
+/**
+ * Diff two component trees and apply minimal updates.
+ * Returns the new tree with only changed parts replaced.
+ */
+function diffAndMerge(
+  oldTree: ComponentTree,
+  newTree: ComponentTree
+): { tree: ComponentTree; changed: boolean } {
+  // If IDs don't match, replace entirely
+  if (oldTree.id !== newTree.id) {
+    return { tree: newTree, changed: true };
+  }
+  
+  // If types don't match, replace entirely
+  if (oldTree.type !== newTree.type) {
+    return { tree: newTree, changed: true };
+  }
+  
+  // Check if props changed
+  const propsChanged = !propsEqual(oldTree.props, newTree.props);
+  
+  // Recursively diff children
+  let childrenChanged = false;
+  const newChildren: (ComponentTree | string)[] = [];
+  
+  // Handle different children lengths
+  const maxLen = Math.max(oldTree.children.length, newTree.children.length);
+  
+  for (let i = 0; i < maxLen; i++) {
+    const oldChild = oldTree.children[i];
+    const newChild = newTree.children[i];
+    
+    if (newChild === undefined) {
+      // Child was removed
+      childrenChanged = true;
+      continue;
+    }
+    
+    if (oldChild === undefined) {
+      // Child was added
+      childrenChanged = true;
+      newChildren.push(newChild);
+      continue;
+    }
+    
+    if (typeof newChild === 'string') {
+      if (oldChild !== newChild) {
+        childrenChanged = true;
+      }
+      newChildren.push(newChild);
+    } else if (typeof oldChild === 'string') {
+      // Type changed from string to component
+      childrenChanged = true;
+      newChildren.push(newChild);
+    } else {
+      // Both are components, recursively diff
+      const result = diffAndMerge(oldChild, newChild);
+      if (result.changed) {
+        childrenChanged = true;
+      }
+      newChildren.push(result.tree);
+    }
+  }
+  
+  // If nothing changed, return the old tree (preserves reference)
+  if (!propsChanged && !childrenChanged) {
+    return { tree: oldTree, changed: false };
+  }
+  
+  // Return merged tree
+  return {
+    tree: {
+      ...newTree,
+      // Keep old props reference if unchanged
+      props: propsChanged ? newTree.props : oldTree.props,
+      children: newChildren,
+    },
+    changed: true,
+  };
+}
+
+/**
  * Hook for managing component tree and app state.
  */
 export function useStateManager(initialTree?: ComponentTree) {
@@ -100,9 +256,31 @@ export function useStateManager(initialTree?: ComponentTree) {
           break;
 
         case 'refresh':
-          // Trigger a page refresh by dispatching a custom event
+          // Handle page refresh with optional component tree
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('refast:refresh'));
+            if (message.component) {
+              // Server sent the rendered component tree directly
+              // Use diff-and-merge to only update changed parts
+              setState((s) => {
+                if (!s.componentTree) {
+                  // No existing tree, just set the new one
+                  return { ...s, componentTree: message.component! };
+                }
+                
+                // Diff and merge to minimize re-renders
+                const { tree, changed } = diffAndMerge(s.componentTree, message.component!);
+                
+                if (!changed) {
+                  // Nothing changed, return same state to prevent re-render
+                  return s;
+                }
+                
+                return { ...s, componentTree: tree };
+              });
+            } else {
+              // Fallback: trigger a page refresh via HTTP request
+              window.dispatchEvent(new CustomEvent('refast:refresh'));
+            }
           }
           break;
       }

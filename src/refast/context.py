@@ -206,17 +206,35 @@ class Context(Generic[T]):
                 "path": path,
             })
 
-    async def refresh(self) -> None:
+    async def refresh(self, path: str | None = None) -> None:
         """
         Refresh the current page by re-rendering it.
         
-        This causes the frontend to request a fresh render of the current page,
-        which is useful after state changes that affect the entire page layout.
+        This re-renders the page with the current state and sends the
+        updated component tree directly via WebSocket, preserving state.
+        
+        Args:
+            path: Optional path to refresh. If not provided, uses "/" as default.
         """
-        if self._websocket:
-            await self._websocket.send_json({
-                "type": "refresh",
-            })
+        if self._websocket and self._app:
+            # Default to root path if not specified
+            page_path = path or "/"
+            
+            # Find and render the page
+            page_func = self._app._pages.get(page_path)
+            if page_func is None:
+                page_func = self._app._pages.get("/")  # Fallback to index
+            
+            if page_func is not None:
+                # Re-render the page with current state
+                component = page_func(self)
+                component_data = component.render() if hasattr(component, "render") else {}
+                
+                # Send the rendered component tree via WebSocket
+                await self._websocket.send_json({
+                    "type": "refresh",
+                    "component": component_data,
+                })
 
     async def show_toast(
         self,

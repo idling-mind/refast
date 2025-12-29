@@ -228,6 +228,11 @@ __all__ = [
     "Skeleton",
     # Data Display
     "Table",
+    "TableHeader",
+    "TableBody",
+    "TableCell",
+    "TableRow",
+    "TableHead",
     "DataTable",
     "List",
     "Badge",

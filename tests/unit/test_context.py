@@ -78,10 +78,12 @@ class TestContext:
         ctx = Context()
         assert ctx is not None
 
-    def test_state_is_dict(self):
-        """Test state property returns a dict."""
+    def test_state_is_state_object(self):
+        """Test state property returns a State object."""
         ctx = Context()
-        assert isinstance(ctx.state, dict)
+        from refast.state import State
+
+        assert isinstance(ctx.state, State)
 
     def test_state_is_mutable(self):
         """Test state can be modified."""
@@ -198,6 +200,18 @@ class TestContextWithoutWebSocket:
         await ctx.update_props("target-id", {"label": "New"})
 
     @pytest.mark.asyncio
+    async def test_update_text_without_websocket(self):
+        """Test update_text does nothing without websocket."""
+        ctx = Context()
+        await ctx.update_text("target-id", "New text")
+
+    @pytest.mark.asyncio
+    async def test_refresh_without_websocket(self):
+        """Test refresh does nothing without websocket."""
+        ctx = Context()
+        await ctx.refresh("/")
+
+    @pytest.mark.asyncio
     async def test_navigate_without_websocket(self):
         """Test navigate does nothing without websocket."""
         ctx = Context()
@@ -217,6 +231,7 @@ class TestContextWithoutWebSocket:
 
     @pytest.mark.asyncio
     async def test_broadcast_without_websocket(self):
-        """Test broadcast does nothing without websocket."""
+        """Test broadcast returns 0 without app."""
         ctx = Context()
-        await ctx.broadcast("custom:event", {"data": "value"})
+        result = await ctx.broadcast("custom:event", {"data": "value"})
+        assert result == 0

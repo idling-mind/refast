@@ -74,7 +74,6 @@ class Context(Generic[T]):
         self._app = app
         self._state: State = State()
         self._session: Session | None = None
-        self._pending_updates: list[dict[str, Any]] = []
         self._event_data: dict[str, Any] = {}
 
     @property
@@ -138,7 +137,7 @@ class Context(Generic[T]):
             await self._websocket.send_json(
                 {
                     "type": "state_update",
-                    "state": self._state,
+                    "state": self._state.to_dict(),
                 }
             )
 
@@ -283,7 +282,33 @@ class Context(Generic[T]):
                 }
             )
 
-    async def broadcast(self, event_type: str, data: Any) -> None:
-        """Broadcast an event to all connected clients."""
-        # This will be implemented in the events module
-        pass
+    async def broadcast(self, event_type: str, data: Any) -> int:
+        """
+        Broadcast an event to all connected clients.
+
+        Args:
+            event_type: Type of event to broadcast
+            data: Event data to send
+
+        Returns:
+            Number of clients that received the broadcast
+        """
+        if not self._app:
+            return 0
+
+        count = 0
+        for ctx in self._app.active_contexts:
+            if ctx._websocket and ctx._websocket != self._websocket:
+                try:
+                    await ctx._websocket.send_json(
+                        {
+                            "type": "event",
+                            "eventType": event_type,
+                            "data": data,
+                        }
+                    )
+                    count += 1
+                except Exception:
+                    # Connection may be closed
+                    pass
+        return count

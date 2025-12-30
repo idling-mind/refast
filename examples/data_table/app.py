@@ -211,7 +211,7 @@ def home(ctx: Context):
     all_selected = len(page_ids) > 0 and all(id in selected_ids for id in page_ids)
 
     return Container(
-        class_name="max-w-7xl mx-auto p-8",
+        class_name="max-w-7xl mx-auto p-6",
         children=[
             # Header
             Row(

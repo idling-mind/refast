@@ -201,7 +201,7 @@ def get_priority_badge(priority: str):
 def render_task_card(task: dict, column: str, ctx: Context):
     """Render a task card."""
     return Card(
-        class_name="mb-3",
+        class_name="mb-2",
         children=[
             CardContent(
                 class_name="p-4",

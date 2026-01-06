@@ -4,12 +4,17 @@
 from refast.components.base import Text
 from refast.components.shadcn.data_display import (
     Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
     Avatar,
     Badge,
     DataTable,
     List,
     TabItem,
     Table,
+    TableBody,
+    TableHeader,
     Tabs,
     Tooltip,
 )
@@ -27,26 +32,22 @@ class TestTable:
 
     def test_table_renders(self):
         """Test Table renders correctly."""
-        columns = [
-            {"key": "name", "header": "Name"},
-            {"key": "email", "header": "Email"},
-        ]
-        data = [{"name": "John", "email": "john@example.com"}]
-        table = Table(columns=columns, data=data)
+        children = [TableHeader(children=["Head"]), TableBody(children=["Body"])]
+        table = Table(children=children)
         rendered = table.render()
         assert rendered["type"] == "Table"
-        assert rendered["props"]["columns"] == columns
-        assert rendered["props"]["data"] == data
+        assert len(rendered["children"]) == 2
+        assert rendered["children"][0]["type"] == "TableHeader"
 
     def test_table_striped(self):
         """Test Table striped prop."""
-        table = Table(columns=[], data=[], striped=True)
+        table = Table(children=[], striped=True)
         rendered = table.render()
         assert rendered["props"]["striped"] is True
 
     def test_table_hoverable(self):
         """Test Table hoverable prop."""
-        table = Table(columns=[], data=[], hoverable=False)
+        table = Table(children=[], hoverable=False)
         rendered = table.render()
         assert rendered["props"]["hoverable"] is False
 
@@ -105,14 +106,14 @@ class TestBadge:
 
     def test_badge_renders(self):
         """Test Badge renders correctly."""
-        badge = Badge(text="New")
+        badge = Badge(children=["New"])
         rendered = badge.render()
         assert rendered["type"] == "Badge"
         assert rendered["children"] == ["New"]
 
     def test_badge_variant(self):
         """Test Badge variant prop."""
-        badge = Badge(text="Error", variant="destructive")
+        badge = Badge(children=["Error"], variant="destructive")
         rendered = badge.render()
         assert rendered["props"]["variant"] == "destructive"
 
@@ -200,29 +201,35 @@ class TestAccordion:
 
     def test_accordion_renders(self):
         """Test Accordion renders correctly."""
-        items = [
-            {"title": "Section 1", "content": "Content 1"},
-            {"title": "Section 2", "content": "Content 2"},
+        children = [
+            AccordionItem(
+                value="item-1",
+                children=[
+                    AccordionTrigger(children=["Trigger"]),
+                    AccordionContent(children=["Content"])
+                ]
+            )
         ]
-        accordion = Accordion(items=items)
+        accordion = Accordion(children=children)
         rendered = accordion.render()
         assert rendered["type"] == "Accordion"
-        assert rendered["props"]["items"] == items
+        assert len(rendered["children"]) == 1
+        assert rendered["children"][0]["type"] == "AccordionItem"
 
     def test_accordion_type(self):
         """Test Accordion type prop."""
-        accordion = Accordion(items=[], type="multiple")
+        accordion = Accordion(children=[], type="multiple")
         rendered = accordion.render()
         assert rendered["props"]["type"] == "multiple"
 
     def test_accordion_collapsible(self):
         """Test Accordion collapsible prop."""
-        accordion = Accordion(items=[], collapsible=False)
+        accordion = Accordion(children=[], collapsible=False)
         rendered = accordion.render()
         assert rendered["props"]["collapsible"] is False
 
     def test_accordion_default_value(self):
         """Test Accordion defaultValue prop."""
-        accordion = Accordion(items=[], default_value="section-1")
+        accordion = Accordion(children=[], default_value="section-1")
         rendered = accordion.render()
         assert rendered["props"]["defaultValue"] == "section-1"

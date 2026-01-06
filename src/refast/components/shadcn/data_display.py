@@ -7,18 +7,24 @@ from refast.components.base import Component
 
 class Table(Component):
     """
-    Table component for displaying tabular data.
+    Table container component.
 
     Example:
         ```python
         Table(
-            columns=[
-                {"key": "name", "header": "Name"},
-                {"key": "email", "header": "Email"},
-            ],
-            data=[
-                {"name": "John", "email": "john@example.com"},
-                {"name": "Jane", "email": "jane@example.com"},
+            children=[
+                TableHeader(children=[
+                    TableRow(children=[
+                        TableHead(children=["Name"]),
+                        TableHead(children=["Email"]),
+                    ])
+                ]),
+                TableBody(children=[
+                    TableRow(children=[
+                        TableCell(children=["John"]),
+                        TableCell(children=["john@example.com"]),
+                    ])
+                ])
             ]
         )
         ```
@@ -28,17 +34,18 @@ class Table(Component):
 
     def __init__(
         self,
-        columns: list[dict[str, Any]],
-        data: list[dict[str, Any]],
+        children: list["Component | str"] | None = None,
+        caption: str | None = None,
         striped: bool = False,
-        hoverable: bool = True,
+        hoverable: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        self.columns = columns
-        self.data = data
+        if children:
+            self._children = children
+        self.caption = caption
         self.striped = striped
         self.hoverable = hoverable
 
@@ -47,14 +54,13 @@ class Table(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "columns": self.columns,
-                "data": self.data,
+                "caption": self.caption,
                 "striped": self.striped,
                 "hoverable": self.hoverable,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },
-            "children": [],
+            "children": self._render_children(),
         }
 
 
@@ -288,7 +294,7 @@ class Badge(Component):
 
     def __init__(
         self,
-        text: str,
+        children: list["Component | str"] | None = None,
         variant: Literal[
             "default", "primary", "secondary", "destructive", "outline", "success", "warning"
         ] = "default",
@@ -297,7 +303,8 @@ class Badge(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        self.text = text
+        if children:
+            self._children = children
         self.variant = variant
 
     def render(self) -> dict[str, Any]:
@@ -309,7 +316,7 @@ class Badge(Component):
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },
-            "children": [self.text],
+            "children": self._render_children(),
         }
 
 
@@ -461,13 +468,32 @@ class TabItem(Component):
 
 
 class Accordion(Component):
-    """Accordion component for collapsible content."""
+    """
+    Accordion container component.
+
+    Example:
+        ```python
+        Accordion(
+            type="single",
+            collapsible=True,
+            children=[
+                AccordionItem(
+                    value="item-1",
+                    children=[
+                        AccordionTrigger(children=["Is it accessible?"]),
+                        AccordionContent(children=["Yes."])
+                    ]
+                )
+            ]
+        )
+        ```
+    """
 
     component_type: str = "Accordion"
 
     def __init__(
         self,
-        items: list[dict[str, Any]],  # [{"title": "...", "content": "..."}]
+        children: list["Component | str"] | None = None,
         type: Literal["single", "multiple"] = "single",
         collapsible: bool = True,
         default_value: str | list[str] | None = None,
@@ -476,7 +502,8 @@ class Accordion(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        self.items = items
+        if children:
+            self._children = children
         self.accordion_type = type
         self.collapsible = collapsible
         self.default_value = default_value
@@ -486,12 +513,98 @@ class Accordion(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "items": self.items,
                 "type": self.accordion_type,
                 "collapsible": self.collapsible,
                 "defaultValue": self.default_value,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },
-            "children": [],
+            "children": self._render_children(),
+        }
+
+
+class AccordionItem(Component):
+    """Accordion item component."""
+
+    component_type: str = "AccordionItem"
+
+    def __init__(
+        self,
+        value: str,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.value = value
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "value": self.value,
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class AccordionTrigger(Component):
+    """Accordion trigger component."""
+
+    component_type: str = "AccordionTrigger"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class AccordionContent(Component):
+    """Accordion content component."""
+
+    component_type: str = "AccordionContent"
+
+    def __init__(
+        self,
+        children: list["Component | str"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "className": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
         }

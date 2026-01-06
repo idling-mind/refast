@@ -116,8 +116,22 @@ async def send_message(ctx: Context):
     # Use replace() for efficient partial update - only update the messages list
     await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
 
-    # TODO: Broadcast to all connected clients
-    # await ctx.broadcast("chat:message", message.to_dict())
+    # Update all other connected clients
+    for client_ctx in ui.active_contexts:
+        if client_ctx == ctx:
+            continue
+
+        # Get client's username to render messages from their perspective
+        client_username = client_ctx.state.get("username", "")
+
+        try:
+            # Push the updated message list to the client
+            await client_ctx.replace(
+                "messages-list", render_messages_list(MESSAGES, client_username)
+            )
+        except Exception:
+            # Handle potentially disconnected clients
+            pass
 
 
 def render_message(message: Message, current_user: str):
@@ -242,6 +256,7 @@ def chat(ctx: Context):
                                                 placeholder="Type a message...",
                                                 value=ctx.state.get("message_text", ""),
                                                 on_change=ctx.callback(update_message_text),
+                                                debounce=500,
                                             )
                                         ],
                                     ),
@@ -310,6 +325,7 @@ def settings(ctx: Context):
                                                         children=[
                                                             Input(
                                                                 id="username-input",
+                                                                name="username",
                                                                 placeholder="Enter username",
                                                                 value=draft_username,
                                                                 on_change=ctx.callback(

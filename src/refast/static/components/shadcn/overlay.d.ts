@@ -17,6 +17,45 @@ export interface AlertDialogProps extends BaseProps, ChildrenProp {
     variant?: 'default' | 'destructive';
 }
 export declare function AlertDialog({ open, onOpenChange, title, description, confirmLabel, cancelLabel, onConfirm, onCancel, trigger, variant, className, children, ...props }: AlertDialogProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogTriggerProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function AlertDialogTrigger({ asChild, className, children, }: AlertDialogTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogContentProps extends ChildrenProp {
+    className?: string;
+}
+export declare function AlertDialogContent({ className, children, }: AlertDialogContentProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogHeaderProps extends ChildrenProp {
+    className?: string;
+}
+export declare function AlertDialogHeader({ className, children, }: AlertDialogHeaderProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogFooterProps extends ChildrenProp {
+    className?: string;
+}
+export declare function AlertDialogFooter({ className, children, }: AlertDialogFooterProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogTitleProps extends ChildrenProp {
+    title?: string;
+    className?: string;
+}
+export declare function AlertDialogTitle({ title, className, children, }: AlertDialogTitleProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogDescriptionProps extends ChildrenProp {
+    description?: string;
+    className?: string;
+}
+export declare function AlertDialogDescription({ description, className, children, }: AlertDialogDescriptionProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogActionProps extends ChildrenProp {
+    label?: string;
+    onClick?: () => void;
+    className?: string;
+}
+export declare function AlertDialogAction({ label, onClick, className, children, }: AlertDialogActionProps): import("react/jsx-runtime").JSX.Element;
+export interface AlertDialogCancelProps extends ChildrenProp {
+    label?: string;
+    onClick?: () => void;
+    className?: string;
+}
+export declare function AlertDialogCancel({ label, onClick, className, children, }: AlertDialogCancelProps): import("react/jsx-runtime").JSX.Element;
 export interface SheetProps extends ChildrenProp {
     open?: boolean;
     defaultOpen?: boolean;
@@ -80,6 +119,30 @@ export interface PopoverProps extends BaseProps, ChildrenProp {
     align?: 'start' | 'center' | 'end';
 }
 export declare function Popover({ open, onOpenChange, trigger, side, align, className, children, ...props }: PopoverProps): import("react/jsx-runtime").JSX.Element;
+export interface HoverCardTriggerProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function HoverCardTrigger({ asChild, className, children, }: HoverCardTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface HoverCardContentProps extends ChildrenProp {
+    className?: string;
+    side?: 'top' | 'right' | 'bottom' | 'left';
+    align?: 'start' | 'center' | 'end';
+    sideOffset?: number;
+}
+export declare function HoverCardContent({ className, side, align, sideOffset, children, }: HoverCardContentProps): import("react/jsx-runtime").JSX.Element;
+export interface PopoverTriggerProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function PopoverTrigger({ asChild, className, children, }: PopoverTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface PopoverContentProps extends ChildrenProp {
+    className?: string;
+    side?: 'top' | 'right' | 'bottom' | 'left';
+    align?: 'start' | 'center' | 'end';
+    sideOffset?: number;
+}
+export declare function PopoverContent({ className, side, align, sideOffset, children, }: PopoverContentProps): import("react/jsx-runtime").JSX.Element;
 export interface DropdownMenuProps extends ChildrenProp {
     open?: boolean;
     defaultOpen?: boolean;
@@ -168,6 +231,14 @@ export interface ContextMenuCheckboxItemProps extends ChildrenProp {
 export declare function ContextMenuCheckboxItem({ checked, onCheckedChange, disabled, className, children, }: ContextMenuCheckboxItemProps): import("react/jsx-runtime").JSX.Element;
 export declare const OverlayComponents: {
     AlertDialog: typeof AlertDialog;
+    AlertDialogTrigger: typeof AlertDialogTrigger;
+    AlertDialogContent: typeof AlertDialogContent;
+    AlertDialogHeader: typeof AlertDialogHeader;
+    AlertDialogFooter: typeof AlertDialogFooter;
+    AlertDialogTitle: typeof AlertDialogTitle;
+    AlertDialogDescription: typeof AlertDialogDescription;
+    AlertDialogAction: typeof AlertDialogAction;
+    AlertDialogCancel: typeof AlertDialogCancel;
     Sheet: typeof Sheet;
     SheetTrigger: typeof SheetTrigger;
     SheetContent: typeof SheetContent;
@@ -178,7 +249,11 @@ export declare const OverlayComponents: {
     SheetClose: typeof SheetClose;
     Drawer: typeof Drawer;
     HoverCard: typeof HoverCard;
+    HoverCardTrigger: typeof HoverCardTrigger;
+    HoverCardContent: typeof HoverCardContent;
     Popover: typeof Popover;
+    PopoverTrigger: typeof PopoverTrigger;
+    PopoverContent: typeof PopoverContent;
     DropdownMenu: typeof DropdownMenu;
     DropdownMenuTrigger: typeof DropdownMenuTrigger;
     DropdownMenuContent: typeof DropdownMenuContent;

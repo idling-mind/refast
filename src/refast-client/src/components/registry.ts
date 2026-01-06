@@ -28,9 +28,12 @@ import {
 
 // Import new Stage 9 components - Overlay
 import {
-  AlertDialog, Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
+  AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel,
+  Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
   SheetTitle, SheetDescription, SheetClose,
-  Drawer, HoverCard, Popover,
+  Drawer, HoverCard, HoverCardTrigger, HoverCardContent,
+  Popover, PopoverTrigger, PopoverContent,
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSub,
@@ -41,7 +44,7 @@ import {
 
 // Import new Stage 9 components - Utility
 import {
-  Separator, AspectRatio, ScrollArea, Collapsible,
+  Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
   Resizable, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
@@ -224,6 +227,14 @@ componentRegistry.register('SidebarTrigger', SidebarTrigger);
 
 // Register overlay components (Stage 9)
 componentRegistry.register('AlertDialog', AlertDialog);
+componentRegistry.register('AlertDialogTrigger', AlertDialogTrigger);
+componentRegistry.register('AlertDialogContent', AlertDialogContent);
+componentRegistry.register('AlertDialogHeader', AlertDialogHeader);
+componentRegistry.register('AlertDialogFooter', AlertDialogFooter);
+componentRegistry.register('AlertDialogTitle', AlertDialogTitle);
+componentRegistry.register('AlertDialogDescription', AlertDialogDescription);
+componentRegistry.register('AlertDialogAction', AlertDialogAction);
+componentRegistry.register('AlertDialogCancel', AlertDialogCancel);
 componentRegistry.register('Sheet', Sheet);
 componentRegistry.register('SheetTrigger', SheetTrigger);
 componentRegistry.register('SheetContent', SheetContent);
@@ -234,7 +245,11 @@ componentRegistry.register('SheetDescription', SheetDescription);
 componentRegistry.register('SheetClose', SheetClose);
 componentRegistry.register('Drawer', Drawer);
 componentRegistry.register('HoverCard', HoverCard);
+componentRegistry.register('HoverCardTrigger', HoverCardTrigger);
+componentRegistry.register('HoverCardContent', HoverCardContent);
 componentRegistry.register('Popover', Popover);
+componentRegistry.register('PopoverTrigger', PopoverTrigger);
+componentRegistry.register('PopoverContent', PopoverContent);
 componentRegistry.register('DropdownMenu', DropdownMenu);
 componentRegistry.register('DropdownMenuTrigger', DropdownMenuTrigger);
 componentRegistry.register('DropdownMenuContent', DropdownMenuContent);
@@ -259,6 +274,8 @@ componentRegistry.register('Separator', Separator);
 componentRegistry.register('AspectRatio', AspectRatio);
 componentRegistry.register('ScrollArea', ScrollArea);
 componentRegistry.register('Collapsible', Collapsible);
+componentRegistry.register('CollapsibleTrigger', CollapsibleTrigger);
+componentRegistry.register('CollapsibleContent', CollapsibleContent);
 componentRegistry.register('Carousel', Carousel);
 componentRegistry.register('CarouselContent', CarouselContent);
 componentRegistry.register('CarouselItem', CarouselItem);

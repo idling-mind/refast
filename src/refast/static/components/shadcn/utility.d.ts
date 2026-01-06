@@ -29,6 +29,15 @@ export interface CollapsibleProps extends BaseProps, ChildrenProp {
     trigger?: React.ReactNode;
 }
 export declare function Collapsible({ open, defaultOpen, onOpenChange, disabled, trigger, className, children, ...props }: CollapsibleProps): import("react/jsx-runtime").JSX.Element;
+export interface CollapsibleTriggerProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function CollapsibleTrigger({ asChild, className, children, }: CollapsibleTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface CollapsibleContentProps extends ChildrenProp {
+    className?: string;
+}
+export declare function CollapsibleContent({ className, children, }: CollapsibleContentProps): import("react/jsx-runtime").JSX.Element;
 export interface CarouselProps extends BaseProps, ChildrenProp {
     orientation?: 'horizontal' | 'vertical';
     opts?: Parameters<typeof useEmblaCarousel>[0];
@@ -99,6 +108,8 @@ export declare const UtilityComponents: {
     AspectRatio: typeof AspectRatio;
     ScrollArea: typeof ScrollArea;
     Collapsible: typeof Collapsible;
+    CollapsibleTrigger: typeof CollapsibleTrigger;
+    CollapsibleContent: typeof CollapsibleContent;
     Carousel: typeof Carousel;
     CarouselContent: typeof CarouselContent;
     CarouselItem: typeof CarouselItem;

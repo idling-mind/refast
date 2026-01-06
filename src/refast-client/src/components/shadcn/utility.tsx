@@ -175,6 +175,49 @@ export function Collapsible({
 }
 
 // ============================================================================
+// Collapsible Compositional API
+// ============================================================================
+
+export interface CollapsibleTriggerProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function CollapsibleTrigger({
+  asChild = true,
+  className,
+  children,
+}: CollapsibleTriggerProps) {
+  return (
+    <CollapsiblePrimitive.Trigger asChild={asChild} className={className}>
+      {children}
+    </CollapsiblePrimitive.Trigger>
+  );
+}
+
+export interface CollapsibleContentProps extends ChildrenProp {
+  className?: string;
+}
+
+export function CollapsibleContent({
+  className,
+  children,
+}: CollapsibleContentProps) {
+  return (
+    <CollapsiblePrimitive.Content
+      className={cn(
+        'overflow-hidden',
+        'data-[state=closed]:animate-collapsible-up',
+        'data-[state=open]:animate-collapsible-down',
+        className
+      )}
+    >
+      {children}
+    </CollapsiblePrimitive.Content>
+  );
+}
+
+// ============================================================================
 // Carousel
 // ============================================================================
 
@@ -1011,6 +1054,8 @@ export const UtilityComponents = {
   AspectRatio,
   ScrollArea,
   Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
   Carousel,
   CarouselContent,
   CarouselItem,

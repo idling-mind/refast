@@ -228,16 +228,49 @@ export function ToggleGroup({
   children,
   'data-refast-id': dataRefastId,
 }: ToggleGroupProps): React.ReactElement {
-  const Component = type === 'single' 
-    ? ToggleGroupPrimitive.Root 
-    : ToggleGroupPrimitive.Root;
+  // Handle value based on type - Radix UI expects array for "multiple" type
+  const resolvedValue = type === 'multiple' 
+    ? (value as string[] | undefined) ?? []
+    : (value as string | undefined);
+  
+  const resolvedDefaultValue = type === 'multiple'
+    ? (defaultValue as string[] | undefined) ?? []
+    : (defaultValue as string | undefined);
+
+  if (type === 'multiple') {
+    return (
+      <ToggleGroupPrimitive.Root
+        id={id}
+        type="multiple"
+        value={resolvedValue as string[]}
+        defaultValue={resolvedDefaultValue as string[]}
+        disabled={disabled}
+        onValueChange={onValueChange as (value: string[]) => void}
+        className={cn(
+          'inline-flex items-center justify-center gap-1',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement<{ variant?: string; size?: string }>, {
+              variant,
+              size,
+            });
+          }
+          return child;
+        })}
+      </ToggleGroupPrimitive.Root>
+    );
+  }
 
   return (
-    <Component
+    <ToggleGroupPrimitive.Root
       id={id}
-      type={type as 'single'}
-      value={value as string}
-      defaultValue={defaultValue as string}
+      type="single"
+      value={resolvedValue as string}
+      defaultValue={resolvedDefaultValue as string}
       disabled={disabled}
       onValueChange={onValueChange as (value: string) => void}
       className={cn(
@@ -255,7 +288,7 @@ export function ToggleGroup({
         }
         return child;
       })}
-    </Component>
+    </ToggleGroupPrimitive.Root>
   );
 }
 
@@ -491,9 +524,10 @@ export function Combobox({
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
 
-  const filteredOptions = options.filter((option) =>
-    option.label?.toLowerCase().includes(search.toLowerCase()) ?? false
-  );
+  const filteredOptions = options.filter((option) => {
+    if (!option || typeof option.label !== 'string') return false;
+    return option.label.toLowerCase().includes(search.toLowerCase());
+  });
 
   const selectedOption = options.find((opt) => opt.value === value);
 

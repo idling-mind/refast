@@ -132,6 +132,186 @@ export function AlertDialog({
 }
 
 // ============================================================================
+// AlertDialog (Compositional API)
+// ============================================================================
+
+export interface AlertDialogTriggerProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function AlertDialogTrigger({
+  asChild = true,
+  className,
+  children,
+}: AlertDialogTriggerProps) {
+  return (
+    <DialogPrimitive.Trigger asChild={asChild} className={className}>
+      {children}
+    </DialogPrimitive.Trigger>
+  );
+}
+
+export interface AlertDialogContentProps extends ChildrenProp {
+  className?: string;
+}
+
+export function AlertDialogContent({
+  className,
+  children,
+}: AlertDialogContentProps) {
+  return (
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Overlay
+        className={cn(
+          'fixed inset-0 z-50 bg-black/80',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+        )}
+      />
+      <DialogPrimitive.Content
+        className={cn(
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4',
+          'border bg-background p-6 shadow-lg duration-200',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+          'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+          'sm:rounded-lg',
+          className
+        )}
+      >
+        {children}
+      </DialogPrimitive.Content>
+    </DialogPrimitive.Portal>
+  );
+}
+
+export interface AlertDialogHeaderProps extends ChildrenProp {
+  className?: string;
+}
+
+export function AlertDialogHeader({
+  className,
+  children,
+}: AlertDialogHeaderProps) {
+  return (
+    <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}>
+      {children}
+    </div>
+  );
+}
+
+export interface AlertDialogFooterProps extends ChildrenProp {
+  className?: string;
+}
+
+export function AlertDialogFooter({
+  className,
+  children,
+}: AlertDialogFooterProps) {
+  return (
+    <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}>
+      {children}
+    </div>
+  );
+}
+
+export interface AlertDialogTitleProps extends ChildrenProp {
+  title?: string;
+  className?: string;
+}
+
+export function AlertDialogTitle({
+  title,
+  className,
+  children,
+}: AlertDialogTitleProps) {
+  return (
+    <DialogPrimitive.Title className={cn('text-lg font-semibold', className)}>
+      {title || children}
+    </DialogPrimitive.Title>
+  );
+}
+
+export interface AlertDialogDescriptionProps extends ChildrenProp {
+  description?: string;
+  className?: string;
+}
+
+export function AlertDialogDescription({
+  description,
+  className,
+  children,
+}: AlertDialogDescriptionProps) {
+  return (
+    <DialogPrimitive.Description className={cn('text-sm text-muted-foreground', className)}>
+      {description || children}
+    </DialogPrimitive.Description>
+  );
+}
+
+export interface AlertDialogActionProps extends ChildrenProp {
+  label?: string;
+  onClick?: () => void;
+  className?: string;
+}
+
+export function AlertDialogAction({
+  label,
+  onClick,
+  className,
+  children,
+}: AlertDialogActionProps) {
+  return (
+    <DialogPrimitive.Close
+      onClick={onClick}
+      className={cn(
+        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
+        'bg-primary text-primary-foreground hover:bg-primary/90',
+        'text-sm font-medium ring-offset-background transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'disabled:pointer-events-none disabled:opacity-50',
+        className
+      )}
+    >
+      {label || children}
+    </DialogPrimitive.Close>
+  );
+}
+
+export interface AlertDialogCancelProps extends ChildrenProp {
+  label?: string;
+  onClick?: () => void;
+  className?: string;
+}
+
+export function AlertDialogCancel({
+  label,
+  onClick,
+  className,
+  children,
+}: AlertDialogCancelProps) {
+  return (
+    <DialogPrimitive.Close
+      onClick={onClick}
+      className={cn(
+        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
+        'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        'text-sm font-medium ring-offset-background transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'disabled:pointer-events-none disabled:opacity-50',
+        'mt-2 sm:mt-0',
+        className
+      )}
+    >
+      {label || children}
+    </DialogPrimitive.Close>
+  );
+}
+
+// ============================================================================
 // Sheet (Compositional API)
 // ============================================================================
 
@@ -496,6 +676,118 @@ export function Popover({
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
+  );
+}
+
+// ============================================================================
+// HoverCard Compositional API
+// ============================================================================
+
+export interface HoverCardTriggerProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function HoverCardTrigger({
+  asChild = true,
+  className,
+  children,
+}: HoverCardTriggerProps) {
+  return (
+    <HoverCardPrimitive.Trigger asChild={asChild} className={className}>
+      {children}
+    </HoverCardPrimitive.Trigger>
+  );
+}
+
+export interface HoverCardContentProps extends ChildrenProp {
+  className?: string;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  sideOffset?: number;
+}
+
+export function HoverCardContent({
+  className,
+  side = 'bottom',
+  align = 'center',
+  sideOffset = 4,
+  children,
+}: HoverCardContentProps) {
+  return (
+    <HoverCardPrimitive.Content
+      side={side}
+      align={align}
+      sideOffset={sideOffset}
+      className={cn(
+        'z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+        'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        className
+      )}
+    >
+      {children}
+    </HoverCardPrimitive.Content>
+  );
+}
+
+// ============================================================================
+// Popover Compositional API
+// ============================================================================
+
+export interface PopoverTriggerProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function PopoverTrigger({
+  asChild = true,
+  className,
+  children,
+}: PopoverTriggerProps) {
+  return (
+    <PopoverPrimitive.Trigger asChild={asChild} className={className}>
+      {children}
+    </PopoverPrimitive.Trigger>
+  );
+}
+
+export interface PopoverContentProps extends ChildrenProp {
+  className?: string;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  sideOffset?: number;
+}
+
+export function PopoverContent({
+  className,
+  side = 'bottom',
+  align = 'center',
+  sideOffset = 4,
+  children,
+}: PopoverContentProps) {
+  return (
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        side={side}
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(
+          'z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className
+        )}
+      >
+        {children}
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Portal>
   );
 }
 
@@ -996,6 +1288,14 @@ export function ContextMenuCheckboxItem({
 
 export const OverlayComponents = {
   AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
   Sheet,
   SheetTrigger,
   SheetContent,
@@ -1006,7 +1306,11 @@ export const OverlayComponents = {
   SheetClose,
   Drawer,
   HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
   Popover,
+  PopoverTrigger,
+  PopoverContent,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,

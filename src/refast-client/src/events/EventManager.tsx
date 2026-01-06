@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useCallback, useMemo, useRef, useEffect } from 'react';
 import { EventMessage, UpdateMessage, ComponentTree } from '../types';
+import { persistentStateManager } from '../state/PersistentStateManager';
 
 interface EventManagerContextValue {
   invokeCallback: (callbackId: string, data: Record<string, unknown>) => void;
@@ -71,6 +72,16 @@ export function EventManagerProvider({
 
         // Notify all handlers
         updateHandlers.current.forEach((handler) => handler(message));
+
+        // Handle store updates
+        if (message.type === 'store_update' && message.updates) {
+          persistentStateManager.handleUpdates(message.updates);
+        }
+
+        // Handle store ready (after store_init is acknowledged)
+        if (message.type === 'store_ready') {
+          persistentStateManager.handleStoreReady();
+        }
 
         // Handle component updates
         if (message.type === 'update' && onComponentUpdate) {

@@ -35,7 +35,7 @@ export interface CallbackRef {
  * Update message from backend.
  */
 export interface UpdateMessage {
-  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh';
+  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render';
   operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children';
   targetId?: string;
   component?: ComponentTree;
@@ -48,6 +48,18 @@ export interface UpdateMessage {
   duration?: number;
   eventType?: string;
   data?: unknown;
+  updates?: StoreUpdate[];
+}
+
+/**
+ * Store update operation from backend.
+ */
+export interface StoreUpdate {
+  storageType: 'local' | 'session';
+  operation: 'set' | 'delete' | 'clear';
+  key: string | null;
+  value?: unknown;
+  encrypt?: boolean;
 }
 
 /**

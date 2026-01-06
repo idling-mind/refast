@@ -26,6 +26,8 @@ class EventType(str, Enum):
     TOAST = "toast"
     MODAL = "modal"
     BROADCAST = "broadcast"
+    STORE_INIT = "store_init"
+    STORE_UPDATE = "store_update"
     CUSTOM = "custom"
 
 

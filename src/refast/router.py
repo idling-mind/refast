@@ -214,6 +214,35 @@ class RefastRouter:
                     }
                     await callback(ctx, **accepted_params)
 
+                # Sync any pending store updates after callback
+                await ctx.sync_store()
+
+        elif message_type == "store_init":
+            # Browser is sending its current storage state on connect
+            store_data = data.get("data", {})
+            ctx._load_store_from_browser(store_data)
+
+            # Get the page path from the data (sent by frontend)
+            page_path = data.get("path", "/")
+
+            # Find and render the page with the loaded store
+            page_func = self.app._pages.get(page_path)
+            if page_func is None:
+                page_func = self.app._pages.get("/")  # Fallback to index
+
+            if page_func is not None:
+                component = page_func(ctx)
+                component_data = component.render() if hasattr(component, "render") else {}
+
+                # Send the rendered page via WebSocket
+                await websocket.send_json({
+                    "type": "page_render",
+                    "component": component_data,
+                })
+
+            # Send acknowledgment so frontend knows store is ready
+            await websocket.send_json({"type": "store_ready"})
+
         elif message_type == "event":
             event_type = data.get("eventType")
             handler = self.app._event_handlers.get(event_type)

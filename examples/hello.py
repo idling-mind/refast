@@ -10,13 +10,13 @@ ui = RefastApp(title="Hello World App")
 
 
 async def start_refresh(ctx: Context):
-    ctx.state["refresh"] = "on"
+    ctx.store.local["refresh"] = "on"
     await ctx.show_toast("Refresh started", variant="success")
     await ctx.refresh()
 
 
 async def stop_refresh(ctx: Context):
-    ctx.state["refresh"] = "off"
+    ctx.store.local["refresh"] = "off"
     await ctx.show_toast("Refresh stopped", variant="success")
     await ctx.refresh()
 
@@ -24,8 +24,9 @@ async def stop_refresh(ctx: Context):
 @ui.page("/")
 def hello_world_page(ctx: Context):
     print("Rendering Hello World Page")
-    text = f"{ctx.state.get('prefix', 'Hello')} {ctx.state.get('counter', 0)}"
-    refresh_state = True if ctx.state.get("refresh", "off") == "on" else False
+    text = f"{ctx.store.local.get('prefix', 'Hello')} {ctx.store.local.get('counter', 0)}"
+    print("refresh", ctx.store.local.get("refresh"))
+    refresh_state = True if ctx.store.local.get("refresh", "off") == "on" else False
     return Container(
         [
             Container(
@@ -57,22 +58,23 @@ async def update_value():
     print("Starting periodic updates...")
     while True:
         for ctx in ui.active_contexts:
-            if ctx.state.get("refresh", "off") == "off":
+            if ctx.store.local.get("refresh", "off") == "off":
                 continue
-            if not ctx.state.get("counter"):
-                ctx.state["counter"] = 0
-            if not ctx.state.get("prefix"):
-                ctx.state["prefix"] = "Hello"
+            if not ctx.store.local.get("counter"):
+                ctx.store.local["counter"] = 0
+            if not ctx.store.local.get("prefix"):
+                ctx.store.local["prefix"] = "Hello"
             await ctx.replace(
                 "hello-text",
                 Text(
-                    f"{ctx.state.get('prefix')} {ctx.state.get('counter')}",
+                    f"{ctx.store.local.get('prefix')} {ctx.store.local.get('counter')}",
                     id="hello-text",
                     size="xl",
                     weight="bold",
                 ),
             )
-            ctx.state["counter"] += 1
+            print(ctx.store.local["counter"])
+            ctx.store.local["counter"] += 1
         await asyncio.sleep(5)
 
 

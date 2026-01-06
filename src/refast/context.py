@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from fastapi import Request, WebSocket
 
 from refast.state import State
+from refast.store import Store
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
@@ -73,6 +74,7 @@ class Context(Generic[T]):
         self._websocket = websocket
         self._app = app
         self._state: State = State()
+        self._store: Store | None = None
         self._session: Session | None = None
         self._event_data: dict[str, Any] = {}
 
@@ -89,6 +91,28 @@ class Context(Generic[T]):
     def state(self) -> State:
         """Access the state object."""
         return self._state
+
+    @property
+    def store(self) -> Store:
+        """
+        Access browser storage (localStorage and sessionStorage).
+
+        Use `ctx.store.local` for localStorage (persists across restarts).
+        Use `ctx.store.session` for sessionStorage (persists until tab closes).
+
+        Example:
+            ```python
+            # localStorage - persists across browser restarts
+            theme = ctx.store.local.get("theme", "light")
+            ctx.store.local.set("theme", "dark")
+
+            # sessionStorage - persists until tab is closed
+            ctx.store.session.set("wizard_step", 2)
+            ```
+        """
+        if self._store is None:
+            self._store = Store(self)
+        return self._store
 
     @property
     def session(self) -> "Session":
@@ -312,3 +336,39 @@ class Context(Generic[T]):
                     # Connection may be closed
                     pass
         return count
+
+    async def sync_store(self) -> None:
+        """
+        Sync any pending store updates to the browser.
+
+        Note: Store updates are automatically synced when you modify
+        values via `ctx.store.local` or `ctx.store.session`. You typically
+        don't need to call this method manually.
+
+        This method is called automatically:
+        - After any store modification (set, delete, clear)
+        - After callback invocations
+
+        You may need to call this manually only in edge cases where
+        the automatic sync doesn't work (e.g., no running event loop).
+        """
+        if self._websocket and self._store:
+            updates = self._store._get_all_pending_updates()
+            if updates:
+                await self._websocket.send_json(
+                    {
+                        "type": "store_update",
+                        "updates": updates,
+                    }
+                )
+
+    def _load_store_from_browser(self, data: dict[str, dict[str, str]]) -> None:
+        """
+        Load store data received from browser.
+
+        Called internally when browser sends its storage state on connect.
+
+        Args:
+            data: Dictionary with "local" and "session" storage data
+        """
+        self.store._load_from_browser(data)

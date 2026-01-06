@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback} from 'react';
 import { ComponentRenderer } from './components/ComponentRenderer';
 import { ToastManager } from './components/ToastManager';
 import { EventManagerProvider, useEventManager } from './events/EventManager';
 import { useWebSocket, buildWebSocketUrl } from './events/WebSocketClient';
 import { useStateManager } from './state/StateManager';
+import { persistentStateManager } from './state/PersistentStateManager';
 import { ComponentTree, UpdateMessage } from './types';
 
 // Extend Window interface for initial data
@@ -53,7 +54,43 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
   const { componentTree, setComponentTree, updateComponent, handleUpdate } =
     useStateManager(tree || undefined);
 
-  // Fetch page data from server
+  // Initialize persistent state manager with WebSocket and listen for messages
+  useEffect(() => {
+    if (socket) {
+      persistentStateManager.setWebSocket(socket);
+
+      // Listen for messages directly (before EventManagerProvider is mounted)
+      const handleMessage = (event: MessageEvent) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'store_ready') {
+            persistentStateManager.handleStoreReady();
+          }
+          if (message.type === 'store_update' && message.updates) {
+            persistentStateManager.handleUpdates(message.updates);
+          }
+          // Handle page render from WebSocket (after store_init)
+          if (message.type === 'page_render' && message.component) {
+            setComponentTree(message.component);
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      };
+
+      socket.addEventListener('message', handleMessage);
+
+      return () => {
+        socket.removeEventListener('message', handleMessage);
+        persistentStateManager.reset();
+      };
+    }
+    return () => {
+      persistentStateManager.reset();
+    };
+  }, [socket, setComponentTree]);
+
+  // Fetch page data from server (used for refresh events)
   const fetchPage = useCallback(async () => {
     try {
       const path = window.location.pathname;
@@ -81,14 +118,7 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     };
   }, [fetchPage]);
 
-  // Initialize with server data
-  useEffect(() => {
-    if (tree && !componentTree) {
-      setComponentTree(tree);
-    }
-  }, [tree, componentTree, setComponentTree]);
-
-  // Show loading state
+  // Show loading state until page is rendered
   if (!componentTree) {
     return (
       <div className="flex min-h-screen items-center justify-center">

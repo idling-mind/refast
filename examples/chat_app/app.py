@@ -7,6 +7,7 @@ This example demonstrates:
 - Message history within session
 """
 
+import asyncio
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -116,11 +117,8 @@ async def send_message(ctx: Context):
     # Use replace() for efficient partial update - only update the messages list
     await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
 
-    # Update all other connected clients
-    for client_ctx in ui.active_contexts:
-        if client_ctx == ctx:
-            continue
-
+    # Update all other connected clients concurrently
+    async def update_client(client_ctx: Context):
         # Get client's username to render messages from their perspective
         client_username = client_ctx.state.get("username", "")
 
@@ -132,6 +130,14 @@ async def send_message(ctx: Context):
         except Exception:
             # Handle potentially disconnected clients
             pass
+
+    # Run updates in parallel using asyncio.gather
+    # This ensures that one slow client doesn't block updates for others
+    if ui.active_contexts:
+        await asyncio.gather(
+            *(update_client(c) for c in ui.active_contexts if c != ctx),
+            return_exceptions=True
+        )
 
 
 def render_message(message: Message, current_user: str):

@@ -15,7 +15,7 @@ interface ButtonProps {
 /**
  * Button component - shadcn/ui styled button with Tailwind CSS.
  */
-export declare function Button({ id, className, variant, size, disabled, loading, type, onClick, children, 'data-refast-id': dataRefastId, }: ButtonProps): React.ReactElement;
+export declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>;
 interface IconButtonProps {
     id?: string;
     className?: string;
@@ -30,5 +30,5 @@ interface IconButtonProps {
 /**
  * IconButton component - button with icon.
  */
-export declare function IconButton({ id, className, icon, variant, disabled, onClick, ariaLabel, 'data-refast-id': dataRefastId, }: IconButtonProps): React.ReactElement;
+export declare const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAttributes<HTMLButtonElement>>;
 export {};

@@ -155,9 +155,13 @@ export function AlertDialogTrigger({
   className,
   children,
 }: AlertDialogTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  const shouldUseAsChild = asChild && !!singleChild;
+
   return (
-    <DialogPrimitive.Trigger asChild={asChild} className={className}>
-      {children}
+    <DialogPrimitive.Trigger asChild={shouldUseAsChild} className={className}>
+      {shouldUseAsChild ? singleChild : children}
     </DialogPrimitive.Trigger>
   );
 }
@@ -360,12 +364,15 @@ export function SheetTrigger({
   className,
   children,
 }: SheetTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  
   // When asChild is false, Radix renders its own button element
   // When asChild is true, we need to ensure we have a proper element to clone into
-  if (asChild) {
+  if (asChild && singleChild) {
     return (
       <SheetPrimitive.Trigger asChild className={className}>
-        {children}
+        {singleChild}
       </SheetPrimitive.Trigger>
     );
   }
@@ -723,9 +730,13 @@ export function HoverCardTrigger({
   className,
   children,
 }: HoverCardTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  const shouldUseAsChild = asChild && !!singleChild;
+
   return (
-    <HoverCardPrimitive.Trigger asChild={asChild} className={className}>
-      {children}
+    <HoverCardPrimitive.Trigger asChild={shouldUseAsChild} className={className}>
+      {shouldUseAsChild ? singleChild : children}
     </HoverCardPrimitive.Trigger>
   );
 }
@@ -778,9 +789,13 @@ export function PopoverTrigger({
   className,
   children,
 }: PopoverTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  const shouldUseAsChild = asChild && !!singleChild;
+
   return (
-    <PopoverPrimitive.Trigger asChild={asChild} className={className}>
-      {children}
+    <PopoverPrimitive.Trigger asChild={shouldUseAsChild} className={className}>
+      {shouldUseAsChild ? singleChild : children}
     </PopoverPrimitive.Trigger>
   );
 }
@@ -859,11 +874,14 @@ export function DropdownMenuTrigger({
   className,
   children,
 }: DropdownMenuTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+
   // When asChild is false, Radix renders its own button element
-  if (asChild) {
+  if (asChild && singleChild) {
     return (
       <DropdownMenuPrimitive.Trigger asChild className={className}>
-        {children}
+        {singleChild}
       </DropdownMenuPrimitive.Trigger>
     );
   }
@@ -1180,11 +1198,14 @@ export function ContextMenuTrigger({
   className,
   children,
 }: ContextMenuTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+
   // Context menu trigger usually wraps a larger area for right-click
-  if (asChild) {
+  if (asChild && singleChild) {
     return (
       <ContextMenuPrimitive.Trigger asChild className={className}>
-        {children}
+        {singleChild}
       </ContextMenuPrimitive.Trigger>
     );
   }

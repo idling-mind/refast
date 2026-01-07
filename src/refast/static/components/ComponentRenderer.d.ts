@@ -4,9 +4,10 @@ import { ComponentTree } from '../types';
 interface ComponentRendererProps {
     tree: ComponentTree | string;
     onUpdate?: (id: string, component: ComponentTree) => void;
+    [key: string]: any;
 }
 /**
  * Renders a component tree from Python backend.
  */
-export declare function ComponentRenderer({ tree, onUpdate }: ComponentRendererProps): React.ReactElement | null;
+export declare const ComponentRenderer: React.ForwardRefExoticComponent<Omit<ComponentRendererProps, "ref"> & React.RefAttributes<HTMLElement>>;
 export {};

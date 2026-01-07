@@ -17,7 +17,7 @@ interface ButtonProps {
 /**
  * Button component - shadcn/ui styled button with Tailwind CSS.
  */
-export function Button({
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   id,
   className,
   variant = 'default',
@@ -28,7 +28,7 @@ export function Button({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: ButtonProps): React.ReactElement {
+}, ref) => {
   const variantClasses = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -48,6 +48,7 @@ export function Button({
 
   return (
     <button
+      ref={ref}
       id={id}
       type={type}
       disabled={disabled || loading}
@@ -68,7 +69,8 @@ export function Button({
       {children}
     </button>
   );
-}
+});
+Button.displayName = 'Button';
 
 interface IconButtonProps {
   id?: string;
@@ -85,7 +87,7 @@ interface IconButtonProps {
 /**
  * IconButton component - button with icon.
  */
-export function IconButton({
+export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(({
   id,
   className,
   icon,
@@ -94,9 +96,10 @@ export function IconButton({
   onClick,
   ariaLabel,
   'data-refast-id': dataRefastId,
-}: IconButtonProps): React.ReactElement {
+}, ref) => {
   return (
     <Button
+      ref={ref}
       id={id}
       className={className}
       variant={variant}
@@ -109,4 +112,5 @@ export function IconButton({
       <span aria-hidden="true">{icon}</span>
     </Button>
   );
-}
+});
+IconButton.displayName = 'IconButton';

@@ -7,12 +7,14 @@ import { debounce, throttle } from '../utils';
 interface ComponentRendererProps {
   tree: ComponentTree | string;
   onUpdate?: (id: string, component: ComponentTree) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 /**
  * Renders a component tree from Python backend.
  */
-export function ComponentRenderer({ tree, onUpdate }: ComponentRendererProps): React.ReactElement | null {
+export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRendererProps>(({ tree, onUpdate, ...rest }, ref) => {
   const eventManager = useEventManager();
 
   // If it's a string, render as text
@@ -51,7 +53,8 @@ export function ComponentRenderer({ tree, onUpdate }: ComponentRendererProps): R
       return null;
     }
 
-    return children.map((child, index) => (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return children.map((child: any, index: number) => (
       <ComponentRenderer
         key={typeof child === 'string' ? index : child.id || index}
         tree={child}
@@ -61,11 +64,12 @@ export function ComponentRenderer({ tree, onUpdate }: ComponentRendererProps): R
   }, [children, onUpdate]);
 
   return (
-    <Component {...processedProps} data-refast-id={id}>
+    <Component {...processedProps} {...rest} data-refast-id={id} ref={ref}>
       {renderedChildren}
     </Component>
   );
-}
+});
+ComponentRenderer.displayName = 'ComponentRenderer';
 
 /**
  * Check if a value is a callback reference.

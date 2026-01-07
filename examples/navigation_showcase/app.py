@@ -94,7 +94,7 @@ def home(ctx: Context):
     current_page = ctx.state.get("current_page", 1)
 
     return Container(
-        class_name="max-w-6xl mx-auto p-8",
+        class_name="max-w-6xl mx-auto p-6",
         children=[
             Column(
                 gap=8,

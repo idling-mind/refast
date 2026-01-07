@@ -1,4 +1,5 @@
 import React from 'react';
+import { Command as CommandPrimitive } from 'cmdk';
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu';
 import * as MenubarPrimitive from '@radix-ui/react-menubar';
 import { cn } from '../../utils';
@@ -1127,9 +1128,8 @@ export function Command({
   children,
   'data-refast-id': dataRefastId,
 }: CommandProps): React.ReactElement {
-  // Note: Full implementation requires cmdk package
   return (
-    <div
+    <CommandPrimitive
       id={id}
       className={cn(
         'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
@@ -1138,7 +1138,7 @@ export function Command({
       data-refast-id={dataRefastId}
     >
       {children}
-    </div>
+    </CommandPrimitive>
   );
 }
 
@@ -1160,7 +1160,7 @@ export function CommandInput({
   'data-refast-id': dataRefastId,
 }: CommandInputProps): React.ReactElement {
   return (
-    <div className="flex items-center border-b px-3" data-refast-id={dataRefastId}>
+    <div className="flex items-center border-b px-3" cmdk-input-wrapper="" data-refast-id={dataRefastId}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -1176,11 +1176,10 @@ export function CommandInput({
         <circle cx="11" cy="11" r="8" />
         <path d="m21 21-4.3-4.3" />
       </svg>
-      <input
+      <CommandPrimitive.Input
         id={id}
-        type="text"
         value={value}
-        onChange={(e) => onValueChange?.(e.target.value)}
+        onValueChange={onValueChange}
         placeholder={placeholder}
         className={cn(
           'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none',
@@ -1206,13 +1205,13 @@ export function CommandList({
   'data-refast-id': dataRefastId,
 }: CommandListProps): React.ReactElement {
   return (
-    <div
+    <CommandPrimitive.List
       id={id}
       className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
       data-refast-id={dataRefastId}
     >
       {children}
-    </div>
+    </CommandPrimitive.List>
   );
 }
 
@@ -1230,13 +1229,13 @@ export function CommandEmpty({
   'data-refast-id': dataRefastId,
 }: CommandEmptyProps): React.ReactElement {
   return (
-    <div
+    <CommandPrimitive.Empty
       id={id}
       className={cn('py-6 text-center text-sm', className)}
       data-refast-id={dataRefastId}
     >
       {children}
-    </div>
+    </CommandPrimitive.Empty>
   );
 }
 
@@ -1256,8 +1255,9 @@ export function CommandGroup({
   'data-refast-id': dataRefastId,
 }: CommandGroupProps): React.ReactElement {
   return (
-    <div
+    <CommandPrimitive.Group
       id={id}
+      heading={heading}
       className={cn(
         'overflow-hidden p-1 text-foreground',
         '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs',
@@ -1266,13 +1266,8 @@ export function CommandGroup({
       )}
       data-refast-id={dataRefastId}
     >
-      {heading && (
-        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-          {heading}
-        </div>
-      )}
       {children}
-    </div>
+    </CommandPrimitive.Group>
   );
 }
 
@@ -1290,28 +1285,28 @@ interface CommandItemProps {
 export function CommandItem({
   id,
   className,
+  value,
   disabled,
   onSelect,
   children,
   'data-refast-id': dataRefastId,
 }: CommandItemProps): React.ReactElement {
   return (
-    <div
+    <CommandPrimitive.Item
       id={id}
-      role="option"
-      aria-disabled={disabled}
-      onClick={disabled ? undefined : onSelect}
+      value={value}
+      disabled={disabled}
+      onSelect={onSelect}
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
         'aria-selected:bg-accent aria-selected:text-accent-foreground',
-        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        !disabled && 'cursor-pointer hover:bg-accent hover:text-accent-foreground',
+        'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
         className
       )}
       data-refast-id={dataRefastId}
     >
       {children}
-    </div>
+    </CommandPrimitive.Item>
   );
 }
 
@@ -1327,7 +1322,7 @@ export function CommandSeparator({
   'data-refast-id': dataRefastId,
 }: CommandSeparatorProps): React.ReactElement {
   return (
-    <div
+    <CommandPrimitive.Separator
       id={id}
       className={cn('-mx-1 h-px bg-border', className)}
       data-refast-id={dataRefastId}

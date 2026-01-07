@@ -292,7 +292,7 @@ interface CommandItemProps {
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
-export declare function CommandItem({ id, className, disabled, onSelect, children, 'data-refast-id': dataRefastId, }: CommandItemProps): React.ReactElement;
+export declare function CommandItem({ id, className, value, disabled, onSelect, children, 'data-refast-id': dataRefastId, }: CommandItemProps): React.ReactElement;
 interface CommandSeparatorProps {
     id?: string;
     className?: string;

@@ -1125,7 +1125,7 @@ class CommandInput(Component):
     def __init__(
         self,
         placeholder: str = "Search...",
-        value: str = "",
+        value: str | None = None,
         on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -1137,16 +1137,20 @@ class CommandInput(Component):
         self.on_value_change = on_value_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "placeholder": self.placeholder,
+            "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        
+        if self.value is not None:
+            props["value"] = self.value
+            
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "placeholder": self.placeholder,
-                "value": self.value,
-                "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 

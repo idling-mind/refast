@@ -38,10 +38,10 @@ def navbar(ctx: Context, current_page: str):
     pages = ["Home", "About", "Settings"]
 
     return Card(
-        class_name="mb-6",
+        class_name="mb-4",
         children=[
             CardContent(
-                class_name="p-4",
+                class_name="p-6",
                 children=[
                     Row(
                         justify="between",

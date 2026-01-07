@@ -51,6 +51,7 @@ from refast.components import (
     ScrollArea,
     Separator,
     Text,
+    ThemeSwitcher,
 )
 
 # Create the Refast app
@@ -565,6 +566,7 @@ def home(ctx: Context):
                                 gap=4,
                                 children=[
                                     Text("Files", class_name="text-lg font-bold px-2"),
+                                    ThemeSwitcher(),
                                     # Quick actions
                                     Column(
                                         gap=1,

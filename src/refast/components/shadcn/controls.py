@@ -210,11 +210,13 @@ class ToggleGroup(Component):
     Example:
         ```python
         ToggleGroup(
-            type="single",
+            type="multiple",
+            default_value={"bold": True, "italic": False},
             children=[
-                ToggleGroupItem("Bold", icon="Bold", value="bold"),
-                ToggleGroupItem("Italic", icon="Italic", value="italic"),
+                ToggleGroupItem("Bold", icon="Bold", name="bold"),
+                ToggleGroupItem("Italic", icon="Italic", name="italic"),
             ],
+            on_value_change=ctx.callback(handle_change),
         )
         ```
     """
@@ -224,8 +226,8 @@ class ToggleGroup(Component):
     def __init__(
         self,
         type: Literal["single", "multiple"] = "single",
-        value: str | list[str] | None = None,
-        default_value: str | list[str] | None = None,
+        value: str | list[str] | dict[str, bool] | None = None,
+        default_value: str | list[str] | dict[str, bool] | None = None,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
         size: Literal["sm", "default", "lg"] = "default",
@@ -246,10 +248,15 @@ class ToggleGroup(Component):
         if children:
             self._children = children
 
+    def _convert_dict_to_list(self, val: dict[str, bool] | Any) -> list[str] | Any:
+        if isinstance(val, dict):
+            return [k for k, v in val.items() if v]
+        return val
+
     def render(self) -> dict[str, Any]:
         props = {
             "type": self.toggle_type,
-            "defaultValue": self.default_value,
+            "defaultValue": self._convert_dict_to_list(self.default_value),
             "disabled": self.disabled,
             "variant": self.variant,
             "size": self.size,
@@ -258,7 +265,7 @@ class ToggleGroup(Component):
         }
 
         if self.value is not None:
-            props["value"] = self.value
+            props["value"] = self._convert_dict_to_list(self.value)
         if self.on_value_change:
             props["onValueChange"] = self.on_value_change.serialize()
 
@@ -276,7 +283,7 @@ class ToggleGroupItem(Component):
 
     Example:
         ```python
-        ToggleGroupItem("Bold", icon="Bold", value="bold")
+        ToggleGroupItem("Bold", icon="Bold", name="bold")
         ```
     """
 
@@ -286,7 +293,8 @@ class ToggleGroupItem(Component):
         self,
         label: str = "",
         icon: str | None = None,
-        value: str = "",
+        value: str | None = None,
+        name: str | None = None,
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -295,7 +303,7 @@ class ToggleGroupItem(Component):
         super().__init__(id=id, class_name=class_name, **props)
         self.label = label
         self.icon = icon
-        self.value = value
+        self.value = value or name or ""
         self.disabled = disabled
 
     def render(self) -> dict[str, Any]:

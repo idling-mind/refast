@@ -210,7 +210,7 @@ interface ToggleGroupProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   size?: 'sm' | 'default' | 'lg';
-  onValueChange?: (value: string | string[]) => void;
+  onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -230,14 +230,41 @@ export function ToggleGroup({
 }: ToggleGroupProps): React.ReactElement {
   // Handle value based on type - Radix UI expects array for "multiple" type
   const resolvedValue = type === 'multiple' 
-    ? (value as string[] | undefined) ?? []
+    ? (value as string[] | undefined)
     : (value as string | undefined);
   
   const resolvedDefaultValue = type === 'multiple'
-    ? (defaultValue as string[] | undefined) ?? []
+    ? (defaultValue as string[] | undefined)
     : (defaultValue as string | undefined);
 
   if (type === 'multiple') {
+    const handleValueChange = (newValues: string[]) => {
+      if (!onValueChange) return;
+
+      // Collect all possible values from children to construct the boolean map
+      const allValues = new Set<string>();
+      React.Children.forEach(children, (child) => {
+        if (!React.isValidElement(child)) return;
+        
+        // Try to get value from tree prop (ComponentRenderer) or direct props
+        const props = child.props as any;
+        const value = props.tree?.props?.value || props.value;
+        
+        if (value) {
+          allValues.add(value);
+        }
+      });
+      // Also ensure any currently selected values are included
+      newValues.forEach(v => allValues.add(v));
+
+      const resultMap: Record<string, boolean> = {};
+      allValues.forEach(v => {
+        resultMap[v] = newValues.includes(v);
+      });
+
+      onValueChange(resultMap);
+    };
+
     return (
       <ToggleGroupPrimitive.Root
         id={id}
@@ -245,7 +272,7 @@ export function ToggleGroup({
         value={resolvedValue as string[]}
         defaultValue={resolvedDefaultValue as string[]}
         disabled={disabled}
-        onValueChange={onValueChange as (value: string[]) => void}
+        onValueChange={handleValueChange}
         className={cn(
           'inline-flex items-center justify-center gap-1',
           className

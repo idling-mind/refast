@@ -99,10 +99,13 @@ async def on_slider_change(ctx: Context):
 
 
 async def on_toggle_change(ctx: Context):
-    """Handle toggle."""
-    current = ctx.state.get("bold", False)
-    ctx.state.set("bold", not current)
-    await ctx.show_toast(f"Bold is now {'enabled' if not current else 'disabled'}", variant="info")
+    """Handle text formatting toggle."""
+    # event_data is now {"bold": True, "italic": False, ...}
+    print(ctx.event_data)
+    formats = ctx.event_data
+    active = [k for k, v in formats.items() if v]
+    msg = f"Active formats: {', '.join(active)}" if active else "No formats active"
+    await ctx.show_toast(msg, variant="info")
 
 async def dropdown_select(ctx: Context):
     """Handle dropdown selection."""
@@ -256,10 +259,11 @@ def home(ctx: Context):
                                             Label("Text Formatting"),
                                             ToggleGroup(
                                                 type="multiple",
+                                                default_value={"bold": True},
                                                 children=[
-                                                    ToggleGroupItem(value="bold", label="B"),
-                                                    ToggleGroupItem(value="italic", label="I"),
-                                                    ToggleGroupItem(value="underline", label="U"),
+                                                    ToggleGroupItem(name="bold", label="B"),
+                                                    ToggleGroupItem(name="italic", label="I"),
+                                                    ToggleGroupItem(name="underline", label="U"),
                                                 ],
                                                 on_value_change=ctx.callback(on_toggle_change),
                                             ),

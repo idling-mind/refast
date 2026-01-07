@@ -50,7 +50,7 @@ interface ToggleGroupProps {
     disabled?: boolean;
     variant?: 'default' | 'outline';
     size?: 'sm' | 'default' | 'lg';
-    onValueChange?: (value: string | string[]) => void;
+    onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }

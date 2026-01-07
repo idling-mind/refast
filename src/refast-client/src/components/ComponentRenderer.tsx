@@ -63,11 +63,29 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
     ));
   }, [children, onUpdate]);
 
-  return (
-    <Component {...processedProps} {...rest} data-refast-id={id} ref={ref}>
+  // Handle parentStyle for wrapper div
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { parentStyle, ...componentProps } = processedProps;
+
+  const componentElement = (
+    <Component {...componentProps} {...rest} data-refast-id={id} ref={ref}>
       {renderedChildren}
     </Component>
   );
+
+  if (parentStyle) {
+    return (
+      <div
+        style={parentStyle as React.CSSProperties}
+        className="refast-component-wrapper"
+        data-wrapper-for={id}
+      >
+        {componentElement}
+      </div>
+    );
+  }
+
+  return componentElement;
 });
 ComponentRenderer.displayName = 'ComponentRenderer';
 

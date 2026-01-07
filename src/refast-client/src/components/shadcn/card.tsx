@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../utils';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   id?: string;
   className?: string;
   children?: React.ReactNode;
@@ -16,6 +16,7 @@ export function Card({
   className,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: CardProps): React.ReactElement {
   return (
     <div
@@ -25,6 +26,7 @@ export function Card({
         className
       )}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>

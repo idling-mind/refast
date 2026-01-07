@@ -1,6 +1,6 @@
 import { default as React } from 'react';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     id?: string;
     className?: string;
     children?: React.ReactNode;
@@ -9,7 +9,7 @@ interface CardProps {
 /**
  * Card component - shadcn-styled card container.
  */
-export declare function Card({ id, className, children, 'data-refast-id': dataRefastId, }: CardProps): React.ReactElement;
+export declare function Card({ id, className, children, 'data-refast-id': dataRefastId, ...props }: CardProps): React.ReactElement;
 interface CardHeaderProps {
     id?: string;
     className?: string;

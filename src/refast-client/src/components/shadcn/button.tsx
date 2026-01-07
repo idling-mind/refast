@@ -1,16 +1,10 @@
 import React from 'react';
 import { cn } from '../../utils';
 
-interface ButtonProps {
-  id?: string;
-  className?: string;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
   size?: 'sm' | 'md' | 'lg' | 'icon';
-  disabled?: boolean;
   loading?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-  onClick?: () => void;
-  children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
@@ -18,16 +12,13 @@ interface ButtonProps {
  * Button component - shadcn/ui styled button with Tailwind CSS.
  */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
-  id,
   className,
   variant = 'default',
   size = 'md',
-  disabled = false,
   loading = false,
-  type = 'button',
-  onClick,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }, ref) => {
   const variantClasses = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -49,10 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   return (
     <button
       ref={ref}
-      id={id}
-      type={type}
-      disabled={disabled || loading}
-      onClick={onClick}
+      disabled={props.disabled || loading}
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -62,6 +50,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
         className
       )}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {loading && (
         <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

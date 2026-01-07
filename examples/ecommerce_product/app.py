@@ -158,6 +158,7 @@ async def select_color(ctx: Context):
     """Handle color selection."""
     color = ctx.event_data.get("value")
     ctx.state.set("selected_color", color)
+    await ctx.refresh()
 
 
 async def change_quantity(ctx: Context):

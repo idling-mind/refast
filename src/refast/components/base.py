@@ -39,11 +39,13 @@ class Component(ABC):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         **props: Any,
     ):
         self.id = id or str(uuid.uuid4())
         self.class_name = class_name
         self.style = style or {}
+        self.parent_style = parent_style or {}
         self.extra_props = props
         self._children: list[Component | str] = []
 
@@ -77,6 +79,12 @@ class Component(ABC):
                 result[camel_key] = value.serialize()
             else:
                 result[key] = value
+
+        if self.style:
+            result["style"] = self.style
+        if self.parent_style:
+            result["parentStyle"] = self.parent_style
+
         return result
 
     @staticmethod

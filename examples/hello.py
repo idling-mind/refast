@@ -83,6 +83,7 @@ def hello_world_page(ctx: Context):
                                             ),
                                         ],
                                         class_name="w-full h-screen",
+                                        style={"height": "400px"},
                                     )
                                 ],
                                 class_name="bg-white dark:bg-gray-800",

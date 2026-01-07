@@ -1,15 +1,9 @@
 import { default as React } from 'react';
 
-interface ButtonProps {
-    id?: string;
-    className?: string;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
     size?: 'sm' | 'md' | 'lg' | 'icon';
-    disabled?: boolean;
     loading?: boolean;
-    type?: 'button' | 'submit' | 'reset';
-    onClick?: () => void;
-    children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**

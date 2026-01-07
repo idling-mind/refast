@@ -222,7 +222,8 @@ def render_task_card(task: dict, column: str, ctx: Context):
                                                     label="⋮",
                                                     variant="ghost",
                                                     size="sm",
-                                                    class_name="h-6 w-6 p-0",
+                                                    class_name="p-0",
+                                                    style={"width": "1.5rem", "height": "1.5rem"},
                                                 )
                                             ),
                                             DropdownMenuContent(
@@ -275,7 +276,8 @@ def render_task_card(task: dict, column: str, ctx: Context):
                             # Description
                             Text(
                                 task["description"],
-                                class_name="text-xs text-muted-foreground line-clamp-2",
+                                class_name="text-xs text-muted-foreground",
+                                style={"display": "-webkit-box", "WebkitLineClamp": "2", "WebkitBoxOrient": "vertical", "overflow": "hidden"},
                             )
                             if task["description"]
                             else None,
@@ -313,13 +315,14 @@ def render_task_card(task: dict, column: str, ctx: Context):
     )
 
 
-def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: str):
+def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: str, color_style: dict = None):
     """Render a kanban column."""
     return Container(
-        class_name="w-80 flex-shrink-0",
+        class_name="flex-none",
+        style={"width": "20rem"},
         children=[
             Card(
-                class_name="h-full",
+                style={"height": "100%"},
                 children=[
                     CardHeader(
                         class_name="pb-3",
@@ -333,7 +336,8 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
                                         align="center",
                                         children=[
                                             Container(
-                                                class_name=f"w-3 h-3 rounded-full {color}",
+                                                class_name=f"rounded-full {color}",
+                                                style={**{"width": "0.75rem", "height": "0.75rem"}, **(color_style or {})},
                                             ),
                                             Text(title, class_name="font-semibold"),
                                             Badge(
@@ -346,7 +350,8 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
                                         label="+",
                                         variant="ghost",
                                         size="sm",
-                                        class_name="h-6 w-6 p-0",
+                                        class_name="p-0",
+                                        style={"width": "1.5rem", "height": "1.5rem"},
                                     ),
                                 ],
                             ),
@@ -356,7 +361,7 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
                         class_name="pt-0",
                         children=[
                             ScrollArea(
-                                class_name="h-[calc(100vh-280px)]",
+                                style={"height": "calc(100vh - 280px)"},
                                 children=[
                                     Column(
                                         gap=0,
@@ -387,12 +392,13 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
 
 
 # Main page
-@ui.page("/")
-def home(ctx: Context):
-    """Kanban board page."""
     tasks = get_tasks(ctx)
 
     return Container(
+        class_name="p-6 bg-background",
+        style={"minHeight": "100vh"},
+        children=[
+            Column(r(
         class_name="min-h-screen bg-muted/30 p-6",
         children=[
             Column(
@@ -412,15 +418,15 @@ def home(ctx: Context):
                                         class_name="text-muted-foreground",
                                     ),
                                 ],
-                            ),
                             Row(
                                 gap=2,
                                 children=[
                                     Input(
                                         name="search",
                                         placeholder="Search tasks...",
-                                        class_name="w-64",
+                                        style={"width": "16rem"},
                                     ),
+                                    Sheet(
                                     Sheet(
                                         children=[
                                             SheetTrigger(children=Button(label="+ Add Task")),
@@ -554,26 +560,27 @@ def home(ctx: Context):
                                 ],
                             ),
                         ],
-                    ),
                     # Board columns
                     Row(
                         gap=6,
-                        class_name="overflow-x-auto pb-4",
+                        class_name="pb-4",
+                        style={"overflowX": "auto"},
                         children=[
-                            render_column("To Do", "todo", tasks["todo"], ctx, "bg-slate-500"),
+                            render_column("To Do", "todo", tasks["todo"], ctx, "bg-secondary"),
                             render_column(
                                 "In Progress",
                                 "in_progress",
                                 tasks["in_progress"],
                                 ctx,
-                                "bg-blue-500",
+                                "bg-primary",
                             ),
-                            render_column("Done", "done", tasks["done"], ctx, "bg-green-500"),
+                            render_column("Done", "done", tasks["done"], ctx, "", {"backgroundColor": "#22c55e"}),
                         ],
                     ),
                 ],
             ),
         ],
+    )   ],
     )
 
 

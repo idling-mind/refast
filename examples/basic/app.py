@@ -65,7 +65,8 @@ def home(ctx: Context):
 
     return Container(
         id="main-container",
-        class_name="max-w-md mx-auto mt-10",
+        class_name="mt-10",
+        style={"maxWidth": "28rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             Card(
                 id="counter-card",
@@ -89,7 +90,8 @@ def home(ctx: Context):
                                             Text(
                                                 f"{count}",
                                                 id="count-value",
-                                                class_name="text-6xl font-bold text-blue-600",
+                                                class_name="font-bold text-primary",
+                                                style={"fontSize": "3.75rem", "lineHeight": "1"},
                                             )
                                         ],
                                     ),

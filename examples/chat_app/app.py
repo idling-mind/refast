@@ -154,21 +154,22 @@ def render_message(message: Message, current_user: str):
                 size="sm",
             ),
             Container(
-                class_name=f"max-w-xs p-3 rounded-lg {'bg-blue-500 text-blue-200' if is_own else 'bg-gray-100'}",
+                class_name=f"p-3 rounded-lg {'bg-primary text-primary-foreground' if is_own else 'bg-muted'}",
+                style={"maxWidth": "20rem"},
                 children=[
                     Column(
                         gap=1,
                         children=[
                             Text(
                                 message.username,
-                                class_name=f"text-xs font-semibold {'text-blue-100' if is_own else 'text-gray-500'}",
+                                class_name=f"text-xs font-semibold {'text-primary-foreground' if is_own else 'text-muted-foreground'}",
                             )
                             if not is_own
                             else Container(),
                             Text(message.text),
                             Text(
                                 message.timestamp.strftime("%H:%M"),
-                                class_name=f"text-xs {'text-blue-200' if is_own else 'text-gray-400'}",
+                                class_name=f"text-xs {'text-primary-foreground' if is_own else 'text-muted-foreground'}",
                             ),
                         ],
                     )
@@ -192,11 +193,11 @@ def render_messages_list(messages: list[Message], current_user: str):
                 children=[
                     Text(
                         "No messages yet",
-                        class_name="text-gray-400",
+                        class_name="text-muted-foreground",
                     ),
                     Text(
                         "Start the conversation!",
-                        class_name="text-gray-400 text-sm",
+                        class_name="text-muted-foreground text-sm",
                     ),
                 ],
             )
@@ -211,7 +212,8 @@ def chat(ctx: Context):
 
     return Container(
         id="main-container",
-        class_name="max-w-2xl mx-auto mt-6 px-4 h-screen flex flex-col",
+        class_name="mt-6 px-4 flex flex-col",
+        style={"maxWidth": "42rem", "marginLeft": "auto", "marginRight": "auto", "height": "100vh"},
         children=[
             Card(
                 id="chat-card",
@@ -232,7 +234,7 @@ def chat(ctx: Context):
                                         children=[
                                             Text(
                                                 "Logged in as:",
-                                                class_name="text-sm text-gray-500",
+                                                class_name="text-sm text-muted-foreground",
                                             ),
                                             Badge(username, variant="default"),
                                         ],
@@ -243,7 +245,8 @@ def chat(ctx: Context):
                     ),
                     # Messages area
                     CardContent(
-                        class_name="flex-1 overflow-y-auto",
+                        class_name="flex-1",
+                        style={"overflowY": "auto"},
                         children=[render_messages_list(MESSAGES, username)],
                     ),
                     # Input area
@@ -298,11 +301,12 @@ async def save_username(ctx: Context):
 def settings(ctx: Context):
     """User settings page."""
     username = get_username(ctx)
-    draft_username = ctx.state.get("draft_username", username)
-
     return Container(
         id="settings-container",
-        class_name="max-w-md mx-auto mt-10 px-4",
+        class_name="mt-10 px-4",
+        style={"maxWidth": "28rem", "marginLeft": "auto", "marginRight": "auto"},
+        children=[
+            Card(e="max-w-md mx-auto mt-10 px-4",
         children=[
             Card(
                 children=[

@@ -211,7 +211,8 @@ def home(ctx: Context):
     all_selected = len(page_ids) > 0 and all(id in selected_ids for id in page_ids)
 
     return Container(
-        class_name="max-w-7xl mx-auto p-6",
+        class_name="p-6",
+        style={"maxWidth": "80rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             # Header
             Row(
@@ -259,7 +260,7 @@ def home(ctx: Context):
                                                 placeholder="Search users...",
                                                 value=search_query,
                                                 on_change=ctx.callback(on_search),
-                                                class_name="w-64",
+                                                style={"width": "16rem"},
                                                 debounce=300,
                                             ),
                                             Select(

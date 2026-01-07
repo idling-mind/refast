@@ -400,12 +400,12 @@ def render_file_row(item: dict, ctx: Context, selected_items: list):
                                 Text(item["name"], class_name="font-medium"),
                             ],
                         ),
-                        Text(item.get("size", "-"), class_name="w-24 text-sm text-muted-foreground")
+                        Text(item.get("size", "-"), class_name="w-24 text-sm text-muted-foreground p-2")
                         if not is_folder
                         else Container(class_name="w-24"),
                         Text(
                             item.get("modified", "-"),
-                            class_name="w-32 text-sm text-muted-foreground",
+                            class_name="w-32 text-sm text-muted-foreground p-2",
                         ),
                         Container(
                             class_name="w-8",
@@ -770,11 +770,9 @@ def home(ctx: Context):
                                         class_name="px-4 py-2 bg-muted/20 border-b text-sm font-medium text-muted-foreground",
                                         align="center",
                                         children=[
-                                            Container(class_name="w-8"),
                                             Text("Name", class_name="flex-1"),
-                                            Text("Size", class_name="w-24"),
-                                            Text("Modified", class_name="w-32"),
-                                            Container(class_name="w-8"),
+                                            Text("Size", class_name="p-2"),
+                                            Text("Modified", class_name="p-2"),
                                         ],
                                     ),
                                     # File list

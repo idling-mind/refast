@@ -98,7 +98,7 @@ ui = RefastApp(title="Dashboard")
 
 def render_metric_card(metric: Metric, index: int):
     """Render a metric card."""
-    trend_color = "text-green-600" if metric.trend == "up" else "text-red-600"
+    trend_style = {"color": "#16a34a"} if metric.trend == "up" else {"color": "#dc2626"}
     trend_icon = "↑" if metric.trend == "up" else "↓"
 
     return Card(
@@ -112,7 +112,7 @@ def render_metric_card(metric: Metric, index: int):
                         children=[
                             Text(
                                 metric.name,
-                                class_name="text-sm font-medium text-gray-500",
+                                class_name="text-sm font-medium text-muted-foreground",
                             ),
                             Text(
                                 metric.value,
@@ -124,11 +124,12 @@ def render_metric_card(metric: Metric, index: int):
                                 children=[
                                     Text(
                                         f"{trend_icon} {abs(metric.change)}%",
-                                        class_name=f"text-sm font-medium {trend_color}",
+                                        class_name="text-sm font-medium",
+                                        style=trend_style,
                                     ),
                                     Text(
                                         "from last week",
-                                        class_name="text-sm text-gray-400",
+                                        class_name="text-sm text-muted-foreground",
                                     ),
                                 ],
                             ),
@@ -160,7 +161,7 @@ def render_user_row(user: User):
                                     Text(user.name, class_name="font-medium"),
                                     Text(
                                         user.email,
-                                        class_name="text-sm text-gray-500",
+                                        class_name="text-sm text-muted-foreground",
                                     ),
                                 ],
                             ),
@@ -174,7 +175,7 @@ def render_user_row(user: User):
                 children=[
                     Text(
                         user.last_active.strftime("%Y-%m-%d %H:%M"),
-                        class_name="text-sm text-gray-500",
+                        class_name="text-sm text-muted-foreground",
                     )
                 ]
             ),
@@ -198,7 +199,8 @@ def render_sidebar(ctx: Context, active_page: str):
 
     return Container(
         id="sidebar",
-        class_name="w-64 bg-gray-900 text-white p-4 min-h-screen",
+        class_name="p-4 bg-card border-r",
+        style={"width": "16rem", "minHeight": "100vh"},
         children=[
             Column(
                 gap=6,
@@ -214,7 +216,7 @@ def render_sidebar(ctx: Context, active_page: str):
                         children=[
                             Container(
                                 class_name=f"px-4 py-2 rounded-lg cursor-pointer "
-                                f"{'bg-gray-800' if item[1] == active_page else 'hover:bg-gray-800'}",
+                                f"{'bg-accent text-accent-foreground' if item[1] == active_page else 'hover:bg-accent/50'}",
                                 children=[
                                     Row(
                                         gap=3,
@@ -239,7 +241,8 @@ def dashboard(ctx: Context):
     """Main dashboard page."""
     return Row(
         id="main-layout",
-        class_name="min-h-screen bg-gray-50",
+        class_name="bg-background",
+        style={"minHeight": "100vh"},
         children=[
             # Sidebar
             render_sidebar(ctx, "/"),
@@ -265,7 +268,7 @@ def dashboard(ctx: Context):
                                             ),
                                             Text(
                                                 "Welcome back! Here's your overview.",
-                                                class_name="text-gray-500",
+                                                class_name="text-muted-foreground",
                                             ),
                                         ],
                                     ),

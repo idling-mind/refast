@@ -190,11 +190,11 @@ def render_star_rating(rating: float, size: str = "sm"):
 
     stars = []
     for _ in range(full_stars):
-        stars.append(Text("★", class_name=f"{size_class} text-yellow-500"))
+        stars.append(Text("★", class_name=size_class, style={"color": "#eab308"}))
     if has_half:
-        stars.append(Text("★", class_name=f"{size_class} text-yellow-500 opacity-50"))
+        stars.append(Text("★", class_name=size_class, style={"color": "#eab308", "opacity": 0.5}))
     for _ in range(empty_stars):
-        stars.append(Text("☆", class_name=f"{size_class} text-yellow-500"))
+        stars.append(Text("☆", class_name=size_class, style={"color": "#eab308"}))
 
     return Row(gap=0, children=stars)
 
@@ -269,7 +269,7 @@ def render_review_card(review: dict):
 def render_related_product(product: dict):
     """Render a related product card."""
     return Card(
-        class_name="cursor-pointer hover:shadow-lg transition-shadow",
+        class_name="cursor-pointer",
         children=[
             CardContent(
                 class_name="p-4",
@@ -282,9 +282,10 @@ def render_related_product(product: dict):
                                 class_name="bg-muted rounded-md",
                                 children=[
                                     Container(
-                                        class_name="flex items-center justify-center h-full",
+                                        class_name="flex items-center justify-center",
+                                        style={"height": "100%"},
                                         children=[
-                                            Text("🎧", class_name="text-4xl"),
+                                            Text("🎧", class_name="font-bold", style={"fontSize": "2.25rem", "lineHeight": "2.5rem"}),
                                         ],
                                     ),
                                 ],
@@ -294,7 +295,8 @@ def render_related_product(product: dict):
                                 children=[
                                     Text(
                                         product["name"],
-                                        class_name="font-medium text-sm line-clamp-2",
+                                        class_name="font-medium text-sm",
+                                        style={"display": "-webkit-box", "WebkitLineClamp": "2", "WebkitBoxOrient": "vertical", "overflow": "hidden"},
                                     ),
                                     Row(
                                         gap=2,
@@ -329,7 +331,8 @@ def home(ctx: Context):
     discount_percent = int((1 - PRODUCT["price"] / PRODUCT["original_price"]) * 100)
 
     return Container(
-        class_name="max-w-7xl mx-auto p-6",
+        class_name="p-6",
+        style={"maxWidth": "80rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             Column(
                 gap=8,
@@ -368,11 +371,13 @@ def home(ctx: Context):
                                                                 class_name="bg-muted rounded-lg",
                                                                 children=[
                                                                     Container(
-                                                                        class_name="flex items-center justify-center h-full",
+                                                                        class_name="flex items-center justify-center",
+                                                                        style={"height": "100%"},
                                                                         children=[
                                                                             Text(
                                                                                 "🎧",
-                                                                                class_name="text-9xl",
+                                                                                class_name="font-bold",
+                                                                                style={"fontSize": "8rem", "lineHeight": "1"},
                                                                             ),
                                                                         ],
                                                                     ),
@@ -393,7 +398,8 @@ def home(ctx: Context):
                                         class_name="mt-4",
                                         children=[
                                             Container(
-                                                class_name="w-20 h-20 bg-muted rounded-md cursor-pointer border-2 border-primary flex items-center justify-center",
+                                                class_name="bg-muted rounded-md cursor-pointer border-2 border-primary flex items-center justify-center",
+                                                style={"width": "5rem", "height": "5rem"},
                                                 children=[Text("🎧", class_name="text-2xl")],
                                             )
                                             for i in range(4)
@@ -438,10 +444,6 @@ def home(ctx: Context):
                                                     Text(
                                                         f"({PRODUCT['reviews_count']} reviews)",
                                                         class_name="text-muted-foreground",
-                                                    ),
-                                                ],
-                                            ),
-                                            # Price
                                             Row(
                                                 gap=3,
                                                 align="baseline",
@@ -452,6 +454,11 @@ def home(ctx: Context):
                                                     ),
                                                     Text(
                                                         f"${PRODUCT['original_price']}",
+                                                        class_name="text-xl text-muted-foreground",
+                                                        style={"textDecoration": "line-through"},
+                                                    ),
+                                                ],
+                                            ),          f"${PRODUCT['original_price']}",
                                                         class_name="text-xl text-muted-foreground line-through",
                                                     ),
                                                 ],
@@ -496,15 +503,16 @@ def home(ctx: Context):
                                                                 label="-",
                                                                 variant="outline",
                                                                 class_name="rounded-r-none",
-                                                                on_click=ctx.callback(
-                                                                    change_quantity,
-                                                                    action="decrement",
-                                                                ),
-                                                            ),
                                                             Container(
-                                                                class_name="w-16 h-10 border-y flex items-center justify-center",
+                                                                class_name="border-y flex items-center justify-center",
+                                                                style={"width": "4rem", "height": "2.5rem"},
                                                                 children=[
                                                                     Text(
+                                                                        str(quantity),
+                                                                        class_name="font-medium",
+                                                                    ),
+                                                                ],
+                                                            ),      Text(
                                                                         str(quantity),
                                                                         class_name="font-medium",
                                                                     ),
@@ -542,23 +550,19 @@ def home(ctx: Context):
                                                     ),
                                                     Button(
                                                         label="♡",
-                                                        variant="outline",
-                                                        size="lg",
-                                                        on_click=ctx.callback(add_to_wishlist),
-                                                    ),
-                                                ],
-                                            ),
                                             # Stock status
                                             Row(
                                                 gap=2,
                                                 align="center",
                                                 children=[
                                                     Container(
-                                                        class_name="w-2 h-2 rounded-full bg-green-500",
+                                                        class_name="rounded-full",
+                                                        style={"width": "0.5rem", "height": "0.5rem", "backgroundColor": "#22c55e"},
                                                     ),
                                                     Text(
                                                         "In Stock",
-                                                        class_name="text-green-600 font-medium",
+                                                        class_name="font-medium",
+                                                        style={"color": "#16a34a"},
                                                     ),
                                                     Text(
                                                         "- Ships within 24 hours",
@@ -582,13 +586,19 @@ def home(ctx: Context):
                                                                 children=[
                                                                     Text(
                                                                         "✓",
-                                                                        class_name="text-green-600",
+                                                                        style={"color": "#16a34a"},
                                                                     ),
                                                                     Text(
                                                                         feature,
                                                                         class_name="text-sm",
                                                                     ),
                                                                 ],
+                                                            )
+                                                            for feature in PRODUCT["features"][:4]
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),                  ],
                                                             )
                                                             for feature in PRODUCT["features"][:4]
                                                         ],

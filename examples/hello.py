@@ -31,7 +31,7 @@ def hello_world_page(ctx: Context):
         [
             Container(
                 [Text(text, id="hello-text")],
-                class_name="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800",
+                class_name="p-4 rounded-lg shadow-md bg-card",
             ),
             Container(
                 [
@@ -58,7 +58,7 @@ def hello_world_page(ctx: Context):
                                 min_size=20,
                                 default_size=50,
                                 children=[Text("Resizable Panel 1 (50%)")],
-                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                                class_name="bg-card p-4 rounded-lg shadow-md",
                             ),
                             ResizableHandle(with_handle=True),
                             ResizablePanel(
@@ -72,30 +72,31 @@ def hello_world_page(ctx: Context):
                                                 min_size=20,
                                                 default_size=70,
                                                 children=[Text("Resizable Panel 2 (70%)")],
-                                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                                                class_name="bg-card p-4 rounded-lg shadow-md",
                                             ),
                                             ResizableHandle(with_handle=True),
                                             ResizablePanel(
                                                 min_size=20,
                                                 default_size=30,
                                                 children=[Text("Resizable Panel 3 (30%)")],
-                                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                                                class_name="bg-card p-4 rounded-lg shadow-md",
                                             ),
                                         ],
-                                        class_name="w-full h-screen",
-                                        style={"height": "400px"},
+                                        style={"height": "400px", "width": "100%"},
                                     )
                                 ],
-                                class_name="bg-white dark:bg-gray-800",
+                                class_name="bg-card",
                             ),
                         ],
-                        class_name="w-full border rounded-lg",
+                        class_name="border rounded-lg",
+                        style={"width": "100%"},
                     )
                 ],
-                class_name="w-full max-w-4xl"
+                style={"width": "100%", "maxWidth": "56rem"},
             )
         ],
-        class_name="flex flex-col gap-6 items-center justify-center min-h-screen gap-4 bg-gray-100 dark:bg-gray-900",
+        class_name="flex flex-col gap-6 items-center justify-center bg-background",
+        style={"minHeight": "100vh"},
     )
 
 

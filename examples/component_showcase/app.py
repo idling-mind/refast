@@ -138,14 +138,19 @@ def home(ctx: Context):
     current_page = ctx.state.get("current_page", 1)
 
     return Container(
-        class_name="max-w-6xl mx-auto p-6",
+        class_name="p-6",
+        style={"maxWidth": "72rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             # Header
             Column(
                 gap=2,
                 class_name="mb-6",
                 children=[
-                    Text("Component Showcase", class_name="text-4xl font-bold"),
+                    Text(
+                        "Component Showcase",
+                        class_name="font-bold",
+                        style={"fontSize": "2.25rem", "lineHeight": "2.5rem"},
+                    ),
                     Text(
                         "Explore all the Radix UI components available in Refast",
                         class_name="text-lg text-muted-foreground",
@@ -431,7 +436,8 @@ def home(ctx: Context):
                                             HoverCardTrigger(
                                                 children=Text(
                                                     "@refast",
-                                                    class_name="text-blue-600 cursor-pointer underline",
+                                                    class_name="text-primary cursor-pointer",
+                                                    style={"textDecoration": "underline"},
                                                 )
                                             ),
                                             HoverCardContent(
@@ -522,13 +528,13 @@ def home(ctx: Context):
                                         ],
                                     ),
                                     Separator(),
-                                    # Scroll Area
                                     Column(
                                         gap=2,
                                         children=[
                                             Label("Scroll Area Example"),
                                             ScrollArea(
-                                                class_name="h-48 w-full rounded-md border p-4",
+                                                class_name="rounded-md border p-4",
+                                                style={"height": "12rem", "width": "100%"},
                                                 children=[
                                                     Column(
                                                         gap=2,
@@ -539,23 +545,25 @@ def home(ctx: Context):
                                                 ],
                                             ),
                                         ],
+                                    ),  ],
                                     ),
                                     Separator(),
                                     # Aspect Ratio
                                     Column(
                                         gap=2,
-                                        children=[
-                                            Label("16:9 Aspect Ratio"),
                                             AspectRatio(
                                                 ratio=16 / 9,
                                                 class_name="bg-muted rounded-md",
                                                 children=[
                                                     Container(
-                                                        class_name="flex items-center justify-center h-full",
+                                                        class_name="flex items-center justify-center",
+                                                        style={"height": "100%"},
                                                         children=[
                                                             Text("16:9 Content Area"),
                                                         ],
                                                     ),
+                                                ],
+                                            ),      ),
                                                 ],
                                             ),
                                         ],

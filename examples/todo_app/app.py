@@ -127,7 +127,7 @@ def render_todo_item(ctx: Context, todo: Todo):
     """Render a single todo item."""
     return Row(
         id=f"todo-{todo.id}",
-        class_name=f"p-3 rounded-lg border {'bg-gray-50' if todo.completed else 'bg-white'}",
+        class_name=f"p-3 rounded-lg border {'bg-muted' if todo.completed else 'bg-card'}",
         align="center",
         gap=3,
         children=[
@@ -141,7 +141,7 @@ def render_todo_item(ctx: Context, todo: Todo):
                 children=[
                     Text(
                         todo.text,
-                        class_name=f"{'line-through text-gray-400' if todo.completed else ''}",
+                        class_name=f"{'line-through text-muted-foreground' if todo.completed else ''}",
                     )
                 ],
             ),
@@ -165,7 +165,8 @@ def home(ctx: Context):
 
     return Container(
         id="main-container",
-        class_name="max-w-lg mx-auto mt-10 px-4",
+        class_name="mt-10 px-4",
+        style={"maxWidth": "32rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             Card(
                 id="todo-card",
@@ -240,7 +241,7 @@ def home(ctx: Context):
                                         else [
                                             Text(
                                                 "No todos yet. Add one above!",
-                                                class_name="text-center text-gray-500 py-8",
+                                                class_name="text-center text-muted-foreground py-8",
                                             )
                                         ],
                                     ),

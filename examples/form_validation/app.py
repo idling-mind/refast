@@ -68,7 +68,8 @@ def render_form(ctx: Context):
 
     return Container(
         id="form-container",
-        class_name="max-w-md mx-auto mt-10 p-4",
+        class_name="mt-10 p-4",
+        style={"maxWidth": "28rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             Card(
                 children=[

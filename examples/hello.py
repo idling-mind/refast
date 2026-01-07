@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
-from refast.components import Button, Container, Text, ThemeSwitcher
+from refast.components import Button, Container, Text, ThemeSwitcher, ResizablePanel, ResizableHandle, ResizablePanelGroup
 
 ui = RefastApp(title="Hello World App")
 
@@ -49,6 +49,50 @@ def hello_world_page(ctx: Context):
                 class_name="flex flex-row gap-4",
             ),
             ThemeSwitcher(default_theme="system"),
+            Container(
+                [
+                    ResizablePanelGroup(
+                        direction="horizontal",
+                        children=[
+                            ResizablePanel(
+                                min_size=20,
+                                default_size=50,
+                                children=[Text("Resizable Panel 1 (50%)")],
+                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                            ),
+                            ResizableHandle(with_handle=True),
+                            ResizablePanel(
+                                min_size=20,
+                                default_size=50,
+                                children=[
+                                    ResizablePanelGroup(
+                                        direction="vertical",
+                                        children=[
+                                            ResizablePanel(
+                                                min_size=20,
+                                                default_size=70,
+                                                children=[Text("Resizable Panel 2 (70%)")],
+                                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                                            ),
+                                            ResizableHandle(with_handle=True),
+                                            ResizablePanel(
+                                                min_size=20,
+                                                default_size=30,
+                                                children=[Text("Resizable Panel 3 (30%)")],
+                                                class_name="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md",
+                                            ),
+                                        ],
+                                        class_name="w-full h-screen",
+                                    )
+                                ],
+                                class_name="bg-white dark:bg-gray-800",
+                            ),
+                        ],
+                        class_name="w-full border rounded-lg",
+                    )
+                ],
+                class_name="w-full max-w-4xl"
+            )
         ],
         class_name="flex flex-col gap-6 items-center justify-center min-h-screen gap-4 bg-gray-100 dark:bg-gray-900",
     )

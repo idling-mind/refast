@@ -230,7 +230,7 @@ def render_review_card(review: dict):
                                                                 class_name="font-medium",
                                                             ),
                                                             Badge(
-                                                                text="Verified", variant="success"
+                                                                "Verified", variant="success"
                                                             )
                                                             if review["verified"]
                                                             else None,
@@ -328,7 +328,7 @@ def home(ctx: Context):
     discount_percent = int((1 - PRODUCT["price"] / PRODUCT["original_price"]) * 100)
 
     return Container(
-        class_name="max-w-7xl mx-auto p-8",
+        class_name="max-w-7xl mx-auto p-6",
         children=[
             Column(
                 gap=8,
@@ -416,10 +416,10 @@ def home(ctx: Context):
                                                         class_name="text-muted-foreground",
                                                     ),
                                                     Badge(
-                                                        text=f"{discount_percent}% OFF",
+                                                        f"{discount_percent}% OFF",
                                                         variant="destructive",
                                                     ),
-                                                    Badge(text="Bestseller", variant="secondary"),
+                                                    Badge("Bestseller", variant="secondary"),
                                                 ],
                                             ),
                                             # Title

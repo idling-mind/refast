@@ -5,6 +5,7 @@ import { BaseProps, ChildrenProp } from './types';
  * Separator, AspectRatio, ScrollArea, Collapsible, Carousel, Resizable, InputOTP
  */
 import * as React from 'react';
+import * as ResizablePrimitive from "react-resizable-panels";
 export interface SeparatorProps extends BaseProps {
     orientation?: 'horizontal' | 'vertical';
     decorative?: boolean;
@@ -57,19 +58,11 @@ export interface CarouselNextProps extends BaseProps {
     onClick?: () => void;
 }
 export declare function CarouselNext({ className, onClick, ...props }: CarouselNextProps): import("react/jsx-runtime").JSX.Element;
-export interface ResizableProps extends BaseProps, ChildrenProp {
-    direction?: 'horizontal' | 'vertical';
-}
-export declare function Resizable({ direction, className, children, ...props }: ResizableProps): import("react/jsx-runtime").JSX.Element;
-export interface ResizablePanelProps extends BaseProps, ChildrenProp {
-    defaultSize?: number;
-    minSize?: number;
-    maxSize?: number;
-}
-export declare function ResizablePanel({ defaultSize, minSize, maxSize, className, children, ...props }: ResizablePanelProps): import("react/jsx-runtime").JSX.Element;
-export interface ResizableHandleProps extends BaseProps {
+export declare function ResizablePanelGroup({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup> & BaseProps): import("react/jsx-runtime").JSX.Element;
+export declare function ResizablePanel({ className, defaultSize, minSize, maxSize, ...props }: React.ComponentProps<typeof ResizablePrimitive.Panel> & BaseProps): import("react/jsx-runtime").JSX.Element;
+export type ResizableHandleProps = React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
     withHandle?: boolean;
-}
+} & BaseProps;
 export declare function ResizableHandle({ withHandle, className, ...props }: ResizableHandleProps): import("react/jsx-runtime").JSX.Element;
 export interface InputOTPProps {
     className?: string;
@@ -115,7 +108,7 @@ export declare const UtilityComponents: {
     CarouselItem: typeof CarouselItem;
     CarouselPrevious: typeof CarouselPrevious;
     CarouselNext: typeof CarouselNext;
-    Resizable: typeof Resizable;
+    ResizablePanelGroup: typeof ResizablePanelGroup;
     ResizablePanel: typeof ResizablePanel;
     ResizableHandle: typeof ResizableHandle;
     InputOTP: typeof InputOTP;

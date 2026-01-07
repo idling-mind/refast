@@ -455,6 +455,7 @@ def home(ctx: Context):
                                         Label("Language"),
                                         Select(
                                             value=language,
+                                            name="language",
                                             options=[
                                                 {"value": "en", "label": "English"},
                                                 {"value": "es", "label": "Español"},
@@ -473,6 +474,7 @@ def home(ctx: Context):
                                         Label("Font Size"),
                                         Select(
                                             value=ctx.state.get("font_size", "medium"),
+                                            name="font_size",
                                             options=[
                                                 {"value": "small", "label": "Small"},
                                                 {"value": "medium", "label": "Medium"},

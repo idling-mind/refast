@@ -66,17 +66,25 @@ ui = RefastApp(title="Todo App")
 
 def get_todos(ctx: Context) -> list[Todo]:
     """Get all todos from state."""
-    todos_data = ctx.state.get("todos", [])
+    todos_data = ctx.store.local.get("todos", [])
     return [Todo.from_dict(t) for t in todos_data]
 
+async def update_new_todo_text(ctx: Context):
+    """Update the new todo text in state."""
+    print(ctx.event_data)
+    ctx.state.set("new_todo_text", ctx.event_data.get("value", ""))
 
-def save_todos(ctx: Context, todos: list[Todo]) -> None:
+
+async def save_todos(ctx: Context, todos: list[Todo]) -> None:
     """Save todos to state."""
-    ctx.state.set("todos", [t.to_dict() for t in todos])
+    ctx.store.local.set("todos", [t.to_dict() for t in todos])
+    await ctx.refresh()
 
 
-async def add_todo(ctx: Context, text: str = ""):
+async def add_todo(ctx: Context):
     """Add a new todo item."""
+    text = ctx.state.get("new_todo_text", "")
+    print("Adding todo:", text)
     if not text.strip():
         return
 
@@ -86,10 +94,8 @@ async def add_todo(ctx: Context, text: str = ""):
         text=text.strip(),
     )
     todos.append(new_todo)
-    save_todos(ctx, todos)
-
-    # Clear input
     ctx.state.set("new_todo_text", "")
+    await save_todos(ctx, todos)
 
 
 async def toggle_todo(ctx: Context, todo_id: str = ""):
@@ -99,21 +105,22 @@ async def toggle_todo(ctx: Context, todo_id: str = ""):
         if todo.id == todo_id:
             todo.completed = not todo.completed
             break
-    save_todos(ctx, todos)
+    await save_todos(ctx, todos)
 
 
 async def delete_todo(ctx: Context, todo_id: str = ""):
     """Delete a todo item."""
+    print("Deleting todo:", todo_id)
     todos = get_todos(ctx)
     todos = [t for t in todos if t.id != todo_id]
-    save_todos(ctx, todos)
+    await save_todos(ctx, todos)
 
 
 async def clear_completed(ctx: Context):
     """Clear all completed todos."""
     todos = get_todos(ctx)
     todos = [t for t in todos if not t.completed]
-    save_todos(ctx, todos)
+    await save_todos(ctx, todos)
 
 
 def render_todo_item(ctx: Context, todo: Todo):
@@ -211,6 +218,8 @@ def home(ctx: Context):
                                                         name="new_todo_text",
                                                         placeholder="What needs to be done?",
                                                         value=ctx.state.get("new_todo_text", ""),
+                                                        debounce=300,
+                                                        on_change=ctx.callback(update_new_todo_text),
                                                     )
                                                 ],
                                             ),

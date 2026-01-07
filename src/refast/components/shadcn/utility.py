@@ -204,17 +204,22 @@ class Collapsible(Component):
             self._children = children
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "defaultOpen": self.default_open,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.open is not None:
+            props["open"] = self.open
+        if self.on_open_change:
+            props["onOpenChange"] = self.on_open_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "open": self.open,
-                "defaultOpen": self.default_open,
-                "onOpenChange": self.on_open_change.serialize() if self.on_open_change else None,
-                "disabled": self.disabled,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -478,15 +483,19 @@ class ResizablePanelGroup(Component):
             self._children = children
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "direction": self.direction,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_layout:
+            props["onLayout"] = self.on_layout.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "direction": self.direction,
-                "onLayout": self.on_layout.serialize() if self.on_layout else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -527,21 +536,27 @@ class ResizablePanel(Component):
                 self._children = [children]
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "defaultSize": self.default_size,
+            "minSize": self.min_size,
+            "maxSize": self.max_size,
+            "collapsible": self.collapsible,
+            "collapsedSize": self.collapsed_size,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_collapse:
+            props["onCollapse"] = self.on_collapse.serialize()
+        if self.on_expand:
+            props["onExpand"] = self.on_expand.serialize()
+        if self.on_resize:
+            props["onResize"] = self.on_resize.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "defaultSize": self.default_size,
-                "minSize": self.min_size,
-                "maxSize": self.max_size,
-                "collapsible": self.collapsible,
-                "collapsedSize": self.collapsed_size,
-                "onCollapse": self.on_collapse.serialize() if self.on_collapse else None,
-                "onExpand": self.on_expand.serialize() if self.on_expand else None,
-                "onResize": self.on_resize.serialize() if self.on_resize else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

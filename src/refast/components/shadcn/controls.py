@@ -23,7 +23,8 @@ class Switch(Component):
 
     def __init__(
         self,
-        checked: bool = False,
+        checked: bool | None = None,
+        default_checked: bool = False,
         disabled: bool = False,
         name: str | None = None,
         on_change: Any = None,
@@ -33,22 +34,31 @@ class Switch(Component):
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.checked = checked
+        self.default_checked = default_checked
         self.disabled = disabled
         self.name = name
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "disabled": self.disabled,
+            "name": self.name,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onCheckedChange"] = self.on_change.serialize()
+
+        if self.checked is not None:
+            props["checked"] = self.checked
+        if self.default_checked:
+            props["defaultChecked"] = self.default_checked
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "checked": self.checked,
-                "disabled": self.disabled,
-                "name": self.name,
-                "onCheckedChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -98,22 +108,30 @@ class Slider(Component):
         self.on_value_commit = on_value_commit
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "defaultValue": self.default_value,
+            "min": self.min,
+            "max": self.max,
+            "step": self.step,
+            "disabled": self.disabled,
+            "orientation": self.orientation,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_value_change:
+            props["onValueChange"] = self.on_value_change.serialize()
+
+        if self.on_value_commit:
+            props["onValueCommit"] = self.on_value_commit.serialize()
+
+        if self.value is not None:
+            props["value"] = self.value
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "value": self.value,
-                "defaultValue": self.default_value,
-                "min": self.min,
-                "max": self.max,
-                "step": self.step,
-                "disabled": self.disabled,
-                "orientation": self.orientation,
-                "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
-                "onValueCommit": self.on_value_commit.serialize() if self.on_value_commit else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -139,7 +157,8 @@ class Toggle(Component):
         self,
         label: str = "",
         icon: str | None = None,
-        pressed: bool = False,
+        pressed: bool | None = None,
+        default_pressed: bool = False,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
         size: Literal["sm", "default", "lg"] = "default",
@@ -152,28 +171,34 @@ class Toggle(Component):
         self.label = label
         self.icon = icon
         self.pressed = pressed
+        self.default_pressed = default_pressed
         self.disabled = disabled
         self.variant = variant
         self.size = size
         self.on_pressed_change = on_pressed_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "label": self.label,
+            "icon": self.icon,
+            "disabled": self.disabled,
+            "variant": self.variant,
+            "size": self.size,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.pressed is not None:
+            props["pressed"] = self.pressed
+        if self.default_pressed:
+            props["defaultPressed"] = self.default_pressed
+        if self.on_pressed_change:
+            props["onPressedChange"] = self.on_pressed_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "label": self.label,
-                "icon": self.icon,
-                "pressed": self.pressed,
-                "disabled": self.disabled,
-                "variant": self.variant,
-                "size": self.size,
-                "onPressedChange": self.on_pressed_change.serialize()
-                if self.on_pressed_change
-                else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -222,20 +247,25 @@ class ToggleGroup(Component):
             self._children = children
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "type": self.toggle_type,
+            "defaultValue": self.default_value,
+            "disabled": self.disabled,
+            "variant": self.variant,
+            "size": self.size,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.value is not None:
+            props["value"] = self.value
+        if self.on_value_change:
+            props["onValueChange"] = self.on_value_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "type": self.toggle_type,
-                "value": self.value,
-                "defaultValue": self.default_value,
-                "disabled": self.disabled,
-                "variant": self.variant,
-                "size": self.size,
-                "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

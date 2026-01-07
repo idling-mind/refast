@@ -93,7 +93,7 @@ async def on_switch_change(ctx: Context):
 
 async def on_slider_change(ctx: Context):
     """Handle slider change."""
-    value = ctx.event_data.get("value", 50)
+    value = ctx.event_data.get("0", 50)
     ctx.state.set("volume", value)
     await ctx.update_text("slider-value", f"{value}%")
 
@@ -102,7 +102,12 @@ async def on_toggle_change(ctx: Context):
     """Handle toggle."""
     current = ctx.state.get("bold", False)
     ctx.state.set("bold", not current)
+    await ctx.show_toast(f"Bold is now {'enabled' if not current else 'disabled'}", variant="info")
 
+async def dropdown_select(ctx: Context):
+    """Handle dropdown selection."""
+    selection = ctx.event_data.get("value", "")
+    await ctx.show_toast(f"Selected: {selection}", variant="info")
 
 async def on_page_change(ctx: Context):
     """Handle pagination."""
@@ -130,12 +135,12 @@ def home(ctx: Context):
     current_page = ctx.state.get("current_page", 1)
 
     return Container(
-        class_name="max-w-6xl mx-auto p-8",
+        class_name="max-w-6xl mx-auto p-6",
         children=[
             # Header
             Column(
                 gap=2,
-                class_name="mb-8",
+                class_name="mb-6",
                 children=[
                     Text("Component Showcase", class_name="text-4xl font-bold"),
                     Text(
@@ -212,7 +217,7 @@ def home(ctx: Context):
                                                         class_name="text-sm",
                                                     ),
                                                     Switch(
-                                                        checked=notifications,
+                                                        default_checked=notifications,
                                                         on_change=ctx.callback(on_switch_change),
                                                     ),
                                                 ],
@@ -236,7 +241,7 @@ def home(ctx: Context):
                                                 ],
                                             ),
                                             Slider(
-                                                value=[volume],
+                                                default_value=[volume],
                                                 max=100,
                                                 step=1,
                                                 on_value_change=ctx.callback(on_slider_change),
@@ -256,6 +261,7 @@ def home(ctx: Context):
                                                     ToggleGroupItem(value="italic", label="I"),
                                                     ToggleGroupItem(value="underline", label="U"),
                                                 ],
+                                                on_value_change=ctx.callback(on_toggle_change),
                                             ),
                                         ],
                                     ),
@@ -273,6 +279,7 @@ def home(ctx: Context):
                                                     {"value": "angular", "label": "Angular"},
                                                     {"value": "svelte", "label": "Svelte"},
                                                 ],
+                                                on_select=ctx.callback(dropdown_select),
                                             ),
                                         ],
                                     ),
@@ -302,6 +309,7 @@ def home(ctx: Context):
                                     AlertDialog(
                                         children=[
                                             AlertDialogTrigger(
+                                                as_child=True,
                                                 children=Button(
                                                     label="Delete Item", variant="destructive"
                                                 )
@@ -337,6 +345,7 @@ def home(ctx: Context):
                                     Sheet(
                                         children=[
                                             SheetTrigger(
+                                                as_child=True,
                                                 children=Button(
                                                     label="Open Settings", variant="outline"
                                                 )
@@ -376,6 +385,7 @@ def home(ctx: Context):
                                     Popover(
                                         children=[
                                             PopoverTrigger(
+                                                as_child=True,
                                                 children=Button(
                                                     label="Quick Actions", variant="secondary"
                                                 )

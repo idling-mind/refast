@@ -125,15 +125,19 @@ class BreadcrumbLink(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "href": self.href,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "href": self.href,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -408,16 +412,20 @@ class NavigationMenuLink(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "href": self.href,
+            "active": self.active,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "href": self.href,
-                "active": self.active,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -550,16 +558,20 @@ class PaginationLink(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "href": self.href,
+            "active": self.active,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "href": self.href,
-                "active": self.active,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -582,15 +594,19 @@ class PaginationPrevious(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "href": self.href,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "href": self.href,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -613,15 +629,19 @@ class PaginationNext(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "href": self.href,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "href": self.href,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -813,16 +833,20 @@ class MenubarItem(Component):
         self.on_select = on_select
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "shortcut": self.shortcut,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_select:
+            props["onSelect"] = self.on_select.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "shortcut": self.shortcut,
-                "disabled": self.disabled,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -874,18 +898,20 @@ class MenubarCheckboxItem(Component):
         self.disabled = disabled
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "checked": self.checked,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_checked_change:
+            props["onCheckedChange"] = self.on_checked_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "checked": self.checked,
-                "onCheckedChange": self.on_checked_change.serialize()
-                if self.on_checked_change
-                else None,
-                "disabled": self.disabled,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -911,15 +937,19 @@ class MenubarRadioGroup(Component):
             self._children = children
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "value": self.value,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_value_change:
+            props["onValueChange"] = self.on_value_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "value": self.value,
-                "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

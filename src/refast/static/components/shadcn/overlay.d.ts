@@ -104,7 +104,7 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
 }
 export declare function Drawer({ open, onOpenChange, title, description, trigger, className, children, ...props }: DrawerProps): import("react/jsx-runtime").JSX.Element;
 export interface HoverCardProps extends BaseProps, ChildrenProp {
-    trigger: React.ReactNode;
+    trigger?: React.ReactNode;
     openDelay?: number;
     closeDelay?: number;
     side?: 'top' | 'right' | 'bottom' | 'left';

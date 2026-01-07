@@ -42,6 +42,16 @@ export function AlertDialog({
   children,
   ...props
 }: AlertDialogProps) {
+  // Compositional API usage (when trigger is not provided prop but likely in children)
+  if (!trigger && children && React.Children.count(children) > 0) {
+    return (
+      <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+        {children}
+      </DialogPrimitive.Root>
+    );
+  }
+
+  // High-level API usage
   const handleConfirm = () => {
     onConfirm?.();
     onOpenChange?.(false);
@@ -585,7 +595,7 @@ export function Drawer({
 // ============================================================================
 
 export interface HoverCardProps extends BaseProps, ChildrenProp {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   openDelay?: number;
   closeDelay?: number;
   side?: 'top' | 'right' | 'bottom' | 'left';
@@ -602,6 +612,16 @@ export function HoverCard({
   children,
   ...props
 }: HoverCardProps) {
+  // Compositional API (when trigger is missing)
+  if (!trigger && children && React.Children.count(children) > 0) {
+    return (
+      <HoverCardPrimitive.Root openDelay={openDelay} closeDelay={closeDelay}>
+        {children}
+      </HoverCardPrimitive.Root>
+    );
+  }
+
+  // High-level wrapper
   return (
     <HoverCardPrimitive.Root openDelay={openDelay} closeDelay={closeDelay}>
       <HoverCardPrimitive.Trigger asChild>
@@ -650,6 +670,16 @@ export function Popover({
   children,
   ...props
 }: PopoverProps) {
+  // Compositional API usage (when trigger is not provided prop)
+  if (!trigger && children && React.Children.count(children) > 0) {
+    return (
+      <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
+        {children}
+      </PopoverPrimitive.Root>
+    );
+  }
+
+  // High-level wrapper
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <PopoverPrimitive.Trigger asChild>

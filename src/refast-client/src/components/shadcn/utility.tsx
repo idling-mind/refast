@@ -147,6 +147,23 @@ export function Collapsible({
   children,
   ...props
 }: CollapsibleProps) {
+  // Compositional mode (no trigger provided)
+  if (!trigger && children && React.Children.count(children) > 0) {
+    return (
+      <CollapsiblePrimitive.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
+        disabled={disabled}
+        className={cn('space-y-2', className)}
+        {...props}
+      >
+        {children}
+      </CollapsiblePrimitive.Root>
+    );
+  }
+
+  // High-level wrapper
   return (
     <CollapsiblePrimitive.Root
       open={open}

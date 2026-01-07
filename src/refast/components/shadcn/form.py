@@ -40,14 +40,18 @@ class Form(Component):
         self.on_submit = on_submit
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_submit:
+            props["onSubmit"] = self.on_submit.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "onSubmit": self.on_submit.serialize() if self.on_submit else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

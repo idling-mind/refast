@@ -43,18 +43,22 @@ class Alert(Component):
         self.on_dismiss = on_dismiss
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "title": self.title,
+            "message": self.message,
+            "variant": self.variant,
+            "dismissible": self.dismissible,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_dismiss:
+            props["onDismiss"] = self.on_dismiss.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "title": self.title,
-                "message": self.message,
-                "variant": self.variant,
-                "dismissible": self.dismissible,
-                "onDismiss": self.on_dismiss.serialize() if self.on_dismiss else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -121,17 +125,21 @@ class Modal(Component):
         self.size = size
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "title": self.title,
+            "open": self.open,
+            "size": self.size,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_close:
+            props["onClose"] = self.on_close.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "title": self.title,
-                "open": self.open,
-                "onClose": self.on_close.serialize() if self.on_close else None,
-                "size": self.size,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -161,17 +169,21 @@ class Dialog(Component):
         self.on_open_change = on_open_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "title": self.title,
+            "description": self.description,
+            "open": self.open,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_open_change:
+            props["onOpenChange"] = self.on_open_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "title": self.title,
-                "description": self.description,
-                "open": self.open,
-                "onOpenChange": (self.on_open_change.serialize() if self.on_open_change else None),
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

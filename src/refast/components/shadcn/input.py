@@ -56,25 +56,35 @@ class Input(Component):
         self.on_focus = on_focus
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "name": self.name,
+            "label": self.label,
+            "type": self.input_type,
+            "placeholder": self.placeholder,
+            "value": self.value,
+            "required": self.required,
+            "disabled": self.disabled,
+            "readOnly": self.readonly,
+            "debounce": self.debounce,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onChange"] = self.on_change.serialize()
+        if self.on_blur:
+            props["onBlur"] = self.on_blur.serialize()
+        if self.on_focus:
+            props["onFocus"] = self.on_focus.serialize()
+
+        # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's live-validated
+        # But if value is None, we could treat it as uncontrolled. The current __init__ defaults value to ""
+        # so it is always controlled by default. This is fine for Input.
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "name": self.name,
-                "label": self.label,
-                "type": self.input_type,
-                "placeholder": self.placeholder,
-                "value": self.value,
-                "required": self.required,
-                "disabled": self.disabled,
-                "readOnly": self.readonly,
-                "debounce": self.debounce,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "onBlur": self.on_blur.serialize() if self.on_blur else None,
-                "onFocus": self.on_focus.serialize() if self.on_focus else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -111,22 +121,26 @@ class Textarea(Component):
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "name": self.name,
+            "label": self.label,
+            "placeholder": self.placeholder,
+            "value": self.value,
+            "rows": self.rows,
+            "required": self.required,
+            "disabled": self.disabled,
+            "debounce": self.debounce,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onChange"] = self.on_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "name": self.name,
-                "label": self.label,
-                "placeholder": self.placeholder,
-                "value": self.value,
-                "rows": self.rows,
-                "required": self.required,
-                "disabled": self.disabled,
-                "debounce": self.debounce,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -161,21 +175,25 @@ class Select(Component):
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "name": self.name,
+            "options": self.options,
+            "label": self.label,
+            "value": self.value,
+            "placeholder": self.placeholder,
+            "required": self.required,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onChange"] = self.on_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "name": self.name,
-                "options": self.options,
-                "label": self.label,
-                "value": self.value,
-                "placeholder": self.placeholder,
-                "required": self.required,
-                "disabled": self.disabled,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -204,18 +222,22 @@ class Checkbox(Component):
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "name": self.name,
+            "label": self.label,
+            "checked": self.checked,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onChange"] = self.on_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "name": self.name,
-                "label": self.label,
-                "checked": self.checked,
-                "disabled": self.disabled,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -241,23 +263,23 @@ class Radio(Component):
         self.name = name
         self.value = value
         self.label = label
-        self.checked = checked
-        self.disabled = disabled
-        self.on_change = on_change
-
     def render(self) -> dict[str, Any]:
+        props = {
+            "name": self.name,
+            "value": self.value,
+            "label": self.label,
+            "checked": self.checked,
+            "disabled": self.disabled,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_change:
+            props["onChange"] = self.on_change.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "name": self.name,
-                "value": self.value,
-                "label": self.label,
-                "checked": self.checked,
-                "disabled": self.disabled,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }

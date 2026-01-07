@@ -46,19 +46,23 @@ class Button(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "variant": self.variant,
+            "size": self.size,
+            "disabled": self.disabled or self.loading,
+            "loading": self.loading,
+            "type": self.button_type,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "variant": self.variant,
-                "size": self.size,
-                "disabled": self.disabled or self.loading,
-                "loading": self.loading,
-                "type": self.button_type,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [self.label],
         }
 
@@ -91,18 +95,22 @@ class IconButton(Component):
         self.aria_label = aria_label
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "icon": self.icon,
+            "variant": self.variant,
+            "size": self.size,
+            "disabled": self.disabled,
+            "ariaLabel": self.aria_label,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_click:
+            props["onClick"] = self.on_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "icon": self.icon,
-                "variant": self.variant,
-                "size": self.size,
-                "disabled": self.disabled,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "ariaLabel": self.aria_label,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }

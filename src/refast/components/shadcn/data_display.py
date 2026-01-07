@@ -238,20 +238,24 @@ class DataTable(Component):
         self.on_row_click = on_row_click
 
     def render(self) -> dict[str, Any]:
+        props = {
+            "columns": self.columns,
+            "data": self.data,
+            "sortable": self.sortable,
+            "filterable": self.filterable,
+            "paginated": self.paginated,
+            "pageSize": self.page_size,
+            "className": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        if self.on_row_click:
+            props["onRowClick"] = self.on_row_click.serialize()
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "columns": self.columns,
-                "data": self.data,
-                "sortable": self.sortable,
-                "filterable": self.filterable,
-                "paginated": self.paginated,
-                "pageSize": self.page_size,
-                "onRowClick": self.on_row_click.serialize() if self.on_row_click else None,
-                "className": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 

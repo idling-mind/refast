@@ -376,12 +376,31 @@ export function Tabs({
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child)) {
       const props = child.props as Record<string, unknown>;
-      // TabItem passes value and label as props
-      if (props.value !== undefined) {
+      
+      let itemValue: string | undefined;
+      let itemLabel: string | undefined;
+      let itemDisabled: boolean | undefined;
+
+      // Handle ComponentRenderer children (wrapped)
+      if ('tree' in props && typeof props.tree === 'object' && props.tree !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const treeProps = (props.tree as any).props || {};
+        itemValue = treeProps.value;
+        itemLabel = treeProps.label;
+        itemDisabled = treeProps.disabled;
+      } else {
+        // Handle direct usage
+        itemValue = props.value as string;
+        itemLabel = props.label as string;
+        itemDisabled = props.disabled as boolean;
+      }
+
+      // If value is found, add to meta
+      if (itemValue !== undefined) {
         tabMeta.push({
-          value: String(props.value || ''),
-          label: String(props.label || props.value || ''),
-          disabled: Boolean(props.disabled),
+          value: String(itemValue || ''),
+          label: String(itemLabel || itemValue || ''),
+          disabled: Boolean(itemDisabled),
         });
       }
     }
@@ -434,7 +453,19 @@ export function Tabs({
           {childArray.map((child, index) => {
             if (React.isValidElement(child)) {
               const props = child.props as Record<string, unknown>;
-              const tabValue = String(props.value || '');
+              let itemValue: string | undefined;
+
+              // Handle ComponentRenderer children (wrapped)
+              if ('tree' in props && typeof props.tree === 'object' && props.tree !== null) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const treeProps = (props.tree as any).props || {};
+                itemValue = treeProps.value;
+              } else {
+                // Handle direct usage
+                itemValue = props.value as string;
+              }
+
+              const tabValue = String(itemValue || '');
               // Only show the active tab's content
               if (tabValue !== activeTab) {
                 return null;

@@ -154,7 +154,7 @@ def home(ctx: Context):
             ),
             # Breadcrumb navigation
             Breadcrumb(
-                class_name="mb-6",
+                class_name="mb-4",
                 children=[
                     BreadcrumbList(
                         children=[
@@ -171,7 +171,7 @@ def home(ctx: Context):
             ),
             # Tabs for different component categories
             Tabs(
-                default_value="controls",
+                default_value="utility",
                 children=[
                     TabItem(value="controls", label="Controls"),
                     TabItem(value="navigation", label="Navigation"),

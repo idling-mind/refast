@@ -758,7 +758,7 @@ def home(ctx: Context):
                                                         ]
                                                     )
                                                     if selected_items
-                                                    else None,
+                                                    else "",
                                                 ],
                                             ),
                                         ],

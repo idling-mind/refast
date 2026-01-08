@@ -1,7 +1,7 @@
 import { default as React } from 'react';
 import { Tooltip as RechartsTooltip, Legend as RechartsLegend } from 'recharts';
 
-export declare const ChartTooltip: typeof RechartsTooltip;
+export declare function ChartTooltip({ cursor, content, ...props }: React.ComponentProps<typeof RechartsTooltip>): import("react/jsx-runtime").JSX.Element;
 export declare const ChartLegend: typeof RechartsLegend;
 interface ChartConfig {
     [key: string]: {

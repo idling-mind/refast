@@ -6,7 +6,19 @@ import {
 } from 'recharts';
 import { cn } from '../../utils';
 
-export const ChartTooltip = RechartsTooltip;
+export function ChartTooltip({
+  cursor = false,
+  content,
+  ...props
+}: React.ComponentProps<typeof RechartsTooltip>) {
+  return (
+    <RechartsTooltip
+      content={content || <ChartTooltipContent />}
+      cursor={cursor}
+      {...props}
+    />
+  );
+}
 export const ChartLegend = RechartsLegend;
 
 // Chart context for theming
@@ -107,31 +119,39 @@ export function ChartTooltipContent({
   }
 
   return (
-    <div className="rounded-lg border bg-background p-2 shadow-sm">
+    <div className="grid items-start gap-2 rounded-lg border border-border bg-background p-2 text-xs shadow-xl" style={{ minWidth: '8rem' }}>
       {!hideLabel && label && (
-        <div className="mb-1 font-medium">{labelKey ? payload[0]?.payload?.[labelKey] : label}</div>
+        <div className="font-medium text-foreground">{labelKey ? payload[0]?.payload?.[labelKey] : label}</div>
       )}
-      <div className="flex flex-col gap-1">
+      <div className="grid gap-2">
         {payload.map((item, index) => {
           const key = nameKey ? item.payload?.[nameKey] : item.dataKey;
           const configItem = config?.[key];
           
           return (
-            <div key={index} className="flex items-center gap-2 text-sm">
+            <div key={index} className="flex w-full flex-wrap items-stretch gap-2">
               {!hideIndicator && (
                 <div
                   className={cn(
-                    'h-2 w-2 rounded-full',
-                    indicator === 'line' && 'h-0.5 w-4 rounded-none',
-                    indicator === 'dashed' && 'h-0.5 w-4 rounded-none border-dashed border-t-2'
+                    'h-2 w-2 shrink-0 rounded-sm',
+                    indicator === 'dot' && 'rounded-full',
+                    indicator === 'line' && 'w-1',
+                    indicator === 'dashed' && 'w-0 border-2 border-dashed bg-transparent'
                   )}
-                  style={{ backgroundColor: item.color }}
+                  style={{ 
+                    backgroundColor: indicator === 'dashed' ? undefined : item.color,
+                    borderColor: indicator === 'dashed' ? item.color : undefined
+                  }}
                 />
               )}
-              <span className="text-muted-foreground">
-                {configItem?.label || key}:
-              </span>
-              <span className="font-medium">{item.value}</span>
+              <div className="flex flex-1 justify-between leading-none">
+                <span className="text-muted-foreground">
+                  {configItem?.label || key}
+                </span>
+                <span className="font-medium text-foreground">
+                  {item.value}
+                </span>
+              </div>
             </div>
           );
         })}

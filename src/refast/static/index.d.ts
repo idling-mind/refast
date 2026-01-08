@@ -1,3 +1,6 @@
+import { default as React } from 'react';
+import { default as ReactDOM } from 'react-dom';
+import { componentRegistry } from './components/registry';
 
 export { RefastApp } from './App';
 export { ComponentRenderer } from './components/ComponentRenderer';
@@ -17,3 +20,38 @@ export { useWebSocket, buildWebSocketUrl, WebSocketClient, } from './events/WebS
 export { useStateManager, findComponent, getComponentPath, } from './state/StateManager';
 export { cn, debounce, throttle, generateId, isPlainObject, deepMerge } from './utils';
 export type { ComponentTree, ComponentProps, CallbackRef, UpdateMessage, EventMessage, WebSocketState, WebSocketOptions, StateManagerState, } from './types';
+/**
+ * RefastClient global object for extension development.
+ *
+ * Extensions can use this to:
+ * - Register custom React components
+ * - Access React and ReactDOM (avoid bundling duplicates)
+ * - Use utility functions
+ *
+ * Example usage in an extension's UMD bundle:
+ * ```javascript
+ * (function() {
+ *   const { componentRegistry, React } = window.RefastClient;
+ *
+ *   const MyComponent = (props) => {
+ *     return React.createElement('div', { className: props.className }, props.children);
+ *   };
+ *
+ *   componentRegistry.register('MyComponent', MyComponent);
+ * })();
+ * ```
+ */
+declare global {
+    interface Window {
+        RefastClient: {
+            /** Component registry for registering custom React components */
+            componentRegistry: typeof componentRegistry;
+            /** React library - use this instead of bundling your own */
+            React: typeof React;
+            /** ReactDOM library - use this instead of bundling your own */
+            ReactDOM: typeof ReactDOM;
+            /** Version of the Refast client */
+            version: string;
+        };
+    }
+}

@@ -1,6 +1,5 @@
 """Tests for button and card components."""
 
-
 from refast.components.base import Text
 from refast.components.shadcn.button import Button, IconButton
 from refast.components.shadcn.card import Card, CardContent, CardFooter, CardHeader

@@ -1,7 +1,6 @@
 """Test that package imports work correctly."""
 
 
-
 def test_import_refast():
     """Test that refast package can be imported."""
     import refast

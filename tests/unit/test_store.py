@@ -68,7 +68,7 @@ class TestJSONEncoder:
     def test_decode_list(self):
         """Test decoding a list."""
         encoder = JSONEncoder()
-        result = encoder.decode('[1, 2, 3]')
+        result = encoder.decode("[1, 2, 3]")
         assert result == [1, 2, 3]
 
 

@@ -42,21 +42,39 @@ export function useChart() {
 
 interface ChartContainerProps {
   config: ChartConfig;
-  className?: string;
-  aspectRatio?: number;
-  minHeight?: number | string;
   children: React.ReactNode;
+  width?: React.ComponentProps<typeof ResponsiveContainer>['width'];
+  height?: React.ComponentProps<typeof ResponsiveContainer>['height'];
+  minHeight?: React.ComponentProps<typeof ResponsiveContainer>['minHeight'];
+  maxHeight?: React.ComponentProps<typeof ResponsiveContainer>['maxHeight'];
+  minWidth?: React.ComponentProps<typeof ResponsiveContainer>['minWidth'];
+  aspect?: React.ComponentProps<typeof ResponsiveContainer>['aspect'];
+  initialDimension?: React.ComponentProps<typeof ResponsiveContainer>['initialDimension'];
+  debounce?: React.ComponentProps<typeof ResponsiveContainer>['debounce'];
+  className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+  onResize?: React.ComponentProps<typeof ResponsiveContainer>['onResize'];
 }
 
 export function ChartContainer({
   config,
-  className,
-  aspectRatio,
-  minHeight = 200,
   children,
+  width,
+  height,
+  minHeight,
+  maxHeight,
+  minWidth,
+  aspect,
+  initialDimension,
+  debounce,
+  className,
+  style,
+  id,
+  onResize,
 }: ChartContainerProps) {
   // Generate CSS variables for colors
-  const style = React.useMemo(() => {
+  const cssVars = React.useMemo(() => {
     const vars: Record<string, string> = {};
     Object.entries(config).forEach(([key, value]) => {
       if (value.color) {
@@ -66,29 +84,27 @@ export function ChartContainer({
     return vars;
   }, [config]);
 
-  const minHeightNum = React.useMemo(() => {
-    if (typeof minHeight === 'number') return minHeight;
-    const parsed = parseInt(minHeight as string);
-    return isNaN(parsed) ? 200 : parsed;
-  }, [minHeight]);
-
   return (
     <ChartContext.Provider value={config}>
-      <div
+      <ResponsiveContainer
+        width={width ?? '100%'}
+        height={height ?? '100%'}
+        minHeight={minHeight ?? 200}
+        maxHeight={maxHeight ?? undefined}
+        minWidth={minWidth ?? undefined}
+        aspect={aspect ?? undefined}
+        initialDimension={initialDimension ?? undefined}
+        debounce={debounce ?? undefined}
         className={cn('w-full', className)}
+        id={id}
         style={{
+          ...cssVars,
           ...style,
-          aspectRatio: aspectRatio ? `${aspectRatio}` : undefined,
         }}
+        onResize={onResize ?? undefined}
       >
-        <ResponsiveContainer 
-          width="100%" 
-          height={aspectRatio ? "100%" : minHeightNum}
-          minWidth={0}
-        >
-          {children as React.ReactElement}
-        </ResponsiveContainer>
-      </div>
+        {children as React.ReactElement}
+      </ResponsiveContainer>
     </ChartContext.Provider>
   );
 }

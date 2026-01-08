@@ -1,6 +1,5 @@
 """Tests for typography components."""
 
-
 from refast.components.shadcn.typography import Code, Heading, Link, Paragraph
 
 

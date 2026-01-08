@@ -1,30 +1,32 @@
 """Base chart components and utilities."""
 
 from typing import Any, Literal
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, ConfigDict
+
 from refast.components.base import Component
+from refast.events.types import Callback
 
 
 class ChartConfig(BaseModel):
     """Configuration for chart data series."""
-    
+
+    model_config = ConfigDict(extra="allow")
+
     label: str
     color: str | None = None
     icon: str | None = None
-    
-    class Config:
-        extra = "allow"
 
 
 class ChartStyle(Component):
     """
     Style component for chart theming.
-    
+
     Generates CSS custom properties for chart colors.
     """
-    
+
     component_type: str = "ChartStyle"
-    
+
     def __init__(
         self,
         id: str,
@@ -33,7 +35,7 @@ class ChartStyle(Component):
     ):
         super().__init__(id=id, **kwargs)
         self.config = config
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -48,9 +50,9 @@ class ChartStyle(Component):
 class ChartContainer(Component):
     """
     Container component for charts.
-    
+
     Provides responsive sizing and theming context.
-    
+
     Example:
         ```python
         ChartContainer(
@@ -66,16 +68,25 @@ class ChartContainer(Component):
         )
         ```
     """
-    
+
     component_type: str = "ChartContainer"
-    
+
     def __init__(
         self,
         *children: Component,
         config: dict[str, ChartConfig] | None = None,
         class_name: str = "",
+        width: str | int = "100%",
+        height: str | int = "100%",
+        min_height: str | int | None = 200,
+        min_width: str | int | None = None,
+        max_height: str | int | None = None,
+        aspect: float | None = None,
+        debounce: int | None = None,
+        initial_dimension: dict[str, int] | None = None,
+        on_resize: Callback | None = None,
+        # Legacy
         aspect_ratio: float | None = None,
-        min_height: int | str = 200,
         **kwargs: Any,
     ):
         # Extract children from kwargs if present
@@ -83,16 +94,25 @@ class ChartContainer(Component):
 
         super().__init__(class_name=class_name, **kwargs)
         self.config = config or {}
-        self.aspect_ratio = aspect_ratio
+
+        # Props
+        self.width = width
+        self.height = height
         self.min_height = min_height
-        
+        self.min_width = min_width
+        self.max_height = max_height
+        self.aspect = aspect or aspect_ratio
+        self.debounce = debounce
+        self.initial_dimension = initial_dimension
+        self.on_resize = on_resize
+
         self.children = list(children)
         if kw_children:
             if isinstance(kw_children, list):
                 self.children.extend(kw_children)
             else:
                 self.children.append(kw_children)
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -100,8 +120,17 @@ class ChartContainer(Component):
             "props": {
                 "config": {k: v.model_dump() for k, v in self.config.items()},
                 "className": self.class_name,
-                "aspectRatio": self.aspect_ratio,
+                "style": self.style,
+                "width": self.width,
+                "height": self.height,
                 "minHeight": self.min_height,
+                "minWidth": self.min_width,
+                "maxHeight": self.max_height,
+                "aspect": self.aspect,
+                "debounce": self.debounce,
+                "initialDimension": self.initial_dimension,
+                "onResize": self.on_resize.serialize() if self.on_resize else None,
+                **self.extra_props,
             },
             "children": [c.render() for c in self.children],
         }
@@ -110,7 +139,7 @@ class ChartContainer(Component):
 class ChartTooltip(Component):
     """
     Tooltip component for charts.
-    
+
     Example:
         ```python
         ChartTooltip(
@@ -119,9 +148,9 @@ class ChartTooltip(Component):
         )
         ```
     """
-    
+
     component_type: str = "ChartTooltip"
-    
+
     def __init__(
         self,
         content: "ChartTooltipContent | None" = None,
@@ -135,7 +164,7 @@ class ChartTooltip(Component):
         self.cursor = cursor
         self.hide_label = hide_label
         self.hide_indicator = hide_indicator
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -152,15 +181,15 @@ class ChartTooltip(Component):
 class ChartTooltipContent(Component):
     """
     Content component for chart tooltips.
-    
+
     Args:
         indicator: Type of indicator ("line" | "dot" | "dashed")
         name_key: Key to use for the name
         label_key: Key to use for the label
     """
-    
+
     component_type: str = "ChartTooltipContent"
-    
+
     def __init__(
         self,
         indicator: Literal["line", "dot", "dashed"] = "dot",
@@ -176,7 +205,7 @@ class ChartTooltipContent(Component):
         self.label_key = label_key
         self.hide_label = hide_label
         self.hide_indicator = hide_indicator
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -194,15 +223,15 @@ class ChartTooltipContent(Component):
 class ChartLegend(Component):
     """
     Legend component for charts.
-    
+
     Example:
         ```python
         ChartLegend(content=ChartLegendContent())
         ```
     """
-    
+
     component_type: str = "ChartLegend"
-    
+
     def __init__(
         self,
         content: "ChartLegendContent | None" = None,
@@ -212,7 +241,7 @@ class ChartLegend(Component):
         super().__init__(**kwargs)
         self.content = content
         self.vertical_align = vertical_align
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -226,9 +255,9 @@ class ChartLegend(Component):
 
 class ChartLegendContent(Component):
     """Content component for chart legends."""
-    
+
     component_type: str = "ChartLegendContent"
-    
+
     def __init__(
         self,
         name_key: str | None = None,
@@ -238,7 +267,7 @@ class ChartLegendContent(Component):
         super().__init__(**kwargs)
         self.name_key = name_key
         self.hide_icon = hide_icon
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

@@ -306,8 +306,6 @@ def settings(ctx: Context):
         class_name="mt-10 px-4",
         style={"maxWidth": "28rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
-            Card(e="max-w-md mx-auto mt-10 px-4",
-        children=[
             Card(
                 children=[
                     CardHeader(

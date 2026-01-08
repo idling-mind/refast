@@ -1,5 +1,5 @@
 import { default as React } from 'react';
-import { Tooltip as RechartsTooltip, Legend as RechartsLegend } from 'recharts';
+import { ResponsiveContainer, Tooltip as RechartsTooltip, Legend as RechartsLegend } from 'recharts';
 
 export declare function ChartTooltip({ cursor, content, ...props }: React.ComponentProps<typeof RechartsTooltip>): import("react/jsx-runtime").JSX.Element;
 export declare const ChartLegend: typeof RechartsLegend;
@@ -13,12 +13,21 @@ interface ChartConfig {
 export declare function useChart(): ChartConfig;
 interface ChartContainerProps {
     config: ChartConfig;
-    className?: string;
-    aspectRatio?: number;
-    minHeight?: number | string;
     children: React.ReactNode;
+    width?: React.ComponentProps<typeof ResponsiveContainer>['width'];
+    height?: React.ComponentProps<typeof ResponsiveContainer>['height'];
+    minHeight?: React.ComponentProps<typeof ResponsiveContainer>['minHeight'];
+    maxHeight?: React.ComponentProps<typeof ResponsiveContainer>['maxHeight'];
+    minWidth?: React.ComponentProps<typeof ResponsiveContainer>['minWidth'];
+    aspect?: React.ComponentProps<typeof ResponsiveContainer>['aspect'];
+    initialDimension?: React.ComponentProps<typeof ResponsiveContainer>['initialDimension'];
+    debounce?: React.ComponentProps<typeof ResponsiveContainer>['debounce'];
+    className?: string;
+    style?: React.CSSProperties;
+    id?: string;
+    onResize?: React.ComponentProps<typeof ResponsiveContainer>['onResize'];
 }
-export declare function ChartContainer({ config, className, aspectRatio, minHeight, children, }: ChartContainerProps): import("react/jsx-runtime").JSX.Element;
+export declare function ChartContainer({ config, children, width, height, minHeight, maxHeight, minWidth, aspect, initialDimension, debounce, className, style, id, onResize, }: ChartContainerProps): import("react/jsx-runtime").JSX.Element;
 interface ChartTooltipContentProps {
     active?: boolean;
     payload?: any[];

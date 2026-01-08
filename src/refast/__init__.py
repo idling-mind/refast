@@ -6,6 +6,7 @@ A framework for building reactive web applications with Python-first development
 
 from refast.app import RefastApp
 from refast.context import Context
+from refast.extensions import Extension
 from refast.state import State
 from refast.store import BrowserStore, JSONEncoder, LocalStore, SessionStore, Store
 
@@ -19,4 +20,5 @@ __all__ = [
     "SessionStore",
     "BrowserStore",
     "JSONEncoder",
+    "Extension",
 ]

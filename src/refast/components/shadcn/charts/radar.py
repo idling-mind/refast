@@ -1,13 +1,14 @@
 """Radar chart components."""
 
 from typing import Any
+
 from refast.components.base import Component
 
 
 class RadarChart(Component):
     """
     Radar chart component.
-    
+
     Example:
         ```python
         RadarChart(
@@ -16,9 +17,9 @@ class RadarChart(Component):
         )
         ```
     """
-    
+
     component_type: str = "RadarChart"
-    
+
     def __init__(
         self,
         *children: Component,
@@ -42,14 +43,14 @@ class RadarChart(Component):
         self.outer_radius = outer_radius
         self.start_angle = start_angle
         self.end_angle = end_angle
-        
+
         self.children = list(children)
         if kw_children:
             if isinstance(kw_children, list):
                 self.children.extend(kw_children)
             else:
                 self.children.append(kw_children)
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -71,7 +72,7 @@ class RadarChart(Component):
 class Radar(Component):
     """
     Radar component for RadarChart.
-    
+
     Args:
         data_key: Key from data
         fill: Fill color
@@ -79,9 +80,9 @@ class Radar(Component):
         stroke: Stroke color
         stroke_width: Stroke width
     """
-    
+
     component_type: str = "Radar"
-    
+
     def __init__(
         self,
         data_key: str,
@@ -98,7 +99,7 @@ class Radar(Component):
         self.stroke = stroke or fill
         self.stroke_width = stroke_width
         self.props = kwargs
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -113,15 +114,16 @@ class Radar(Component):
             },
         }
 
+
 class PolarGrid(Component):
     """Polar grid for RadarChart."""
-    
+
     component_type: str = "PolarGrid"
-    
+
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
         self.props = kwargs
-        
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -129,11 +131,12 @@ class PolarGrid(Component):
             "props": self.props,
         }
 
+
 class PolarAngleAxis(Component):
     """Polar angle axis for RadarChart."""
-    
+
     component_type: str = "PolarAngleAxis"
-    
+
     def __init__(
         self,
         data_key: str | None = None,
@@ -146,7 +149,7 @@ class PolarAngleAxis(Component):
         self.type = type
         self.tick = tick
         self.props = kwargs
-        
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -159,11 +162,12 @@ class PolarAngleAxis(Component):
             },
         }
 
+
 class PolarRadiusAxis(Component):
     """Polar radius axis for RadarChart/RadialBarChart."""
-    
+
     component_type: str = "PolarRadiusAxis"
-    
+
     def __init__(
         self,
         angle: int = 90,
@@ -178,7 +182,7 @@ class PolarRadiusAxis(Component):
         self.tick = tick
         self.domain = domain
         self.props = kwargs
-        
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

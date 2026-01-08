@@ -1,6 +1,5 @@
 """Tests for layout components."""
 
-
 from refast.components.base import Text
 from refast.components.shadcn.layout import (
     Center,

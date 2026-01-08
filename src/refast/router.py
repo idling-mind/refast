@@ -47,6 +47,13 @@ class RefastRouter:
             methods=["GET"],
         )
 
+        # Extension static file serving (must be before general static route)
+        self.api_router.add_api_route(
+            "/static/ext/{extension_name}/{filename:path}",
+            self._extension_static_handler,
+            methods=["GET"],
+        )
+
         # Static file serving for Refast client
         self.api_router.add_api_route(
             "/static/{filename:path}",
@@ -69,6 +76,42 @@ class RefastRouter:
         if not file_path.exists() or not file_path.is_file():
             # Return 404 for missing files
             return HTMLResponse(content="Not Found", status_code=404)
+
+        # Determine content type
+        content_type = "application/octet-stream"
+        suffix = file_path.suffix.lower()
+        if suffix == ".js":
+            content_type = "application/javascript"
+        elif suffix == ".css":
+            content_type = "text/css"
+        elif suffix == ".html":
+            content_type = "text/html"
+        elif suffix == ".json":
+            content_type = "application/json"
+        elif suffix == ".svg":
+            content_type = "image/svg+xml"
+        elif suffix in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
+            content_type = f"image/{suffix[1:]}"
+
+        return FileResponse(file_path, media_type=content_type)
+
+    async def _extension_static_handler(
+        self, extension_name: str, filename: str
+    ) -> FileResponse:
+        """Serve static files from extensions."""
+        extension = self.app.get_extension(extension_name)
+
+        if extension is None:
+            return HTMLResponse(
+                content=f"Extension not found: {extension_name}", status_code=404
+            )
+
+        file_path = extension.get_static_file_path(filename)
+
+        if file_path is None:
+            return HTMLResponse(
+                content=f"File not found: {filename}", status_code=404
+            )
 
         # Determine content type
         content_type = "application/octet-stream"
@@ -235,10 +278,12 @@ class RefastRouter:
                 component_data = component.render() if hasattr(component, "render") else {}
 
                 # Send the rendered page via WebSocket
-                await websocket.send_json({
-                    "type": "page_render",
-                    "component": component_data,
-                })
+                await websocket.send_json(
+                    {
+                        "type": "page_render",
+                        "component": component_data,
+                    }
+                )
 
             # Send acknowledgment so frontend knows store is ready
             await websocket.send_json({"type": "store_ready"})
@@ -271,6 +316,22 @@ class RefastRouter:
         )
         client_script = '<script src="/static/refast-client.js"></script>' if has_client_js else ""
 
+        # Collect extension assets
+        extension_styles = []
+        extension_scripts = []
+        for ext in self.app._extensions.values():
+            extension_styles.extend(
+                f'<link rel="stylesheet" href="{url}">'
+                for url in ext.get_style_urls()
+            )
+            extension_scripts.extend(
+                f'<script src="{url}"></script>'
+                for url in ext.get_script_urls()
+            )
+
+        ext_styles_html = "\n    ".join(extension_styles)
+        ext_scripts_html = "\n    ".join(extension_scripts)
+
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -278,6 +339,7 @@ class RefastRouter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{self.app.title}</title>
     {client_css}
+    {ext_styles_html}
     <script>
         window.__REFAST_INITIAL_DATA__ = {component_json};
     </script>
@@ -285,5 +347,6 @@ class RefastRouter:
 <body>
     <div id="refast-root"></div>
     {client_script}
+    {ext_scripts_html}
 </body>
 </html>"""

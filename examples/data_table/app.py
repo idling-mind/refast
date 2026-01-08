@@ -348,10 +348,16 @@ def home(ctx: Context):
                                                     ),
                                                 ],
                                             ),
-                                            Text("User", class_name="flex-1 font-medium text-sm p-2"),
+                                            Text(
+                                                "User", class_name="flex-1 font-medium text-sm p-2"
+                                            ),
                                             Text("Role", class_name="w-24 font-medium text-sm p-2"),
-                                            Text("Status", class_name="w-24 font-medium text-sm p-2"),
-                                            Text("Created", class_name="w-28 font-medium text-sm p-2"),
+                                            Text(
+                                                "Status", class_name="w-24 font-medium text-sm p-2"
+                                            ),
+                                            Text(
+                                                "Created", class_name="w-28 font-medium text-sm p-2"
+                                            ),
                                             Text(
                                                 "Actions",
                                                 class_name="w-20 font-medium text-sm text-right p-2",
@@ -401,7 +407,9 @@ def home(ctx: Context):
                                                             ),
                                                         ],
                                                     ),
-                                                    Text(user["role"], class_name="w-24 text-sm p-2"),
+                                                    Text(
+                                                        user["role"], class_name="w-24 text-sm p-2"
+                                                    ),
                                                     get_status_badge(user["status"]),
                                                     Text(
                                                         user["created_at"],

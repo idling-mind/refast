@@ -1,6 +1,5 @@
 """Tests for base component classes."""
 
-
 from refast.components.base import Container, Fragment, Text
 
 

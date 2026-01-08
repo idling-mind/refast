@@ -1,29 +1,44 @@
 """Chart components powered by Recharts."""
 
+from refast.components.shadcn.charts.area import Area, AreaChart
+from refast.components.shadcn.charts.bar import Bar, BarChart
 from refast.components.shadcn.charts.base import (
-    ChartContainer,
     ChartConfig,
-    ChartTooltip,
-    ChartTooltipContent,
+    ChartContainer,
     ChartLegend,
     ChartLegendContent,
     ChartStyle,
+    ChartTooltip,
+    ChartTooltipContent,
 )
-from refast.components.shadcn.charts.area import AreaChart, Area
+from refast.components.shadcn.charts.composed import ComposedChart
+from refast.components.shadcn.charts.funnel import Funnel, FunnelChart
+from refast.components.shadcn.charts.line import Line, LineChart
+from refast.components.shadcn.charts.pie import Pie, PieChart, PieLabel, Sector
+from refast.components.shadcn.charts.radar import (
+    PolarAngleAxis,
+    PolarGrid,
+    PolarRadiusAxis,
+    Radar,
+    RadarChart,
+)
+from refast.components.shadcn.charts.radial import RadialBar, RadialBarChart
+from refast.components.shadcn.charts.sankey import Sankey
+from refast.components.shadcn.charts.scatter import Scatter, ScatterChart, ZAxis
+from refast.components.shadcn.charts.treemap import Treemap
 from refast.components.shadcn.charts.utils import (
+    Brush,
+    CartesianGrid,
+    Cell,
+    ErrorBar,
+    Label,
+    LabelList,
+    ReferenceArea,
+    ReferenceDot,
+    ReferenceLine,
     XAxis,
     YAxis,
-    CartesianGrid,
-    ReferenceLine,
-    Brush,
 )
-from refast.components.shadcn.charts.bar import BarChart, Bar
-from refast.components.shadcn.charts.line import LineChart, Line
-from refast.components.shadcn.charts.pie import PieChart, Pie, PieLabel, Sector
-from refast.components.shadcn.charts.radar import RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
-from refast.components.shadcn.charts.radial import RadialBarChart, RadialBar
-# from refast.components.shadcn.charts.radar import RadarChart, Radar, PolarGrid, PolarAngleAxis
-# from refast.components.shadcn.charts.radial import RadialBarChart, RadialBar
 
 __all__ = [
     # Base
@@ -37,12 +52,6 @@ __all__ = [
     # Area
     "AreaChart",
     "Area",
-    # Utils
-    "XAxis",
-    "YAxis",
-    "CartesianGrid",
-    "ReferenceLine",
-    "Brush",
     # Bar
     "BarChart",
     "Bar",
@@ -63,4 +72,29 @@ __all__ = [
     # Radial
     "RadialBarChart",
     "RadialBar",
+    # Scatter (NEW)
+    "ScatterChart",
+    "Scatter",
+    "ZAxis",
+    # Composed (NEW)
+    "ComposedChart",
+    # Funnel (NEW)
+    "FunnelChart",
+    "Funnel",
+    # Treemap (NEW)
+    "Treemap",
+    # Sankey (NEW)
+    "Sankey",
+    # Utils
+    "XAxis",
+    "YAxis",
+    "CartesianGrid",
+    "ReferenceLine",
+    "ReferenceArea",
+    "ReferenceDot",
+    "Brush",
+    "Cell",
+    "LabelList",
+    "Label",
+    "ErrorBar",
 ]

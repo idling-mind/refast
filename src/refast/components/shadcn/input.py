@@ -263,6 +263,10 @@ class Radio(Component):
         self.name = name
         self.value = value
         self.label = label
+        self.checked = checked
+        self.disabled = disabled
+        self.on_change = on_change
+
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,

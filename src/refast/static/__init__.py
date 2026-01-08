@@ -1,1 +1,1 @@
-"""Static assets for Refast."""
+# Static assets directory for refast-client bundle

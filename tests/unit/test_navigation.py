@@ -1,6 +1,5 @@
 """Tests for navigation components (Stage 9)."""
 
-
 from refast.components.shadcn.navigation import (
     Breadcrumb,
     BreadcrumbItem,

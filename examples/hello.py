@@ -4,7 +4,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
-from refast.components import Button, Container, Text, ThemeSwitcher, ResizablePanel, ResizableHandle, ResizablePanelGroup
+from refast.components import (
+    Button,
+    Container,
+    Text,
+    ThemeSwitcher,
+    ResizablePanel,
+    ResizableHandle,
+    ResizablePanelGroup,
+)
 
 ui = RefastApp(title="Hello World App")
 
@@ -93,7 +101,7 @@ def hello_world_page(ctx: Context):
                     )
                 ],
                 style={"width": "100%", "maxWidth": "56rem"},
-            )
+            ),
         ],
         class_name="flex flex-col gap-6 items-center justify-center bg-background",
         style={"minHeight": "100vh"},

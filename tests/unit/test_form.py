@@ -1,6 +1,5 @@
 """Tests for form components."""
 
-
 from refast.components.shadcn.form import Form, FormField, Label
 from refast.components.shadcn.input import Input
 

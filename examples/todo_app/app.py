@@ -69,6 +69,7 @@ def get_todos(ctx: Context) -> list[Todo]:
     todos_data = ctx.store.local.get("todos", [])
     return [Todo.from_dict(t) for t in todos_data]
 
+
 async def update_new_todo_text(ctx: Context):
     """Update the new todo text in state."""
     print(ctx.event_data)
@@ -220,7 +221,9 @@ def home(ctx: Context):
                                                         placeholder="What needs to be done?",
                                                         value=ctx.state.get("new_todo_text", ""),
                                                         debounce=300,
-                                                        on_change=ctx.callback(update_new_todo_text),
+                                                        on_change=ctx.callback(
+                                                            update_new_todo_text
+                                                        ),
                                                     )
                                                 ],
                                             ),

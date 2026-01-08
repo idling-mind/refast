@@ -9,7 +9,6 @@ This example demonstrates:
 - Rename and delete dialogs
 """
 
-
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
@@ -400,7 +399,10 @@ def render_file_row(item: dict, ctx: Context, selected_items: list):
                                 Text(item["name"], class_name="font-medium"),
                             ],
                         ),
-                        Text(item.get("size", "-"), class_name="w-24 text-sm text-muted-foreground p-2")
+                        Text(
+                            item.get("size", "-"),
+                            class_name="w-24 text-sm text-muted-foreground p-2",
+                        )
                         if not is_folder
                         else Container(class_name="w-24"),
                         Text(

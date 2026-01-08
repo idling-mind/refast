@@ -228,9 +228,7 @@ def render_review_card(review: dict):
                                                                 review["author"],
                                                                 class_name="font-medium",
                                                             ),
-                                                            Badge(
-                                                                "Verified", variant="success"
-                                                            )
+                                                            Badge("Verified", variant="success")
                                                             if review["verified"]
                                                             else "",
                                                         ],

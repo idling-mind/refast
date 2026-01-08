@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
 // Import Tailwind CSS and shadcn styles
@@ -11,6 +12,7 @@ import { RefastApp } from './App';
 // Components
 export { ComponentRenderer } from './components/ComponentRenderer';
 export { componentRegistry } from './components/registry';
+import { componentRegistry } from './components/registry';
 
 // Base components
 export { Container, Text, Fragment } from './components/base';
@@ -139,3 +141,51 @@ if (document.readyState === 'loading') {
 } else {
   initializeRefast();
 }
+
+// =============================================================================
+// Extension Support: Expose RefastClient on window for third-party extensions
+// =============================================================================
+
+/**
+ * RefastClient global object for extension development.
+ * 
+ * Extensions can use this to:
+ * - Register custom React components
+ * - Access React and ReactDOM (avoid bundling duplicates)
+ * - Use utility functions
+ * 
+ * Example usage in an extension's UMD bundle:
+ * ```javascript
+ * (function() {
+ *   const { componentRegistry, React } = window.RefastClient;
+ *   
+ *   const MyComponent = (props) => {
+ *     return React.createElement('div', { className: props.className }, props.children);
+ *   };
+ *   
+ *   componentRegistry.register('MyComponent', MyComponent);
+ * })();
+ * ```
+ */
+declare global {
+  interface Window {
+    RefastClient: {
+      /** Component registry for registering custom React components */
+      componentRegistry: typeof componentRegistry;
+      /** React library - use this instead of bundling your own */
+      React: typeof React;
+      /** ReactDOM library - use this instead of bundling your own */
+      ReactDOM: typeof ReactDOM;
+      /** Version of the Refast client */
+      version: string;
+    };
+  }
+}
+
+// Expose RefastClient globally for extensions
+window.RefastClient = {
+  componentRegistry,
+  React,
+  ReactDOM,
+  version: '0.1.0',
+};

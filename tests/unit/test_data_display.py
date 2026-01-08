@@ -1,6 +1,5 @@
 """Tests for data display components."""
 
-
 from refast.components.base import Text
 from refast.components.shadcn.data_display import (
     Accordion,
@@ -206,8 +205,8 @@ class TestAccordion:
                 value="item-1",
                 children=[
                     AccordionTrigger(children=["Trigger"]),
-                    AccordionContent(children=["Content"])
-                ]
+                    AccordionContent(children=["Content"]),
+                ],
             )
         ]
         accordion = Accordion(children=children)

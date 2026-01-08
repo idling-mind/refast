@@ -1,6 +1,5 @@
 """Tests for control components (Stage 9)."""
 
-
 from refast.components.shadcn.controls import (
     Calendar,
     DatePicker,

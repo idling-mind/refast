@@ -1,6 +1,5 @@
 """Tests for input components."""
 
-
 from refast.components.shadcn.input import Checkbox, Input, Radio, Select, Textarea
 
 

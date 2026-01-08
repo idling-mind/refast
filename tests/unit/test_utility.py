@@ -1,6 +1,5 @@
 """Tests for utility components (Stage 9)."""
 
-
 from refast.components.shadcn.utility import (
     AspectRatio,
     Carousel,

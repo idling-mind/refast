@@ -1,13 +1,14 @@
 """Radial chart components."""
 
 from typing import Any
+
 from refast.components.base import Component
 
 
 class RadialBarChart(Component):
     """
     Radial bar chart component.
-    
+
     Example:
         ```python
         RadialBarChart(
@@ -18,9 +19,9 @@ class RadialBarChart(Component):
         )
         ```
     """
-    
+
     component_type: str = "RadialBarChart"
-    
+
     def __init__(
         self,
         *children: Component,
@@ -46,14 +47,14 @@ class RadialBarChart(Component):
         self.bar_size = bar_size
         self.start_angle = start_angle
         self.end_angle = end_angle
-        
+
         self.children = list(children)
         if kw_children:
             if isinstance(kw_children, list):
                 self.children.extend(kw_children)
             else:
                 self.children.append(kw_children)
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -76,7 +77,7 @@ class RadialBarChart(Component):
 class RadialBar(Component):
     """
     Radial bar component for RadialBarChart.
-    
+
     Args:
         data_key: Key from data
         min_angle: Minimum angle
@@ -84,9 +85,9 @@ class RadialBar(Component):
         label: Label configuration
         corner_radius: Corner radius
     """
-    
+
     component_type: str = "RadialBar"
-    
+
     def __init__(
         self,
         data_key: str,
@@ -105,7 +106,7 @@ class RadialBar(Component):
         self.corner_radius = corner_radius
         self.fill = fill
         self.props = kwargs
-    
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

@@ -1,6 +1,5 @@
 """Tests for feedback components."""
 
-
 from refast.components.shadcn.feedback import (
     Alert,
     Dialog,

@@ -1,6 +1,5 @@
 """Tests for overlay components (Stage 9)."""
 
-
 from refast.components.shadcn.button import Button
 from refast.components.shadcn.overlay import (
     AlertDialog,

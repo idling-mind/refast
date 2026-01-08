@@ -1143,10 +1143,10 @@ class CommandInput(Component):
             "className": self.class_name,
             **self._serialize_extra_props(),
         }
-        
+
         if self.value is not None:
             props["value"] = self.value
-            
+
         return {
             "type": self.component_type,
             "id": self.id,

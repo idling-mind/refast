@@ -498,7 +498,8 @@ def home(ctx: Context):
                                                 align="center",
                                                 children=[
                                                     Text(
-                                                        "Advanced Options", class_name="font-medium"
+                                                        "Advanced Options",
+                                                        class_name="font-medium",
                                                     ),
                                                     CollapsibleTrigger(
                                                         children=Button(
@@ -538,33 +539,22 @@ def home(ctx: Context):
                                                 children=[
                                                     Column(
                                                         gap=2,
-                                                        children=[
-                                                            Text(f"Item {i}") for i in range(1, 21)
-                                                        ],
+                                                        children=[Text(f"Item {i}") for i in range(1, 21)],
                                                     ),
                                                 ],
                                             ),
                                         ],
-                                    ),  ],
                                     ),
                                     Separator(),
                                     # Aspect Ratio
-                                    Column(
-                                        gap=2,
-                                            AspectRatio(
-                                                ratio=16 / 9,
-                                                class_name="bg-muted rounded-md",
-                                                children=[
-                                                    Container(
-                                                        class_name="flex items-center justify-center",
-                                                        style={"height": "100%"},
-                                                        children=[
-                                                            Text("16:9 Content Area"),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),      ),
-                                                ],
+                                    AspectRatio(
+                                        ratio=16 / 9,
+                                        class_name="bg-muted rounded-md",
+                                        children=[
+                                            Container(
+                                                class_name="flex items-center justify-center",
+                                                style={"height": "100%"},
+                                                children=[Text("16:9 Content Area")],
                                             ),
                                         ],
                                     ),

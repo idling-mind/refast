@@ -40,10 +40,21 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
     for (const [key, value] of Object.entries(props)) {
       if (isCallbackRef(value)) {
         result[key] = createCallbackHandler(value, eventManager);
+      } else if (isFormatterString(key, value)) {
+        // Convert formatter strings to functions (e.g., tickFormatter)
+        // Also ensure the key is in camelCase for Recharts
+        const camelKey = snakeToCamel(key);
+        result[camelKey] = createFormatterFunction(value as string);
+        // Remove the snake_case version if different
+        if (camelKey !== key) {
+          delete result[key];
+        }
       }
     }
 
-    return result;
+    // Remove null values - Recharts expects undefined, not null
+    // for optional props like 'data' to use defaults properly
+    return removeNullValues(result);
   }, [props, id, eventManager]);
 
   // Render children
@@ -98,6 +109,64 @@ function isCallbackRef(value: unknown): value is CallbackRef {
     value !== null &&
     'callbackId' in value
   );
+}
+
+/**
+ * Check if a prop key/value pair is a formatter string that needs conversion.
+ * Checks for both camelCase and snake_case versions.
+ */
+function isFormatterString(key: string, value: unknown): boolean {
+  const formatterProps = [
+    'tickFormatter', 'tick_formatter',
+    'labelFormatter', 'label_formatter', 
+    'formatter'
+  ];
+  return formatterProps.includes(key) && typeof value === 'string';
+}
+
+/**
+ * Convert snake_case to camelCase.
+ */
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+/**
+ * Remove null values from props object.
+ * Recharts expects undefined (prop not present) rather than null
+ * for optional props to properly use their default values.
+ */
+function removeNullValues(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== null) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+/**
+ * Create a formatter function from a string expression.
+ * The expression can use 'value' and 'index' variables.
+ * For safety, wraps in try-catch to handle null/undefined values.
+ */
+function createFormatterFunction(expression: string): (value: unknown, index?: number) => string {
+  return (value: unknown, index?: number): string => {
+    try {
+      // Handle null/undefined values gracefully
+      if (value === null || value === undefined) {
+        return '';
+      }
+      // Create a function that evaluates the expression
+      // eslint-disable-next-line no-new-func
+      const fn = new Function('value', 'index', `return ${expression}`);
+      return fn(value, index);
+    } catch {
+      // If expression evaluation fails, return value as string
+      return String(value);
+    }
+  };
 }
 
 /**

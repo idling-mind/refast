@@ -15,13 +15,13 @@ export interface AspectRatioProps extends BaseProps, ChildrenProp {
     ratio?: number;
 }
 export declare function AspectRatio({ ratio, className, children, ...props }: AspectRatioProps): import("react/jsx-runtime").JSX.Element;
-export interface ScrollAreaProps {
-    className?: string;
+export interface ScrollAreaProps extends BaseProps {
     children?: React.ReactNode;
     type?: 'auto' | 'always' | 'scroll' | 'hover';
     scrollHideDelay?: number;
+    dir?: 'ltr' | 'rtl';
 }
-export declare function ScrollArea({ type, scrollHideDelay, className, children, }: ScrollAreaProps): import("react/jsx-runtime").JSX.Element;
+export declare function ScrollArea({ type, scrollHideDelay, className, children, ...props }: ScrollAreaProps): import("react/jsx-runtime").JSX.Element;
 export interface CollapsibleProps extends BaseProps, ChildrenProp {
     open?: boolean;
     defaultOpen?: boolean;

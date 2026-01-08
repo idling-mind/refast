@@ -68,11 +68,11 @@ export function AspectRatio({
 // ScrollArea
 // ============================================================================
 
-export interface ScrollAreaProps {
-  className?: string;
+export interface ScrollAreaProps extends BaseProps {
   children?: React.ReactNode;
   type?: 'auto' | 'always' | 'scroll' | 'hover';
   scrollHideDelay?: number;
+  dir?: 'ltr' | 'rtl';
 }
 
 export function ScrollArea({
@@ -80,12 +80,14 @@ export function ScrollArea({
   scrollHideDelay = 600,
   className,
   children,
+  ...props
 }: ScrollAreaProps) {
   return (
     <ScrollAreaPrimitive.Root
       type={type}
       scrollHideDelay={scrollHideDelay}
       className={cn('relative overflow-hidden', className)}
+      {...props}
     >
       <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
         {children}

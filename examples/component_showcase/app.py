@@ -107,16 +107,81 @@ async def on_toggle_change(ctx: Context):
     msg = f"Active formats: {', '.join(active)}" if active else "No formats active"
     await ctx.show_toast(msg, variant="info")
 
+
 async def dropdown_select(ctx: Context):
     """Handle dropdown selection."""
     selection = ctx.event_data.get("value", "")
     await ctx.show_toast(f"Selected: {selection}", variant="info")
 
-async def on_page_change(ctx: Context):
+
+async def on_page_change(ctx: Context, page: int):
     """Handle pagination."""
-    page = ctx.event_data.get("page", 1)
+    print(f"Page changed to {page}")
     ctx.state.set("current_page", page)
-    await ctx.update_text("page-display", f"Page {page}")
+    # Re-render pagination to update active state
+    await ctx.replace("pagination", render_pagination(ctx, page))
+
+
+def render_pagination(ctx: Context, current_page: int):
+    """Render the pagination component."""
+    return Pagination(
+        id="pagination",
+        children=[
+            PaginationContent(
+                children=[
+                    PaginationItem(
+                        children=[
+                            PaginationPrevious(
+                                href="#",
+                                on_click=ctx.callback(
+                                    on_page_change, page=current_page - 1 if current_page > 1 else 1
+                                ),
+                            )
+                        ]
+                    ),
+                    PaginationItem(
+                        children=[
+                            PaginationLink(
+                                label="1",
+                                href="#",
+                                active=(current_page == 1),
+                                on_click=ctx.callback(on_page_change, page=1),
+                            )
+                        ]
+                    ),
+                    PaginationItem(
+                        children=[
+                            PaginationLink(
+                                label="2",
+                                href="#",
+                                active=(current_page == 2),
+                                on_click=ctx.callback(on_page_change, page=2),
+                            )
+                        ]
+                    ),
+                    PaginationItem(
+                        children=[
+                            PaginationLink(
+                                label="3",
+                                href="#",
+                                active=(current_page == 3),
+                                on_click=ctx.callback(on_page_change, page=3),
+                            )
+                        ]
+                    ),
+                    PaginationItem(children=[PaginationEllipsis()]),
+                    PaginationItem(
+                        children=[
+                            PaginationNext(
+                                href="#",
+                                on_click=ctx.callback(on_page_change, page=current_page + 1),
+                            )
+                        ]
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 async def on_confirm_delete(ctx: Context):
@@ -321,7 +386,7 @@ def home(ctx: Context):
                                                 as_child=True,
                                                 children=Button(
                                                     label="Delete Item", variant="destructive"
-                                                )
+                                                ),
                                             ),
                                             AlertDialogContent(
                                                 children=[
@@ -357,7 +422,7 @@ def home(ctx: Context):
                                                 as_child=True,
                                                 children=Button(
                                                     label="Open Settings", variant="outline"
-                                                )
+                                                ),
                                             ),
                                             SheetContent(
                                                 side="right",
@@ -397,7 +462,7 @@ def home(ctx: Context):
                                                 as_child=True,
                                                 children=Button(
                                                     label="Quick Actions", variant="secondary"
-                                                )
+                                                ),
                                             ),
                                             PopoverContent(
                                                 children=[
@@ -539,7 +604,9 @@ def home(ctx: Context):
                                                 children=[
                                                     Column(
                                                         gap=2,
-                                                        children=[Text(f"Item {i}") for i in range(1, 21)],
+                                                        children=[
+                                                            Text(f"Item {i}") for i in range(1, 21)
+                                                        ],
                                                     ),
                                                 ],
                                             ),
@@ -569,47 +636,7 @@ def home(ctx: Context):
                 justify="center",
                 class_name="mt-8",
                 children=[
-                    Pagination(
-                        children=[
-                            PaginationContent(
-                                children=[
-                                    PaginationItem(children=[PaginationPrevious(href="#")]),
-                                    PaginationItem(
-                                        children=[
-                                            PaginationLink(
-                                                label="1",
-                                                href="#",
-                                                page=1,
-                                                is_active=(current_page == 1),
-                                            )
-                                        ]
-                                    ),
-                                    PaginationItem(
-                                        children=[
-                                            PaginationLink(
-                                                label="2",
-                                                href="#",
-                                                page=2,
-                                                is_active=(current_page == 2),
-                                            )
-                                        ]
-                                    ),
-                                    PaginationItem(
-                                        children=[
-                                            PaginationLink(
-                                                label="3",
-                                                href="#",
-                                                page=3,
-                                                is_active=(current_page == 3),
-                                            )
-                                        ]
-                                    ),
-                                    PaginationItem(children=[PaginationEllipsis()]),
-                                    PaginationItem(children=[PaginationNext(href="#")]),
-                                ],
-                            ),
-                        ],
-                    ),
+                    render_pagination(ctx, current_page),
                 ],
             ),
         ],

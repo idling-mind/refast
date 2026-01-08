@@ -107,9 +107,8 @@ def home(ctx: Context):
                 "A collection of beautiful charts built with Recharts and shadcn/ui.",
                 class_name="mb-8 text-muted-foreground",
             ),
-            Grid(
-                columns=3,
-                gap=8,
+            Container(
+                class_name="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-8",
                 children=[
                     # Area Chart Section
                     _render_area_chart_card(),

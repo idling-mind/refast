@@ -9,14 +9,14 @@ export default {
     { pattern: /^(w|h)-(full|screen|auto|min|max|fit)$/ },
     { pattern: /^max-w-(xs|sm|md|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|full|min|max|fit|prose|screen-(sm|md|lg|xl|2xl))$/ },
     
-    { pattern: /^(block|inline|flex|grid|table|hidden)$/ }, // Display
-    { pattern: /^gap(-[xy])?-(0|1|2|3|4|5|6|8)$/ }, // Limited Gap
+    { pattern: /^(block|inline|flex|grid|table|hidden)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] }, // Display
+    { pattern: /^gap(-[xy])?-(0|1|2|3|4|5|6|8)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] }, // Limited Gap
     
     // Layout Alignment & Flex/Grid Behavior
-    { pattern: /^flex-(row|col|row-reverse|col-reverse|wrap|nowrap|1|auto|none)$/ },
-    { pattern: /^grid-cols-(1|2|3|4|5|6|12|none)$/ },
+    { pattern: /^flex-(row|col|row-reverse|col-reverse|wrap|nowrap|1|auto|none)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] },
+    { pattern: /^grid-cols-(1|2|3|4|5|6|12|none)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] },
     { pattern: /^(justify|items|content|self)-(start|end|center|between|around|evenly|stretch|baseline)$/ },
-    { pattern: /^(col|row)-span-(1|2|3|4|6|12|full)$/ },
+    { pattern: /^(col|row)-span-(1|2|3|4|6|12|full)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] },
     { pattern: /^(order)-(first|last|none)$/ },
     { pattern: /^(shrink|grow)(-0)?$/ },
     

@@ -49,6 +49,19 @@ import {
   ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
 
+// Import chart components
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent,
+  ChartLegend, ChartLegendContent
+} from './charts/chart';
+import { AreaChart, Area } from './charts/area-chart';
+import { BarChart, Bar } from './charts/bar-chart';
+import { LineChart, Line } from './charts/line-chart';
+import { PieChart, Pie, PieLabel, Sector } from './charts/pie-chart';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from './charts/radar-chart';
+import { RadialBarChart, RadialBar } from './charts/radial-chart';
+import { XAxis, YAxis, CartesianGrid, ReferenceLine, Brush } from './charts/utils';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ComponentType = React.ComponentType<any>;
 
@@ -285,4 +298,33 @@ componentRegistry.register('ResizablePanelGroup', ResizablePanelGroup);
 componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
 componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
+
+// Register chart components (Stage 10)
+componentRegistry.register('ChartContainer', ChartContainer);
+componentRegistry.register('ChartTooltip', ChartTooltip);
+componentRegistry.register('ChartTooltipContent', ChartTooltipContent);
+componentRegistry.register('ChartLegend', ChartLegend);
+componentRegistry.register('ChartLegendContent', ChartLegendContent);
+componentRegistry.register('AreaChart', AreaChart);
+componentRegistry.register('Area', Area);
+componentRegistry.register('XAxis', XAxis);
+componentRegistry.register('YAxis', YAxis);
+componentRegistry.register('CartesianGrid', CartesianGrid);
+componentRegistry.register('ReferenceLine', ReferenceLine);
+componentRegistry.register('Brush', Brush);
+componentRegistry.register('BarChart', BarChart);
+componentRegistry.register('Bar', Bar);
+componentRegistry.register('LineChart', LineChart);
+componentRegistry.register('Line', Line);
+componentRegistry.register('PieChart', PieChart);
+componentRegistry.register('Pie', Pie);
+componentRegistry.register('PieLabel', PieLabel);
+componentRegistry.register('Sector', Sector);
+componentRegistry.register('RadarChart', RadarChart);
+componentRegistry.register('Radar', Radar);
+componentRegistry.register('PolarGrid', PolarGrid);
+componentRegistry.register('PolarAngleAxis', PolarAngleAxis);
+componentRegistry.register('PolarRadiusAxis', PolarRadiusAxis);
+componentRegistry.register('RadialBarChart', RadialBarChart);
+componentRegistry.register('RadialBar', RadialBar);
 

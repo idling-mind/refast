@@ -69,7 +69,7 @@ export function ChartContainer({
   const minHeightNum = React.useMemo(() => {
     if (typeof minHeight === 'number') return minHeight;
     const parsed = parseInt(minHeight as string);
-    return isNaN(parsed) ? 0 : parsed;
+    return isNaN(parsed) ? 200 : parsed;
   }, [minHeight]);
 
   return (
@@ -78,11 +78,14 @@ export function ChartContainer({
         className={cn('w-full', className)}
         style={{
           ...style,
-          minHeight,
           aspectRatio: aspectRatio ? `${aspectRatio}` : undefined,
         }}
       >
-        <ResponsiveContainer width="100%" height="100%" minHeight={minHeightNum}>
+        <ResponsiveContainer 
+          width="100%" 
+          height={aspectRatio ? "100%" : minHeightNum}
+          minWidth={0}
+        >
           {children as React.ReactElement}
         </ResponsiveContainer>
       </div>

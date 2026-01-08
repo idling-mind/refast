@@ -14,7 +14,10 @@ from refast.components import (
     Heading,
     Paragraph,
     Row,
+    TabItem,
+    Tabs,
     Text,
+    ThemeSwitcher,
 )
 from refast.components.shadcn.charts import (
     Area,
@@ -96,19 +99,47 @@ RADIAL_DATA = [
     {"activity": "activity 3", "value": 30, "fill": "var(--color-firefox)"},
 ]
 
+async def change_grid_columns(ctx: Context):
+    ctx.state["grid_columns"] = ctx.event_data["value"]
+    await ctx.refresh()
 
 @ui.page("/")
 def home(ctx: Context):
     return Container(
         class_name="min-h-screen p-8 bg-background",
         children=[
-            Heading("Refast Charts Showcase", class_name="mb-4 text-3xl font-bold"),
-            Paragraph(
-                "A collection of beautiful charts built with Recharts and shadcn/ui.",
-                class_name="mb-8 text-muted-foreground",
+            Container(
+                class_name="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4",
+                children=[
+                    Column(
+                        children=[
+                            Heading("Charts Showcase"),
+                            Paragraph(
+                                "A showcase of various chart types using Refast and shadcn/ui components.",
+                                class_name="mb-6 text-muted-foreground",
+                            ),
+                        ],
+                    ),
+                    Row(
+                        [
+                            ThemeSwitcher(),
+                            Tabs(
+                                [
+                                    TabItem(label="1 Column", value="1"),
+                                    TabItem(label="2 Column", value="2"),
+                                    TabItem(label="3 Column", value="3"),
+                                ],
+                                on_value_change=ctx.callback(change_grid_columns),
+                                value=ctx.state.get("grid_columns", "3"),
+                            ),
+                        ],
+                        gap=4,
+                    ),
+                ],
             ),
             Container(
-                class_name="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-8",
+                # class_name="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-8",
+                class_name=f"grid grid-cols-{ctx.state.get('grid_columns', '3')} gap-8",
                 children=[
                     # Area Chart Section
                     _render_area_chart_card(),
@@ -227,7 +258,9 @@ def _render_bar_chart_card():
 def _render_line_chart_card():
     return Card(
         children=[
-            CardHeader(children=[CardTitle("Line Chart"), CardDescription("Simple trend analysis")]),
+            CardHeader(
+                children=[CardTitle("Line Chart"), CardDescription("Simple trend analysis")]
+            ),
             CardContent(
                 children=[
                     ChartContainer(
@@ -310,7 +343,10 @@ def _render_radar_chart_card():
     return Card(
         children=[
             CardHeader(
-                children=[CardTitle("Radar Chart"), CardDescription("Performance metrics comparison")]
+                children=[
+                    CardTitle("Radar Chart"),
+                    CardDescription("Performance metrics comparison"),
+                ]
             ),
             CardContent(
                 children=[
@@ -347,7 +383,10 @@ def _render_radial_chart_card():
     return Card(
         children=[
             CardHeader(
-                children=[CardTitle("Radial Bar Chart"), CardDescription("Activity progress overview")]
+                children=[
+                    CardTitle("Radial Bar Chart"),
+                    CardDescription("Activity progress overview"),
+                ]
             ),
             CardContent(
                 children=[

@@ -108,7 +108,8 @@ def home(ctx: Context):
                 class_name="mb-8 text-muted-foreground",
             ),
             Grid(
-                class_name="grid-cols-1 md:grid-cols-2 gap-8",
+                columns=3,
+                gap=8,
                 children=[
                     # Area Chart Section
                     _render_area_chart_card(),

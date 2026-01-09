@@ -148,8 +148,13 @@ interface ProgressProps {
   value?: number;
   max?: number;
   showValue?: boolean;
+  foregroundColor?: string;
+  trackColor?: string;
+  striped?: 'static' | 'animated' | null;
   'data-refast-id'?: string;
 }
+
+const THEME_COLORS = ['primary', 'secondary', 'destructive', 'muted', 'accent', 'popover', 'card', 'background', 'foreground'];
 
 /**
  * Progress component - progress bar.
@@ -160,9 +165,28 @@ export function Progress({
   value = 0,
   max = 100,
   showValue = false,
+  foregroundColor,
+  trackColor,
+  striped,
   'data-refast-id': dataRefastId,
 }: ProgressProps): React.ReactElement {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+
+  const getColors = (color: string | undefined, defaultClass: string) => {
+    if (!color) return { className: defaultClass, style: {} };
+    if (THEME_COLORS.includes(color)) return { className: `bg-${color}`, style: {} };
+    return { className: '', style: { backgroundColor: color } };
+  };
+
+  const trackProps = getColors(trackColor, 'bg-secondary');
+  const indicatorProps = getColors(foregroundColor, 'bg-primary');
+
+  const stripeStyle = striped ? {
+    backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)',
+    backgroundSize: '1rem 1rem'
+  } : {};
+  
+  const animatedClass = striped === 'animated' ? 'animate-stripes' : '';
 
   return (
     <div className={cn('relative', className)} data-refast-id={dataRefastId}>
@@ -172,11 +196,12 @@ export function Progress({
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={max}
-        className="relative h-4 w-full overflow-hidden rounded-full bg-secondary"
+        className={cn("relative h-4 w-full overflow-hidden rounded-full", trackProps.className)}
+        style={trackProps.style}
       >
         <div
-          className="h-full bg-primary transition-all"
-          style={{ width: `${percentage}%` }}
+          className={cn("h-full transition-all flex-1", indicatorProps.className, animatedClass)}
+          style={{ width: `${percentage}%`, ...indicatorProps.style, ...stripeStyle }}
         />
       </div>
       {showValue && (

@@ -48,12 +48,15 @@ interface ProgressProps {
     value?: number;
     max?: number;
     showValue?: boolean;
+    foregroundColor?: string;
+    trackColor?: string;
+    striped?: 'static' | 'animated' | null;
     'data-refast-id'?: string;
 }
 /**
  * Progress component - progress bar.
  */
-export declare function Progress({ id, className, value, max, showValue, 'data-refast-id': dataRefastId, }: ProgressProps): React.ReactElement;
+export declare function Progress({ id, className, value, max, showValue, foregroundColor, trackColor, striped, 'data-refast-id': dataRefastId, }: ProgressProps): React.ReactElement;
 interface SpinnerProps {
     id?: string;
     className?: string;

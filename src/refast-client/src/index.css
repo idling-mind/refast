@@ -88,3 +88,11 @@ body {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+@keyframes progress-bar-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}
+.animate-stripes {
+  animation: progress-bar-stripes 1s linear infinite;
+}

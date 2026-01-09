@@ -227,6 +227,9 @@ class Progress(Component):
         max: int = 100,
         label: str | None = None,
         show_value: bool = False,
+        foreground_color: str | None = None,
+        track_color: str | None = None,
+        striped: str | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -236,6 +239,9 @@ class Progress(Component):
         self.max = max
         self.label = label
         self.show_value = show_value
+        self.foreground_color = foreground_color
+        self.track_color = track_color
+        self.striped = striped
 
     def render(self) -> dict[str, Any]:
         return {
@@ -246,6 +252,9 @@ class Progress(Component):
                 "max": self.max,
                 "label": self.label,
                 "showValue": self.show_value,
+                "foregroundColor": self.foreground_color,
+                "trackColor": self.track_color,
+                "striped": self.striped,
                 "className": self.class_name,
                 **self._serialize_extra_props(),
             },

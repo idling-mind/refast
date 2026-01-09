@@ -158,6 +158,19 @@ class TestProgress:
         rendered = progress.render()
         assert rendered["props"]["showValue"] is True
 
+    def test_progress_custom_styles(self):
+        """Test Progress with custom styles."""
+        progress = Progress(
+            value=60,
+            foreground_color="primary",
+            track_color="secondary",
+            striped="animated"
+        )
+        rendered = progress.render()
+        assert rendered["props"]["foregroundColor"] == "primary"
+        assert rendered["props"]["trackColor"] == "secondary"
+        assert rendered["props"]["striped"] == "animated"
+
 
 class TestSkeleton:
     """Tests for Skeleton component."""

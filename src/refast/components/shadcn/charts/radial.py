@@ -64,11 +64,11 @@ class RadialBarChart(Component):
                 "margin": self.margin,
                 "cx": self.cx,
                 "cy": self.cy,
-                "innerRadius": self.inner_radius,
-                "outerRadius": self.outer_radius,
-                "barSize": self.bar_size,
-                "startAngle": self.start_angle,
-                "endAngle": self.end_angle,
+                "inner_radius": self.inner_radius,
+                "outer_radius": self.outer_radius,
+                "bar_size": self.bar_size,
+                "start_angle": self.start_angle,
+                "end_angle": self.end_angle,
             },
             "children": [c.render() for c in self.children],
         }
@@ -112,7 +112,7 @@ class RadialBar(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "dataKey": self.data_key,
+                "data_key": self.data_key,
                 "minAngle": self.min_angle,
                 "background": self.background,
                 "label": self.label,
@@ -121,3 +121,5 @@ class RadialBar(Component):
                 **self.props,
             },
         }
+
+

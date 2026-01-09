@@ -113,7 +113,7 @@ class TestWebSocketMessages:
         assert response.status_code == 200
 
         data = extract_initial_data(response.text)
-        on_click = data["props"]["onClick"]
+        on_click = data["props"]["on_click"]
 
         # Verify callback structure
         assert "callbackId" in on_click

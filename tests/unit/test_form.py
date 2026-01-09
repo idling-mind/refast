@@ -26,7 +26,7 @@ class TestForm:
         cb = MockCallback()
         form = Form(on_submit=cb)
         rendered = form.render()
-        assert rendered["props"]["onSubmit"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_submit"] == {"callbackId": "cb-123"}
 
 
 class TestFormField:
@@ -72,10 +72,13 @@ class TestLabel:
         """Test Label with htmlFor prop."""
         label = Label(text="Email", html_for="email-input")
         rendered = label.render()
-        assert rendered["props"]["htmlFor"] == "email-input"
+        assert rendered["props"]["html_for"] == "email-input"
 
     def test_label_required(self):
         """Test Label required indicator."""
         label = Label(text="Name", required=True)
         rendered = label.render()
         assert rendered["props"]["required"] is True
+
+
+

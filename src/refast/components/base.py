@@ -74,22 +74,21 @@ class Component(ABC):
         result = {}
         for key, value in self.extra_props.items():
             if hasattr(value, "serialize") and callable(value.serialize):
-                # Convert snake_case to camelCase for event handlers
-                camel_key = self._to_camel_case(key)
-                result[camel_key] = value.serialize()
+                # Keep snake_case - frontend will convert to camelCase
+                result[key] = value.serialize()
             else:
                 result[key] = value
 
         if self.style:
             result["style"] = self.style
         if self.parent_style:
-            result["parentStyle"] = self.parent_style
+            result["parent_style"] = self.parent_style
 
         return result
 
     @staticmethod
     def _to_camel_case(snake_str: str) -> str:
-        """Convert snake_case to camelCase."""
+        """Convert snake_case to camelCase. Deprecated - frontend handles conversion."""
         components = snake_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
@@ -143,7 +142,7 @@ class Container(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 "style": self.style,
                 **self._serialize_extra_props(),
             },
@@ -179,7 +178,7 @@ class Text(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 "style": self.style,
                 **self._serialize_extra_props(),
             },

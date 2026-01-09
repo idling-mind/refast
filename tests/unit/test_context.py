@@ -235,3 +235,6 @@ class TestContextWithoutWebSocket:
         ctx = Context()
         result = await ctx.broadcast("custom:event", {"data": "value"})
         assert result == 0
+
+
+

@@ -90,7 +90,7 @@ class ReactComponent(Component):
             def __init__(self, data: list, on_click: Callback = None):
                 super().__init__(
                     props={"data": data},
-                    events={"onClick": on_click}
+                    events={"on_click": on_click}
                 )
         ```
     """
@@ -107,14 +107,16 @@ class ReactComponent(Component):
         self._events = events or {}
 
     def render(self) -> dict[str, Any]:
-        # Serialize events
+        # Convert camelCase event keys to snake_case and serialize
         serialized_events = {}
         for event_name, callback in self._events.items():
             if callback is not None:
+                # Convert camelCase to snake_case (e.g., onClick -> on_click)
+                snake_name = self._camel_to_snake(event_name)
                 if hasattr(callback, "serialize"):
-                    serialized_events[event_name] = callback.serialize()
+                    serialized_events[snake_name] = callback.serialize()
                 else:
-                    serialized_events[event_name] = callback
+                    serialized_events[snake_name] = callback
 
         return {
             "type": self.component_type,
@@ -122,7 +124,15 @@ class ReactComponent(Component):
             "props": {
                 **self._props,
                 **serialized_events,
-                "className": self.class_name,
+                "class_name": self.class_name,
             },
             "children": self._render_children(),
         }
+
+    @staticmethod
+    def _camel_to_snake(name: str) -> str:
+        """Convert camelCase to snake_case."""
+        import re
+        # Insert underscore before uppercase letters and lowercase them
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()

@@ -43,17 +43,17 @@ class Switch(Component):
         props = {
             "disabled": self.disabled,
             "name": self.name,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_change:
-            props["onCheckedChange"] = self.on_change.serialize()
+            props["on_checked_change"] = self.on_change.serialize()
 
         if self.checked is not None:
             props["checked"] = self.checked
         if self.default_checked:
-            props["defaultChecked"] = self.default_checked
+            props["default_checked"] = self.default_checked
 
         return {
             "type": self.component_type,
@@ -109,21 +109,21 @@ class Slider(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultValue": self.default_value,
+            "default_value": self.default_value,
             "min": self.min,
             "max": self.max,
             "step": self.step,
             "disabled": self.disabled,
             "orientation": self.orientation,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_value_change:
-            props["onValueChange"] = self.on_value_change.serialize()
+            props["on_value_change"] = self.on_value_change.serialize()
 
         if self.on_value_commit:
-            props["onValueCommit"] = self.on_value_commit.serialize()
+            props["on_value_commit"] = self.on_value_commit.serialize()
 
         if self.value is not None:
             props["value"] = self.value
@@ -184,16 +184,16 @@ class Toggle(Component):
             "disabled": self.disabled,
             "variant": self.variant,
             "size": self.size,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.pressed is not None:
             props["pressed"] = self.pressed
         if self.default_pressed:
-            props["defaultPressed"] = self.default_pressed
+            props["default_pressed"] = self.default_pressed
         if self.on_pressed_change:
-            props["onPressedChange"] = self.on_pressed_change.serialize()
+            props["on_pressed_change"] = self.on_pressed_change.serialize()
 
         return {
             "type": self.component_type,
@@ -256,18 +256,18 @@ class ToggleGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "type": self.toggle_type,
-            "defaultValue": self._convert_dict_to_list(self.default_value),
+            "default_value": self._convert_dict_to_list(self.default_value),
             "disabled": self.disabled,
             "variant": self.variant,
             "size": self.size,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.value is not None:
             props["value"] = self._convert_dict_to_list(self.value)
         if self.on_value_change:
-            props["onValueChange"] = self.on_value_change.serialize()
+            props["on_value_change"] = self.on_value_change.serialize()
 
         return {
             "type": self.component_type,
@@ -315,7 +315,7 @@ class ToggleGroupItem(Component):
                 "icon": self.icon,
                 "value": self.value,
                 "disabled": self.disabled,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -379,12 +379,12 @@ class Calendar(Component):
             "props": {
                 "mode": self.mode,
                 "selected": self._serialize_date(self.selected),
-                "defaultMonth": self._serialize_date(self.default_month),
+                "default_month": self._serialize_date(self.default_month),
                 "disabled": self.disabled,
-                "showOutsideDays": self.show_outside_days,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
-                "onMonthChange": self.on_month_change.serialize() if self.on_month_change else None,
-                "className": self.class_name,
+                "show_outside_days": self.show_outside_days,
+                "on_select": self.on_select.serialize() if self.on_select else None,
+                "on_month_change": self.on_month_change.serialize() if self.on_month_change else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -434,8 +434,8 @@ class DatePicker(Component):
                 "placeholder": self.placeholder,
                 "disabled": self.disabled,
                 "format": self.format,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -491,11 +491,11 @@ class Combobox(Component):
                 "options": self.options,
                 "value": self.value,
                 "placeholder": self.placeholder,
-                "searchPlaceholder": self.search_placeholder,
-                "emptyText": self.empty_text,
+                "search_placeholder": self.search_placeholder,
+                "empty_text": self.empty_text,
                 "disabled": self.disabled,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
-                "className": self.class_name,
+                "on_select": self.on_select.serialize() if self.on_select else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -545,13 +545,13 @@ class InputOTP(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "maxLength": self.max_length,
+                "max_length": self.max_length,
                 "value": self.value,
                 "disabled": self.disabled,
                 "pattern": self.pattern,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "onComplete": self.on_complete.serialize() if self.on_complete else None,
-                "className": self.class_name,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "on_complete": self.on_complete.serialize() if self.on_complete else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -592,7 +592,7 @@ class InputOTPGroup(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -627,7 +627,7 @@ class InputOTPSlot(Component):
             "id": self.id,
             "props": {
                 "index": self.index,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -659,8 +659,9 @@ class InputOTPSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
         }
+

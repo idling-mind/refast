@@ -119,13 +119,13 @@ class ChartContainer(Component):
             "id": self.id,
             "props": {
                 "config": {k: v.model_dump() for k, v in self.config.items()},
-                "className": self.class_name,
+                "class_name": self.class_name,
                 "style": self.style,
                 "width": self.width,
                 "height": self.height,
-                "minHeight": self.min_height,
-                "minWidth": self.min_width,
-                "maxHeight": self.max_height,
+                "min_height": self.min_height,
+                "min_width": self.min_width,
+                "max_height": self.max_height,
                 "aspect": self.aspect,
                 "debounce": self.debounce,
                 "initialDimension": self.initial_dimension,
@@ -171,8 +171,8 @@ class ChartTooltip(Component):
             "id": self.id,
             "props": {
                 "cursor": self.cursor,
-                "hideLabel": self.hide_label,
-                "hideIndicator": self.hide_indicator,
+                "hide_label": self.hide_label,
+                "hide_indicator": self.hide_indicator,
             },
             "children": [self.content.render()] if self.content else [],
         }
@@ -212,10 +212,10 @@ class ChartTooltipContent(Component):
             "id": self.id,
             "props": {
                 "indicator": self.indicator,
-                "nameKey": self.name_key,
-                "labelKey": self.label_key,
-                "hideLabel": self.hide_label,
-                "hideIndicator": self.hide_indicator,
+                "name_key": self.name_key,
+                "label_key": self.label_key,
+                "hide_label": self.hide_label,
+                "hide_indicator": self.hide_indicator,
             },
         }
 
@@ -273,7 +273,9 @@ class ChartLegendContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "nameKey": self.name_key,
+                "name_key": self.name_key,
                 "hideIcon": self.hide_icon,
             },
         }
+
+

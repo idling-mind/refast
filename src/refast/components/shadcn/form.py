@@ -41,12 +41,12 @@ class Form(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_submit:
-            props["onSubmit"] = self.on_submit.serialize()
+            props["on_submit"] = self.on_submit.serialize()
 
         return {
             "type": self.component_type,
@@ -89,7 +89,7 @@ class FormField(Component):
                 "error": self.error,
                 "hint": self.hint,
                 "required": self.required,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -120,10 +120,11 @@ class Label(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "htmlFor": self.html_for,
+                "html_for": self.html_for,
                 "required": self.required,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],
         }
+

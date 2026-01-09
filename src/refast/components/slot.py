@@ -50,7 +50,7 @@ class Slot(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self.extra_props,
             },
             "children": children,

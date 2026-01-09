@@ -59,7 +59,7 @@ class TestDataTable:
         dt = DataTable(columns=[], data=[], page_size=20)
         rendered = dt.render()
         assert rendered["type"] == "DataTable"
-        assert rendered["props"]["pageSize"] == 20
+        assert rendered["props"]["page_size"] == 20
 
     def test_data_table_features(self):
         """Test DataTable feature flags."""
@@ -80,7 +80,7 @@ class TestDataTable:
         cb = MockCallback()
         dt = DataTable(columns=[], data=[], on_row_click=cb)
         rendered = dt.render()
-        assert rendered["props"]["onRowClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_row_click"] == {"callbackId": "cb-123"}
 
 
 class TestList:
@@ -166,7 +166,7 @@ class TestTabs:
         tabs = Tabs(default_value="tab1")
         rendered = tabs.render()
         assert rendered["type"] == "Tabs"
-        assert rendered["props"]["defaultValue"] == "tab1"
+        assert rendered["props"]["default_value"] == "tab1"
 
     def test_tabs_controlled(self):
         """Test Tabs controlled mode."""
@@ -174,7 +174,7 @@ class TestTabs:
         tabs = Tabs(value="tab2", on_value_change=cb)
         rendered = tabs.render()
         assert rendered["props"]["value"] == "tab2"
-        assert rendered["props"]["onValueChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
 
 
 class TestTabItem:
@@ -231,4 +231,7 @@ class TestAccordion:
         """Test Accordion defaultValue prop."""
         accordion = Accordion(children=[], default_value="section-1")
         rendered = accordion.render()
-        assert rendered["props"]["defaultValue"] == "section-1"
+        assert rendered["props"]["default_value"] == "section-1"
+
+
+

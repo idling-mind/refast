@@ -48,12 +48,12 @@ class Alert(Component):
             "message": self.message,
             "variant": self.variant,
             "dismissible": self.dismissible,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_dismiss:
-            props["onDismiss"] = self.on_dismiss.serialize()
+            props["on_dismiss"] = self.on_dismiss.serialize()
 
         return {
             "type": self.component_type,
@@ -93,7 +93,7 @@ class Toast(Component):
                 "message": self.message,
                 "variant": self.variant,
                 "duration": self.duration,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -129,12 +129,12 @@ class Modal(Component):
             "title": self.title,
             "open": self.open,
             "size": self.size,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_close:
-            props["onClose"] = self.on_close.serialize()
+            props["on_close"] = self.on_close.serialize()
 
         return {
             "type": self.component_type,
@@ -173,12 +173,12 @@ class Dialog(Component):
             "title": self.title,
             "description": self.description,
             "open": self.open,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -209,7 +209,7 @@ class Spinner(Component):
             "id": self.id,
             "props": {
                 "size": self.size,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -227,7 +227,18 @@ class Progress(Component):
         max: int = 100,
         label: str | None = None,
         show_value: bool = False,
-        foreground_color: str | None = None,
+        foreground_color: Literal[
+            "primary",
+            "secondary",
+            "destructive",
+            "muted",
+            "accent",
+            "popover",
+            "card",
+            "background",
+            "foreground",
+        ]
+        | None = None,
         track_color: str | None = None,
         striped: str | None = None,
         id: str | None = None,
@@ -251,11 +262,11 @@ class Progress(Component):
                 "value": self.value,
                 "max": self.max,
                 "label": self.label,
-                "showValue": self.show_value,
-                "foregroundColor": self.foreground_color,
-                "trackColor": self.track_color,
+                "show_value": self.show_value,
+                "foreground_color": self.foreground_color,
+                "track_color": self.track_color,
                 "striped": self.striped,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -289,7 +300,7 @@ class Skeleton(Component):
                 "width": self.width,
                 "height": self.height,
                 "variant": self.variant,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],

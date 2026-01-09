@@ -32,23 +32,22 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
     return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
   }
 
-  // Process props - convert callbacks to functions
+  // Process props - convert snake_case to camelCase, handle callbacks and formatters
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const processedProps = useMemo(() => {
-    const result: Record<string, unknown> = { ...props, id };
+    const result: Record<string, unknown> = { id };
 
     for (const [key, value] of Object.entries(props)) {
+      // Convert snake_case keys to camelCase for React/DOM compatibility
+      const camelKey = snakeToCamel(key);
+      
       if (isCallbackRef(value)) {
-        result[key] = createCallbackHandler(value, eventManager);
+        result[camelKey] = createCallbackHandler(value, eventManager);
       } else if (isFormatterString(key, value)) {
         // Convert formatter strings to functions (e.g., tickFormatter)
-        // Also ensure the key is in camelCase for Recharts
-        const camelKey = snakeToCamel(key);
         result[camelKey] = createFormatterFunction(value as string);
-        // Remove the snake_case version if different
-        if (camelKey !== key) {
-          delete result[key];
-        }
+      } else {
+        result[camelKey] = value;
       }
     }
 

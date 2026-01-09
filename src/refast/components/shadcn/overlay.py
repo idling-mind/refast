@@ -52,15 +52,15 @@ class AlertDialog(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
-            "className": self.class_name,
+            "default_open": self.default_open,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -96,8 +96,8 @@ class AlertDialogTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -128,7 +128,7 @@ class AlertDialogContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -159,7 +159,7 @@ class AlertDialogHeader(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -190,7 +190,7 @@ class AlertDialogFooter(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -217,7 +217,7 @@ class AlertDialogTitle(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.title],
@@ -244,7 +244,7 @@ class AlertDialogDescription(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.description],
@@ -270,12 +270,12 @@ class AlertDialogAction(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -304,12 +304,12 @@ class AlertDialogCancel(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -363,15 +363,15 @@ class Sheet(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
-            "className": self.class_name,
+            "default_open": self.default_open,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -407,8 +407,8 @@ class SheetTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -441,8 +441,8 @@ class SheetClose(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -476,7 +476,7 @@ class SheetContent(Component):
             "id": self.id,
             "props": {
                 "side": self.side,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -507,7 +507,7 @@ class SheetHeader(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -538,7 +538,7 @@ class SheetFooter(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -565,7 +565,7 @@ class SheetTitle(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.title],
@@ -592,7 +592,7 @@ class SheetDescription(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.description],
@@ -638,15 +638,15 @@ class Popover(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
-            "className": self.class_name,
+            "default_open": self.default_open,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -682,8 +682,8 @@ class PopoverTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -723,7 +723,7 @@ class PopoverContent(Component):
                 "side": self.side,
                 "sideOffset": self.side_offset,
                 "align": self.align,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -772,17 +772,17 @@ class HoverCard(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
+            "default_open": self.default_open,
             "openDelay": self.open_delay,
             "closeDelay": self.close_delay,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -818,8 +818,8 @@ class HoverCardTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -859,7 +859,7 @@ class HoverCardContent(Component):
                 "side": self.side,
                 "sideOffset": self.side_offset,
                 "align": self.align,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -906,15 +906,15 @@ class DropdownMenu(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
-            "className": self.class_name,
+            "default_open": self.default_open,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -950,8 +950,8 @@ class DropdownMenuTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -988,7 +988,7 @@ class DropdownMenuContent(Component):
                 "side": self.side,
                 "sideOffset": self.side_offset,
                 "align": self.align,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1023,12 +1023,12 @@ class DropdownMenuItem(Component):
             "icon": self.icon,
             "shortcut": self.shortcut,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_select:
-            props["onSelect"] = self.on_select.serialize()
+            props["on_select"] = self.on_select.serialize()
 
         return {
             "type": self.component_type,
@@ -1061,7 +1061,7 @@ class DropdownMenuLabel(Component):
             "id": self.id,
             "props": {
                 "inset": self.inset,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1086,7 +1086,7 @@ class DropdownMenuSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -1118,12 +1118,12 @@ class DropdownMenuCheckboxItem(Component):
         props = {
             "checked": self.checked,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_checked_change:
-            props["onCheckedChange"] = self.on_checked_change.serialize()
+            props["on_checked_change"] = self.on_checked_change.serialize()
 
         return {
             "type": self.component_type,
@@ -1156,12 +1156,12 @@ class DropdownMenuRadioGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "value": self.value,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_value_change:
-            props["onValueChange"] = self.on_value_change.serialize()
+            props["on_value_change"] = self.on_value_change.serialize()
 
         return {
             "type": self.component_type,
@@ -1194,7 +1194,7 @@ class DropdownMenuRadioItem(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1222,7 +1222,7 @@ class DropdownMenuSub(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1255,7 +1255,7 @@ class DropdownMenuSubTrigger(Component):
             "props": {
                 "icon": self.icon,
                 "inset": self.inset,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1283,7 +1283,7 @@ class DropdownMenuSubContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1328,7 +1328,7 @@ class ContextMenu(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1359,7 +1359,7 @@ class ContextMenuTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1387,7 +1387,7 @@ class ContextMenuContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1422,12 +1422,12 @@ class ContextMenuItem(Component):
             "icon": self.icon,
             "shortcut": self.shortcut,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_select:
-            props["onSelect"] = self.on_select.serialize()
+            props["on_select"] = self.on_select.serialize()
 
         return {
             "type": self.component_type,
@@ -1455,7 +1455,7 @@ class ContextMenuSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -1487,12 +1487,12 @@ class ContextMenuCheckboxItem(Component):
         props = {
             "checked": self.checked,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_checked_change:
-            props["onCheckedChange"] = self.on_checked_change.serialize()
+            props["on_checked_change"] = self.on_checked_change.serialize()
 
         return {
             "type": self.component_type,
@@ -1545,14 +1545,14 @@ class Drawer(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "shouldScaleBackground": self.should_scale_background,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -1588,8 +1588,8 @@ class DrawerTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1620,7 +1620,7 @@ class DrawerContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1651,7 +1651,7 @@ class DrawerHeader(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1682,7 +1682,7 @@ class DrawerFooter(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1709,7 +1709,7 @@ class DrawerTitle(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.title],
@@ -1736,7 +1736,7 @@ class DrawerDescription(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.description],
@@ -1769,9 +1769,10 @@ class DrawerClose(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
-                "className": self.class_name,
+                "as_child": self.as_child,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
+

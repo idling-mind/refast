@@ -44,12 +44,12 @@ class Card(Component):
         props = {
             "title": self.title,
             "description": self.description,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -86,7 +86,7 @@ class CardHeader(Component):
             "props": {
                 "title": self.title,
                 "description": self.description,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -114,7 +114,7 @@ class CardContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -142,7 +142,7 @@ class CardFooter(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -174,7 +174,7 @@ class CardTitle(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -206,8 +206,9 @@ class CardDescription(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
+

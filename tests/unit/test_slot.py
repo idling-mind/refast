@@ -43,10 +43,13 @@ class TestSlot:
         """Test Slot with class_name."""
         slot = Slot(id="my-slot", class_name="loading-area")
         rendered = slot.render()
-        assert rendered["props"]["className"] == "loading-area"
+        assert rendered["props"]["class_name"] == "loading-area"
 
     def test_slot_empty(self):
         """Test Slot with no children or fallback."""
         slot = Slot(id="empty-slot")
         rendered = slot.render()
         assert rendered["children"] == []
+
+
+

@@ -32,7 +32,7 @@ class TestHeading:
         """Test Heading with class_name."""
         h = Heading("Title", class_name="text-blue-500")
         rendered = h.render()
-        assert rendered["props"]["className"] == "text-blue-500"
+        assert rendered["props"]["class_name"] == "text-blue-500"
 
 
 class TestParagraph:
@@ -49,7 +49,7 @@ class TestParagraph:
         """Test Paragraph with class_name."""
         p = Paragraph("Text", class_name="text-gray-600")
         rendered = p.render()
-        assert rendered["props"]["className"] == "text-gray-600"
+        assert rendered["props"]["class_name"] == "text-gray-600"
 
 
 class TestCode:
@@ -97,4 +97,7 @@ class TestLink:
         cb = MockCallback()
         link = Link("Click", href="#", on_click=cb)
         rendered = link.render()
-        assert rendered["props"]["onClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
+
+
+

@@ -67,14 +67,14 @@ def test_chart_container_props():
 
     assert props["width"] == 500
     assert props["height"] == 300
-    assert props["minHeight"] == 100
-    assert props["minWidth"] == 50
-    assert props["maxHeight"] == 600
+    assert props["min_height"] == 100
+    assert props["min_width"] == 50
+    assert props["max_height"] == 600
     assert props["aspect"] == 2.0
     assert props["debounce"] == 100
     assert props["initialDimension"] == {"width": 400, "height": 200}
     assert props["onResize"] == cb.serialize()
-    assert props["className"] == "my-chart"
+    assert props["class_name"] == "my-chart"
 
 
 class TestAreaChart:
@@ -108,8 +108,8 @@ class TestAreaChart:
         assert rendered["props"]["layout"] == "vertical"
         assert rendered["props"]["syncId"] == "sync1"
         assert rendered["props"]["syncMethod"] == "value"
-        assert rendered["props"]["onClick"] == cb.serialize()
-        assert rendered["props"]["onMouseEnter"] == cb.serialize()
+        assert rendered["props"]["on_click"] == cb.serialize()
+        assert rendered["props"]["on_mouse_enter"] == cb.serialize()
 
     def test_area_component_full_props(self):
         """Test Area component with all props."""
@@ -137,14 +137,14 @@ class TestAreaChart:
         )
 
         rendered = area.render()
-        assert rendered["props"]["dataKey"] == "value"
+        assert rendered["props"]["data_key"] == "value"
         assert rendered["props"]["type"] == "monotone"
         assert rendered["props"]["connectNulls"] is True
-        assert rendered["props"]["legendType"] == "circle"
+        assert rendered["props"]["legend_type"] == "circle"
         assert rendered["props"]["name"] == "Test Area"
-        assert rendered["props"]["xAxisId"] == "x1"
-        assert rendered["props"]["yAxisId"] == "y1"
-        assert rendered["props"]["animationDuration"] == 1000
+        assert rendered["props"]["x_axis_id"] == "x1"
+        assert rendered["props"]["y_axis_id"] == "y1"
+        assert rendered["props"]["animation_duration"] == 1000
 
 
 class TestBarChart:
@@ -187,7 +187,7 @@ class TestBarChart:
 
         rendered = bar.render()
         assert rendered["props"]["radius"] == [4, 4, 0, 0]
-        assert rendered["props"]["xAxisId"] == "x1"
+        assert rendered["props"]["x_axis_id"] == "x1"
         assert rendered["props"]["minPointSize"] == 5
         assert rendered["props"]["name"] == "Sales"
         assert rendered["props"]["activeBar"] == {"fill": "red"}
@@ -212,8 +212,8 @@ class TestLineChart:
         rendered = chart.render()
         assert rendered["props"]["layout"] == "vertical"
         assert rendered["props"]["syncId"] == "line-sync"
-        assert rendered["props"]["onClick"] == cb.serialize()
-        assert rendered["props"]["onMouseMove"] == cb.serialize()
+        assert rendered["props"]["on_click"] == cb.serialize()
+        assert rendered["props"]["on_mouse_move"] == cb.serialize()
 
     def test_line_component_full_props(self):
         """Test Line component with all props."""
@@ -234,9 +234,9 @@ class TestLineChart:
 
         rendered = line.render()
         assert rendered["props"]["type"] == "linear"
-        assert rendered["props"]["strokeWidth"] == 3
+        assert rendered["props"]["stroke_width"] == 3
         assert rendered["props"]["connectNulls"] is True
-        assert rendered["props"]["strokeDasharray"] == "5 5"
+        assert rendered["props"]["stroke_dasharray"] == "5 5"
 
 
 class TestPieChart:
@@ -251,8 +251,8 @@ class TestPieChart:
         )
 
         rendered = chart.render()
-        assert rendered["props"]["onClick"] == cb.serialize()
-        assert rendered["props"]["onMouseEnter"] == cb.serialize()
+        assert rendered["props"]["on_click"] == cb.serialize()
+        assert rendered["props"]["on_mouse_enter"] == cb.serialize()
 
     def test_pie_component_full_props(self):
         """Test Pie component with all props."""
@@ -276,8 +276,8 @@ class TestPieChart:
         )
 
         rendered = pie.render()
-        assert rendered["props"]["startAngle"] == 90
-        assert rendered["props"]["endAngle"] == -270
+        assert rendered["props"]["start_angle"] == 90
+        assert rendered["props"]["end_angle"] == -270
         assert rendered["props"]["paddingAngle"] == 5
         assert rendered["props"]["cornerRadius"] == 4
         assert rendered["props"]["minAngle"] == 10
@@ -306,7 +306,7 @@ class TestScatterChart:
 
         rendered = chart.render()
         assert rendered["props"]["syncId"] == "scatter-sync"
-        assert rendered["props"]["onClick"] == cb.serialize()
+        assert rendered["props"]["on_click"] == cb.serialize()
 
     def test_scatter_component_full_props(self):
         """Test Scatter component with all props."""
@@ -326,7 +326,7 @@ class TestScatterChart:
 
         rendered = scatter.render()
         assert rendered["props"]["data"] == data
-        assert rendered["props"]["xAxisId"] == "x1"
+        assert rendered["props"]["x_axis_id"] == "x1"
         assert rendered["props"]["zAxisId"] == "z1"
         assert rendered["props"]["line"] is True
         assert rendered["props"]["lineType"] == "fitting"
@@ -365,7 +365,7 @@ class TestComposedChart:
         rendered = chart.render()
         assert rendered["type"] == "ComposedChart"
         assert rendered["props"]["data"] == data
-        assert rendered["props"]["barCategoryGap"] == "20%"
+        assert rendered["props"]["bar_category_gap"] == "20%"
 
     def test_composed_chart_with_children(self):
         """Test ComposedChart with children."""
@@ -449,7 +449,7 @@ class TestTreemap:
         )
 
         rendered = treemap.render()
-        assert rendered["props"]["onClick"] == cb.serialize()
+        assert rendered["props"]["on_click"] == cb.serialize()
 
 
 class TestSankey:
@@ -501,10 +501,10 @@ class TestAxisComponents:
         )
 
         rendered = x_axis.render()
-        assert rendered["props"]["xAxisId"] == "x1"
-        assert rendered["props"]["allowDecimals"] is False
-        assert rendered["props"]["allowDataOverflow"] is True
-        assert rendered["props"]["tickCount"] == 5
+        assert rendered["props"]["x_axis_id"] == "x1"
+        assert rendered["props"]["allow_decimals"] is False
+        assert rendered["props"]["allow_data_overflow"] is True
+        assert rendered["props"]["tick_count"] == 5
         assert rendered["props"]["angle"] == -45
 
     def test_y_axis_full_props(self):
@@ -522,7 +522,7 @@ class TestAxisComponents:
         )
 
         rendered = y_axis.render()
-        assert rendered["props"]["yAxisId"] == "y1"
+        assert rendered["props"]["y_axis_id"] == "y1"
         assert rendered["props"]["orientation"] == "right"
         assert rendered["props"]["ticks"] == [0, 100, 200, 300]
         assert rendered["props"]["unit"] == "$"
@@ -547,8 +547,8 @@ class TestReferenceComponents:
 
         rendered = ref_line.render()
         assert rendered["props"]["y"] == 100
-        assert rendered["props"]["strokeWidth"] == 2
-        assert rendered["props"]["xAxisId"] == "x1"
+        assert rendered["props"]["stroke_width"] == 2
+        assert rendered["props"]["x_axis_id"] == "x1"
         assert rendered["props"]["ifOverflow"] == "extendDomain"
         assert rendered["props"]["position"] == "middle"
 
@@ -569,7 +569,7 @@ class TestReferenceComponents:
         assert rendered["type"] == "ReferenceArea"
         assert rendered["props"]["x1"] == "Jan"
         assert rendered["props"]["x2"] == "Mar"
-        assert rendered["props"]["fillOpacity"] == 0.3
+        assert rendered["props"]["fill_opacity"] == 0.3
 
     def test_reference_dot_full_props(self):
         """Test ReferenceDot with all props."""
@@ -637,7 +637,7 @@ class TestReferenceComponents:
 
         rendered = error_bar.render()
         assert rendered["type"] == "ErrorBar"
-        assert rendered["props"]["dataKey"] == "error"
+        assert rendered["props"]["data_key"] == "error"
         assert rendered["props"]["direction"] == "y"
 
 
@@ -659,7 +659,7 @@ class TestCartesianGrid:
         )
 
         rendered = grid.render()
-        assert rendered["props"]["strokeDasharray"] == "3 3"
+        assert rendered["props"]["stroke_dasharray"] == "3 3"
         assert rendered["props"]["horizontalFill"] == ["#fff", "#f5f5f5"]
         assert rendered["props"]["syncWithTicks"] is True
 
@@ -689,4 +689,7 @@ class TestBrush:
         assert rendered["props"]["startIndex"] == 0
         assert rendered["props"]["endIndex"] == 5
         assert rendered["props"]["alwaysShowText"] is True
-        assert rendered["props"]["onChange"] == cb.serialize()
+        assert rendered["props"]["on_change"] == cb.serialize()
+
+
+

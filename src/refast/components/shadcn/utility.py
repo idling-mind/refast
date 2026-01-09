@@ -40,7 +40,7 @@ class Separator(Component):
             "props": {
                 "orientation": self.orientation,
                 "decorative": self.decorative,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -84,7 +84,7 @@ class AspectRatio(Component):
             "id": self.id,
             "props": {
                 "ratio": self.ratio,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -129,8 +129,8 @@ class ScrollArea(Component):
             "id": self.id,
             "props": {
                 "type": self.scroll_type,
-                "scrollHideDelay": self.scroll_hide_delay,
-                "className": self.class_name,
+                "scroll_hide_delay": self.scroll_hide_delay,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -158,7 +158,7 @@ class ScrollBar(Component):
             "id": self.id,
             "props": {
                 "orientation": self.orientation,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -205,16 +205,16 @@ class Collapsible(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultOpen": self.default_open,
+            "default_open": self.default_open,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.open is not None:
             props["open"] = self.open
         if self.on_open_change:
-            props["onOpenChange"] = self.on_open_change.serialize()
+            props["on_open_change"] = self.on_open_change.serialize()
 
         return {
             "type": self.component_type,
@@ -251,7 +251,7 @@ class CollapsibleTrigger(Component):
             "id": self.id,
             "props": {
                 "asChild": self.as_child,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -282,7 +282,7 @@ class CollapsibleContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -332,7 +332,7 @@ class Carousel(Component):
             "props": {
                 "orientation": self.orientation,
                 "opts": self.opts,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -360,7 +360,7 @@ class CarouselContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -391,7 +391,7 @@ class CarouselItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -416,7 +416,7 @@ class CarouselPrevious(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -441,7 +441,7 @@ class CarouselNext(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -485,12 +485,12 @@ class ResizablePanelGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "direction": self.direction,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_layout:
-            props["onLayout"] = self.on_layout.serialize()
+            props["on_layout"] = self.on_layout.serialize()
 
         return {
             "type": self.component_type,
@@ -542,16 +542,16 @@ class ResizablePanel(Component):
             "maxSize": self.max_size,
             "collapsible": self.collapsible,
             "collapsedSize": self.collapsed_size,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_collapse:
-            props["onCollapse"] = self.on_collapse.serialize()
+            props["on_collapse"] = self.on_collapse.serialize()
         if self.on_expand:
-            props["onExpand"] = self.on_expand.serialize()
+            props["on_expand"] = self.on_expand.serialize()
         if self.on_resize:
-            props["onResize"] = self.on_resize.serialize()
+            props["on_resize"] = self.on_resize.serialize()
 
         return {
             "type": self.component_type,
@@ -582,7 +582,7 @@ class ResizableHandle(Component):
             "id": self.id,
             "props": {
                 "withHandle": self.with_handle,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -635,7 +635,7 @@ class Toaster(Component):
                 "visibleToasts": self.visible_toasts,
                 "closeButton": self.close_button,
                 "richColors": self.rich_colors,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -686,7 +686,7 @@ class Empty(Component):
                 "icon": self.icon,
                 "title": self.title,
                 "description": self.description,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": children,
@@ -720,7 +720,7 @@ class Kbd(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.key],
@@ -764,7 +764,7 @@ class LoadingOverlay(Component):
                 "loading": self.loading,
                 "text": self.text,
                 "blur": self.blur,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -836,9 +836,10 @@ class ThemeSwitcher(Component):
                 "storageKey": self.storage_key,
                 "showSystemOption": self.show_system_option,
                 "mode": self.mode,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
         }
+

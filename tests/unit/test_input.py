@@ -50,16 +50,16 @@ class TestInput:
         """Test Input readonly prop."""
         inp = Input(name="test", readonly=True)
         rendered = inp.render()
-        assert rendered["props"]["readOnly"] is True
+        assert rendered["props"]["read_only"] is True
 
     def test_input_with_callbacks(self):
         """Test Input with callbacks."""
         cb = MockCallback()
         inp = Input(name="test", on_change=cb, on_blur=cb, on_focus=cb)
         rendered = inp.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
-        assert rendered["props"]["onBlur"] == {"callbackId": "cb-123"}
-        assert rendered["props"]["onFocus"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
 
     def test_input_with_debounce(self):
         """Test Input debounce prop."""
@@ -84,7 +84,7 @@ class TestTextarea:
         cb = MockCallback()
         ta = Textarea(name="test", on_change=cb)
         rendered = ta.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
     def test_textarea_with_debounce(self):
         """Test Textarea debounce prop."""
@@ -121,7 +121,7 @@ class TestSelect:
         cb = MockCallback()
         sel = Select(name="test", options=[], on_change=cb)
         rendered = sel.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
 
 class TestCheckbox:
@@ -146,7 +146,7 @@ class TestCheckbox:
         mock = MockCallback()
         cb = Checkbox(on_change=mock)
         rendered = cb.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
 
 class TestRadio:
@@ -172,4 +172,7 @@ class TestRadio:
         cb = MockCallback()
         radio = Radio(name="test", value="a", on_change=cb)
         rendered = radio.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+
+
+

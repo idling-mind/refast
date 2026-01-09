@@ -52,7 +52,7 @@ class TestSwitch:
         cb = MockCallback()
         switch = Switch(name="test", on_change=cb)
         rendered = switch.render()
-        assert rendered["props"]["onCheckedChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_checked_change"] == {"callbackId": "cb-123"}
 
 
 class TestSlider:
@@ -96,7 +96,7 @@ class TestSlider:
         cb = MockCallback()
         slider = Slider(name="test", on_value_change=cb)
         rendered = slider.render()
-        assert rendered["props"]["onValueChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
 
 
 class TestToggle:
@@ -138,7 +138,7 @@ class TestToggle:
         cb = MockCallback()
         toggle = Toggle(label="Test", on_pressed_change=cb)
         rendered = toggle.render()
-        assert rendered["props"]["onPressedChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_pressed_change"] == {"callbackId": "cb-123"}
 
 
 class TestToggleGroup:
@@ -169,7 +169,7 @@ class TestToggleGroup:
         """Test ToggleGroup with default value."""
         group = ToggleGroup(type="single", default_value="center")
         rendered = group.render()
-        assert rendered["props"]["defaultValue"] == "center"
+        assert rendered["props"]["default_value"] == "center"
 
 
 class TestToggleGroupItem:
@@ -229,7 +229,7 @@ class TestDatePicker:
         cb = MockCallback()
         picker = DatePicker(name="test", on_change=cb)
         rendered = picker.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
 
 class TestCalendar:
@@ -269,11 +269,14 @@ class TestCalendar:
         """Test Calendar showing outside days."""
         calendar = Calendar(show_outside_days=True)
         rendered = calendar.render()
-        assert rendered["props"]["showOutsideDays"] is True
+        assert rendered["props"]["show_outside_days"] is True
 
     def test_calendar_with_callback(self):
         """Test Calendar with onSelect callback."""
         cb = MockCallback()
         calendar = Calendar(on_select=cb)
         rendered = calendar.render()
-        assert rendered["props"]["onSelect"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
+
+
+

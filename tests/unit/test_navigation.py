@@ -177,7 +177,7 @@ class TestMenubarItem:
         cb = MockCallback()
         item = MenubarItem(label="Save", on_select=cb)
         rendered = item.render()
-        assert rendered["props"]["onSelect"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
 
 
 class TestCommand:
@@ -229,4 +229,7 @@ class TestCommandItem:
         cb = MockCallback()
         item = CommandItem(value="action", label="Action", on_select=cb)
         rendered = item.render()
-        assert rendered["props"]["onSelect"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
+
+
+

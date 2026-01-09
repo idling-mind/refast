@@ -52,12 +52,12 @@ class Button(Component):
             "disabled": self.disabled or self.loading,
             "loading": self.loading,
             "type": self.button_type,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -100,13 +100,13 @@ class IconButton(Component):
             "variant": self.variant,
             "size": self.size,
             "disabled": self.disabled,
-            "ariaLabel": self.aria_label,
-            "className": self.class_name,
+            "aria_label": self.aria_label,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -114,3 +114,4 @@ class IconButton(Component):
             "props": props,
             "children": [],
         }
+

@@ -126,7 +126,7 @@ class TestReactComponent:
 
         comp = ClickableComp(events={"onClick": MockCallback()})
         rendered = comp.render()
-        assert rendered["props"]["onClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
     def test_react_component_with_class_name(self):
         """Test ReactComponent with class_name."""
@@ -136,7 +136,7 @@ class TestReactComponent:
 
         comp = StyledComp(class_name="custom-class")
         rendered = comp.render()
-        assert rendered["props"]["className"] == "custom-class"
+        assert rendered["props"]["class_name"] == "custom-class"
 
     def test_react_component_none_events(self):
         """Test ReactComponent handles None events."""
@@ -147,3 +147,6 @@ class TestReactComponent:
         comp = OptionalComp(events={"onClick": None})
         rendered = comp.render()
         assert "onClick" not in rendered["props"]
+
+
+

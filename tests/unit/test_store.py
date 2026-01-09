@@ -395,3 +395,6 @@ class TestEncryptionFlag:
         store.set("key", "value")
         updates = store._get_pending_updates()
         assert updates[0]["encrypt"] is False
+
+
+

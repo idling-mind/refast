@@ -279,3 +279,6 @@ class TestContentSecurityPolicyWithNonce:
         # Each directive should have nonce only once
         assert new_csp.script_src.count("'nonce-existing'") == 1
         assert new_csp.style_src.count("'nonce-existing'") == 1
+
+
+

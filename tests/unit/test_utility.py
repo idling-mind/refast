@@ -108,7 +108,7 @@ class TestScrollArea:
         """Test ScrollArea with custom hide delay."""
         area = ScrollArea(scroll_hide_delay=1000)
         rendered = area.render()
-        assert rendered["props"]["scrollHideDelay"] == 1000
+        assert rendered["props"]["scroll_hide_delay"] == 1000
 
 
 class TestCollapsible:
@@ -130,7 +130,7 @@ class TestCollapsible:
         """Test Collapsible default open state."""
         collapse = Collapsible(default_open=True)
         rendered = collapse.render()
-        assert rendered["props"]["defaultOpen"] is True
+        assert rendered["props"]["default_open"] is True
 
     def test_collapsible_disabled(self):
         """Test Collapsible disabled state."""
@@ -143,7 +143,7 @@ class TestCollapsible:
         cb = MockCallback()
         collapse = Collapsible(on_open_change=cb)
         rendered = collapse.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestCarousel:
@@ -303,16 +303,19 @@ class TestThemeSwitcher:
         cb = MockCallback()
         switcher = ThemeSwitcher(on_change=cb)
         rendered = switcher.render()
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
     def test_theme_switcher_class_name(self):
         """Test ThemeSwitcher with custom class name."""
         switcher = ThemeSwitcher(class_name="my-theme-switcher")
         rendered = switcher.render()
-        assert rendered["props"]["className"] == "my-theme-switcher"
+        assert rendered["props"]["class_name"] == "my-theme-switcher"
 
     def test_theme_switcher_with_id(self):
         """Test ThemeSwitcher with custom id."""
         switcher = ThemeSwitcher(id="theme-toggle")
         rendered = switcher.render()
         assert rendered["id"] == "theme-toggle"
+
+
+

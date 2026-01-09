@@ -20,7 +20,7 @@ async def run_background_task(ctx: Context):
             if ctx.state.get("stop_task"):
                 await ctx.show_toast("Long task stopped", variant="warning")
                 await ctx.update_text("task-status", "Task was stopped by the user.")
-                await ctx.update_props("task-progress", {"foregroundColor": "destructive"})
+                await ctx.update_props("task-progress", {"foreground_color": "destructive"})
                 await ctx.update_props("stop-task-button", {"style": {"display": "none"}})
                 await ctx.update_props("start-task-button", {"style": {"display": "inline-block"}})
                 await ctx.update_text("start-task-button", "Restart Long Task")
@@ -34,7 +34,7 @@ async def run_background_task(ctx: Context):
         await ctx.show_toast("Long task completed", variant="success")
         await ctx.update_props("stop-task-button", {"style": {"display": "none"}})
         await ctx.update_props("start-task-button", {"style": {"display": "inline-block"}})
-        await ctx.update_props("task-progress", {"foregroundColor": "success"})
+        await ctx.update_props("task-progress", {"foreground_color": "primary"})
     except Exception as e:
         print(f"Task error: {e}")
         # Handle disconnection or other errors gracefully
@@ -74,7 +74,7 @@ def long_running_page(ctx: Context):
                 style={"display": "none"},  # Initially hidden
             ),
             rc.Text("", id="task-status", class_name="text-lg font-medium justify-center"),
-            rc.Progress(value=0, id="task-progress", foreground_color="primary", striped="animated"),
+            rc.Progress(value=0, id="task-progress", foreground_color="accent", striped="animated"),
         ],
         class_name="flex flex-col gap-4 p-4 max-w-6xl mx-auto",
     )

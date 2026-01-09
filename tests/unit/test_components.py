@@ -67,7 +67,7 @@ class TestContainer:
         rendered = container.render()
         assert rendered["type"] == "Container"
         assert rendered["id"] == "test"
-        assert rendered["props"]["className"] == "p-4"
+        assert rendered["props"]["class_name"] == "p-4"
 
     def test_container_with_children(self):
         """Test Container with children."""
@@ -108,7 +108,7 @@ class TestText:
         """Test Text with class_name."""
         text = Text("Hello", class_name="text-lg font-bold")
         rendered = text.render()
-        assert rendered["props"]["className"] == "text-lg font-bold"
+        assert rendered["props"]["class_name"] == "text-lg font-bold"
 
     def test_text_with_style(self):
         """Test Text with style."""
@@ -162,3 +162,6 @@ class TestRenderChildren:
         assert len(rendered["children"]) == 2
         assert rendered["children"][0]["type"] == "Text"
         assert rendered["children"][1] == "plain text"
+
+
+

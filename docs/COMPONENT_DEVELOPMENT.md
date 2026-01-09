@@ -33,6 +33,43 @@ Python Component → render() → JSON → WebSocket → React ComponentRenderer
 
 ## Component Architecture
 
+### Prop Naming Convention: snake_case
+
+**Important:** All prop names emitted from Python components' `render()` methods must use `snake_case`. The frontend `ComponentRenderer` automatically converts these to `camelCase` for React components.
+
+```python
+# ✅ CORRECT - Use snake_case in render()
+def render(self) -> dict[str, Any]:
+    return {
+        "type": self.component_type,
+        "id": self.id,
+        "props": {
+            "class_name": self.class_name,  # NOT className
+            "on_click": self.on_click.serialize() if self.on_click else None,  # NOT onClick
+            "read_only": self.read_only,  # NOT readOnly
+        },
+        "children": self._render_children(),
+    }
+
+# ❌ WRONG - Don't use camelCase in Python render() methods
+def render(self) -> dict[str, Any]:
+    return {
+        "props": {
+            "className": self.class_name,  # WRONG
+            "onClick": self.on_click.serialize(),  # WRONG
+        }
+    }
+```
+
+This also applies to `ctx.update_props()` calls:
+```python
+# ✅ CORRECT
+await ctx.update_props("my-component", {"foreground_color": "red", "is_disabled": True})
+
+# ❌ WRONG  
+await ctx.update_props("my-component", {"foregroundColor": "red", "isDisabled": True})
+```
+
 ### Base Component Class
 
 All components inherit from `Component` (in `src/refast/components/base.py`):
@@ -143,8 +180,8 @@ class Rating(Component):
                 "maxStars": self.max_stars,  # camelCase for JS
                 "size": self.size,
                 "readonly": self.readonly,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -250,7 +287,7 @@ class StatCard(Component):
                 "change": self.change,
                 "trend": self.trend,
                 "icon": self.icon,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -299,7 +336,7 @@ class StatGroup(Component):
             "props": {
                 "columns": self.columns,
                 "gap": self.gap,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -321,8 +358,8 @@ def render(self) -> dict[str, Any]:
         "id": self.id,
         "props": {
             # Always check if callback exists before serializing
-            "onClick": self.on_click.serialize() if self.on_click else None,
-            "onChange": self.on_change.serialize() if self.on_change else None,
+            "on_click": self.on_click.serialize() if self.on_click else None,
+            "on_change": self.on_change.serialize() if self.on_change else None,
             # ... other props
         },
         "children": self._render_children(),
@@ -614,21 +651,21 @@ class TestRating:
         rating = Rating(value=3, on_change=cb)
         rendered = rating.render()
         
-        assert rendered["props"]["onChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
     
     def test_rating_without_callback(self):
         """Test Rating without callback renders None."""
         rating = Rating(value=3)
         rendered = rating.render()
         
-        assert rendered["props"]["onChange"] is None
+        assert rendered["props"]["on_change"] is None
     
     def test_rating_class_name(self):
         """Test Rating accepts className."""
         rating = Rating(value=3, class_name="my-rating")
         rendered = rating.render()
         
-        assert rendered["props"]["className"] == "my-rating"
+        assert rendered["props"]["class_name"] == "my-rating"
     
     def test_rating_has_unique_id(self):
         """Test Rating generates unique ID."""
@@ -730,9 +767,9 @@ def render(self) -> dict[str, Any]:
             # Component-specific props
             "myProp": self.my_prop,
             # Callbacks (always check for None)
-            "onChange": self.on_change.serialize() if self.on_change else None,
+            "on_change": self.on_change.serialize() if self.on_change else None,
             # Standard props
-            "className": self.class_name,
+            "class_name": self.class_name,
             # Extra props (for flexibility)
             **self._serialize_extra_props(),
         },
@@ -864,8 +901,8 @@ class Rating(Component):
                 "size": self.size,
                 "readonly": self.readonly,
                 "showValue": self.show_value,
-                "onChange": self.on_change.serialize() if self.on_change else None,
-                "className": self.class_name,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1010,7 +1047,7 @@ class TestRating:
         assert rendered["props"]["size"] == "md"
         assert rendered["props"]["readonly"] is False
         assert rendered["props"]["showValue"] is False
-        assert rendered["props"]["onChange"] is None
+        assert rendered["props"]["on_change"] is None
     
     def test_rating_custom_values(self):
         """Test Rating with custom values."""
@@ -1045,14 +1082,14 @@ class TestRating:
         rating = Rating(value=3, on_change=cb)
         rendered = rating.render()
         
-        assert rendered["props"]["onChange"]["callbackId"] == "cb-test-123"
+        assert rendered["props"]["on_change"]["callbackId"] == "cb-test-123"
     
     def test_rating_class_name(self):
         """Test Rating accepts class_name."""
         rating = Rating(class_name="custom-class")
         rendered = rating.render()
         
-        assert rendered["props"]["className"] == "custom-class"
+        assert rendered["props"]["class_name"] == "custom-class"
     
     def test_rating_extra_props(self):
         """Test Rating passes extra props."""

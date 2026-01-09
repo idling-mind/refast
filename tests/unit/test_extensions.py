@@ -471,3 +471,6 @@ class TestExtensionStaticRouting:
             )
 
             assert response.status_code == 404
+
+
+

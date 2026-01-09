@@ -60,10 +60,10 @@ class RadarChart(Component):
                 "margin": self.margin,
                 "cx": self.cx,
                 "cy": self.cy,
-                "innerRadius": self.inner_radius,
-                "outerRadius": self.outer_radius,
-                "startAngle": self.start_angle,
-                "endAngle": self.end_angle,
+                "inner_radius": self.inner_radius,
+                "outer_radius": self.outer_radius,
+                "start_angle": self.start_angle,
+                "end_angle": self.end_angle,
             },
             "children": [c.render() for c in self.children],
         }
@@ -105,11 +105,11 @@ class Radar(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "dataKey": self.data_key,
+                "data_key": self.data_key,
                 "fill": self.fill,
-                "fillOpacity": self.fill_opacity,
+                "fill_opacity": self.fill_opacity,
                 "stroke": self.stroke,
-                "strokeWidth": self.stroke_width,
+                "stroke_width": self.stroke_width,
                 **self.props,
             },
         }
@@ -155,7 +155,7 @@ class PolarAngleAxis(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "dataKey": self.data_key,
+                "data_key": self.data_key,
                 "type": self.type,
                 "tick": self.tick,
                 **self.props,
@@ -195,3 +195,5 @@ class PolarRadiusAxis(Component):
                 **self.props,
             },
         }
+
+

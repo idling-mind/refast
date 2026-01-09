@@ -189,3 +189,6 @@ class TestCallback:
         cb = Callback(id="cb-1", func=my_handler)
         assert "cb-1" in repr(cb)
         assert "my_handler" in repr(cb)
+
+
+

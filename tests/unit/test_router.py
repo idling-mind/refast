@@ -155,3 +155,6 @@ class TestWebSocketEndpoint:
         with client.websocket_connect("/ui/ws") as websocket:  # noqa: F841
             # Just verify we can connect
             pass
+
+
+

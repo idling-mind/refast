@@ -103,8 +103,8 @@ class Sankey(Component):
                 "data": self.data,
                 "width": self.width,
                 "height": self.height,
-                "dataKey": self.data_key,
-                "nameKey": self.name_key,
+                "data_key": self.data_key,
+                "name_key": self.name_key,
                 "nodePadding": self.node_padding,
                 "nodeWidth": self.node_width,
                 "linkCurvature": self.link_curvature,
@@ -113,9 +113,11 @@ class Sankey(Component):
                 "link": self.link,
                 "margin": self.margin,
                 "sort": self.sort,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "onMouseEnter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
-                "onMouseLeave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
+                "on_click": self.on_click.serialize() if self.on_click else None,
+                "on_mouse_enter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
+                "on_mouse_leave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
                 **self.extra_props,
             },
         }
+
+

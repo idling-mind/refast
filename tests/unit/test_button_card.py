@@ -58,7 +58,7 @@ class TestButton:
         cb = MockCallback()
         btn = Button("Test", on_click=cb)
         rendered = btn.render()
-        assert rendered["props"]["onClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
 
 class TestIconButton:
@@ -81,14 +81,14 @@ class TestIconButton:
         """Test IconButton aria_label prop."""
         btn = IconButton(icon="close", aria_label="Close dialog")
         rendered = btn.render()
-        assert rendered["props"]["ariaLabel"] == "Close dialog"
+        assert rendered["props"]["aria_label"] == "Close dialog"
 
     def test_icon_button_with_callback(self):
         """Test IconButton with on_click callback."""
         cb = MockCallback()
         btn = IconButton(icon="save", on_click=cb)
         rendered = btn.render()
-        assert rendered["props"]["onClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
 
 class TestCard:
@@ -118,7 +118,7 @@ class TestCard:
         cb = MockCallback()
         card = Card(on_click=cb)
         rendered = card.render()
-        assert rendered["props"]["onClick"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
 
 class TestCardHeader:
@@ -153,3 +153,6 @@ class TestCardFooter:
         rendered = footer.render()
         assert rendered["type"] == "CardFooter"
         assert len(rendered["children"]) == 1
+
+
+

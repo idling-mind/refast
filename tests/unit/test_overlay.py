@@ -66,7 +66,7 @@ class TestAlertDialog:
         """Test AlertDialog default open state."""
         dialog = AlertDialog(default_open=True)
         rendered = dialog.render()
-        assert rendered["props"]["defaultOpen"] is True
+        assert rendered["props"]["default_open"] is True
 
     def test_alert_dialog_open_state(self):
         """Test AlertDialog open state."""
@@ -79,7 +79,7 @@ class TestAlertDialog:
         cb = MockCallback()
         dialog = AlertDialog(on_open_change=cb)
         rendered = dialog.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestSheet:
@@ -119,7 +119,7 @@ class TestSheet:
         """Test Sheet default open state."""
         sheet = Sheet(default_open=True)
         rendered = sheet.render()
-        assert rendered["props"]["defaultOpen"] is True
+        assert rendered["props"]["default_open"] is True
 
     def test_sheet_open_state(self):
         """Test Sheet open state."""
@@ -132,7 +132,7 @@ class TestSheet:
         cb = MockCallback()
         sheet = Sheet(on_open_change=cb)
         rendered = sheet.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestDrawer:
@@ -161,7 +161,7 @@ class TestDrawer:
         cb = MockCallback()
         drawer = Drawer(on_open_change=cb)
         rendered = drawer.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestHoverCard:
@@ -213,11 +213,14 @@ class TestPopover:
         """Test Popover default open state."""
         popover = Popover(default_open=True)
         rendered = popover.render()
-        assert rendered["props"]["defaultOpen"] is True
+        assert rendered["props"]["default_open"] is True
 
     def test_popover_with_callback(self):
         """Test Popover with onOpenChange callback."""
         cb = MockCallback()
         popover = Popover(on_open_change=cb)
         rendered = popover.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
+
+
+

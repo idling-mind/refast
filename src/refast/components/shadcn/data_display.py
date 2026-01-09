@@ -57,7 +57,7 @@ class Table(Component):
                 "caption": self.caption,
                 "striped": self.striped,
                 "hoverable": self.hoverable,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -85,7 +85,7 @@ class TableHeader(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -113,7 +113,7 @@ class TableBody(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -141,7 +141,7 @@ class TableRow(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -169,7 +169,7 @@ class TableHead(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -201,9 +201,9 @@ class TableCell(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "colSpan": self.col_span,
-                "rowSpan": self.row_span,
-                "className": self.class_name,
+                "col_span": self.col_span,
+                "row_span": self.row_span,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -244,13 +244,13 @@ class DataTable(Component):
             "sortable": self.sortable,
             "filterable": self.filterable,
             "paginated": self.paginated,
-            "pageSize": self.page_size,
-            "className": self.class_name,
+            "page_size": self.page_size,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_row_click:
-            props["onRowClick"] = self.on_row_click.serialize()
+            props["on_row_click"] = self.on_row_click.serialize()
 
         return {
             "type": self.component_type,
@@ -284,7 +284,7 @@ class List(Component):
             "id": self.id,
             "props": {
                 "ordered": self.ordered,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -317,7 +317,7 @@ class Badge(Component):
             "id": self.id,
             "props": {
                 "variant": self.variant,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -354,7 +354,7 @@ class Avatar(Component):
                 "alt": self.alt,
                 "fallback": self.fallback,
                 "size": self.size,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -388,7 +388,7 @@ class Tooltip(Component):
             "props": {
                 "content": self.content,
                 "side": self.side,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -422,12 +422,12 @@ class Tabs(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "defaultValue": self.default_value,
+                "default_value": self.default_value,
                 "value": self.value,
-                "onValueChange": (
+                "on_value_change": (
                     self.on_value_change.serialize() if self.on_value_change else None
                 ),
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -464,7 +464,7 @@ class TabItem(Component):
                 "value": self.value,
                 "label": self.label,
                 "disabled": self.disabled,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -519,8 +519,8 @@ class Accordion(Component):
             "props": {
                 "type": self.accordion_type,
                 "collapsible": self.collapsible,
-                "defaultValue": self.default_value,
-                "className": self.class_name,
+                "default_value": self.default_value,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -551,7 +551,7 @@ class AccordionItem(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -579,7 +579,7 @@ class AccordionTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -607,8 +607,9 @@ class AccordionContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
         }
+

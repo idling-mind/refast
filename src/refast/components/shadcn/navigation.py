@@ -39,7 +39,7 @@ class Breadcrumb(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -67,7 +67,7 @@ class BreadcrumbList(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -98,7 +98,7 @@ class BreadcrumbItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -127,12 +127,12 @@ class BreadcrumbLink(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "href": self.href,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -162,7 +162,7 @@ class BreadcrumbPage(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -190,7 +190,7 @@ class BreadcrumbSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -215,7 +215,7 @@ class BreadcrumbEllipsis(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -266,7 +266,7 @@ class NavigationMenu(Component):
             "id": self.id,
             "props": {
                 "orientation": self.orientation,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -294,7 +294,7 @@ class NavigationMenuList(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -325,7 +325,7 @@ class NavigationMenuItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -352,7 +352,7 @@ class NavigationMenuTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -383,7 +383,7 @@ class NavigationMenuContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -415,12 +415,12 @@ class NavigationMenuLink(Component):
         props = {
             "href": self.href,
             "active": self.active,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -470,7 +470,7 @@ class Pagination(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -498,7 +498,7 @@ class PaginationContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -529,7 +529,7 @@ class PaginationItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -561,12 +561,12 @@ class PaginationLink(Component):
         props = {
             "href": self.href,
             "active": self.active,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -596,12 +596,12 @@ class PaginationPrevious(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "href": self.href,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -631,12 +631,12 @@ class PaginationNext(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "href": self.href,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_click:
-            props["onClick"] = self.on_click.serialize()
+            props["on_click"] = self.on_click.serialize()
 
         return {
             "type": self.component_type,
@@ -664,7 +664,7 @@ class PaginationEllipsis(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -711,7 +711,7 @@ class Menubar(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -743,7 +743,7 @@ class MenubarMenu(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -770,7 +770,7 @@ class MenubarTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -804,7 +804,7 @@ class MenubarContent(Component):
             "props": {
                 "align": self.align,
                 "sideOffset": self.side_offset,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -836,12 +836,12 @@ class MenubarItem(Component):
         props = {
             "shortcut": self.shortcut,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_select:
-            props["onSelect"] = self.on_select.serialize()
+            props["on_select"] = self.on_select.serialize()
 
         return {
             "type": self.component_type,
@@ -869,7 +869,7 @@ class MenubarSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -901,12 +901,12 @@ class MenubarCheckboxItem(Component):
         props = {
             "checked": self.checked,
             "disabled": self.disabled,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_checked_change:
-            props["onCheckedChange"] = self.on_checked_change.serialize()
+            props["on_checked_change"] = self.on_checked_change.serialize()
 
         return {
             "type": self.component_type,
@@ -939,12 +939,12 @@ class MenubarRadioGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "value": self.value,
-            "className": self.class_name,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
         if self.on_value_change:
-            props["onValueChange"] = self.on_value_change.serialize()
+            props["on_value_change"] = self.on_value_change.serialize()
 
         return {
             "type": self.component_type,
@@ -977,7 +977,7 @@ class MenubarRadioItem(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1005,7 +1005,7 @@ class MenubarSub(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1032,7 +1032,7 @@ class MenubarSubTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1060,7 +1060,7 @@ class MenubarSubContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1110,7 +1110,7 @@ class Command(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1139,8 +1139,8 @@ class CommandInput(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "placeholder": self.placeholder,
-            "onValueChange": self.on_value_change.serialize() if self.on_value_change else None,
-            "className": self.class_name,
+            "on_value_change": self.on_value_change.serialize() if self.on_value_change else None,
+            "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
@@ -1176,7 +1176,7 @@ class CommandList(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1203,7 +1203,7 @@ class CommandEmpty(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.message],
@@ -1234,7 +1234,7 @@ class CommandGroup(Component):
             "id": self.id,
             "props": {
                 "heading": self.heading,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1272,8 +1272,8 @@ class CommandItem(Component):
                 "icon": self.icon,
                 "value": self.value,
                 "disabled": self.disabled,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
-                "className": self.class_name,
+                "on_select": self.on_select.serialize() if self.on_select else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1298,7 +1298,7 @@ class CommandSeparator(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -1325,7 +1325,7 @@ class CommandShortcut(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.shortcut],
@@ -1386,7 +1386,7 @@ class Sidebar(Component):
                 "side": self.side,
                 "variant": self.variant,
                 "collapsible": self.collapsible,
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1414,7 +1414,7 @@ class SidebarHeader(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1442,7 +1442,7 @@ class SidebarContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1470,7 +1470,7 @@ class SidebarFooter(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1498,7 +1498,7 @@ class SidebarGroup(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1525,7 +1525,7 @@ class SidebarGroupLabel(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1553,7 +1553,7 @@ class SidebarGroupContent(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1581,7 +1581,7 @@ class SidebarMenu(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1612,7 +1612,7 @@ class SidebarMenuItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -1647,8 +1647,8 @@ class SidebarMenuButton(Component):
             "props": {
                 "icon": self.icon,
                 "active": self.active,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
+                "on_click": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [self.label],
@@ -1673,8 +1673,9 @@ class SidebarTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "className": self.class_name,
+                "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
             "children": [],
         }
+

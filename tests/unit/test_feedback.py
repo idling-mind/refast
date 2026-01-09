@@ -41,7 +41,7 @@ class TestAlert:
         alert = Alert(dismissible=True, on_dismiss=cb)
         rendered = alert.render()
         assert rendered["props"]["dismissible"] is True
-        assert rendered["props"]["onDismiss"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_dismiss"] == {"callbackId": "cb-123"}
 
 
 class TestToast:
@@ -90,7 +90,7 @@ class TestModal:
         cb = MockCallback()
         modal = Modal(on_close=cb)
         rendered = modal.render()
-        assert rendered["props"]["onClose"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_close"] == {"callbackId": "cb-123"}
 
 
 class TestDialog:
@@ -115,7 +115,7 @@ class TestDialog:
         cb = MockCallback()
         dialog = Dialog(on_open_change=cb)
         rendered = dialog.render()
-        assert rendered["props"]["onOpenChange"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestSpinner:
@@ -156,7 +156,7 @@ class TestProgress:
         """Test Progress showValue prop."""
         progress = Progress(value=30, show_value=True)
         rendered = progress.render()
-        assert rendered["props"]["showValue"] is True
+        assert rendered["props"]["show_value"] is True
 
     def test_progress_custom_styles(self):
         """Test Progress with custom styles."""
@@ -167,8 +167,8 @@ class TestProgress:
             striped="animated"
         )
         rendered = progress.render()
-        assert rendered["props"]["foregroundColor"] == "primary"
-        assert rendered["props"]["trackColor"] == "secondary"
+        assert rendered["props"]["foreground_color"] == "primary"
+        assert rendered["props"]["track_color"] == "secondary"
         assert rendered["props"]["striped"] == "animated"
 
 
@@ -194,3 +194,6 @@ class TestSkeleton:
         skeleton = Skeleton(variant="circular")
         rendered = skeleton.render()
         assert rendered["props"]["variant"] == "circular"
+
+
+

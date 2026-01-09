@@ -179,8 +179,8 @@ class TestCallbackFlow:
 
         # Check that callback reference is in the rendered output
         data = extract_initial_data(response.text)
-        assert data["props"].get("onClick") is not None
-        on_click = data["props"]["onClick"]
+        assert data["props"].get("on_click") is not None
+        on_click = data["props"]["on_click"]
         assert "callbackId" in on_click
 
     def test_multiple_callbacks_on_page(self):
@@ -214,8 +214,8 @@ class TestCallbackFlow:
         assert len(children) == 2
 
         # Both buttons should have different callback IDs
-        cb1 = children[0]["props"]["onClick"]["callbackId"]
-        cb2 = children[1]["props"]["onClick"]["callbackId"]
+        cb1 = children[0]["props"]["on_click"]["callbackId"]
+        cb2 = children[1]["props"]["on_click"]["callbackId"]
         assert cb1 != cb2
 
 

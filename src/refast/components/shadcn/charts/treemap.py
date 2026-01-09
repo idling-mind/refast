@@ -90,8 +90,8 @@ class Treemap(Component):
                 "data": self.data,
                 "width": self.width,
                 "height": self.height,
-                "dataKey": self.data_key,
-                "nameKey": self.name_key,
+                "data_key": self.data_key,
+                "name_key": self.name_key,
                 "aspectRatio": self.aspect_ratio,
                 "type": self.type,
                 "fill": self.fill,
@@ -99,11 +99,13 @@ class Treemap(Component):
                 "colorPanel": self.color_panel,
                 "isAnimationActive": self.is_animation_active,
                 "animationBegin": self.animation_begin,
-                "animationDuration": self.animation_duration,
+                "animation_duration": self.animation_duration,
                 "animationEasing": self.animation_easing,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "onMouseEnter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
-                "onMouseLeave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
+                "on_click": self.on_click.serialize() if self.on_click else None,
+                "on_mouse_enter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
+                "on_mouse_leave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
                 **self.extra_props,
             },
         }
+
+

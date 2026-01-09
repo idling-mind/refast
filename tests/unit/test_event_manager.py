@@ -305,3 +305,6 @@ class TestEventManagerMiddleware:
 
         await manager.emit("test", {})
         assert called == [True]
+
+
+

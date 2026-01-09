@@ -1,3 +1,5 @@
+import colors from 'tailwindcss/colors';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
@@ -46,12 +48,17 @@ export default {
     // Removed 'active', 'disabled', 'group-hover' to save space.
     // Removed 'outline' property as it is rarely used with colors.
     { 
-      pattern: /^(bg|text|border)-(background|foreground|primary|secondary|destructive|muted|accent|popover|card|input|border)$/,
+      pattern: /^(bg|text|border)-(background|foreground|primary|secondary|destructive|success|warning|failure|info|muted|accent|popover|card|input|border)$/,
+      variants: ['hover'],
+    },
+    // Palette Colors (red, blue, etc.) - Needed for dynamic usage in Python
+    {
+      pattern: /^(bg|text|border)-(red|orange|yellow|green|teal|blue|purple|pink|gray|slate)-(50|100|200|300|400|500|600|700|800|900|950)$/,
       variants: ['hover'],
     },
     // Ring usually only needs focus
     { 
-      pattern: /^ring-(background|foreground|primary|secondary|destructive|muted|accent|popover|card|input|border)$/,
+      pattern: /^ring-(background|foreground|primary|secondary|destructive|success|warning|failure|info|muted|accent|popover|card|input|border)$/,
       variants: ['focus'],
     },
     
@@ -83,6 +90,22 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          foreground: 'hsl(var(--info-foreground))',
+        },
+        failure: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
@@ -99,6 +122,15 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        red: colors.red,
+        orange: colors.orange,
+        green: colors.green,
+        yellow: colors.yellow,
+        teal: colors.teal,
+        blue: colors.blue,
+        purple: colors.purple,
+        gray: colors.gray,
+        pink: colors.pink,
       },
       borderRadius: {
         lg: 'var(--radius)',

@@ -4,13 +4,17 @@ interface AlertProps {
     id?: string;
     className?: string;
     variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+    title?: string;
+    message?: string;
     children?: React.ReactNode;
+    dismissible?: boolean;
+    onDismiss?: () => void;
     'data-refast-id'?: string;
 }
 /**
  * Alert component - shadcn-styled alert.
  */
-export declare function Alert({ id, className, variant, children, 'data-refast-id': dataRefastId, }: AlertProps): React.ReactElement;
+export declare function Alert({ id, className, variant, title, message, children, dismissible, onDismiss, 'data-refast-id': dataRefastId, }: AlertProps): React.ReactElement | null;
 interface AlertTitleProps {
     id?: string;
     className?: string;

@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '../../utils';
+import { X } from 'lucide-react';
 
 interface AlertProps {
   id?: string;
   className?: string;
   variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+  title?: string;
+  message?: string;
   children?: React.ReactNode;
+  dismissible?: boolean;
+  onDismiss?: () => void;
   'data-refast-id'?: string;
 }
 
@@ -16,15 +21,31 @@ export function Alert({
   id,
   className,
   variant = 'default',
+  title,
+  message,
   children,
+  dismissible,
+  onDismiss,
   'data-refast-id': dataRefastId,
-}: AlertProps): React.ReactElement {
+}: AlertProps): React.ReactElement | null {
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) {
+    return null;
+  }
+
   const variantClasses = {
     default: 'bg-background text-foreground',
-    destructive: 'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
-    success: 'border-green-500/50 text-green-700 dark:text-green-400 [&>svg]:text-green-500',
-    warning: 'border-yellow-500/50 text-yellow-700 dark:text-yellow-400 [&>svg]:text-yellow-500',
-    info: 'border-blue-500/50 text-blue-700 dark:text-blue-400 [&>svg]:text-blue-500',
+    destructive: 'bg-destructive text-destructive-foreground [&>svg]:text-destructive-foreground',
+    success: 'bg-success text-success-foreground [&>svg]:text-success-foreground',
+    warning: 'bg-warning text-warning-foreground [&>svg]:text-warning-foreground',
+    info: 'bg-info text-info-foreground [&>svg]:text-info-foreground',
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setVisible(false);
+    onDismiss?.();
   };
 
   return (
@@ -40,6 +61,17 @@ export function Alert({
       )}
       data-refast-id={dataRefastId}
     >
+      {dismissible && (
+        <button
+          onClick={handleDismiss}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+      )}
+      {title && <AlertTitle>{title}</AlertTitle>}
+      {message && <AlertDescription>{message}</AlertDescription>}
       {children}
     </div>
   );

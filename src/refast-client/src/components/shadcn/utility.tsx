@@ -133,110 +133,41 @@ export function ScrollArea({
 // Collapsible
 // ============================================================================
 
-export interface CollapsibleProps extends BaseProps, ChildrenProp {
-  open?: boolean;
-  defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  disabled?: boolean;
-  trigger?: React.ReactNode;
-}
+export const Collapsible = CollapsiblePrimitive.Root;
 
-export function Collapsible({
-  open,
-  defaultOpen,
-  onOpenChange,
-  disabled,
-  trigger,
-  className,
-  children,
-  ...props
-}: CollapsibleProps) {
-  // Compositional mode (no trigger provided)
-  if (!trigger && children && React.Children.count(children) > 0) {
-    return (
-      <CollapsiblePrimitive.Root
-        open={open}
-        defaultOpen={defaultOpen}
-        onOpenChange={onOpenChange}
-        disabled={disabled}
-        className={cn('space-y-2', className)}
-        {...props}
-      >
-        {children}
-      </CollapsiblePrimitive.Root>
-    );
-  }
+export const CollapsibleTrigger = React.forwardRef<
+  React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
+>(({ children, ...props }, ref) => {
+  // Unwrap single child array if present (fixes Radix Slot issue with internal renderer)
+  const child =
+    Array.isArray(children) && children.length === 1 ? children[0] : children;
 
-  // High-level wrapper
   return (
-    <CollapsiblePrimitive.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange}
-      disabled={disabled}
-      className={cn('space-y-2', className)}
-      {...props}
-    >
-      {trigger && (
-        <CollapsiblePrimitive.Trigger asChild>
-          {trigger}
-        </CollapsiblePrimitive.Trigger>
-      )}
-      <CollapsiblePrimitive.Content
-        className={cn(
-          'overflow-hidden',
-          'data-[state=closed]:animate-collapsible-up',
-          'data-[state=open]:animate-collapsible-down'
-        )}
-      >
-        {children}
-      </CollapsiblePrimitive.Content>
-    </CollapsiblePrimitive.Root>
-  );
-}
-
-// ============================================================================
-// Collapsible Compositional API
-// ============================================================================
-
-export interface CollapsibleTriggerProps extends ChildrenProp {
-  asChild?: boolean;
-  className?: string;
-}
-
-export function CollapsibleTrigger({
-  asChild = true,
-  className,
-  children,
-}: CollapsibleTriggerProps) {
-  return (
-    <CollapsiblePrimitive.Trigger asChild={asChild} className={className}>
-      {children}
+    <CollapsiblePrimitive.Trigger ref={ref} {...props}>
+      {child}
     </CollapsiblePrimitive.Trigger>
   );
-}
+});
+CollapsibleTrigger.displayName = CollapsiblePrimitive.Trigger.displayName;
 
-export interface CollapsibleContentProps extends ChildrenProp {
-  className?: string;
-}
-
-export function CollapsibleContent({
-  className,
-  children,
-}: CollapsibleContentProps) {
-  return (
-    <CollapsiblePrimitive.Content
-      className={cn(
-        'overflow-hidden',
-        'data-[state=closed]:animate-collapsible-up',
-        'data-[state=open]:animate-collapsible-down',
-        className
-      )}
-    >
-      {children}
-    </CollapsiblePrimitive.Content>
-  );
-}
+export const CollapsibleContent = React.forwardRef<
+  React.ElementRef<typeof CollapsiblePrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <CollapsiblePrimitive.Content
+    ref={ref}
+    className={cn(
+      'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden',
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </CollapsiblePrimitive.Content>
+));
+CollapsibleContent.displayName =
+  CollapsiblePrimitive.Content.displayName;
 
 // ============================================================================
 // Carousel

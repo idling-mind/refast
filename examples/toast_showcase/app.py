@@ -23,6 +23,7 @@ from refast.components import (
     Column,
     Container,
     Grid,
+    Heading,
     Row,
     Text,
     ThemeSwitcher,
@@ -321,7 +322,7 @@ def home(ctx: Context):
                     Column(
                         gap=2,
                         children=[
-                            Text("Toast Notifications Showcase", variant="h1"),
+                            Heading("Toast Notifications Showcase"),
                             Text(
                                 "Explore all the toast notification options available with Sonner",
                                 class_name="text-muted-foreground text-lg",

@@ -9,7 +9,6 @@ interface ToastManagerProps {
     duration?: number;
     expand?: boolean;
     visibleToasts?: number;
-    theme?: 'light' | 'dark' | 'system';
     offset?: string | number;
     gap?: number;
     dir?: 'ltr' | 'rtl' | 'auto';
@@ -32,7 +31,7 @@ interface ToastManagerProps {
  * - cancel: secondary cancel button with callback
  * - id: custom ID for updating/dismissing
  */
-export declare function ToastManager({ className, position, richColors, closeButton, duration, expand, visibleToasts, theme, offset, gap, dir, hotkey, invert, }: ToastManagerProps): React.ReactElement;
+export declare function ToastManager({ className, position, richColors, closeButton, duration, expand, visibleToasts, offset, gap, dir, hotkey, invert, }: ToastManagerProps): React.ReactElement;
 export { toast };
 /**
  * Dismiss a toast by ID.

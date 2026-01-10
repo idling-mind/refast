@@ -5,6 +5,7 @@ import { BaseProps, ChildrenProp } from './types';
  * Separator, AspectRatio, ScrollArea, Collapsible, Carousel, Resizable, InputOTP
  */
 import * as React from 'react';
+import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import * as ResizablePrimitive from "react-resizable-panels";
 export interface SeparatorProps extends BaseProps {
     orientation?: 'horizontal' | 'vertical';
@@ -22,23 +23,9 @@ export interface ScrollAreaProps extends BaseProps {
     dir?: 'ltr' | 'rtl';
 }
 export declare function ScrollArea({ type, scrollHideDelay, className, children, ...props }: ScrollAreaProps): import("react/jsx-runtime").JSX.Element;
-export interface CollapsibleProps extends BaseProps, ChildrenProp {
-    open?: boolean;
-    defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    disabled?: boolean;
-    trigger?: React.ReactNode;
-}
-export declare function Collapsible({ open, defaultOpen, onOpenChange, disabled, trigger, className, children, ...props }: CollapsibleProps): import("react/jsx-runtime").JSX.Element;
-export interface CollapsibleTriggerProps extends ChildrenProp {
-    asChild?: boolean;
-    className?: string;
-}
-export declare function CollapsibleTrigger({ asChild, className, children, }: CollapsibleTriggerProps): import("react/jsx-runtime").JSX.Element;
-export interface CollapsibleContentProps extends ChildrenProp {
-    className?: string;
-}
-export declare function CollapsibleContent({ className, children, }: CollapsibleContentProps): import("react/jsx-runtime").JSX.Element;
+export declare const Collapsible: React.ForwardRefExoticComponent<CollapsiblePrimitive.CollapsibleProps & React.RefAttributes<HTMLDivElement>>;
+export declare const CollapsibleTrigger: React.ForwardRefExoticComponent<Omit<CollapsiblePrimitive.CollapsibleTriggerProps & React.RefAttributes<HTMLButtonElement>, "ref"> & React.RefAttributes<HTMLButtonElement>>;
+export declare const CollapsibleContent: React.ForwardRefExoticComponent<Omit<CollapsiblePrimitive.CollapsibleContentProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
 export interface CarouselProps extends BaseProps, ChildrenProp {
     orientation?: 'horizontal' | 'vertical';
     opts?: Parameters<typeof useEmblaCarousel>[0];
@@ -119,9 +106,9 @@ export declare const UtilityComponents: {
     Separator: typeof Separator;
     AspectRatio: typeof AspectRatio;
     ScrollArea: typeof ScrollArea;
-    Collapsible: typeof Collapsible;
-    CollapsibleTrigger: typeof CollapsibleTrigger;
-    CollapsibleContent: typeof CollapsibleContent;
+    Collapsible: React.ForwardRefExoticComponent<CollapsiblePrimitive.CollapsibleProps & React.RefAttributes<HTMLDivElement>>;
+    CollapsibleTrigger: React.ForwardRefExoticComponent<Omit<CollapsiblePrimitive.CollapsibleTriggerProps & React.RefAttributes<HTMLButtonElement>, "ref"> & React.RefAttributes<HTMLButtonElement>>;
+    CollapsibleContent: React.ForwardRefExoticComponent<Omit<CollapsiblePrimitive.CollapsibleContentProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
     Carousel: typeof Carousel;
     CarouselContent: typeof CarouselContent;
     CarouselItem: typeof CarouselItem;

@@ -527,12 +527,13 @@ interface ComboboxProps {
   id?: string;
   className?: string;
   options?: ComboboxOption[];
-  value?: string;
+  value?: string | string[];
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
+  multiselect?: boolean;
   disabled?: boolean;
-  onSelect?: (value: string) => void;
+  onSelect?: (value: string | string[]) => void;
   'data-refast-id'?: string;
 }
 
@@ -544,6 +545,7 @@ export function Combobox({
   placeholder = 'Select...',
   searchPlaceholder = 'Search...',
   emptyText = 'No results found.',
+  multiselect = false,
   disabled = false,
   onSelect,
   'data-refast-id': dataRefastId,
@@ -551,30 +553,150 @@ export function Combobox({
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
 
+  const [internalValue, setInternalValue] = React.useState<string | string[]>(
+    value !== undefined ? value : (multiselect ? [] : '')
+  );
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
+
+  // Ensure internalValue is array if multiselect is true
+  React.useEffect(() => {
+    if (multiselect && !Array.isArray(internalValue)) {
+      setInternalValue(internalValue ? [internalValue as string] : []);
+    }
+  }, [multiselect]); // removed internalValue from deps to avoid loop if modifying it
+
   const filteredOptions = options.filter((option) => {
     if (!option || typeof option.label !== 'string') return false;
     return option.label.toLowerCase().includes(search.toLowerCase());
   });
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const isSelected = (val: string) => {
+    if (multiselect && Array.isArray(internalValue)) {
+      return internalValue.includes(val);
+    }
+    return internalValue === val;
+  };
+
+  const handleSelect = (val: string) => {
+    if (multiselect) {
+      const current = Array.isArray(internalValue) ? internalValue : [];
+      let next: string[];
+      if (current.includes(val)) {
+        next = current.filter((v) => v !== val);
+      } else {
+        next = [...current, val];
+      }
+      setInternalValue(next);
+      if (onSelect) onSelect(next);
+      // Keep open for multiselect
+    } else {
+      setInternalValue(val);
+      if (onSelect) onSelect(val);
+      setOpen(false);
+      setSearch('');
+    }
+  };
+
+  const removeValue = (e: React.MouseEvent, val: string) => {
+    e.stopPropagation();
+    if (multiselect && Array.isArray(internalValue)) {
+      const next = internalValue.filter((v) => v !== val);
+      setInternalValue(next);
+      if (onSelect) onSelect(next);
+    }
+  };
 
   return (
-    <div className={cn('relative', className)} data-refast-id={dataRefastId}>
+    <div
+      ref={containerRef}
+      className={cn('relative', className)}
+      data-refast-id={dataRefastId}
+    >
       <button
         id={id}
         type="button"
         disabled={disabled}
         onClick={() => setOpen(!open)}
         className={cn(
-          'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm',
+          'flex min-h-[2.5rem] w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm',
           'ring-offset-background placeholder:text-muted-foreground',
           'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50'
         )}
       >
-        <span className={!selectedOption ? 'text-muted-foreground' : ''}>
-          {selectedOption?.label || placeholder}
-        </span>
+        {multiselect && Array.isArray(internalValue) && internalValue.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {internalValue.map((val) => {
+              const label = options.find((o) => o.value === val)?.label || val;
+              return (
+                <div
+                  key={val}
+                  className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground"
+                >
+                  {label}
+                  <div
+                    role="button"
+                    className="ml-1 cursor-pointer rounded-full p-0.5 hover:bg-secondary-foreground/20"
+                    onClick={(e) => removeValue(e, val)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <span className={!internalValue || (Array.isArray(internalValue) && internalValue.length === 0) ? 'text-muted-foreground' : ''}>
+            {(!multiselect && typeof internalValue === 'string' && options.find((opt) => opt.value === internalValue)?.label) || placeholder}
+          </span>
+        )}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -623,42 +745,41 @@ export function Combobox({
                 {emptyText}
               </div>
             ) : (
-              filteredOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    if (onSelect) onSelect(option.value);
-                    setOpen(false);
-                    setSearch('');
-                  }}
-                  className={cn(
-                    'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
-                    'hover:bg-accent hover:text-accent-foreground',
-                    option.value === value && 'bg-accent text-accent-foreground'
-                  )}
-                >
-                  {option.value === value && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mr-2 h-4 w-4"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                  <span className={option.value !== value ? 'pl-6' : ''}>
-                    {option.label}
-                  </span>
-                </button>
-              ))
+              filteredOptions.map((option) => {
+                const selected = isSelected(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleSelect(option.value)}
+                    className={cn(
+                      'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+                      'hover:bg-accent hover:text-accent-foreground',
+                      selected && 'bg-accent text-accent-foreground'
+                    )}
+                  >
+                    {selected && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-2 h-4 w-4"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                    <span className={!selected ? 'pl-6' : ''}>
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>

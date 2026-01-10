@@ -106,15 +106,16 @@ interface ComboboxProps {
     id?: string;
     className?: string;
     options?: ComboboxOption[];
-    value?: string;
+    value?: string | string[];
     placeholder?: string;
     searchPlaceholder?: string;
     emptyText?: string;
+    multiselect?: boolean;
     disabled?: boolean;
-    onSelect?: (value: string) => void;
+    onSelect?: (value: string | string[]) => void;
     'data-refast-id'?: string;
 }
-export declare function Combobox({ id, className, options, value, placeholder, searchPlaceholder, emptyText, disabled, onSelect, 'data-refast-id': dataRefastId, }: ComboboxProps): React.ReactElement;
+export declare function Combobox({ id, className, options, value, placeholder, searchPlaceholder, emptyText, multiselect, disabled, onSelect, 'data-refast-id': dataRefastId, }: ComboboxProps): React.ReactElement;
 interface InputOTPProps {
     id?: string;
     className?: string;

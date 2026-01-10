@@ -110,7 +110,11 @@ async def on_toggle_change(ctx: Context):
 
 async def dropdown_select(ctx: Context):
     """Handle dropdown selection."""
-    selection = ctx.event_data.get("value", "")
+    print(ctx.event_data)
+    if "value" in ctx.event_data:
+        selection = ctx.event_data.get("value", "")
+    else:
+        selection = ", ".join(ctx.event_data.values())
     await ctx.show_toast(f"Selected: {selection}", variant="info")
 
 
@@ -353,6 +357,19 @@ def home(ctx: Context):
                                                     {"value": "angular", "label": "Angular"},
                                                     {"value": "svelte", "label": "Svelte"},
                                                 ],
+                                                on_select=ctx.callback(dropdown_select),
+                                            ),
+                                            Separator(class_name="mt-4 mb-4"),
+                                            Label("You can select multiple options in this combobox."),
+                                            Combobox(
+                                                placeholder="Choose frameworks...",
+                                                options=[
+                                                    {"value": "react", "label": "React"},
+                                                    {"value": "vue", "label": "Vue"},
+                                                    {"value": "angular", "label": "Angular"},
+                                                    {"value": "svelte", "label": "Svelte"},
+                                                ],
+                                                multiselect=True,
                                                 on_select=ctx.callback(dropdown_select),
                                             ),
                                         ],

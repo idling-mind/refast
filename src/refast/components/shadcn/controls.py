@@ -454,6 +454,7 @@ class Combobox(Component):
                 {"value": "react", "label": "React"},
             ],
             placeholder="Select framework...",
+            multiselect=True,
             on_select=ctx.callback(handle_select),
         )
         ```
@@ -464,10 +465,11 @@ class Combobox(Component):
     def __init__(
         self,
         options: list[dict[str, str]] | None = None,
-        value: str = "",
+        value: str | list[str] = "",
         placeholder: str = "Select...",
         search_placeholder: str = "Search...",
         empty_text: str = "No results found.",
+        multiselect: bool = False,
         disabled: bool = False,
         on_select: Any = None,
         id: str | None = None,
@@ -480,6 +482,7 @@ class Combobox(Component):
         self.placeholder = placeholder
         self.search_placeholder = search_placeholder
         self.empty_text = empty_text
+        self.multiselect = multiselect
         self.disabled = disabled
         self.on_select = on_select
 
@@ -493,6 +496,7 @@ class Combobox(Component):
                 "placeholder": self.placeholder,
                 "search_placeholder": self.search_placeholder,
                 "empty_text": self.empty_text,
+                "multiselect": self.multiselect,
                 "disabled": self.disabled,
                 "on_select": self.on_select.serialize() if self.on_select else None,
                 "class_name": self.class_name,

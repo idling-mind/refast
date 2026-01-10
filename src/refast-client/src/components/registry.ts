@@ -23,7 +23,11 @@ import {
   Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis,
   Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem, MenubarSeparator, MenubarCheckboxItem, MenubarRadioGroup, MenubarRadioItem, MenubarSub, MenubarSubTrigger, MenubarSubContent,
   Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator, CommandShortcut,
-  Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger
+  SidebarProvider, Sidebar, SidebarInset, SidebarHeader, SidebarContent, SidebarFooter, SidebarSeparator,
+  SidebarGroup, SidebarGroupLabel, SidebarGroupAction, SidebarGroupContent,
+  SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuAction, SidebarMenuBadge,
+  SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarMenuSkeleton,
+  SidebarRail, SidebarTrigger
 } from './shadcn/navigation';
 
 // Import new Stage 9 components - Overlay
@@ -231,16 +235,27 @@ componentRegistry.register('CommandGroup', CommandGroup);
 componentRegistry.register('CommandItem', CommandItem);
 componentRegistry.register('CommandSeparator', CommandSeparator);
 componentRegistry.register('CommandShortcut', CommandShortcut);
+componentRegistry.register('SidebarProvider', SidebarProvider);
 componentRegistry.register('Sidebar', Sidebar);
+componentRegistry.register('SidebarInset', SidebarInset);
 componentRegistry.register('SidebarHeader', SidebarHeader);
 componentRegistry.register('SidebarContent', SidebarContent);
 componentRegistry.register('SidebarFooter', SidebarFooter);
+componentRegistry.register('SidebarSeparator', SidebarSeparator);
 componentRegistry.register('SidebarGroup', SidebarGroup);
 componentRegistry.register('SidebarGroupLabel', SidebarGroupLabel);
+componentRegistry.register('SidebarGroupAction', SidebarGroupAction);
 componentRegistry.register('SidebarGroupContent', SidebarGroupContent);
 componentRegistry.register('SidebarMenu', SidebarMenu);
 componentRegistry.register('SidebarMenuItem', SidebarMenuItem);
 componentRegistry.register('SidebarMenuButton', SidebarMenuButton);
+componentRegistry.register('SidebarMenuAction', SidebarMenuAction);
+componentRegistry.register('SidebarMenuBadge', SidebarMenuBadge);
+componentRegistry.register('SidebarMenuSub', SidebarMenuSub);
+componentRegistry.register('SidebarMenuSubItem', SidebarMenuSubItem);
+componentRegistry.register('SidebarMenuSubButton', SidebarMenuSubButton);
+componentRegistry.register('SidebarMenuSkeleton', SidebarMenuSkeleton);
+componentRegistry.register('SidebarRail', SidebarRail);
 componentRegistry.register('SidebarTrigger', SidebarTrigger);
 
 // Register overlay components (Stage 9)

@@ -1332,13 +1332,77 @@ class CommandShortcut(Component):
         }
 
 
+class SidebarProvider(Component):
+    """
+    Provides context for sidebar state management.
+
+    The SidebarProvider component wraps your application and provides
+    the sidebar context to all child components. It handles:
+    - Collapsible state (open/closed)
+    - Mobile responsiveness
+    - Keyboard shortcuts (Ctrl/Cmd+B)
+
+    Example:
+        ```python
+        SidebarProvider(
+            children=[
+                Sidebar(...),
+                SidebarInset(
+                    children=[
+                        SidebarTrigger(),
+                        # Your main content
+                    ]
+                ),
+            ]
+        )
+        ```
+
+    Args:
+        default_open: Initial open state of the sidebar (default: True)
+        children: Child components
+    """
+
+    component_type: str = "SidebarProvider"
+
+    def __init__(
+        self,
+        children: list["Component"] | None = None,
+        default_open: bool = True,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.default_open = default_open
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "defaultOpen": self.default_open,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
 class Sidebar(Component):
     """
-    A composable sidebar component.
+    A composable, themeable and customizable sidebar component.
+
+    The Sidebar component is the main container for the sidebar navigation.
+    It supports different variants, sides, and collapsible modes.
 
     Example:
         ```python
         Sidebar(
+            side="left",
+            variant="sidebar",
+            collapsible="icon",
             children=[
                 SidebarHeader(...),
                 SidebarContent(
@@ -1347,16 +1411,23 @@ class Sidebar(Component):
                         SidebarGroupContent(
                             SidebarMenu(
                                 SidebarMenuItem(
-                                    SidebarMenuButton("Dashboard", icon="Home")
+                                    SidebarMenuButton("Dashboard", icon="🏠")
                                 ),
                             ),
                         ),
                     ),
                 ),
                 SidebarFooter(...),
+                SidebarRail(),
             ]
         )
         ```
+
+    Args:
+        side: The side of the sidebar ("left" or "right")
+        variant: The variant style ("sidebar", "floating", or "inset")
+        collapsible: Collapsible mode ("offcanvas", "icon", or "none")
+        children: Child components
     """
 
     component_type: str = "Sidebar"
@@ -1393,8 +1464,70 @@ class Sidebar(Component):
         }
 
 
+class SidebarInset(Component):
+    """
+    The main content area when using inset variant sidebar.
+
+    Use SidebarInset to wrap your main content when using `variant="inset"`.
+    It provides proper spacing and styling for the inset layout.
+
+    Example:
+        ```python
+        SidebarProvider(
+            children=[
+                Sidebar(variant="inset", ...),
+                SidebarInset(
+                    children=[
+                        SidebarTrigger(),
+                        # Main content here
+                    ]
+                ),
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarInset"
+
+    def __init__(
+        self,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
 class SidebarHeader(Component):
-    """The header section of the sidebar."""
+    """
+    The header section of the sidebar.
+
+    Use SidebarHeader for branding, workspace selectors, or other
+    content that should stick to the top of the sidebar.
+
+    Example:
+        ```python
+        SidebarHeader(
+            children=[
+                Text("My Application", class_name="text-lg font-bold"),
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarHeader"
 
@@ -1422,7 +1555,22 @@ class SidebarHeader(Component):
 
 
 class SidebarContent(Component):
-    """The main content area of the sidebar."""
+    """
+    The main scrollable content area of the sidebar.
+
+    SidebarContent is where you place your SidebarGroup components.
+    It automatically handles overflow scrolling.
+
+    Example:
+        ```python
+        SidebarContent(
+            children=[
+                SidebarGroup(...),
+                SidebarGroup(...),
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarContent"
 
@@ -1450,7 +1598,29 @@ class SidebarContent(Component):
 
 
 class SidebarFooter(Component):
-    """The footer section of the sidebar."""
+    """
+    The footer section of the sidebar.
+
+    Use SidebarFooter for user menus, settings, or other content
+    that should stick to the bottom of the sidebar.
+
+    Example:
+        ```python
+        SidebarFooter(
+            children=[
+                SidebarMenu(
+                    children=[
+                        SidebarMenuItem(
+                            children=[
+                                SidebarMenuButton("Settings", icon="⚙️")
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarFooter"
 
@@ -1477,8 +1647,53 @@ class SidebarFooter(Component):
         }
 
 
+class SidebarSeparator(Component):
+    """A visual separator within the sidebar."""
+
+    component_type: str = "SidebarSeparator"
+
+    def __init__(
+        self,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
+        }
+
+
 class SidebarGroup(Component):
-    """A group of related sidebar items."""
+    """
+    A group of related sidebar items.
+
+    Use SidebarGroup to organize menu items into logical sections.
+    Each group can have a label and optional action button.
+
+    Example:
+        ```python
+        SidebarGroup(
+            children=[
+                SidebarGroupLabel("Projects"),
+                SidebarGroupAction(icon="➕", title="Add Project"),
+                SidebarGroupContent(
+                    children=[
+                        SidebarMenu(...)
+                    ]
+                )
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarGroup"
 
@@ -1506,7 +1721,14 @@ class SidebarGroup(Component):
 
 
 class SidebarGroupLabel(Component):
-    """A label for a sidebar group."""
+    """
+    A label for a sidebar group.
+
+    Example:
+        ```python
+        SidebarGroupLabel("Navigation")
+        ```
+    """
 
     component_type: str = "SidebarGroupLabel"
 
@@ -1532,8 +1754,69 @@ class SidebarGroupLabel(Component):
         }
 
 
+class SidebarGroupAction(Component):
+    """
+    An action button for a sidebar group (appears next to the label).
+
+    Example:
+        ```python
+        SidebarGroupAction(
+            icon="➕",
+            title="Add Item",
+            on_click=ctx.callback(handle_add)
+        )
+        ```
+    """
+
+    component_type: str = "SidebarGroupAction"
+
+    def __init__(
+        self,
+        icon: str | None = None,
+        title: str | None = None,
+        on_click: Any = None,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.icon = icon
+        self.title = title
+        self.on_click = on_click
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        children = self._render_children()
+        if self.icon and not children:
+            children = [self.icon]
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "title": self.title,
+                "onClick": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": children,
+        }
+
+
 class SidebarGroupContent(Component):
-    """The content of a sidebar group."""
+    """
+    The content container of a sidebar group.
+
+    Example:
+        ```python
+        SidebarGroupContent(
+            children=[
+                SidebarMenu(...)
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarGroupContent"
 
@@ -1561,7 +1844,19 @@ class SidebarGroupContent(Component):
 
 
 class SidebarMenu(Component):
-    """A menu within the sidebar."""
+    """
+    A menu container within the sidebar.
+
+    Example:
+        ```python
+        SidebarMenu(
+            children=[
+                SidebarMenuItem(...),
+                SidebarMenuItem(...),
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarMenu"
 
@@ -1589,7 +1884,18 @@ class SidebarMenu(Component):
 
 
 class SidebarMenuItem(Component):
-    """A single menu item."""
+    """
+    A single menu item container.
+
+    Example:
+        ```python
+        SidebarMenuItem(
+            children=[
+                SidebarMenuButton("Dashboard", icon="🏠", is_active=True)
+            ]
+        )
+        ```
+    """
 
     component_type: str = "SidebarMenuItem"
 
@@ -1620,7 +1926,28 @@ class SidebarMenuItem(Component):
 
 
 class SidebarMenuButton(Component):
-    """A button in the sidebar menu."""
+    """
+    A clickable button in the sidebar menu.
+
+    Example:
+        ```python
+        SidebarMenuButton(
+            "Dashboard",
+            icon="🏠",
+            is_active=True,
+            on_click=ctx.callback(handle_click)
+        )
+        ```
+
+    Args:
+        label: The button text
+        icon: Optional icon (emoji or text)
+        is_active: Whether the button is currently active
+        variant: "default" or "outline"
+        size: "default", "sm", or "lg"
+        href: Optional URL to link to
+        on_click: Optional click callback
+    """
 
     component_type: str = "SidebarMenuButton"
 
@@ -1628,7 +1955,10 @@ class SidebarMenuButton(Component):
         self,
         label: str,
         icon: str | None = None,
-        active: bool = False,
+        is_active: bool = False,
+        variant: Literal["default", "outline"] = "default",
+        size: Literal["default", "sm", "lg"] = "default",
+        href: str | None = None,
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -1637,7 +1967,10 @@ class SidebarMenuButton(Component):
         super().__init__(id=id, class_name=class_name, **props)
         self.label = label
         self.icon = icon
-        self.active = active
+        self.is_active = is_active
+        self.variant = variant
+        self.size = size
+        self.href = href
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
@@ -1646,8 +1979,11 @@ class SidebarMenuButton(Component):
             "id": self.id,
             "props": {
                 "icon": self.icon,
-                "active": self.active,
-                "on_click": self.on_click.serialize() if self.on_click else None,
+                "isActive": self.is_active,
+                "variant": self.variant,
+                "size": self.size,
+                "href": self.href,
+                "onClick": self.on_click.serialize() if self.on_click else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1655,10 +1991,285 @@ class SidebarMenuButton(Component):
         }
 
 
-class SidebarTrigger(Component):
-    """A button to toggle the sidebar."""
+class SidebarMenuAction(Component):
+    """
+    An action button within a menu item.
 
-    component_type: str = "SidebarTrigger"
+    Works independently of SidebarMenuButton, allowing the menu button
+    to be a link while the action button triggers a different action.
+
+    Example:
+        ```python
+        SidebarMenuItem(
+            children=[
+                SidebarMenuButton("Project", href="/project"),
+                SidebarMenuAction(
+                    icon="⋮",
+                    on_click=ctx.callback(handle_options)
+                )
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarMenuAction"
+
+    def __init__(
+        self,
+        icon: str | None = None,
+        show_on_hover: bool = False,
+        on_click: Any = None,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.icon = icon
+        self.show_on_hover = show_on_hover
+        self.on_click = on_click
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        children = self._render_children()
+        if self.icon and not children:
+            children = [self.icon]
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "showOnHover": self.show_on_hover,
+                "onClick": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": children,
+        }
+
+
+class SidebarMenuBadge(Component):
+    """
+    A badge displayed on a menu item.
+
+    Example:
+        ```python
+        SidebarMenuItem(
+            children=[
+                SidebarMenuButton("Inbox"),
+                SidebarMenuBadge("24")
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarMenuBadge"
+
+    def __init__(
+        self,
+        badge: str,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.badge = badge
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [self.badge],
+        }
+
+
+class SidebarMenuSub(Component):
+    """
+    A submenu container for nested menu items.
+
+    Example:
+        ```python
+        SidebarMenuItem(
+            children=[
+                SidebarMenuButton("Settings"),
+                SidebarMenuSub(
+                    children=[
+                        SidebarMenuSubItem(
+                            children=[SidebarMenuSubButton("General")]
+                        ),
+                        SidebarMenuSubItem(
+                            children=[SidebarMenuSubButton("Security")]
+                        ),
+                    ]
+                )
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarMenuSub"
+
+    def __init__(
+        self,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class SidebarMenuSubItem(Component):
+    """A submenu item container."""
+
+    component_type: str = "SidebarMenuSubItem"
+
+    def __init__(
+        self,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class SidebarMenuSubButton(Component):
+    """
+    A button for submenu items.
+
+    Example:
+        ```python
+        SidebarMenuSubButton("General Settings", is_active=True)
+        ```
+    """
+
+    component_type: str = "SidebarMenuSubButton"
+
+    def __init__(
+        self,
+        label: str,
+        is_active: bool = False,
+        size: Literal["sm", "md"] = "md",
+        href: str | None = None,
+        on_click: Any = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.label = label
+        self.is_active = is_active
+        self.size = size
+        self.href = href
+        self.on_click = on_click
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "isActive": self.is_active,
+                "size": self.size,
+                "href": self.href,
+                "onClick": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [self.label],
+        }
+
+
+class SidebarMenuSkeleton(Component):
+    """
+    A skeleton loader for menu items.
+
+    Example:
+        ```python
+        SidebarMenu(
+            children=[
+                SidebarMenuItem(SidebarMenuSkeleton(show_icon=True))
+                for _ in range(5)
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarMenuSkeleton"
+
+    def __init__(
+        self,
+        show_icon: bool = False,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.show_icon = show_icon
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "showIcon": self.show_icon,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
+        }
+
+
+class SidebarRail(Component):
+    """
+    A rail for toggling the sidebar by dragging or clicking.
+
+    Add SidebarRail to the end of your Sidebar to enable edge toggling.
+
+    Example:
+        ```python
+        Sidebar(
+            children=[
+                SidebarHeader(...),
+                SidebarContent(...),
+                SidebarFooter(...),
+                SidebarRail(),  # Add at the end
+            ]
+        )
+        ```
+    """
+
+    component_type: str = "SidebarRail"
 
     def __init__(
         self,
@@ -1678,4 +2289,40 @@ class SidebarTrigger(Component):
             },
             "children": [],
         }
+
+
+class SidebarTrigger(Component):
+    """
+    A button to toggle the sidebar open/closed.
+
+    Example:
+        ```python
+        SidebarTrigger()  # Uses default toggle behavior
+        ```
+    """
+
+    component_type: str = "SidebarTrigger"
+
+    def __init__(
+        self,
+        on_click: Any = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.on_click = on_click
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "onClick": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
+        }
+
 

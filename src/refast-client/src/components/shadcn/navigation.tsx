@@ -1355,8 +1355,140 @@ export function CommandShortcut({
 }
 
 // ============================================================================
-// Sidebar (simplified implementation)
+// Sidebar - Full implementation based on shadcn/ui
 // ============================================================================
+
+const SIDEBAR_WIDTH = '16rem';
+const SIDEBAR_WIDTH_MOBILE = '18rem';
+const SIDEBAR_WIDTH_ICON = '3rem';
+const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
+
+interface SidebarContextValue {
+  state: 'expanded' | 'collapsed';
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  openMobile: boolean;
+  setOpenMobile: (open: boolean) => void;
+  isMobile: boolean;
+  toggleSidebar: () => void;
+}
+
+const SidebarContext = React.createContext<SidebarContextValue | null>(null);
+
+export function useSidebar() {
+  const context = React.useContext(SidebarContext);
+  if (!context) {
+    throw new Error('useSidebar must be used within a SidebarProvider.');
+  }
+  return context;
+}
+
+interface SidebarProviderProps {
+  id?: string;
+  className?: string;
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+  'data-refast-id'?: string;
+}
+
+export function SidebarProvider({
+  id,
+  className,
+  defaultOpen = true,
+  open: openProp,
+  onOpenChange: setOpenProp,
+  children,
+  style,
+  'data-refast-id': dataRefastId,
+}: SidebarProviderProps): React.ReactElement {
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [openMobile, setOpenMobile] = React.useState(false);
+  const [_open, _setOpen] = React.useState(defaultOpen);
+  const open = openProp ?? _open;
+
+  const setOpen = React.useCallback(
+    (value: boolean | ((value: boolean) => boolean)) => {
+      const openState = typeof value === 'function' ? value(open) : value;
+      if (setOpenProp) {
+        setOpenProp(openState);
+      } else {
+        _setOpen(openState);
+      }
+    },
+    [setOpenProp, open]
+  );
+
+  const toggleSidebar = React.useCallback(() => {
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
+  }, [isMobile, setOpen, setOpenMobile]);
+
+  // Check for mobile
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Keyboard shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+        (event.metaKey || event.ctrlKey)
+      ) {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleSidebar]);
+
+  const state = open ? 'expanded' : 'collapsed';
+
+  const contextValue = React.useMemo<SidebarContextValue>(
+    () => ({
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+    }),
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+  );
+
+  return (
+    <SidebarContext.Provider value={contextValue}>
+      <div
+        id={id}
+        style={
+          {
+            '--sidebar-width': SIDEBAR_WIDTH,
+            '--sidebar-width-mobile': SIDEBAR_WIDTH_MOBILE,
+            '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
+            ...style,
+          } as React.CSSProperties
+        }
+        className={cn(
+          'group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+      </div>
+    </SidebarContext.Provider>
+  );
+}
 
 interface SidebarProps {
   id?: string;
@@ -1372,21 +1504,153 @@ export function Sidebar({
   id,
   className,
   side = 'left',
+  variant = 'sidebar',
+  collapsible = 'offcanvas',
   children,
   'data-refast-id': dataRefastId,
 }: SidebarProps): React.ReactElement {
+  const context = React.useContext(SidebarContext);
+  
+  // If no context, render a simple sidebar
+  if (!context) {
+    return (
+      <aside
+        id={id}
+        className={cn(
+          'flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border',
+          side === 'right' && 'border-l border-r-0',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+      </aside>
+    );
+  }
+
+  const { isMobile, state, openMobile, setOpenMobile } = context;
+
+  if (collapsible === 'none') {
+    return (
+      <div
+        id={id}
+        className={cn(
+          'flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile overlay */}
+        {openMobile && (
+          <div
+            className="fixed inset-0 z-50 bg-black/80"
+            onClick={() => setOpenMobile(false)}
+          />
+        )}
+        {/* Mobile sidebar */}
+        <aside
+          id={id}
+          className={cn(
+            'fixed inset-y-0 z-50 flex h-svh w-[--sidebar-width-mobile] flex-col bg-sidebar text-sidebar-foreground',
+            'transition-transform duration-200 ease-in-out',
+            side === 'left' ? 'left-0' : 'right-0',
+            openMobile
+              ? 'translate-x-0'
+              : side === 'left'
+              ? '-translate-x-full'
+              : 'translate-x-full',
+            className
+          )}
+          data-refast-id={dataRefastId}
+        >
+          {children}
+        </aside>
+      </>
+    );
+  }
+
   return (
-    <aside
+    <div
+      className="group peer hidden md:block text-sidebar-foreground"
+      data-state={state}
+      data-collapsible={state === 'collapsed' ? collapsible : ''}
+      data-variant={variant}
+      data-side={side}
+    >
+      {/* Spacer for the sidebar */}
+      <div
+        className={cn(
+          'relative h-svh w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear',
+          'group-data-[collapsible=offcanvas]:w-0',
+          'group-data-[side=right]:rotate-180',
+          variant === 'floating' || variant === 'inset'
+            ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
+            : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]'
+        )}
+      />
+      <aside
+        id={id}
+        className={cn(
+          'fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex',
+          side === 'left'
+            ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
+            : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+          'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[collapsible=icon]:overflow-hidden',
+          variant === 'floating' || variant === 'inset'
+            ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
+            : 'group-data-[side=left]:border-r group-data-[side=right]:border-l border-sidebar-border',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        <div
+          data-sidebar="sidebar"
+          className={cn(
+            'flex h-full w-full flex-col bg-sidebar',
+            variant === 'floating' && 'rounded-lg border border-sidebar-border shadow',
+            variant === 'inset' && 'rounded-lg border border-sidebar-border shadow'
+          )}
+        >
+          {children}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+interface SidebarInsetProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarInset({
+  id,
+  className,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarInsetProps): React.ReactElement {
+  return (
+    <main
       id={id}
       className={cn(
-        'flex h-full w-64 flex-col bg-background border-r',
-        side === 'right' && 'border-l border-r-0',
+        'relative flex min-h-svh flex-1 flex-col bg-background',
+        'peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow',
         className
       )}
       data-refast-id={dataRefastId}
     >
       {children}
-    </aside>
+    </main>
   );
 }
 
@@ -1406,7 +1670,8 @@ export function SidebarHeader({
   return (
     <div
       id={id}
-      className={cn('flex flex-col gap-2 p-4', className)}
+      data-sidebar="header"
+      className={cn('flex flex-col gap-2 p-2', className)}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -1430,7 +1695,11 @@ export function SidebarContent({
   return (
     <div
       id={id}
-      className={cn('flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-4', className)}
+      data-sidebar="content"
+      className={cn(
+        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+        className
+      )}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -1454,11 +1723,33 @@ export function SidebarFooter({
   return (
     <div
       id={id}
-      className={cn('flex flex-col gap-2 p-4', className)}
+      data-sidebar="footer"
+      className={cn('flex flex-col gap-2 p-2', className)}
       data-refast-id={dataRefastId}
     >
       {children}
     </div>
+  );
+}
+
+interface SidebarSeparatorProps {
+  id?: string;
+  className?: string;
+  'data-refast-id'?: string;
+}
+
+export function SidebarSeparator({
+  id,
+  className,
+  'data-refast-id': dataRefastId,
+}: SidebarSeparatorProps): React.ReactElement {
+  return (
+    <hr
+      id={id}
+      data-sidebar="separator"
+      className={cn('mx-2 w-auto bg-sidebar-border', className)}
+      data-refast-id={dataRefastId}
+    />
   );
 }
 
@@ -1478,6 +1769,7 @@ export function SidebarGroup({
   return (
     <div
       id={id}
+      data-sidebar="group"
       className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
       data-refast-id={dataRefastId}
     >
@@ -1502,14 +1794,54 @@ export function SidebarGroupLabel({
   return (
     <div
       id={id}
+      data-sidebar="group-label"
       className={cn(
-        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-muted-foreground',
+        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear',
+        'focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className
       )}
       data-refast-id={dataRefastId}
     >
       {children}
     </div>
+  );
+}
+
+interface SidebarGroupActionProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  onClick?: () => void;
+  title?: string;
+  'data-refast-id'?: string;
+}
+
+export function SidebarGroupAction({
+  id,
+  className,
+  children,
+  onClick,
+  title,
+  'data-refast-id': dataRefastId,
+}: SidebarGroupActionProps): React.ReactElement {
+  return (
+    <button
+      id={id}
+      data-sidebar="group-action"
+      onClick={onClick}
+      title={title}
+      className={cn(
+        'absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2',
+        '[&>svg]:size-4 [&>svg]:shrink-0',
+        'after:absolute after:-inset-2 after:md:hidden',
+        'group-data-[collapsible=icon]:hidden',
+        className
+      )}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -1529,7 +1861,8 @@ export function SidebarGroupContent({
   return (
     <div
       id={id}
-      className={cn('w-full', className)}
+      data-sidebar="group-content"
+      className={cn('w-full text-sm', className)}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -1553,6 +1886,7 @@ export function SidebarMenu({
   return (
     <ul
       id={id}
+      data-sidebar="menu"
       className={cn('flex w-full min-w-0 flex-col gap-1', className)}
       data-refast-id={dataRefastId}
     >
@@ -1577,6 +1911,7 @@ export function SidebarMenuItem({
   return (
     <li
       id={id}
+      data-sidebar="menu-item"
       className={cn('group/menu-item relative', className)}
       data-refast-id={dataRefastId}
     >
@@ -1589,8 +1924,12 @@ interface SidebarMenuButtonProps {
   id?: string;
   className?: string;
   icon?: string;
-  active?: boolean;
+  isActive?: boolean;
+  tooltip?: string;
+  variant?: 'default' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
   onClick?: () => void;
+  href?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -1598,20 +1937,99 @@ interface SidebarMenuButtonProps {
 export function SidebarMenuButton({
   id,
   className,
-  active,
+  icon,
+  isActive = false,
+  variant = 'default',
+  size = 'default',
   onClick,
+  href,
   children,
   'data-refast-id': dataRefastId,
 }: SidebarMenuButtonProps): React.ReactElement {
+  const buttonClasses = cn(
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground',
+    'group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    variant === 'outline' &&
+      'bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]',
+    size === 'sm' && 'h-7 text-xs',
+    size === 'lg' && 'h-12 text-sm group-data-[collapsible=icon]:!p-0',
+    className
+  );
+
+  const content = (
+    <>
+      {icon && (
+        <span className="flex size-4 shrink-0 items-center justify-center">
+          {icon}
+        </span>
+      )}
+      <span className="truncate">{children}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        id={id}
+        href={href}
+        data-sidebar="menu-button"
+        data-size={size}
+        data-active={isActive}
+        className={buttonClasses}
+        data-refast-id={dataRefastId}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <button
       id={id}
+      data-sidebar="menu-button"
+      data-size={size}
+      data-active={isActive}
+      onClick={onClick}
+      className={buttonClasses}
+      data-refast-id={dataRefastId}
+    >
+      {content}
+    </button>
+  );
+}
+
+interface SidebarMenuActionProps {
+  id?: string;
+  className?: string;
+  showOnHover?: boolean;
+  onClick?: () => void;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuAction({
+  id,
+  className,
+  showOnHover = false,
+  onClick,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuActionProps): React.ReactElement {
+  return (
+    <button
+      id={id}
+      data-sidebar="menu-action"
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none',
-        'ring-ring transition-colors hover:bg-accent hover:text-accent-foreground',
-        'focus-visible:ring-2 active:bg-accent active:text-accent-foreground',
-        active && 'bg-accent text-accent-foreground font-medium',
+        'absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground',
+        '[&>svg]:size-4 [&>svg]:shrink-0',
+        'after:absolute after:-inset-2 after:md:hidden',
+        'peer-data-[size=sm]/menu-button:top-1',
+        'peer-data-[size=default]/menu-button:top-1.5',
+        'peer-data-[size=lg]/menu-button:top-2.5',
+        'group-data-[collapsible=icon]:hidden',
+        showOnHover &&
+          'group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0',
         className
       )}
       data-refast-id={dataRefastId}
@@ -1621,22 +2039,253 @@ export function SidebarMenuButton({
   );
 }
 
+interface SidebarMenuBadgeProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuBadge({
+  id,
+  className,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuBadgeProps): React.ReactElement {
+  return (
+    <div
+      id={id}
+      data-sidebar="menu-badge"
+      className={cn(
+        'absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none',
+        'peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground',
+        'peer-data-[size=sm]/menu-button:top-1',
+        'peer-data-[size=default]/menu-button:top-1.5',
+        'peer-data-[size=lg]/menu-button:top-2.5',
+        'group-data-[collapsible=icon]:hidden',
+        className
+      )}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface SidebarMenuSubProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuSub({
+  id,
+  className,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuSubProps): React.ReactElement {
+  return (
+    <ul
+      id={id}
+      data-sidebar="menu-sub"
+      className={cn(
+        'mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5',
+        'group-data-[collapsible=icon]:hidden',
+        className
+      )}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </ul>
+  );
+}
+
+interface SidebarMenuSubItemProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuSubItem({
+  id,
+  className,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuSubItemProps): React.ReactElement {
+  return (
+    <li
+      id={id}
+      className={className}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </li>
+  );
+}
+
+interface SidebarMenuSubButtonProps {
+  id?: string;
+  className?: string;
+  isActive?: boolean;
+  size?: 'sm' | 'md';
+  href?: string;
+  onClick?: () => void;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuSubButton({
+  id,
+  className,
+  isActive = false,
+  size = 'md',
+  href,
+  onClick,
+  children,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuSubButtonProps): React.ReactElement {
+  const classes = cn(
+    'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
+    isActive && 'bg-sidebar-accent text-sidebar-accent-foreground',
+    size === 'sm' && 'text-xs',
+    size === 'md' && 'text-sm',
+    className
+  );
+
+  if (href) {
+    return (
+      <a
+        id={id}
+        href={href}
+        data-sidebar="menu-sub-button"
+        data-size={size}
+        data-active={isActive}
+        className={classes}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <button
+      id={id}
+      data-sidebar="menu-sub-button"
+      data-size={size}
+      data-active={isActive}
+      onClick={onClick}
+      className={classes}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </button>
+  );
+}
+
+interface SidebarMenuSkeletonProps {
+  id?: string;
+  className?: string;
+  showIcon?: boolean;
+  'data-refast-id'?: string;
+}
+
+export function SidebarMenuSkeleton({
+  id,
+  className,
+  showIcon = false,
+  'data-refast-id': dataRefastId,
+}: SidebarMenuSkeletonProps): React.ReactElement {
+  const width = React.useMemo(() => {
+    return `${Math.floor(Math.random() * 40) + 50}%`;
+  }, []);
+
+  return (
+    <div
+      id={id}
+      data-sidebar="menu-skeleton"
+      className={cn('rounded-md h-8 flex gap-2 px-2 items-center', className)}
+      data-refast-id={dataRefastId}
+    >
+      {showIcon && (
+        <div className="size-4 rounded-md bg-sidebar-accent animate-pulse" />
+      )}
+      <div
+        className="h-4 flex-1 max-w-[--skeleton-width] rounded-md bg-sidebar-accent animate-pulse"
+        style={{ '--skeleton-width': width } as React.CSSProperties}
+      />
+    </div>
+  );
+}
+
+interface SidebarRailProps {
+  id?: string;
+  className?: string;
+  'data-refast-id'?: string;
+}
+
+export function SidebarRail({
+  id,
+  className,
+  'data-refast-id': dataRefastId,
+}: SidebarRailProps): React.ReactElement {
+  const context = React.useContext(SidebarContext);
+  const toggleSidebar = context?.toggleSidebar;
+
+  return (
+    <button
+      id={id}
+      data-sidebar="rail"
+      aria-label="Toggle Sidebar"
+      tabIndex={-1}
+      onClick={toggleSidebar}
+      title="Toggle Sidebar"
+      className={cn(
+        'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
+        '[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize',
+        '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
+        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar',
+        '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',
+        '[[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
+        className
+      )}
+      data-refast-id={dataRefastId}
+    />
+  );
+}
+
 interface SidebarTriggerProps {
   id?: string;
   className?: string;
+  onClick?: () => void;
   'data-refast-id'?: string;
 }
 
 export function SidebarTrigger({
   id,
   className,
+  onClick,
   'data-refast-id': dataRefastId,
 }: SidebarTriggerProps): React.ReactElement {
+  const context = React.useContext(SidebarContext);
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (context?.toggleSidebar) {
+      context.toggleSidebar();
+    }
+  };
+
   return (
     <button
       id={id}
+      data-sidebar="trigger"
+      onClick={handleClick}
       className={cn(
-        'inline-flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium',
+        'inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-medium',
         'ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className
@@ -1653,12 +2302,13 @@ export function SidebarTrigger({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-4 w-4"
+        className="size-4"
       >
-        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-        <line x1="9" x2="9" y1="3" y2="21" />
+        <rect width="18" height="18" x="3" y="3" rx="2" />
+        <path d="M9 3v18" />
       </svg>
       <span className="sr-only">Toggle Sidebar</span>
     </button>
   );
 }
+

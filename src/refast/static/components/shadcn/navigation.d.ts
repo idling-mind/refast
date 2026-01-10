@@ -306,6 +306,27 @@ interface CommandShortcutProps {
     'data-refast-id'?: string;
 }
 export declare function CommandShortcut({ id, className, children, 'data-refast-id': dataRefastId, }: CommandShortcutProps): React.ReactElement;
+interface SidebarContextValue {
+    state: 'expanded' | 'collapsed';
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    openMobile: boolean;
+    setOpenMobile: (open: boolean) => void;
+    isMobile: boolean;
+    toggleSidebar: () => void;
+}
+export declare function useSidebar(): SidebarContextValue;
+interface SidebarProviderProps {
+    id?: string;
+    className?: string;
+    defaultOpen?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    children?: React.ReactNode;
+    style?: React.CSSProperties;
+    'data-refast-id'?: string;
+}
+export declare function SidebarProvider({ id, className, defaultOpen, open: openProp, onOpenChange: setOpenProp, children, style, 'data-refast-id': dataRefastId, }: SidebarProviderProps): React.ReactElement;
 interface SidebarProps {
     id?: string;
     className?: string;
@@ -315,7 +336,14 @@ interface SidebarProps {
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
-export declare function Sidebar({ id, className, side, children, 'data-refast-id': dataRefastId, }: SidebarProps): React.ReactElement;
+export declare function Sidebar({ id, className, side, variant, collapsible, children, 'data-refast-id': dataRefastId, }: SidebarProps): React.ReactElement;
+interface SidebarInsetProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarInset({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarInsetProps): React.ReactElement;
 interface SidebarHeaderProps {
     id?: string;
     className?: string;
@@ -337,6 +365,12 @@ interface SidebarFooterProps {
     'data-refast-id'?: string;
 }
 export declare function SidebarFooter({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarFooterProps): React.ReactElement;
+interface SidebarSeparatorProps {
+    id?: string;
+    className?: string;
+    'data-refast-id'?: string;
+}
+export declare function SidebarSeparator({ id, className, 'data-refast-id': dataRefastId, }: SidebarSeparatorProps): React.ReactElement;
 interface SidebarGroupProps {
     id?: string;
     className?: string;
@@ -351,6 +385,15 @@ interface SidebarGroupLabelProps {
     'data-refast-id'?: string;
 }
 export declare function SidebarGroupLabel({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarGroupLabelProps): React.ReactElement;
+interface SidebarGroupActionProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    onClick?: () => void;
+    title?: string;
+    'data-refast-id'?: string;
+}
+export declare function SidebarGroupAction({ id, className, children, onClick, title, 'data-refast-id': dataRefastId, }: SidebarGroupActionProps): React.ReactElement;
 interface SidebarGroupContentProps {
     id?: string;
     className?: string;
@@ -376,16 +419,75 @@ interface SidebarMenuButtonProps {
     id?: string;
     className?: string;
     icon?: string;
-    active?: boolean;
+    isActive?: boolean;
+    tooltip?: string;
+    variant?: 'default' | 'outline';
+    size?: 'default' | 'sm' | 'lg';
+    onClick?: () => void;
+    href?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuButton({ id, className, icon, isActive, variant, size, onClick, href, children, 'data-refast-id': dataRefastId, }: SidebarMenuButtonProps): React.ReactElement;
+interface SidebarMenuActionProps {
+    id?: string;
+    className?: string;
+    showOnHover?: boolean;
     onClick?: () => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
-export declare function SidebarMenuButton({ id, className, active, onClick, children, 'data-refast-id': dataRefastId, }: SidebarMenuButtonProps): React.ReactElement;
-interface SidebarTriggerProps {
+export declare function SidebarMenuAction({ id, className, showOnHover, onClick, children, 'data-refast-id': dataRefastId, }: SidebarMenuActionProps): React.ReactElement;
+interface SidebarMenuBadgeProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuBadge({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarMenuBadgeProps): React.ReactElement;
+interface SidebarMenuSubProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuSub({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarMenuSubProps): React.ReactElement;
+interface SidebarMenuSubItemProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuSubItem({ id, className, children, 'data-refast-id': dataRefastId, }: SidebarMenuSubItemProps): React.ReactElement;
+interface SidebarMenuSubButtonProps {
+    id?: string;
+    className?: string;
+    isActive?: boolean;
+    size?: 'sm' | 'md';
+    href?: string;
+    onClick?: () => void;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuSubButton({ id, className, isActive, size, href, onClick, children, 'data-refast-id': dataRefastId, }: SidebarMenuSubButtonProps): React.ReactElement;
+interface SidebarMenuSkeletonProps {
+    id?: string;
+    className?: string;
+    showIcon?: boolean;
+    'data-refast-id'?: string;
+}
+export declare function SidebarMenuSkeleton({ id, className, showIcon, 'data-refast-id': dataRefastId, }: SidebarMenuSkeletonProps): React.ReactElement;
+interface SidebarRailProps {
     id?: string;
     className?: string;
     'data-refast-id'?: string;
 }
-export declare function SidebarTrigger({ id, className, 'data-refast-id': dataRefastId, }: SidebarTriggerProps): React.ReactElement;
+export declare function SidebarRail({ id, className, 'data-refast-id': dataRefastId, }: SidebarRailProps): React.ReactElement;
+interface SidebarTriggerProps {
+    id?: string;
+    className?: string;
+    onClick?: () => void;
+    'data-refast-id'?: string;
+}
+export declare function SidebarTrigger({ id, className, onClick, 'data-refast-id': dataRefastId, }: SidebarTriggerProps): React.ReactElement;
 export {};

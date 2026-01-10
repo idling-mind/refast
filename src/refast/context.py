@@ -282,18 +282,77 @@ class Context(Generic[T]):
         self,
         message: str,
         variant: str = "default",
-        duration: int = 3000,
+        description: str | None = None,
+        duration: int | None = None,
+        position: str | None = None,
+        dismissible: bool = True,
+        close_button: bool | None = None,
+        invert: bool = False,
+        action: dict | None = None,
+        cancel: dict | None = None,
+        toast_id: str | None = None,
     ) -> None:
-        """Show a toast notification."""
-        if self._websocket:
-            await self._websocket.send_json(
-                {
-                    "type": "toast",
-                    "message": message,
-                    "variant": variant,
-                    "duration": duration,
-                }
+        """
+        Show a toast notification using Sonner.
+
+        Args:
+            message: The main message to display
+            variant: Toast variant - "default", "success", "error", "warning", "info", "loading"
+            description: Optional description text below the message
+            duration: Duration in milliseconds (default: 4000, use float('inf') for persistent)
+            position: Override position - "top-left", "top-center", "top-right",
+                     "bottom-left", "bottom-center", "bottom-right"
+            dismissible: Whether the toast can be dismissed by clicking (default: True)
+            close_button: Whether to show a close button
+            invert: Whether to invert the colors
+            action: Action button config - {"label": str, "callback_id": str}
+            cancel: Cancel button config - {"label": str, "callback_id": str}
+            toast_id: Custom ID for the toast (useful for updating/dismissing)
+
+        Example:
+            # Simple toast
+            await ctx.show_toast("Hello!")
+
+            # Success toast with description
+            await ctx.show_toast("Saved!", variant="success", description="Your changes have been saved.")
+
+            # Toast with action button
+            await ctx.show_toast(
+                "File deleted",
+                action={"label": "Undo", "callback_id": "undo_delete"}
             )
+
+            # Loading toast
+            await ctx.show_toast("Processing...", variant="loading", toast_id="process")
+            # Later, update it:
+            await ctx.show_toast("Done!", variant="success", toast_id="process")
+        """
+        if self._websocket:
+            payload: dict = {
+                "type": "toast",
+                "message": message,
+                "variant": variant,
+                "dismissible": dismissible,
+                "invert": invert,
+            }
+
+            # Only include optional fields if provided
+            if description is not None:
+                payload["description"] = description
+            if duration is not None:
+                payload["duration"] = duration
+            if position is not None:
+                payload["position"] = position
+            if close_button is not None:
+                payload["closeButton"] = close_button
+            if action is not None:
+                payload["action"] = action
+            if cancel is not None:
+                payload["cancel"] = cancel
+            if toast_id is not None:
+                payload["id"] = toast_id
+
+            await self._websocket.send_json(payload)
 
     async def push_event(self, event_type: str, data: Any) -> None:
         """Push an event to the frontend."""

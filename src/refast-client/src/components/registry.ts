@@ -46,7 +46,7 @@ import {
 import {
   Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
-  ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
+  ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher, Toaster
 } from './shadcn/utility';
 
 // Import chart components
@@ -303,6 +303,7 @@ componentRegistry.register('ResizablePanelGroup', ResizablePanelGroup);
 componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
 componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
+componentRegistry.register('Toaster', Toaster);
 
 // Register chart components (Stage 10)
 componentRegistry.register('ChartContainer', ChartContainer);

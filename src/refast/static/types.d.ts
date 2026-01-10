@@ -46,6 +46,21 @@ export interface UpdateMessage {
     eventType?: string;
     data?: unknown;
     updates?: StoreUpdate[];
+    description?: string;
+    position?: string;
+    dismissible?: boolean;
+    closeButton?: boolean;
+    invert?: boolean;
+    icon?: string;
+    action?: {
+        label: string;
+        callback_id: string;
+    };
+    cancel?: {
+        label: string;
+        callback_id: string;
+    };
+    id?: string;
 }
 /**
  * Store update operation from backend.

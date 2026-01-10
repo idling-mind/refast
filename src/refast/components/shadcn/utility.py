@@ -593,10 +593,42 @@ class Toaster(Component):
     """
     Toast notification container using Sonner.
 
+    This component renders the Sonner Toaster which displays all toast notifications.
+    Place this component once in your layout (typically at the root).
+
+    Args:
+        position: Where toasts appear - "top-left", "top-center", "top-right",
+                 "bottom-left", "bottom-center", "bottom-right"
+        expand: Whether toasts are expanded by default on hover
+        duration: Default duration in ms for all toasts (default: 4000)
+        visible_toasts: Maximum number of visible toasts at once (default: 3)
+        close_button: Whether to show close button on toasts
+        rich_colors: Whether to use rich colors for variants
+        theme: Color theme - "light", "dark", or "system"
+        offset: Offset from the edge of the screen (px or CSS value)
+        gap: Gap between toasts in pixels (default: 14)
+        dir: Text direction - "ltr", "rtl", or "auto"
+        hotkey: Keyboard shortcut to focus toasts (default: Alt+T)
+        invert: Whether to invert default colors
+
     Example:
         ```python
-        # In your layout
-        Toaster(position="bottom-right")
+        # Basic usage in layout
+        Container(
+            children=[
+                # Your app content
+                Toaster(position="bottom-right", rich_colors=True)
+            ]
+        )
+
+        # Customized toaster
+        Toaster(
+            position="top-center",
+            expand=True,
+            visible_toasts=5,
+            close_button=True,
+            theme="dark"
+        )
         ```
     """
 
@@ -612,6 +644,12 @@ class Toaster(Component):
         visible_toasts: int = 3,
         close_button: bool = False,
         rich_colors: bool = False,
+        theme: Literal["light", "dark", "system"] = "system",
+        offset: str | int | None = None,
+        gap: int = 14,
+        dir: Literal["ltr", "rtl", "auto"] = "auto",
+        hotkey: list[str] | None = None,
+        invert: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -623,21 +661,38 @@ class Toaster(Component):
         self.visible_toasts = visible_toasts
         self.close_button = close_button
         self.rich_colors = rich_colors
+        self.theme = theme
+        self.offset = offset
+        self.gap = gap
+        self.dir = dir
+        self.hotkey = hotkey or ["altKey", "KeyT"]
+        self.invert = invert
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "position": self.position,
+            "expand": self.expand,
+            "duration": self.duration,
+            "visibleToasts": self.visible_toasts,
+            "closeButton": self.close_button,
+            "richColors": self.rich_colors,
+            "theme": self.theme,
+            "gap": self.gap,
+            "dir": self.dir,
+            "hotkey": self.hotkey,
+            "invert": self.invert,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+
+        # Only include offset if set
+        if self.offset is not None:
+            props["offset"] = self.offset
+
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "position": self.position,
-                "expand": self.expand,
-                "duration": self.duration,
-                "visibleToasts": self.visible_toasts,
-                "closeButton": self.close_button,
-                "richColors": self.rich_colors,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 

@@ -74,7 +74,7 @@ export {
   Skeleton,
 } from './components/shadcn/feedback';
 
-export { ToastManager } from './components/ToastManager';
+export { ToastManager, toast, dismissToast, promiseToast } from './components/ToastManager';
 
 export {
   Table,

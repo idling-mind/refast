@@ -96,6 +96,25 @@ export interface ThemeSwitcherProps extends Omit<BaseProps, 'onChange'> {
     onChange?: (theme: Theme) => void;
 }
 export declare function ThemeSwitcher({ defaultTheme, storageKey, showSystemOption, mode, onChange, className, ...props }: ThemeSwitcherProps): import("react/jsx-runtime").JSX.Element;
+export interface ToasterProps extends BaseProps {
+    position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+    expand?: boolean;
+    duration?: number;
+    visibleToasts?: number;
+    closeButton?: boolean;
+    richColors?: boolean;
+    theme?: 'light' | 'dark' | 'system';
+    offset?: string | number;
+    gap?: number;
+    dir?: 'ltr' | 'rtl' | 'auto';
+    hotkey?: string[];
+    invert?: boolean;
+}
+/**
+ * Toaster component - renders the Sonner toast container.
+ * Place this once in your app layout to enable toast notifications.
+ */
+export declare function Toaster({ className, position, expand, duration, visibleToasts, closeButton, richColors, theme, offset, gap, dir, hotkey, invert, }: ToasterProps): React.ReactElement;
 export declare const UtilityComponents: {
     Separator: typeof Separator;
     AspectRatio: typeof AspectRatio;
@@ -116,5 +135,6 @@ export declare const UtilityComponents: {
     InputOTPSlot: typeof InputOTPSlot;
     InputOTPSeparator: typeof InputOTPSeparator;
     ThemeSwitcher: typeof ThemeSwitcher;
+    Toaster: typeof Toaster;
 };
 export {};

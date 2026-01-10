@@ -49,6 +49,16 @@ export interface UpdateMessage {
   eventType?: string;
   data?: unknown;
   updates?: StoreUpdate[];
+  // Toast-specific properties
+  description?: string;
+  position?: string;
+  dismissible?: boolean;
+  closeButton?: boolean;
+  invert?: boolean;
+  icon?: string;
+  action?: { label: string; callback_id: string };
+  cancel?: { label: string; callback_id: string };
+  id?: string;  // toast_id
 }
 
 /**

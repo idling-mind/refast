@@ -9,6 +9,7 @@ from refast.components.shadcn.data_display import (
     Avatar,
     Badge,
     DataTable,
+    Image,
     List,
     TabItem,
     Table,
@@ -232,6 +233,71 @@ class TestAccordion:
         accordion = Accordion(children=[], default_value="section-1")
         rendered = accordion.render()
         assert rendered["props"]["default_value"] == "section-1"
+
+
+class TestImage:
+    """Tests for Image component."""
+
+    def test_image_renders(self):
+        """Test Image renders correctly."""
+        img = Image(src="/images/photo.jpg")
+        rendered = img.render()
+        assert rendered["type"] == "Image"
+        assert rendered["props"]["src"] == "/images/photo.jpg"
+
+    def test_image_with_dimensions(self):
+        """Test Image with width and height."""
+        img = Image(src="/photo.jpg", width=400, height=300)
+        rendered = img.render()
+        assert rendered["props"]["width"] == 400
+        assert rendered["props"]["height"] == 300
+
+    def test_image_with_string_dimensions(self):
+        """Test Image with string dimensions."""
+        img = Image(src="/photo.jpg", width="100%", height="auto")
+        rendered = img.render()
+        assert rendered["props"]["width"] == "100%"
+        assert rendered["props"]["height"] == "auto"
+
+    def test_image_alt_text(self):
+        """Test Image alt text."""
+        img = Image(src="/photo.jpg", alt="A beautiful sunset")
+        rendered = img.render()
+        assert rendered["props"]["alt"] == "A beautiful sunset"
+
+    def test_image_object_fit(self):
+        """Test Image object fit options."""
+        for fit in ["contain", "cover", "fill", "none", "scale-down"]:
+            img = Image(src="/photo.jpg", fit=fit)
+            rendered = img.render()
+            assert rendered["props"]["object_fit"] == fit
+
+    def test_image_loading_state(self):
+        """Test Image loading state."""
+        img = Image(src="/photo.jpg", loading=True)
+        rendered = img.render()
+        assert rendered["props"]["loading"] is True
+
+    def test_image_fallback_src(self):
+        """Test Image fallback_src."""
+        img = Image(src="/photo.jpg", fallback_src="/placeholder.jpg")
+        rendered = img.render()
+        assert rendered["props"]["fallback_src"] == "/placeholder.jpg"
+
+    def test_image_default_values(self):
+        """Test Image default values."""
+        img = Image(src="/photo.jpg")
+        rendered = img.render()
+        assert rendered["props"]["alt"] == ""
+        assert rendered["props"]["object_fit"] == "cover"
+        assert rendered["props"]["loading"] is False
+        assert rendered["props"]["fallback_src"] is None
+
+    def test_image_class_name(self):
+        """Test Image with custom class name."""
+        img = Image(src="/photo.jpg", class_name="rounded-lg shadow-lg")
+        rendered = img.render()
+        assert rendered["props"]["class_name"] == "rounded-lg shadow-lg"
 
 
 

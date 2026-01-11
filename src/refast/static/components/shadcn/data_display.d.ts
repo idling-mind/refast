@@ -83,13 +83,15 @@ interface ImageProps {
     width?: number | string;
     height?: number | string;
     objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+    loading?: boolean;
+    fallbackSrc?: string;
     fallback?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
- * Image component - responsive image.
+ * Image component - responsive image with loading state and fallback support.
  */
-export declare function Image({ id, className, src, alt, width, height, objectFit, fallback, 'data-refast-id': dataRefastId, }: ImageProps): React.ReactElement;
+export declare function Image({ id, className, src, alt, width, height, objectFit, loading, fallbackSrc, fallback, 'data-refast-id': dataRefastId, }: ImageProps): React.ReactElement;
 interface TooltipProps {
     id?: string;
     className?: string;

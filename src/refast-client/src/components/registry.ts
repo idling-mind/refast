@@ -8,9 +8,9 @@ import { Row, Column, Stack, Grid, Flex, Center, Spacer, Divider } from './shadc
 import { Button, IconButton } from './shadcn/button';
 import { Icon } from './shadcn/icon';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
-import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup } from './shadcn/input';
+import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
 import { Slot } from './shadcn/slot';
-import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label } from './shadcn/typography';
+import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Toast, Skeleton } from './shadcn/feedback';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem } from './shadcn/data_display';
 
@@ -146,6 +146,7 @@ componentRegistry.register('Textarea', Textarea);
 componentRegistry.register('Select', Select);
 componentRegistry.register('SelectOption', SelectOption);
 componentRegistry.register('Checkbox', Checkbox);
+componentRegistry.register('CheckboxGroup', CheckboxGroup);
 componentRegistry.register('Radio', Radio);
 componentRegistry.register('RadioGroup', RadioGroup);
 
@@ -158,6 +159,7 @@ componentRegistry.register('BlockQuote', BlockQuote);
 componentRegistry.register('List', List);
 componentRegistry.register('ListItem', ListItem);
 componentRegistry.register('Label', Label);
+componentRegistry.register('Markdown', Markdown);
 
 // Register feedback components
 componentRegistry.register('Alert', Alert);

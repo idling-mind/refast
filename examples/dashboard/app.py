@@ -275,7 +275,8 @@ def dashboard(ctx: Context):
                                         ],
                                     ),
                                     Button(
-                                        "Export Report",
+                                        "Generate Report",
+                                        icon="download",
                                         variant="primary",
                                     ),
                                 ],

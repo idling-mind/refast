@@ -71,7 +71,15 @@ class Paragraph(Component):
 
 
 class Code(Component):
-    """Code display component."""
+    """Code display component with optional syntax highlighting.
+    
+    Args:
+        code: The code content to display.
+        language: Programming language for syntax highlighting (e.g., 'python', 'javascript').
+        inline: If True (default), renders as inline code. If False, renders as a code block.
+        id: Optional component ID.
+        class_name: Optional CSS class name.
+    """
 
     component_type: str = "Code"
 
@@ -79,7 +87,7 @@ class Code(Component):
         self,
         code: str,
         language: str | None = None,
-        inline: bool = False,
+        inline: bool = True,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -96,10 +104,11 @@ class Code(Component):
             "props": {
                 "language": self.language,
                 "inline": self.inline,
-                "class_name": self.class_name,
+                "className": self.class_name,
+                "code": self.code,
                 **self._serialize_extra_props(),
             },
-            "children": [self.code],
+            "children": [],
         }
 
 
@@ -136,5 +145,69 @@ class Link(Component):
                 **self._serialize_extra_props(),
             },
             "children": [self.text],
+        }
+
+
+class Markdown(Component):
+    """
+    Markdown component with optional LaTeX math support.
+
+    Renders Markdown content with GitHub Flavored Markdown (GFM) features.
+    When allow_latex is True, supports inline math with $...$ and display
+    math with $$...$$.
+
+    Example:
+        ```python
+        Markdown(
+            content=\"\"\"
+            # Hello World
+
+            This is **bold** and *italic* text.
+
+            Math: $E = mc^2$
+
+            Display math:
+            $$
+            \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
+            $$
+            \"\"\",
+            allow_latex=True,
+        )
+        ```
+
+    Args:
+        content: The Markdown content to render.
+        allow_latex: Whether to enable LaTeX math rendering (default True).
+        allow_html: Whether to allow raw HTML in markdown (default False for security).
+    """
+
+    component_type: str = "Markdown"
+
+    def __init__(
+        self,
+        content: str,
+        allow_latex: bool = True,
+        allow_html: bool = False,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.content = content
+        self.allow_latex = allow_latex
+        self.allow_html = allow_html
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "content": self.content,
+                "allow_latex": self.allow_latex,
+                "allow_html": self.allow_html,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
         }
 

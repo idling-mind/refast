@@ -5,7 +5,10 @@ This example demonstrates:
 - Navigation: Breadcrumb, Tabs, Pagination, Menubar
 - Overlays: AlertDialog, Sheet, Drawer, Popover, HoverCard
 - Utility: Separator, AspectRatio, ScrollArea, Collapsible, Carousel
+- New: Image, Markdown, CheckboxGroup, RadioGroup
 """
+
+from textwrap import dedent
 
 from fastapi import FastAPI
 
@@ -38,6 +41,8 @@ from refast.components import (
     CardDescription,
     CardHeader,
     CardTitle,
+    CheckboxGroup,
+    Code,
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
@@ -47,9 +52,10 @@ from refast.components import (
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
-    Icon,
+    Image,
     Input,
     Label,
+    Markdown,
     Pagination,
     PaginationContent,
     PaginationEllipsis,
@@ -60,6 +66,7 @@ from refast.components import (
     Popover,
     PopoverContent,
     PopoverTrigger,
+    RadioGroup,
     Row,
     ScrollArea,
     # Utility
@@ -77,6 +84,7 @@ from refast.components import (
     TabItem,
     Tabs,
     Text,
+    ThemeSwitcher,
     ToggleGroup,
     ToggleGroupItem,
 )
@@ -108,6 +116,23 @@ async def on_toggle_change(ctx: Context):
     active = [k for k, v in formats.items() if v]
     msg = f"Active formats: {', '.join(active)}" if active else "No formats active"
     await ctx.show_toast(msg, variant="info")
+
+
+async def on_checkbox_group_change(ctx: Context):
+    """Handle checkbox group selection change."""
+    selected = list(ctx.event_data.values())
+    ctx.state.set("selected_toppings", selected)
+    if selected:
+        await ctx.show_toast(f"Selected toppings: {', '.join(selected)}", variant="info")
+    else:
+        await ctx.show_toast("No toppings selected", variant="info")
+
+
+async def on_radio_group_change(ctx: Context):
+    """Handle radio group selection change."""
+    selected = ctx.event_data.get("value", "")
+    ctx.state.set("selected_size", selected)
+    await ctx.show_toast(f"Selected size: {selected}", variant="info")
 
 
 async def dropdown_select(ctx: Context):
@@ -213,20 +238,26 @@ def home(ctx: Context):
         style={"maxWidth": "72rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             # Header
-            Column(
-                gap=2,
-                class_name="mb-6",
-                children=[
-                    Text(
-                        "Component Showcase",
-                        class_name="font-bold",
-                        style={"fontSize": "2.25rem", "lineHeight": "2.5rem"},
+            Row(
+                [
+                    Column(
+                        gap=2,
+                        class_name="mb-6",
+                        children=[
+                            Text(
+                                "Component Showcase",
+                                class_name="font-bold",
+                                style={"fontSize": "2.25rem", "lineHeight": "2.5rem"},
+                            ),
+                            Text(
+                                "Explore all the Radix UI components available in Refast",
+                                class_name="text-lg text-muted-foreground",
+                            ),
+                        ],
                     ),
-                    Text(
-                        "Explore all the Radix UI components available in Refast",
-                        class_name="text-lg text-muted-foreground",
-                    ),
+                    Column([ThemeSwitcher()]),
                 ],
+                justify="between",
             ),
             # Breadcrumb navigation
             Breadcrumb(
@@ -247,7 +278,7 @@ def home(ctx: Context):
             ),
             # Tabs for different component categories
             Tabs(
-                default_value="utility",
+                default_value="new",
                 children=[
                     TabItem(value="controls", label="Controls"),
                     TabItem(value="navigation", label="Navigation"),
@@ -674,6 +705,276 @@ def home(ctx: Context):
                                                 class_name="flex items-center justify-center",
                                                 style={"height": "100%"},
                                                 children=[Text("16:9 Content Area")],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=2,
+                                class_name="mt-6",
+                                children=[
+                                    Label(
+                                        "Code Component",
+                                    ),
+                                    Code(
+                                        code=dedent("""
+                                import datetime
+
+                                now = datetime.datetime.now()
+                                print("Current date and time:", now)
+                            """),
+                                        inline=False,
+                                        language="python",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            # New Components Section (Image, Markdown, CheckboxGroup, RadioGroup)
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("New Components"),
+                            CardDescription("Image, Markdown, CheckboxGroup, and RadioGroup"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=6,
+                                children=[
+                                    # Image Component
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Image Component"),
+                                            Text(
+                                                "Images with loading states and fallback support",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            Row(
+                                                gap=4,
+                                                wrap=True,
+                                                children=[
+                                                    Column(
+                                                        gap=1,
+                                                        children=[
+                                                            Image(
+                                                                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
+                                                                alt="Mountain landscape",
+                                                                width=300,
+                                                                height=200,
+                                                                fit="cover",
+                                                                loading=True,
+                                                                class_name="rounded-md",
+                                                            ),
+                                                            Text(
+                                                                "With loading",
+                                                                class_name="text-xs text-muted-foreground",
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Column(
+                                                        gap=1,
+                                                        children=[
+                                                            Image(
+                                                                src="https://invalid-url.example/broken.jpg",
+                                                                alt="Fallback demo",
+                                                                width=300,
+                                                                height=200,
+                                                                fallback_src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&h=200&fit=crop",
+                                                                class_name="rounded-md",
+                                                            ),
+                                                            Text(
+                                                                "With fallback",
+                                                                class_name="text-xs text-muted-foreground",
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Column(
+                                                        gap=1,
+                                                        children=[
+                                                            Image(
+                                                                src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=300&h=200&fit=crop",
+                                                                alt="Lake view",
+                                                                width=300,
+                                                                height=200,
+                                                                fit="contain",
+                                                                class_name="rounded-md bg-muted",
+                                                            ),
+                                                            Text(
+                                                                "fit=contain",
+                                                                class_name="text-xs text-muted-foreground",
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Markdown Component
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Markdown Component"),
+                                            Text(
+                                                "Rich text with GitHub Flavored Markdown and LaTeX support",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            Card(
+                                                class_name="p-4",
+                                                children=[
+                                                    Markdown(
+                                                        content="""## Welcome to Refast! 🚀
+
+This is **Markdown** with *full* formatting support:
+
+- ✅ GitHub Flavored Markdown
+- ✅ Code blocks with syntax highlighting
+- ✅ LaTeX math equations
+
+### Code Example
+
+```python
+from refast import RefastApp
+
+app = RefastApp(title="My App")
+```
+
+### Math Support
+
+Inline math: $E = mc^2$
+
+Display math:
+
+$$
+\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
+$$
+
+| Feature | Status |
+|---------|--------|
+| GFM | ✅ |
+| LaTeX | ✅ |
+| Tables | ✅ |
+""",
+                                                        allow_latex=True,
+                                                        class_name="prose-sm",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # CheckboxGroup and RadioGroup
+                                    Row(
+                                        gap=8,
+                                        wrap=True,
+                                        children=[
+                                            # CheckboxGroup
+                                            Column(
+                                                gap=2,
+                                                children=[
+                                                    Label("CheckboxGroup"),
+                                                    Text(
+                                                        "Select multiple options",
+                                                        class_name="text-sm text-muted-foreground mb-2",
+                                                    ),
+                                                    CheckboxGroup(
+                                                        name="toppings",
+                                                        label="Pizza Toppings",
+                                                        options=[
+                                                            {
+                                                                "value": "cheese",
+                                                                "label": "Extra Cheese",
+                                                            },
+                                                            {
+                                                                "value": "pepperoni",
+                                                                "label": "Pepperoni",
+                                                            },
+                                                            {
+                                                                "value": "mushrooms",
+                                                                "label": "Mushrooms",
+                                                            },
+                                                            {
+                                                                "value": "olives",
+                                                                "label": "Olives",
+                                                                "disabled": True,
+                                                            },
+                                                        ],
+                                                        value=["cheese"],
+                                                        orientation="vertical",
+                                                        on_change=ctx.callback(
+                                                            on_checkbox_group_change
+                                                        ),
+                                                    ),
+                                                ],
+                                            ),
+                                            # RadioGroup
+                                            Column(
+                                                gap=2,
+                                                children=[
+                                                    Label("RadioGroup"),
+                                                    Text(
+                                                        "Select a single option",
+                                                        class_name="text-sm text-muted-foreground mb-2",
+                                                    ),
+                                                    RadioGroup(
+                                                        name="size",
+                                                        label="Pizza Size",
+                                                        options=[
+                                                            {
+                                                                "value": "small",
+                                                                "label": 'Small (10")',
+                                                            },
+                                                            {
+                                                                "value": "medium",
+                                                                "label": 'Medium (12")',
+                                                            },
+                                                            {
+                                                                "value": "large",
+                                                                "label": 'Large (14")',
+                                                            },
+                                                            {
+                                                                "value": "xlarge",
+                                                                "label": 'X-Large (16")',
+                                                                "disabled": True,
+                                                            },
+                                                        ],
+                                                        value="medium",
+                                                        orientation="vertical",
+                                                        on_change=ctx.callback(
+                                                            on_radio_group_change
+                                                        ),
+                                                    ),
+                                                ],
+                                            ),
+                                            # Horizontal RadioGroup
+                                            Column(
+                                                gap=2,
+                                                children=[
+                                                    Label("Horizontal RadioGroup"),
+                                                    Text(
+                                                        "Options in a row",
+                                                        class_name="text-sm text-muted-foreground mb-2",
+                                                    ),
+                                                    RadioGroup(
+                                                        name="priority",
+                                                        label="Priority Level",
+                                                        options=[
+                                                            {"value": "low", "label": "Low"},
+                                                            {"value": "medium", "label": "Medium"},
+                                                            {"value": "high", "label": "High"},
+                                                        ],
+                                                        value="medium",
+                                                        orientation="horizontal",
+                                                    ),
+                                                ],
                                             ),
                                         ],
                                     ),

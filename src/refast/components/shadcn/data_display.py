@@ -613,3 +613,73 @@ class AccordionContent(Component):
             "children": self._render_children(),
         }
 
+
+class Image(Component):
+    """
+    Image component with loading state and fallback support.
+
+    Example:
+        ```python
+        Image(
+            src="/images/photo.jpg",
+            alt="A beautiful photo",
+            width=400,
+            height=300,
+            fit="cover",
+            loading=True,
+            fallback_src="/images/placeholder.jpg",
+        )
+        ```
+
+    Args:
+        src: The image source URL.
+        alt: Alternative text for the image.
+        width: Width of the image (number in pixels or CSS string).
+        height: Height of the image (number in pixels or CSS string).
+        fit: Object fit style - how the image should be resized to fit its container.
+        loading: Whether to show a loading skeleton while the image loads.
+        fallback_src: Fallback image URL to show if the main image fails to load.
+    """
+
+    component_type: str = "Image"
+
+    def __init__(
+        self,
+        src: str,
+        alt: str = "",
+        width: int | str | None = None,
+        height: int | str | None = None,
+        fit: Literal["contain", "cover", "fill", "none", "scale-down"] = "cover",
+        loading: bool = False,
+        fallback_src: str | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.src = src
+        self.alt = alt
+        self.width = width
+        self.height = height
+        self.fit = fit
+        self.loading = loading
+        self.fallback_src = fallback_src
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "src": self.src,
+                "alt": self.alt,
+                "width": self.width,
+                "height": self.height,
+                "object_fit": self.fit,
+                "loading": self.loading,
+                "fallback_src": self.fallback_src,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": [],
+        }
+

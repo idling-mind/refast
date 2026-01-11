@@ -29,6 +29,7 @@ from refast.components.shadcn.data_display import (
     Avatar,
     Badge,
     DataTable,
+    Image,
     List,
     TabItem,
     Table,
@@ -50,7 +51,15 @@ from refast.components.shadcn.feedback import (
     Toast,
 )
 from refast.components.shadcn.form import Form, FormField, Label
-from refast.components.shadcn.input import Checkbox, Input, Radio, Select, Textarea
+from refast.components.shadcn.input import (
+    Checkbox,
+    CheckboxGroup,
+    Input,
+    Radio,
+    RadioGroup,
+    Select,
+    Textarea,
+)
 from refast.components.shadcn.layout import (
     Center,
     Column,
@@ -176,7 +185,7 @@ from refast.components.shadcn.overlay import (
     SheetTitle,
     SheetTrigger,
 )
-from refast.components.shadcn.typography import Code, Heading, Link, Paragraph
+from refast.components.shadcn.typography import Code, Heading, Link, Markdown, Paragraph
 from refast.components.shadcn.utility import (
     AspectRatio,
     Carousel,
@@ -227,7 +236,9 @@ __all__ = [
     "Textarea",
     "Select",
     "Checkbox",
+    "CheckboxGroup",
     "Radio",
+    "RadioGroup",
     # Form
     "Form",
     "FormField",
@@ -248,6 +259,7 @@ __all__ = [
     "TableRow",
     "TableHead",
     "DataTable",
+    "Image",
     "List",
     "Badge",
     "Avatar",
@@ -260,6 +272,7 @@ __all__ = [
     "Paragraph",
     "Code",
     "Link",
+    "Markdown",
     # Controls (Phase 4)
     "Switch",
     "Slider",

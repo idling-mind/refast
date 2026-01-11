@@ -1,4 +1,7 @@
 import React from 'react';
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
 
 interface InputProps {
@@ -354,7 +357,7 @@ interface CheckboxProps {
   disabled?: boolean;
   name?: string;
   value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onCheckedChange?: (checked: boolean) => void;
   label?: string;
   'data-refast-id'?: string;
 }
@@ -370,10 +373,13 @@ export function Checkbox({
   disabled = false,
   name,
   value,
-  onChange,
+  onCheckedChange,
   label,
   'data-refast-id': dataRefastId,
 }: CheckboxProps): React.ReactElement {
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
+
   const [localChecked, setLocalChecked] = React.useState(checked !== undefined ? checked : (defaultChecked || false));
 
   React.useEffect(() => {
@@ -382,32 +388,44 @@ export function Checkbox({
     }
   }, [checked]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalChecked(e.target.checked);
-    if (onChange) {
-      onChange(e);
+  const handleCheckedChange = (checked: boolean | 'indeterminate') => {
+    const newChecked = checked === true;
+    setLocalChecked(newChecked);
+    if (onCheckedChange) {
+      onCheckedChange(newChecked);
     }
   };
 
   return (
-    <label className={cn('flex items-center space-x-2', className)} data-refast-id={dataRefastId}>
-      <input
-        id={id}
-        type="checkbox"
-        checked={localChecked}
-        disabled={disabled}
+    <div className={cn('flex items-center space-x-2', className)} data-refast-id={dataRefastId}>
+      <CheckboxPrimitive.Root
+        id={checkboxId}
         name={name}
         value={value}
-        onChange={handleChange}
+        checked={localChecked}
+        defaultChecked={defaultChecked}
+        disabled={disabled}
+        onCheckedChange={handleCheckedChange}
         className={cn(
-          'h-4 w-4 shrink-0 rounded border border-primary ring-offset-background',
+          'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
           'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground'
         )}
-      />
-      {label && <span className="text-sm font-medium leading-none">{label}</span>}
-    </label>
+      >
+        <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
+          <Check className="h-4 w-4" />
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
+      {label && (
+        <label
+          htmlFor={checkboxId}
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {label}
+        </label>
+      )}
+    </div>
   );
 }
 
@@ -483,33 +501,194 @@ interface RadioGroupProps {
   defaultValue?: string;
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
-  onChange?: (value: string) => void;
+  options?: Array<{ value: string; label: string; disabled?: boolean }>;
+  label?: string;
+  onValueChange?: (value: string) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * RadioGroup component - container for radio buttons.
+ * RadioGroup component - container for radio buttons with options support.
  */
 export function RadioGroup({
   id,
   className,
+  name,
+  value,
+  defaultValue,
+  disabled = false,
   orientation = 'vertical',
+  options,
+  label,
+  onValueChange,
   children,
   'data-refast-id': dataRefastId,
 }: RadioGroupProps): React.ReactElement {
+  const generatedId = React.useId();
+  const rootId = id || generatedId;
+
+  const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const handleValueChange = (newValue: string) => {
+    setLocalValue(newValue);
+    if (onValueChange) {
+      onValueChange(newValue);
+    }
+  };
+
+  return (
+    <div className={cn('space-y-2', className)} data-refast-id={dataRefastId}>
+      {label && (
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {label}
+        </label>
+      )}
+      <RadioGroupPrimitive.Root
+        className={cn(
+          'flex',
+          orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
+        )}
+        value={localValue}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        name={name}
+        onValueChange={handleValueChange}
+        orientation={orientation}
+        id={rootId}
+      >
+        {options?.map((option) => (
+          <div className="flex items-center space-x-2" key={option.value}>
+            <RadioGroupPrimitive.Item
+              value={option.value}
+              id={`${rootId}-${option.value}`}
+              disabled={disabled || option.disabled}
+              className={cn(
+                'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'disabled:cursor-not-allowed disabled:opacity-50'
+              )}
+            >
+              <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+                <Circle className="h-2.5 w-2.5 fill-current text-current" />
+              </RadioGroupPrimitive.Indicator>
+            </RadioGroupPrimitive.Item>
+            <label
+              htmlFor={`${rootId}-${option.value}`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {option.label}
+            </label>
+          </div>
+        ))}
+        {children}
+      </RadioGroupPrimitive.Root>
+    </div>
+  );
+}
+
+interface CheckboxGroupOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+interface CheckboxGroupProps {
+  id?: string;
+  className?: string;
+  name?: string;
+  value?: string[];
+  defaultValue?: string[];
+  disabled?: boolean;
+  orientation?: 'horizontal' | 'vertical';
+  options?: CheckboxGroupOption[];
+  label?: string;
+  onChange?: (value: string[]) => void;
+  'data-refast-id'?: string;
+}
+
+/**
+ * CheckboxGroup component - group of checkboxes for multi-selection.
+ */
+export function CheckboxGroup({
+  id,
+  className,
+  name,
+  value,
+  defaultValue,
+  disabled = false,
+  orientation = 'vertical',
+  options,
+  label,
+  onChange,
+  'data-refast-id': dataRefastId,
+}: CheckboxGroupProps): React.ReactElement {
+  const generatedId = React.useId();
+  const rootId = id || generatedId;
+
+  const [localValue, setLocalValue] = React.useState<string[]>(
+    value !== undefined ? value : (defaultValue || [])
+  );
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const handleCheckedChange = (optionValue: string, checked: boolean) => {
+    let newValue: string[];
+    if (checked) {
+      if (!localValue.includes(optionValue)) {
+        newValue = [...localValue, optionValue];
+      } else {
+        newValue = localValue;
+      }
+    } else {
+      newValue = localValue.filter((v) => v !== optionValue);
+    }
+    setLocalValue(newValue);
+    if (onChange) {
+      onChange(newValue);
+    }
+  };
+
   return (
     <div
-      id={id}
-      role="radiogroup"
-      className={cn(
-        'flex',
-        orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4',
-        className
-      )}
+      id={rootId}
+      role="group"
+      className={cn('space-y-2', className)}
       data-refast-id={dataRefastId}
     >
-      {children}
+      {label && (
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {label}
+        </label>
+      )}
+      <div
+        className={cn(
+          'flex',
+          orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
+        )}
+      >
+        {options?.map((option) => (
+          <Checkbox
+            key={option.value}
+            id={`${rootId}-${option.value}`}
+            name={name}
+            checked={localValue.includes(option.value)}
+            disabled={disabled || option.disabled}
+            onCheckedChange={(checked) => handleCheckedChange(option.value, checked)}
+            label={option.label}
+          />
+        ))}
+      </div>
     </div>
   );
 }

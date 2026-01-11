@@ -1,6 +1,6 @@
 """Tests for typography components."""
 
-from refast.components.shadcn.typography import Code, Heading, Link, Paragraph
+from refast.components.shadcn.typography import Code, Heading, Link, Markdown, Paragraph
 
 
 class MockCallback:
@@ -61,6 +61,8 @@ class TestCode:
         rendered = code.render()
         assert rendered["type"] == "Code"
         assert rendered["children"] == ["const x = 1;"]
+        # Default inline should be True
+        assert rendered["props"]["inline"] is True
 
     def test_code_with_language(self):
         """Test Code with language prop."""
@@ -73,6 +75,18 @@ class TestCode:
         code = Code("variable", inline=True)
         rendered = code.render()
         assert rendered["props"]["inline"] is True
+
+    def test_code_block_mode(self):
+        """Test Code block mode (non-inline)."""
+        code = Code("def foo():\n    pass", language="python", inline=False)
+        rendered = code.render()
+        assert rendered["props"]["inline"] is False
+
+    def test_code_with_class_name(self):
+        """Test Code with class_name prop renders as className."""
+        code = Code("code", class_name="my-class")
+        rendered = code.render()
+        assert rendered["props"]["className"] == "my-class"
 
 
 class TestLink:
@@ -98,6 +112,82 @@ class TestLink:
         link = Link("Click", href="#", on_click=cb)
         rendered = link.render()
         assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
+
+
+class TestMarkdown:
+    """Tests for Markdown component."""
+
+    def test_markdown_renders(self):
+        """Test Markdown renders correctly."""
+        md = Markdown("# Hello World")
+        rendered = md.render()
+        assert rendered["type"] == "Markdown"
+        assert rendered["props"]["content"] == "# Hello World"
+
+    def test_markdown_with_content(self):
+        """Test Markdown with full content."""
+        content = """
+# Title
+
+This is **bold** and *italic* text.
+
+- Item 1
+- Item 2
+"""
+        md = Markdown(content)
+        rendered = md.render()
+        assert rendered["props"]["content"] == content
+
+    def test_markdown_allow_latex_default(self):
+        """Test Markdown allow_latex defaults to True."""
+        md = Markdown("$E = mc^2$")
+        rendered = md.render()
+        assert rendered["props"]["allow_latex"] is True
+
+    def test_markdown_allow_latex_disabled(self):
+        """Test Markdown with LaTeX disabled."""
+        md = Markdown("$E = mc^2$", allow_latex=False)
+        rendered = md.render()
+        assert rendered["props"]["allow_latex"] is False
+
+    def test_markdown_allow_html_default(self):
+        """Test Markdown allow_html defaults to False for security."""
+        md = Markdown("<script>alert('xss')</script>")
+        rendered = md.render()
+        assert rendered["props"]["allow_html"] is False
+
+    def test_markdown_allow_html_enabled(self):
+        """Test Markdown with HTML enabled."""
+        md = Markdown("<div>Custom HTML</div>", allow_html=True)
+        rendered = md.render()
+        assert rendered["props"]["allow_html"] is True
+
+    def test_markdown_with_class_name(self):
+        """Test Markdown with custom class_name."""
+        md = Markdown("Content", class_name="prose-lg")
+        rendered = md.render()
+        assert rendered["props"]["class_name"] == "prose-lg"
+
+    def test_markdown_with_latex_content(self):
+        """Test Markdown with inline and display LaTeX."""
+        content = """
+Inline math: $E = mc^2$
+
+Display math:
+$$
+\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
+$$
+"""
+        md = Markdown(content, allow_latex=True)
+        rendered = md.render()
+        assert rendered["props"]["content"] == content
+        assert rendered["props"]["allow_latex"] is True
+
+    def test_markdown_children_empty(self):
+        """Test Markdown has no children (content is in props)."""
+        md = Markdown("Content")
+        rendered = md.render()
+        assert rendered["children"] == []
 
 
 

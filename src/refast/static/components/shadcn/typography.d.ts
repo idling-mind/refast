@@ -42,13 +42,15 @@ interface CodeProps {
     className?: string;
     inline?: boolean;
     language?: string;
+    code?: string;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
- * Code component - typography code.
+ * Code component - typography code with syntax highlighting.
+ * Automatically adapts to light/dark theme.
  */
-export declare function Code({ id, className, inline, language, children, 'data-refast-id': dataRefastId, }: CodeProps): React.ReactElement;
+export declare function Code({ id, className, inline, language, code, children, 'data-refast-id': dataRefastId, }: CodeProps): React.ReactElement;
 interface BlockQuoteProps {
     id?: string;
     className?: string;
@@ -93,4 +95,19 @@ interface LabelProps {
  * Label component - typography label.
  */
 export declare function Label({ id, className, htmlFor, required, children, 'data-refast-id': dataRefastId, }: LabelProps): React.ReactElement;
+interface MarkdownProps {
+    id?: string;
+    className?: string;
+    content: string;
+    allowLatex?: boolean;
+    allowHtml?: boolean;
+    'data-refast-id'?: string;
+}
+/**
+ * Markdown component - renders Markdown content with optional LaTeX support.
+ * Uses react-markdown with remark-gfm for GitHub Flavored Markdown.
+ * When allowLatex is true, supports inline math with $...$ and display math with $$...$$.
+ * Automatically adapts code block styling to light/dark theme.
+ */
+export declare function Markdown({ id, className, content, allowLatex, allowHtml, 'data-refast-id': dataRefastId, }: MarkdownProps): React.ReactElement;
 export {};

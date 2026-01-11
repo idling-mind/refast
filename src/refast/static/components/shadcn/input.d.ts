@@ -81,14 +81,14 @@ interface CheckboxProps {
     disabled?: boolean;
     name?: string;
     value?: string;
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onCheckedChange?: (checked: boolean) => void;
     label?: string;
     'data-refast-id'?: string;
 }
 /**
  * Checkbox component - shadcn-styled checkbox.
  */
-export declare function Checkbox({ id, className, checked, defaultChecked, disabled, name, value, onChange, label, 'data-refast-id': dataRefastId, }: CheckboxProps): React.ReactElement;
+export declare function Checkbox({ id, className, checked, defaultChecked, disabled, name, value, onCheckedChange, label, 'data-refast-id': dataRefastId, }: CheckboxProps): React.ReactElement;
 interface RadioProps {
     id?: string;
     className?: string;
@@ -113,12 +113,40 @@ interface RadioGroupProps {
     defaultValue?: string;
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
-    onChange?: (value: string) => void;
+    options?: Array<{
+        value: string;
+        label: string;
+        disabled?: boolean;
+    }>;
+    label?: string;
+    onValueChange?: (value: string) => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
- * RadioGroup component - container for radio buttons.
+ * RadioGroup component - container for radio buttons with options support.
  */
-export declare function RadioGroup({ id, className, orientation, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
+export declare function RadioGroup({ id, className, name, value, defaultValue, disabled, orientation, options, label, onValueChange, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
+interface CheckboxGroupOption {
+    value: string;
+    label: string;
+    disabled?: boolean;
+}
+interface CheckboxGroupProps {
+    id?: string;
+    className?: string;
+    name?: string;
+    value?: string[];
+    defaultValue?: string[];
+    disabled?: boolean;
+    orientation?: 'horizontal' | 'vertical';
+    options?: CheckboxGroupOption[];
+    label?: string;
+    onChange?: (value: string[]) => void;
+    'data-refast-id'?: string;
+}
+/**
+ * CheckboxGroup component - group of checkboxes for multi-selection.
+ */
+export declare function CheckboxGroup({ id, className, name, value, defaultValue, disabled, orientation, options, label, onChange, 'data-refast-id': dataRefastId, }: CheckboxGroupProps): React.ReactElement;
 export {};

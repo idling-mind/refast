@@ -9,6 +9,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { cn } from '../../utils';
 import type { BaseProps, ChildrenProp } from './types';
+import { Icon } from './icon';
 
 // ============================================================================
 // AlertDialog
@@ -951,14 +952,14 @@ export function DropdownMenuItem({
       disabled={disabled}
       onSelect={onSelect}
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
         'transition-colors focus:bg-accent focus:text-accent-foreground',
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className
       )}
       {...props}
     >
-      {icon && <span className="mr-2 h-4 w-4">{icon}</span>}
+      {icon && <Icon name={icon} size={16} className="shrink-0" />}
       <span className="flex-1">{children}</span>
       {shortcut && (
         <span className="ml-auto text-xs tracking-widest text-muted-foreground">
@@ -1263,14 +1264,14 @@ export function ContextMenuItem({
       disabled={disabled}
       onSelect={onSelect}
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
         'transition-colors focus:bg-accent focus:text-accent-foreground',
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className
       )}
       {...props}
     >
-      {icon && <span className="mr-2 h-4 w-4">{icon}</span>}
+      {icon && <Icon name={icon} size={16} className="shrink-0" />}
       <span className="flex-1">{children}</span>
       {shortcut && (
         <span className="ml-auto text-xs tracking-widest text-muted-foreground">

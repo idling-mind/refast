@@ -6,6 +6,7 @@ import { Container, Text, Fragment } from './base';
 // Import shadcn components
 import { Row, Column, Stack, Grid, Flex, Center, Spacer, Divider } from './shadcn/layout';
 import { Button, IconButton } from './shadcn/button';
+import { Icon } from './shadcn/icon';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
 import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup } from './shadcn/input';
 import { Slot } from './shadcn/slot';
@@ -129,6 +130,7 @@ componentRegistry.register('Divider', Divider);
 // Register button components
 componentRegistry.register('Button', Button);
 componentRegistry.register('IconButton', IconButton);
+componentRegistry.register('Icon', Icon);
 
 // Register card components
 componentRegistry.register('Card', Card);

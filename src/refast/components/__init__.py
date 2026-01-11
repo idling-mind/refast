@@ -107,6 +107,7 @@ from refast.components.shadcn import (
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
+    Icon,
     IconButton,
     # Input
     Input,
@@ -243,6 +244,8 @@ __all__ = [
     # Button
     "Button",
     "IconButton",
+    # Icon
+    "Icon",
     # Card
     "Card",
     "CardHeader",

@@ -4,6 +4,7 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 import * as TogglePrimitive from '@radix-ui/react-toggle';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
 import { cn } from '../../utils';
+import { Icon } from './icon';
 
 // ============================================================================
 // Switch
@@ -336,6 +337,7 @@ export function ToggleGroupItem({
   id,
   className,
   label,
+  icon,
   value,
   disabled = false,
   variant = 'default',
@@ -359,7 +361,7 @@ export function ToggleGroupItem({
       )}
       data-refast-id={dataRefastId}
     >
-      {children || label}
+      {children || (icon && <Icon name={icon} size={16} />) || label}
     </ToggleGroupPrimitive.Item>
   );
 }

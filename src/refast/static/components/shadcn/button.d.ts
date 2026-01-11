@@ -4,6 +4,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
     size?: 'sm' | 'md' | 'lg' | 'icon';
     loading?: boolean;
+    icon?: string;
+    iconPosition?: 'left' | 'right';
     'data-refast-id'?: string;
 }
 /**
@@ -23,6 +25,7 @@ interface IconButtonProps {
 }
 /**
  * IconButton component - button with icon.
+ * Uses Lucide icons via the Icon component.
  */
 export declare const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAttributes<HTMLButtonElement>>;
 export {};

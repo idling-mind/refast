@@ -27,6 +27,7 @@ from refast.components import (
     Column,
     Container,
     Grid,
+    Icon,
     Progress,
     Row,
     Table,
@@ -99,7 +100,7 @@ ui = RefastApp(title="Dashboard")
 def render_metric_card(metric: Metric, index: int):
     """Render a metric card."""
     trend_style = {"color": "#16a34a"} if metric.trend == "up" else {"color": "#dc2626"}
-    trend_icon = "↑" if metric.trend == "up" else "↓"
+    trend_icon = "trending-up" if metric.trend == "up" else "trending-down"
 
     return Card(
         id=f"metric-{index}",
@@ -122,8 +123,9 @@ def render_metric_card(metric: Metric, index: int):
                                 gap=1,
                                 align="center",
                                 children=[
+                                    Icon(trend_icon, size=14, color=trend_style["color"]),
                                     Text(
-                                        f"{trend_icon} {abs(metric.change)}%",
+                                        f"{abs(metric.change)}%",
                                         class_name="text-sm font-medium",
                                         style=trend_style,
                                     ),
@@ -191,10 +193,10 @@ def render_user_row(user: User):
 def render_sidebar(ctx: Context, active_page: str):
     """Render the sidebar navigation."""
     nav_items = [
-        ("Dashboard", "/", "📊"),
-        ("Users", "/users", "👥"),
-        ("Analytics", "/analytics", "📈"),
-        ("Settings", "/settings", "⚙️"),
+        ("Dashboard", "/", "bar-chart"),
+        ("Users", "/users", "users"),
+        ("Analytics", "/analytics", "trending-up"),
+        ("Settings", "/settings", "settings"),
     ]
 
     return Container(
@@ -221,7 +223,7 @@ def render_sidebar(ctx: Context, active_page: str):
                                     Row(
                                         gap=3,
                                         children=[
-                                            Text(item[2]),
+                                            Icon(item[2]),
                                             Text(item[0]),
                                         ],
                                     )

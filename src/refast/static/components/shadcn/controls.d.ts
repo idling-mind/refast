@@ -67,7 +67,7 @@ interface ToggleGroupItemProps {
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
-export declare function ToggleGroupItem({ id, className, label, value, disabled, variant, size, children, 'data-refast-id': dataRefastId, }: ToggleGroupItemProps): React.ReactElement;
+export declare function ToggleGroupItem({ id, className, label, icon, value, disabled, variant, size, children, 'data-refast-id': dataRefastId, }: ToggleGroupItemProps): React.ReactElement;
 interface CalendarProps {
     id?: string;
     className?: string;

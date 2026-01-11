@@ -11,12 +11,39 @@ class Button(Component):
 
     Example:
         ```python
+        # Basic button
         Button(
             "Click Me",
             variant="primary",
             on_click=ctx.callback(handle_click)
         )
+
+        # Button with icon
+        Button(
+            "Save",
+            icon="save",
+            on_click=ctx.callback(handle_save)
+        )
+
+        # Button with icon on right
+        Button(
+            "Next",
+            icon="arrow-right",
+            icon_position="right",
+            on_click=ctx.callback(handle_next)
+        )
         ```
+
+    Args:
+        label: The button text
+        variant: Button style variant
+        size: Button size
+        icon: Optional Lucide icon name (e.g., "save", "home", "settings")
+        icon_position: Position of the icon relative to label ("left" or "right")
+        disabled: Whether the button is disabled
+        loading: Whether to show loading spinner
+        type: HTML button type
+        on_click: Click callback
     """
 
     component_type: str = "Button"
@@ -28,6 +55,8 @@ class Button(Component):
             "default", "primary", "secondary", "destructive", "outline", "ghost", "link"
         ] = "default",
         size: Literal["sm", "md", "lg", "icon"] = "md",
+        icon: str | None = None,
+        icon_position: Literal["left", "right"] = "left",
         disabled: bool = False,
         loading: bool = False,
         type: Literal["button", "submit", "reset"] = "button",
@@ -40,6 +69,8 @@ class Button(Component):
         self.label = label
         self.variant = variant
         self.size = size
+        self.icon = icon
+        self.icon_position = icon_position
         self.disabled = disabled
         self.loading = loading
         self.button_type = type
@@ -55,6 +86,10 @@ class Button(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.icon:
+            props["icon"] = self.icon
+            props["iconPosition"] = self.icon_position
 
         if self.on_click:
             props["on_click"] = self.on_click.serialize()

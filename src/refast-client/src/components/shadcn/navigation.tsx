@@ -3,6 +3,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu';
 import * as MenubarPrimitive from '@radix-ui/react-menubar';
 import { cn } from '../../utils';
+import { Icon } from './icon';
 
 // ============================================================================
 // Breadcrumb
@@ -1285,6 +1286,7 @@ interface CommandItemProps {
 export function CommandItem({
   id,
   className,
+  icon,
   value,
   disabled,
   onSelect,
@@ -1298,13 +1300,14 @@ export function CommandItem({
       disabled={disabled}
       onSelect={onSelect}
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
         'aria-selected:bg-accent aria-selected:text-accent-foreground',
         'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
         className
       )}
       data-refast-id={dataRefastId}
     >
+      {icon && <Icon name={icon} size={16} className="shrink-0" />}
       {children}
     </CommandPrimitive.Item>
   );
@@ -1959,9 +1962,7 @@ export function SidebarMenuButton({
   const content = (
     <>
       {icon && (
-        <span className="flex size-4 shrink-0 items-center justify-center">
-          {icon}
-        </span>
+        <Icon name={icon} size={16} className="shrink-0" />
       )}
       <span className="truncate">{children}</span>
     </>

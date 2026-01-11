@@ -3,6 +3,7 @@
 from typing import Any, Literal, Union
 
 from refast.components.base import Component
+from refast.components.shadcn.icon import Icon
 
 
 class Breadcrumb(Component):
@@ -1760,6 +1761,14 @@ class SidebarGroupAction(Component):
 
     Example:
         ```python
+        # Using Lucide icon name
+        SidebarGroupAction(
+            icon="plus",
+            title="Add Item",
+            on_click=ctx.callback(handle_add)
+        )
+
+        # Backward compatible with emoji
         SidebarGroupAction(
             icon="➕",
             title="Add Item",
@@ -1790,7 +1799,9 @@ class SidebarGroupAction(Component):
     def render(self) -> dict[str, Any]:
         children = self._render_children()
         if self.icon and not children:
-            children = [self.icon]
+            # Create an Icon component for the icon
+            icon_component = Icon(self.icon, size=16)
+            children = [icon_component.render()]
         return {
             "type": self.component_type,
             "id": self.id,
@@ -1931,17 +1942,25 @@ class SidebarMenuButton(Component):
 
     Example:
         ```python
+        # Using Lucide icon name
         SidebarMenuButton(
             "Dashboard",
-            icon="🏠",
+            icon="home",
             is_active=True,
             on_click=ctx.callback(handle_click)
+        )
+
+        # Backward compatible with emoji
+        SidebarMenuButton(
+            "Settings",
+            icon="⚙️",
+            on_click=ctx.callback(handle_settings)
         )
         ```
 
     Args:
         label: The button text
-        icon: Optional icon (emoji or text)
+        icon: Optional Lucide icon name (e.g., "home", "settings") or emoji for backward compatibility
         is_active: Whether the button is currently active
         variant: "default" or "outline"
         size: "default", "sm", or "lg"
@@ -2003,8 +2022,9 @@ class SidebarMenuAction(Component):
         SidebarMenuItem(
             children=[
                 SidebarMenuButton("Project", href="/project"),
+                # Using Lucide icon name
                 SidebarMenuAction(
-                    icon="⋮",
+                    icon="more-vertical",
                     on_click=ctx.callback(handle_options)
                 )
             ]
@@ -2034,7 +2054,9 @@ class SidebarMenuAction(Component):
     def render(self) -> dict[str, Any]:
         children = self._render_children()
         if self.icon and not children:
-            children = [self.icon]
+            # Create an Icon component for the icon
+            icon_component = Icon(self.icon, size=16)
+            children = [icon_component.render()]
         return {
             "type": self.component_type,
             "id": self.id,

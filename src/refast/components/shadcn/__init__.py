@@ -1,6 +1,7 @@
 """shadcn-based components."""
 
 from refast.components.shadcn.button import Button, IconButton
+from refast.components.shadcn.icon import Icon
 from refast.components.shadcn.card import (
     Card,
     CardContent,
@@ -212,6 +213,8 @@ __all__ = [
     # Button
     "Button",
     "IconButton",
+    # Icon
+    "Icon",
     # Card
     "Card",
     "CardHeader",

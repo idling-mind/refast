@@ -93,24 +93,24 @@ async def handle_menu_action(ctx, item: str = "", action: str = ""):
 
 # Sample menu data
 MAIN_MENU = [
-    {"label": "Dashboard", "icon": "🏠", "href": "#dashboard", "badge": None},
-    {"label": "Inbox", "icon": "📥", "href": "#inbox", "badge": "24"},
-    {"label": "Calendar", "icon": "📅", "href": "#calendar", "badge": None},
-    {"label": "Search", "icon": "🔍", "href": "#search", "badge": None},
-    {"label": "Settings", "icon": "⚙️", "href": "#settings", "badge": None},
+    {"label": "Dashboard", "icon": "home", "href": "#dashboard", "badge": None},
+    {"label": "Inbox", "icon": "inbox", "href": "#inbox", "badge": "24"},
+    {"label": "Calendar", "icon": "calendar", "href": "#calendar", "badge": None},
+    {"label": "Search", "icon": "search", "href": "#search", "badge": None},
+    {"label": "Settings", "icon": "settings", "href": "#settings", "badge": None},
 ]
 
 PROJECTS = [
-    {"label": "Project Alpha", "icon": "📁", "href": "#alpha"},
-    {"label": "Project Beta", "icon": "📁", "href": "#beta"},
-    {"label": "Project Gamma", "icon": "📁", "href": "#gamma"},
+    {"label": "Project Alpha", "icon": "folder", "href": "#alpha"},
+    {"label": "Project Beta", "icon": "folder", "href": "#beta"},
+    {"label": "Project Gamma", "icon": "folder", "href": "#gamma"},
 ]
 
 # Hierarchical menu data for collapsible sections
 COLLAPSIBLE_MENU = [
     {
         "label": "Getting Started",
-        "icon": "🚀",
+        "icon": "zap",
         "items": [
             {"label": "Introduction", "href": "#intro"},
             {"label": "Installation", "href": "#install"},
@@ -119,7 +119,7 @@ COLLAPSIBLE_MENU = [
     },
     {
         "label": "Components",
-        "icon": "🧩",
+        "icon": "box",
         "items": [
             {"label": "Button", "href": "#button"},
             {"label": "Card", "href": "#card"},
@@ -129,7 +129,7 @@ COLLAPSIBLE_MENU = [
     },
     {
         "label": "API Reference",
-        "icon": "📚",
+        "icon": "book",
         "items": [
             {"label": "Overview", "href": "#api-overview"},
             {"label": "Context", "href": "#api-context"},
@@ -168,7 +168,7 @@ def create_sidebar(
                                 children=[
                                     SidebarMenuButton(
                                         "Acme Inc",
-                                        icon="🏢",
+                                        icon="building",
                                         size="lg",
                                     ),
                                 ]
@@ -223,7 +223,7 @@ def create_sidebar(
                     SidebarGroup(
                         children=[
                             SidebarGroupLabel("Projects"),
-                            SidebarGroupAction(icon="➕", title="Add Project", on_click=ctx.callback(handle_add_project)),
+                            SidebarGroupAction(icon="plus", title="Add Project", on_click=ctx.callback(handle_add_project)),
                             SidebarGroupContent(
                                 children=[
                                     SidebarMenu(
@@ -236,7 +236,7 @@ def create_sidebar(
                                                         href=project["href"],
                                                     ),
                                                     SidebarMenuAction(
-                                                        icon="⋮",
+                                                        icon="more-vertical",
                                                         show_on_hover=True,
                                                     ),
                                                 ]
@@ -260,7 +260,7 @@ def create_sidebar(
                                                 children=[
                                                     SidebarMenuButton(
                                                         "Settings",
-                                                        icon="⚙️",
+                                                        icon="settings",
                                                     ),
                                                     SidebarMenuSub(
                                                         children=[
@@ -312,7 +312,7 @@ def create_sidebar(
                                 children=[
                                     SidebarMenuButton(
                                         "John Doe",
-                                        icon="👤",
+                                        icon="user",
                                         size="lg",
                                     ),
                                 ]
@@ -739,7 +739,7 @@ def collapsible_menu_demo(ctx):
                                         children=[
                                             SidebarMenuButton(
                                                 "Documentation",
-                                                icon="📖",
+                                                icon="file-text",
                                                 size="lg",
                                             ),
                                         ]
@@ -889,7 +889,7 @@ def dropdown_actions_demo(ctx):
                                         children=[
                                             SidebarMenuButton(
                                                 "Workspace",
-                                                icon="🏢",
+                                                icon="building",
                                                 size="lg",
                                             ),
                                         ]
@@ -905,7 +905,7 @@ def dropdown_actions_demo(ctx):
                                 children=[
                                     SidebarGroupLabel("Projects"),
                                     SidebarGroupAction(
-                                        icon="➕",
+                                        icon="plus",
                                         title="Add Project",
                                         on_click=ctx.callback(handle_add_project),
                                     ),
@@ -926,7 +926,7 @@ def dropdown_actions_demo(ctx):
                                                                     DropdownMenuTrigger(
                                                                         children=[
                                                                             SidebarMenuAction(
-                                                                                icon="⋮",
+                                                                                icon="more-vertical",
                                                                                 show_on_hover=True,
                                                                             ),
                                                                         ]
@@ -941,7 +941,7 @@ def dropdown_actions_demo(ctx):
                                                                             DropdownMenuSeparator(),
                                                                             DropdownMenuItem(
                                                                                 "Open",
-                                                                                icon="📂",
+                                                                                icon="folder-open",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
                                                                                     item=project["label"],
@@ -950,7 +950,7 @@ def dropdown_actions_demo(ctx):
                                                                             ),
                                                                             DropdownMenuItem(
                                                                                 "Edit",
-                                                                                icon="✏️",
+                                                                                icon="edit",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
                                                                                     item=project["label"],
@@ -959,7 +959,7 @@ def dropdown_actions_demo(ctx):
                                                                             ),
                                                                             DropdownMenuItem(
                                                                                 "Share",
-                                                                                icon="🔗",
+                                                                                icon="link",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
                                                                                     item=project["label"],
@@ -969,7 +969,7 @@ def dropdown_actions_demo(ctx):
                                                                             DropdownMenuSeparator(),
                                                                             DropdownMenuItem(
                                                                                 "Delete",
-                                                                                icon="🗑️",
+                                                                                icon="trash",
                                                                                 class_name="text-red-500",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
@@ -1001,7 +1001,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Default Button",
-                                                                icon="🔘",
+                                                                icon="circle",
                                                                 variant="default",
                                                             ),
                                                         ]
@@ -1010,7 +1010,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Outline Button",
-                                                                icon="⭕",
+                                                                icon="circle-dot",
                                                                 variant="outline",
                                                             ),
                                                         ]
@@ -1019,7 +1019,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Active Default",
-                                                                icon="✅",
+                                                                icon="check-circle",
                                                                 variant="default",
                                                                 is_active=True,
                                                             ),
@@ -1029,7 +1029,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Active Outline",
-                                                                icon="☑️",
+                                                                icon="check-circle-2",
                                                                 variant="outline",
                                                                 is_active=True,
                                                             ),
@@ -1052,7 +1052,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Small Button",
-                                                                icon="🔹",
+                                                                icon="minus",
                                                                 size="sm",
                                                             ),
                                                         ]
@@ -1061,7 +1061,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Default Button",
-                                                                icon="🔷",
+                                                                icon="square",
                                                                 size="default",
                                                             ),
                                                         ]
@@ -1070,7 +1070,7 @@ def dropdown_actions_demo(ctx):
                                                         children=[
                                                             SidebarMenuButton(
                                                                 "Large Button",
-                                                                icon="🟦",
+                                                                icon="maximize",
                                                                 size="lg",
                                                             ),
                                                         ]
@@ -1185,7 +1185,7 @@ def skeleton_demo(ctx):
                                         children=[
                                             SidebarMenuButton(
                                                 "Loading Demo",
-                                                icon="⏳",
+                                                icon="loader",
                                                 size="lg",
                                             ),
                                         ]

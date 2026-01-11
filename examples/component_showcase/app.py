@@ -47,6 +47,7 @@ from refast.components import (
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
+    Icon,
     Input,
     Label,
     Pagination,
@@ -70,6 +71,7 @@ from refast.components import (
     SheetTitle,
     SheetTrigger,
     Slider,
+    Spacer,
     # Controls
     Switch,
     TabItem,
@@ -330,16 +332,47 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Label("Text Formatting"),
-                                            ToggleGroup(
-                                                type="multiple",
-                                                default_value={"bold": True},
-                                                children=[
-                                                    ToggleGroupItem(name="bold", label="B"),
-                                                    ToggleGroupItem(name="italic", label="I"),
-                                                    ToggleGroupItem(name="underline", label="U"),
+                                            Label("Text Formatting", class_name="mb-4"),
+                                            Row(
+                                                [
+                                                    ToggleGroup(
+                                                        type="multiple",
+                                                        default_value={"bold": True},
+                                                        children=[
+                                                            ToggleGroupItem(name="bold", label="B"),
+                                                            ToggleGroupItem(
+                                                                name="italic", label="I"
+                                                            ),
+                                                            ToggleGroupItem(
+                                                                name="underline", label="U"
+                                                            ),
+                                                        ],
+                                                        on_value_change=ctx.callback(
+                                                            on_toggle_change
+                                                        ),
+                                                    ),
+                                                    Spacer(size=2),
+                                                    ToggleGroup(
+                                                        type="multiple",
+                                                        default_value={"home": True},
+                                                        children=[
+                                                            ToggleGroupItem(
+                                                                name="back", icon="chevron-left"
+                                                            ),
+                                                            ToggleGroupItem(
+                                                                name="home", icon="home"
+                                                            ),
+                                                            ToggleGroupItem(
+                                                                name="forward", icon="chevron-right"
+                                                            ),
+                                                        ],
+                                                        on_value_change=ctx.callback(
+                                                            on_toggle_change
+                                                        ),
+                                                    ),
                                                 ],
-                                                on_value_change=ctx.callback(on_toggle_change),
+                                                justify="center",
+                                                gap=4,
                                             ),
                                         ],
                                     ),
@@ -360,7 +393,9 @@ def home(ctx: Context):
                                                 on_select=ctx.callback(dropdown_select),
                                             ),
                                             Separator(class_name="mt-4 mb-4"),
-                                            Label("You can select multiple options in this combobox."),
+                                            Label(
+                                                "You can select multiple options in this combobox."
+                                            ),
                                             Combobox(
                                                 placeholder="Choose frameworks...",
                                                 options=[

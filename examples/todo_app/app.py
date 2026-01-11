@@ -25,6 +25,7 @@ from refast.components import (
     Checkbox,
     Column,
     Container,
+    IconButton,
     Input,
     Row,
     Text,
@@ -146,11 +147,12 @@ def render_todo_item(ctx: Context, todo: Todo):
                     )
                 ],
             ),
-            Button(
-                "×",
+            IconButton(
+                icon="x",
                 id=f"delete-{todo.id}",
                 variant="ghost",
                 size="sm",
+                aria_label=f"Delete {todo.text}",
                 on_click=ctx.callback(delete_todo, todo_id=todo.id),
             ),
         ],

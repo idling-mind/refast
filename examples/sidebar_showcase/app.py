@@ -7,10 +7,22 @@ This example demonstrates all the sidebar component features:
 - Different collapsible modes (offcanvas, icon, none)
 - Left and right side positioning
 - Menu items with icons, badges, and actions
+- Collapsible menu sections using Collapsible component
 - Nested submenus
+- Dropdown menus for menu actions
+- Menu skeletons for loading states
 - Header and footer sections
 - Keyboard shortcuts (Ctrl/Cmd+B to toggle)
 - Mobile responsiveness
+
+Pages:
+- / - Default sidebar with icon collapsible mode
+- /floating - Floating variant with offcanvas collapsible
+- /inset - Inset variant
+- /right - Right-side sidebar
+- /collapsible-menu - Collapsible menu sections demo
+- /dropdown-actions - Menu with dropdown actions
+- /skeleton - Loading state with skeletons
 """
 from fastapi import FastAPI
 
@@ -22,9 +34,19 @@ from refast.components import (
     CardDescription,
     CardHeader,
     CardTitle,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
     Container,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
     Flex,
     Heading,
+    Link,
     Separator,
     Sidebar,
     SidebarContent,
@@ -40,6 +62,7 @@ from refast.components import (
     SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSkeleton,
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
@@ -53,8 +76,20 @@ from refast.components import (
 
 ui = RefastApp(title="Sidebar Showcase")
 
-async def test_callback(ctx):
-    await ctx.show_toast("Button clicked!", variant="success")
+
+async def handle_action(ctx, action: str):
+    """Generic action handler."""
+    await ctx.show_toast(f"Action: {action}", variant="success")
+
+
+async def handle_add_project(ctx):
+    await ctx.show_toast("Add Project clicked!", variant="success")
+
+
+async def handle_menu_action(ctx, item: str = "", action: str = ""):
+    """Handle menu action with keyword args."""
+    await ctx.show_toast(f"{action} on {item}", variant="info")
+
 
 # Sample menu data
 MAIN_MENU = [
@@ -71,14 +106,34 @@ PROJECTS = [
     {"label": "Project Gamma", "icon": "📁", "href": "#gamma"},
 ]
 
-SETTINGS_MENU = [
+# Hierarchical menu data for collapsible sections
+COLLAPSIBLE_MENU = [
     {
-        "label": "Settings",
-        "icon": "⚙️",
-        "submenu": [
-            {"label": "General", "href": "#general"},
-            {"label": "Security", "href": "#security"},
-            {"label": "Notifications", "href": "#notifications"},
+        "label": "Getting Started",
+        "icon": "🚀",
+        "items": [
+            {"label": "Introduction", "href": "#intro"},
+            {"label": "Installation", "href": "#install"},
+            {"label": "Quick Start", "href": "#quickstart"},
+        ],
+    },
+    {
+        "label": "Components",
+        "icon": "🧩",
+        "items": [
+            {"label": "Button", "href": "#button"},
+            {"label": "Card", "href": "#card"},
+            {"label": "Input", "href": "#input"},
+            {"label": "Dialog", "href": "#dialog"},
+        ],
+    },
+    {
+        "label": "API Reference",
+        "icon": "📚",
+        "items": [
+            {"label": "Overview", "href": "#api-overview"},
+            {"label": "Context", "href": "#api-context"},
+            {"label": "Events", "href": "#api-events"},
         ],
     },
 ]
@@ -90,19 +145,26 @@ def create_sidebar(
     variant: str = "sidebar",
     collapsible: str = "icon",
     side: str = "left",
+    show_rail: bool = True,
 ):
-    """Create a sidebar with the given configuration."""
-    return Sidebar(
-        side=side,
-        variant=variant,
-        collapsible=collapsible,
-        children=[
-            # Header
-            SidebarHeader(
-                children=[
-                    SidebarMenu(
-                        children=[
-                            SidebarMenuItem(
+    """Create a sidebar with the given configuration.
+    
+    Args:
+        ctx: The context
+        active_item: Which menu item is active
+        variant: sidebar, floating, or inset
+        collapsible: icon, offcanvas, or none
+        side: left or right
+        show_rail: Whether to show the SidebarRail (set False for non-collapsible)
+    """
+    # Build children list, optionally excluding rail
+    sidebar_children = [
+        # Header
+        SidebarHeader(
+            children=[
+                SidebarMenu(
+                    children=[
+                        SidebarMenuItem(
                                 children=[
                                     SidebarMenuButton(
                                         "Acme Inc",
@@ -161,7 +223,7 @@ def create_sidebar(
                     SidebarGroup(
                         children=[
                             SidebarGroupLabel("Projects"),
-                            SidebarGroupAction(icon="➕", title="Add Project", on_click=ctx.callback(test_callback)),
+                            SidebarGroupAction(icon="➕", title="Add Project", on_click=ctx.callback(handle_add_project)),
                             SidebarGroupContent(
                                 children=[
                                     SidebarMenu(
@@ -259,9 +321,17 @@ def create_sidebar(
                     ),
                 ]
             ),
-            # Rail for edge toggling
-            SidebarRail(),
-        ],
+        ]
+    
+    # Only add rail if collapsible (not in 'none' mode)
+    if show_rail:
+        sidebar_children.append(SidebarRail())
+    
+    return Sidebar(
+        side=side,
+        variant=variant,
+        collapsible=collapsible,
+        children=sidebar_children,
     )
 
 
@@ -320,6 +390,62 @@ def create_main_content(ctx, variant: str):
                         children=[
                             CardHeader(
                                 children=[
+                                    CardTitle("Demo Pages"),
+                                    CardDescription("Explore different sidebar configurations"),
+                                ]
+                            ),
+                            CardContent(
+                                children=[
+                                    Flex(
+                                        gap="2",
+                                        wrap="wrap",
+                                        children=[
+                                            Link(
+                                                "Home (Icon Mode)",
+                                                href="/",
+                                            ),
+                                            Link(
+                                                "Floating",
+                                                href="/floating",
+                                            ),
+                                            Link(
+                                                "Inset",
+                                                href="/inset",
+                                            ),
+                                            Link(
+                                                "Right Side",
+                                                href="/right",
+                                            ),
+                                            Link(
+                                                "Collapsible Menu",
+                                                href="/collapsible-menu",
+                                            ),
+                                            Link(
+                                                "Dropdown Actions",
+                                                href="/dropdown-actions",
+                                            ),
+                                            Link(
+                                                "Skeleton Loading",
+                                                href="/skeleton",
+                                            ),
+                                            Link(
+                                                "Offcanvas Mode",
+                                                href="/offcanvas",
+                                            ),
+                                            Link(
+                                                "Non-Collapsible",
+                                                href="/none",
+                                            ),
+                                        ],
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    Card(
+                        children=[
+                            CardHeader(
+                                children=[
                                     CardTitle("Sidebar Features"),
                                 ]
                             ),
@@ -340,10 +466,15 @@ def create_main_content(ctx, variant: str):
                                             Text("✅ Badges for notifications"),
                                             Text("✅ Hover actions on menu items"),
                                             Text("✅ Nested submenus"),
+                                            Text("✅ Collapsible menu sections"),
+                                            Text("✅ Dropdown menus in menu actions"),
+                                            Text("✅ Button variants (default, outline)"),
+                                            Text("✅ Button sizes (sm, default, lg)"),
                                             Text("✅ Group labels and actions"),
                                             Text("✅ Header and footer sections"),
                                             Text("✅ SidebarRail for edge toggling"),
                                             Text("✅ Keyboard shortcuts (Ctrl/Cmd+B)"),
+                                            Text("✅ Skeleton loading states"),
                                             Text("✅ Mobile drawer support"),
                                         ],
                                     ),
@@ -588,6 +719,763 @@ def right_sidebar(ctx):
             ),
         ],
     )
+
+
+@ui.page("/collapsible-menu")
+def collapsible_menu_demo(ctx):
+    """Collapsible menu sections demo using Collapsible component."""
+    return SidebarProvider(
+        default_open=True,
+        children=[
+            Sidebar(
+                variant="sidebar",
+                collapsible="icon",
+                children=[
+                    SidebarHeader(
+                        children=[
+                            SidebarMenu(
+                                children=[
+                                    SidebarMenuItem(
+                                        children=[
+                                            SidebarMenuButton(
+                                                "Documentation",
+                                                icon="📖",
+                                                size="lg",
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    SidebarSeparator(),
+                    SidebarContent(
+                        children=[
+                            # Each section is collapsible using Collapsible wrapper
+                            *[
+                                SidebarGroup(
+                                    children=[
+                                        Collapsible(
+                                            default_open=(i == 0),  # First section open by default
+                                            class_name="group/collapsible",
+                                            children=[
+                                                # Trigger wraps a menu button
+                                                CollapsibleTrigger(
+                                                    as_child=True,
+                                                    children=[
+                                                        SidebarMenuButton(
+                                                            section["label"],
+                                                            icon=section["icon"],
+                                                        ),
+                                                    ],
+                                                ),
+                                                CollapsibleContent(
+                                                    children=[
+                                                        SidebarGroupContent(
+                                                            children=[
+                                                                SidebarMenu(
+                                                                    children=[
+                                                                        SidebarMenuItem(
+                                                                            children=[
+                                                                                SidebarMenuButton(
+                                                                                    item["label"],
+                                                                                    href=item["href"],
+                                                                                ),
+                                                                            ]
+                                                                        )
+                                                                        for item in section["items"]
+                                                                    ]
+                                                                ),
+                                                            ]
+                                                        ),
+                                                    ]
+                                                ),
+                                            ],
+                                        ),
+                                    ]
+                                )
+                                for i, section in enumerate(COLLAPSIBLE_MENU)
+                            ],
+                        ]
+                    ),
+                    SidebarRail(),
+                ],
+            ),
+            SidebarInset(
+                children=[
+                    Container(
+                        class_name="p-6",
+                        children=[
+                            Flex(
+                                direction="row",
+                                align="center",
+                                gap="4",
+                                class_name="mb-6",
+                                children=[
+                                    SidebarTrigger(),
+                                    Heading("Collapsible Menu Sections", level=1),
+                                ],
+                            ),
+                            Card(
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Collapsible Menu Demo"),
+                                            CardDescription(
+                                                "Menu sections that can expand/collapse."
+                                            ),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "This example uses the Collapsible component to create expandable menu sections."
+                                                    ),
+                                                    Text(
+                                                        "Click the arrow icon next to each section header to toggle it."
+                                                    ),
+                                                    Text(
+                                                        "The first section is open by default using default_open=True."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            Card(
+                                class_name="mt-4",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Code Pattern"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Text(
+                                                "Wrap your SidebarGroup content with Collapsible, CollapsibleTrigger, and CollapsibleContent."
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ],
+    )
+
+
+@ui.page("/dropdown-actions")
+def dropdown_actions_demo(ctx):
+    """Menu items with dropdown action buttons."""
+    return SidebarProvider(
+        default_open=True,
+        children=[
+            Sidebar(
+                variant="sidebar",
+                collapsible="icon",
+                children=[
+                    SidebarHeader(
+                        children=[
+                            SidebarMenu(
+                                children=[
+                                    SidebarMenuItem(
+                                        children=[
+                                            SidebarMenuButton(
+                                                "Workspace",
+                                                icon="🏢",
+                                                size="lg",
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    SidebarSeparator(),
+                    SidebarContent(
+                        children=[
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Projects"),
+                                    SidebarGroupAction(
+                                        icon="➕",
+                                        title="Add Project",
+                                        on_click=ctx.callback(handle_add_project),
+                                    ),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                project["label"],
+                                                                icon=project["icon"],
+                                                                href=project["href"],
+                                                            ),
+                                                            # Dropdown menu for each project
+                                                            DropdownMenu(
+                                                                children=[
+                                                                    DropdownMenuTrigger(
+                                                                        children=[
+                                                                            SidebarMenuAction(
+                                                                                icon="⋮",
+                                                                                show_on_hover=True,
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                    DropdownMenuContent(
+                                                                        side="right",
+                                                                        align="start",
+                                                                        children=[
+                                                                            DropdownMenuLabel(
+                                                                                project["label"]
+                                                                            ),
+                                                                            DropdownMenuSeparator(),
+                                                                            DropdownMenuItem(
+                                                                                "Open",
+                                                                                icon="📂",
+                                                                                on_select=ctx.callback(
+                                                                                    handle_menu_action,
+                                                                                    item=project["label"],
+                                                                                    action="Open",
+                                                                                ),
+                                                                            ),
+                                                                            DropdownMenuItem(
+                                                                                "Edit",
+                                                                                icon="✏️",
+                                                                                on_select=ctx.callback(
+                                                                                    handle_menu_action,
+                                                                                    item=project["label"],
+                                                                                    action="Edit",
+                                                                                ),
+                                                                            ),
+                                                                            DropdownMenuItem(
+                                                                                "Share",
+                                                                                icon="🔗",
+                                                                                on_select=ctx.callback(
+                                                                                    handle_menu_action,
+                                                                                    item=project["label"],
+                                                                                    action="Share",
+                                                                                ),
+                                                                            ),
+                                                                            DropdownMenuSeparator(),
+                                                                            DropdownMenuItem(
+                                                                                "Delete",
+                                                                                icon="🗑️",
+                                                                                class_name="text-red-500",
+                                                                                on_select=ctx.callback(
+                                                                                    handle_menu_action,
+                                                                                    item=project["label"],
+                                                                                    action="Delete",
+                                                                                ),
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ]
+                                                    )
+                                                    for project in PROJECTS
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Button Variants"),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Default Button",
+                                                                icon="🔘",
+                                                                variant="default",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Outline Button",
+                                                                icon="⭕",
+                                                                variant="outline",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Active Default",
+                                                                icon="✅",
+                                                                variant="default",
+                                                                is_active=True,
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Active Outline",
+                                                                icon="☑️",
+                                                                variant="outline",
+                                                                is_active=True,
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Button Sizes"),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Small Button",
+                                                                icon="🔹",
+                                                                size="sm",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Default Button",
+                                                                icon="🔷",
+                                                                size="default",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Large Button",
+                                                                icon="🟦",
+                                                                size="lg",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    SidebarRail(),
+                ],
+            ),
+            SidebarInset(
+                children=[
+                    Container(
+                        class_name="p-6",
+                        children=[
+                            Flex(
+                                direction="row",
+                                align="center",
+                                gap="4",
+                                class_name="mb-6",
+                                children=[
+                                    SidebarTrigger(),
+                                    Heading("Dropdown Actions & Variants", level=1),
+                                ],
+                            ),
+                            Card(
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Dropdown Menu Actions"),
+                                            CardDescription(
+                                                "Menu items with dropdown action buttons."
+                                            ),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "Hover over project items to see the action button (⋮)."
+                                                    ),
+                                                    Text(
+                                                        "Click the button to open a dropdown menu with options."
+                                                    ),
+                                                    Text(
+                                                        "Each option triggers a toast notification demonstrating the callback."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            Card(
+                                class_name="mt-4",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Button Variants & Sizes"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "SidebarMenuButton supports two variants: 'default' and 'outline'."
+                                                    ),
+                                                    Text(
+                                                        "Three sizes are available: 'sm', 'default', and 'lg'."
+                                                    ),
+                                                    Text(
+                                                        "The 'is_active' prop highlights the current selection."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ],
+    )
+
+
+@ui.page("/skeleton")
+def skeleton_demo(ctx):
+    """Loading state demonstration with skeleton menu items."""
+    return SidebarProvider(
+        default_open=True,
+        children=[
+            Sidebar(
+                variant="sidebar",
+                collapsible="icon",
+                children=[
+                    SidebarHeader(
+                        children=[
+                            SidebarMenu(
+                                children=[
+                                    SidebarMenuItem(
+                                        children=[
+                                            SidebarMenuButton(
+                                                "Loading Demo",
+                                                icon="⏳",
+                                                size="lg",
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    SidebarSeparator(),
+                    SidebarContent(
+                        children=[
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Loading Items"),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    # Skeleton items to show loading state
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=True),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=True),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=True),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=True),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Without Icons"),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    # Skeleton items without icons
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=False),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=False),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuSkeleton(show_icon=False),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            SidebarGroup(
+                                children=[
+                                    SidebarGroupLabel("Loaded Items"),
+                                    SidebarGroupContent(
+                                        children=[
+                                            SidebarMenu(
+                                                children=[
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Loaded Item 1",
+                                                                icon="✓",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    SidebarMenuItem(
+                                                        children=[
+                                                            SidebarMenuButton(
+                                                                "Loaded Item 2",
+                                                                icon="✓",
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    SidebarRail(),
+                ],
+            ),
+            SidebarInset(
+                children=[
+                    Container(
+                        class_name="p-6",
+                        children=[
+                            Flex(
+                                direction="row",
+                                align="center",
+                                gap="4",
+                                class_name="mb-6",
+                                children=[
+                                    SidebarTrigger(),
+                                    Heading("Skeleton Loading States", level=1),
+                                ],
+                            ),
+                            Card(
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Menu Skeletons"),
+                                            CardDescription(
+                                                "Placeholder loading states for menu items."
+                                            ),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "Use SidebarMenuSkeleton to show loading placeholders."
+                                                    ),
+                                                    Text(
+                                                        "Set show_icon=True to include an icon placeholder."
+                                                    ),
+                                                    Text(
+                                                        "Useful when loading dynamic menu items from an API."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ],
+    )
+
+
+@ui.page("/offcanvas")
+def offcanvas_demo(ctx):
+    """Offcanvas collapsible mode - sidebar completely hides when collapsed."""
+    return SidebarProvider(
+        default_open=True,
+        children=[
+            create_sidebar(
+                ctx,
+                active_item="Dashboard",
+                variant="sidebar",
+                collapsible="offcanvas",  # Completely hides when collapsed
+            ),
+            SidebarInset(
+                children=[
+                    Container(
+                        class_name="p-6",
+                        children=[
+                            Flex(
+                                direction="row",
+                                align="center",
+                                gap="4",
+                                class_name="mb-6",
+                                children=[
+                                    SidebarTrigger(),
+                                    Heading("Offcanvas Mode", level=1),
+                                ],
+                            ),
+                            Card(
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Offcanvas Collapsible"),
+                                            CardDescription(
+                                                "The sidebar completely hides when collapsed."
+                                            ),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "Press Ctrl+B (or Cmd+B) to toggle the sidebar."
+                                                    ),
+                                                    Text(
+                                                        "Unlike 'icon' mode, the sidebar fully disappears."
+                                                    ),
+                                                    Text(
+                                                        "This gives maximum space to the main content area."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ],
+    )
+
+
+@ui.page("/none")
+def none_collapsible_demo(ctx):
+    """Non-collapsible sidebar - always visible."""
+    return SidebarProvider(
+        default_open=True,
+        children=[
+            create_sidebar(
+                ctx,
+                active_item="Dashboard",
+                variant="sidebar",
+                collapsible="none",  # Cannot be collapsed
+                show_rail=False,  # No rail for non-collapsible
+            ),
+            SidebarInset(
+                children=[
+                    Container(
+                        class_name="p-6",
+                        children=[
+                            Flex(
+                                direction="row",
+                                align="center",
+                                gap="4",
+                                class_name="mb-6",
+                                children=[
+                                    Heading("Non-Collapsible Sidebar", level=1),
+                                ],
+                            ),
+                            Card(
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("No Collapse Mode"),
+                                            CardDescription(
+                                                "The sidebar is always visible and cannot be collapsed."
+                                            ),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Stack(
+                                                gap="2",
+                                                children=[
+                                                    Text(
+                                                        "When collapsible='none', the sidebar stays fully expanded."
+                                                    ),
+                                                    Text(
+                                                        "The toggle button and keyboard shortcuts are disabled."
+                                                    ),
+                                                    Text(
+                                                        "Use this for layouts where navigation must always be visible."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ],
+    )
+
 
 app = FastAPI()
 app.include_router(ui.router)

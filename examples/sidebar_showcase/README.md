@@ -30,6 +30,11 @@ A comprehensive example demonstrating all sidebar component features from shadcn
 - **SidebarMenuSub** - Submenu container
 - **SidebarMenuSubItem** - Submenu item
 - **SidebarMenuSubButton** - Submenu button
+- **SidebarMenuSkeleton** - Loading placeholder
+
+### Integration with Other Components
+- **Collapsible** - For expandable/collapsible menu sections
+- **DropdownMenu** - For menu item action dropdowns
 
 ## Configuration Options
 
@@ -47,12 +52,28 @@ A comprehensive example demonstrating all sidebar component features from shadcn
 - `left` - Left side (default)
 - `right` - Right side
 
-## Pages
+### Button Variants
+- `default` - Standard button style
+- `outline` - Outlined button style
 
-1. **/** - Default sidebar with icon collapsible mode
-2. **/floating** - Floating variant with offcanvas mode
-3. **/inset** - Inset variant
-4. **/right** - Right-side positioned sidebar
+### Button Sizes
+- `sm` - Small
+- `default` - Default
+- `lg` - Large
+
+## Demo Pages
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Home | `/` | Default sidebar with icon collapsible mode |
+| Floating | `/floating` | Floating variant with offcanvas mode |
+| Inset | `/inset` | Inset variant (content appears as card) |
+| Right | `/right` | Right-side positioned sidebar |
+| Collapsible Menu | `/collapsible-menu` | Expandable/collapsible menu sections |
+| Dropdown Actions | `/dropdown-actions` | Menu items with dropdown action menus |
+| Skeleton | `/skeleton` | Loading state demonstration |
+| Offcanvas | `/offcanvas` | Offcanvas collapsible mode (sidebar fully hides) |
+| Non-Collapsible | `/none` | Sidebar that cannot be collapsed |
 
 ## Running the Example
 
@@ -62,10 +83,15 @@ uvicorn app:app --reload
 ```
 
 Then visit:
-- http://localhost:8000 - Default sidebar
+- http://localhost:8000 - Home with navigation links to all demos
 - http://localhost:8000/floating - Floating variant
 - http://localhost:8000/inset - Inset variant
 - http://localhost:8000/right - Right sidebar
+- http://localhost:8000/collapsible-menu - Collapsible sections
+- http://localhost:8000/dropdown-actions - Dropdown menus
+- http://localhost:8000/skeleton - Loading skeletons
+- http://localhost:8000/offcanvas - Offcanvas mode
+- http://localhost:8000/none - Non-collapsible
 
 ## Keyboard Shortcuts
 

@@ -110,7 +110,7 @@ export function Link({
       rel={external ? 'noopener noreferrer' : undefined}
       onClick={onClick}
       className={cn(
-        'font-medium text-primary underline underline-offset-4 hover:text-primary/80',
+        'font-medium text-primary px-2 hover:bg-accent',
         className
       )}
       data-refast-id={dataRefastId}

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ComponentTree, CallbackRef } from '../types';
+import { ComponentTree, CallbackRef, JsCallbackRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
 import { debounce, throttle } from '../utils';
@@ -43,6 +43,8 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
       
       if (isCallbackRef(value)) {
         result[camelKey] = createCallbackHandler(value, eventManager);
+      } else if (isJsCallbackRef(value)) {
+        result[camelKey] = createJsCallbackHandler(value);
       } else if (isFormatterString(key, value)) {
         // Convert formatter strings to functions (e.g., tickFormatter)
         result[camelKey] = createFormatterFunction(value as string);
@@ -100,13 +102,24 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
 ComponentRenderer.displayName = 'ComponentRenderer';
 
 /**
- * Check if a value is a callback reference.
+ * Check if a value is a callback reference (Python callback).
  */
 function isCallbackRef(value: unknown): value is CallbackRef {
   return (
     typeof value === 'object' &&
     value !== null &&
     'callbackId' in value
+  );
+}
+
+/**
+ * Check if a value is a JavaScript callback reference (client-side execution).
+ */
+function isJsCallbackRef(value: unknown): value is JsCallbackRef {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'jsFunction' in value
   );
 }
 
@@ -205,6 +218,38 @@ function createCallbackHandler(
   }
 
   return handler;
+}
+
+/**
+ * Create a handler function for a JavaScript callback reference.
+ * Executes the JavaScript code directly in the browser without server roundtrip.
+ */
+function createJsCallbackHandler(
+  ref: JsCallbackRef
+): (...args: unknown[]) => void {
+  const { jsFunction, boundArgs } = ref;
+
+  return (...args: unknown[]) => {
+    try {
+      // Extract event data from args
+      const eventData = extractEventData(args);
+      
+      // Get the element that triggered the event (if available)
+      let element: HTMLElement | null = null;
+      if (args[0] && typeof args[0] === 'object' && 'target' in args[0]) {
+        const event = args[0] as React.SyntheticEvent;
+        element = event.target as HTMLElement;
+      }
+
+      // Create a function that has access to event, args, and element
+      // eslint-disable-next-line no-new-func
+      const fn = new Function('event', 'args', 'element', jsFunction);
+      fn(eventData, boundArgs, element);
+    } catch (error) {
+      console.error('[Refast] Error executing JavaScript callback:', error);
+      console.error('[Refast] Code:', jsFunction);
+    }
+  };
 }
 
 /**

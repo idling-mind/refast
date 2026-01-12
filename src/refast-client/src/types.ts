@@ -22,7 +22,7 @@ export interface ComponentProps {
 }
 
 /**
- * Callback reference from backend.
+ * Callback reference from backend (Python callback).
  */
 export interface CallbackRef {
   callbackId: string;
@@ -32,10 +32,23 @@ export interface CallbackRef {
 }
 
 /**
+ * JavaScript callback reference from backend (client-side execution).
+ */
+export interface JsCallbackRef {
+  jsFunction: string;
+  boundArgs: Record<string, unknown>;
+}
+
+/**
+ * Combined callback type that can be either a Python callback or a JS callback.
+ */
+export type AnyCallbackRef = CallbackRef | JsCallbackRef;
+
+/**
  * Update message from backend.
  */
 export interface UpdateMessage {
-  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render';
+  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store';
   operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children';
   targetId?: string;
   component?: ComponentTree;
@@ -59,6 +72,9 @@ export interface UpdateMessage {
   action?: { label: string; callback_id: string };
   cancel?: { label: string; callback_id: string };
   id?: string;  // toast_id
+  // JS execution properties
+  code?: string;
+  args?: Record<string, unknown>;
 }
 
 /**

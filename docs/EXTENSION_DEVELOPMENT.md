@@ -145,8 +145,8 @@ class MyComponent(Component):
             "props": {
                 "title": self.title,
                 "value": self.value,
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
+                "on_click": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
             },
             "children": self._render_children(),
         }
@@ -317,10 +317,10 @@ class Counter(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "minValue": self.min_value,
-                "maxValue": self.max_value,
-                "onChange": self._serialize_callback(self.on_change),
-                "className": self.class_name,
+                "min_value": self.min_value,
+                "max_value": self.max_value,
+                "on_change": self._serialize_callback(self.on_change),
+                "class_name": self.class_name,
             },
             "children": self._render_children(),
         }
@@ -359,7 +359,7 @@ class MapContainer(ReactComponent):
                 "style": style or {"height": "400px", "width": "100%"},
             },
             events={
-                "onClick": on_click,
+                "on_click": on_click,
             },
             **kwargs,
         )
@@ -381,7 +381,7 @@ class Card(Component):
             "id": self.id,
             "props": {
                 "title": self.title,
-                "className": self.class_name,
+                "class_name": self.class_name,
             },
             "children": self._render_children(),  # Renders child components
         }
@@ -872,8 +872,8 @@ class MapContainer(Component):
                 "center": list(self.center),
                 "zoom": self.zoom,
                 "style": {"height": self.height, "width": self.width},
-                "onClick": self.on_click.serialize() if self.on_click else None,
-                "className": self.class_name,
+                "on_click": self.on_click.serialize() if self.on_click else None,
+                "class_name": self.class_name,
             },
             "children": self._render_children(),
         }
@@ -925,7 +925,7 @@ class Marker(Component):
             "id": self.id,
             "props": {
                 "position": list(self.position),
-                "onClick": self.on_click.serialize() if self.on_click else None,
+                "on_click": self.on_click.serialize() if self.on_click else None,
             },
             "children": self._render_children(),
         }

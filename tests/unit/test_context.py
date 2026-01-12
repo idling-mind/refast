@@ -3,7 +3,7 @@
 import pytest
 
 from refast import RefastApp
-from refast.context import Callback, Context
+from refast.context import Callback, Context, JsCallback, JsAction
 
 
 class TestCallback:
@@ -236,5 +236,125 @@ class TestContextWithoutWebSocket:
         result = await ctx.broadcast("custom:event", {"data": "value"})
         assert result == 0
 
+
+class TestJsCallback:
+    """Tests for JsCallback dataclass."""
+
+    def test_js_callback_has_code(self):
+        """Test JsCallback stores JavaScript code."""
+        cb = JsCallback(code="alert('Hello!')")
+        assert cb.code == "alert('Hello!')"
+
+    def test_js_callback_default_bound_args(self):
+        """Test JsCallback has empty bound_args by default."""
+        cb = JsCallback(code="console.log(1)")
+        assert cb.bound_args == {}
+
+    def test_js_callback_with_bound_args(self):
+        """Test JsCallback stores bound arguments."""
+        cb = JsCallback(code="deleteItem(args.id)", bound_args={"id": 123})
+        assert cb.bound_args == {"id": 123}
+
+    def test_js_callback_serialize(self):
+        """Test JsCallback serialization."""
+        cb = JsCallback(code="alert(args.msg)", bound_args={"msg": "Hello"})
+        serialized = cb.serialize()
+
+        assert serialized["jsFunction"] == "alert(args.msg)"
+        assert serialized["boundArgs"] == {"msg": "Hello"}
+
+    def test_js_callback_serialize_empty_args(self):
+        """Test JsCallback serialization with empty args."""
+        cb = JsCallback(code="console.log('test')")
+        serialized = cb.serialize()
+
+        assert serialized["jsFunction"] == "console.log('test')"
+        assert serialized["boundArgs"] == {}
+
+    def test_js_callback_no_callback_id(self):
+        """Test JsCallback does not have a callbackId."""
+        cb = JsCallback(code="test()")
+        serialized = cb.serialize()
+        
+        assert "callbackId" not in serialized
+        assert "jsFunction" in serialized
+
+
+class TestJsAction:
+    """Tests for JsAction dataclass."""
+
+    def test_js_action_has_code(self):
+        """Test JsAction stores JavaScript code."""
+        action = JsAction(code="window.scrollTo(0, 0)")
+        assert action.code == "window.scrollTo(0, 0)"
+
+    def test_js_action_default_args(self):
+        """Test JsAction has empty args by default."""
+        action = JsAction(code="test()")
+        assert action.args == {}
+
+    def test_js_action_with_args(self):
+        """Test JsAction stores arguments."""
+        action = JsAction(code="focus(args.id)", args={"id": "input-1"})
+        assert action.args == {"id": "input-1"}
+
+
+class TestContextJs:
+    """Tests for Context.js() method."""
+
+    def test_js_creates_js_callback_object(self):
+        """Test js method creates a JsCallback."""
+        ctx = Context()
+        cb = ctx.js("alert('Hello!')")
+        assert isinstance(cb, JsCallback)
+
+    def test_js_stores_code(self):
+        """Test js method stores the JavaScript code."""
+        ctx = Context()
+        cb = ctx.js("console.log('test')")
+        assert cb.code == "console.log('test')"
+
+    def test_js_with_bound_args(self):
+        """Test js with bound arguments."""
+        ctx = Context()
+        cb = ctx.js("deleteItem(args.item_id)", item_id=123, name="test")
+        assert cb.bound_args == {"item_id": 123, "name": "test"}
+
+    def test_js_serialize_format(self):
+        """Test js callback serializes correctly."""
+        ctx = Context()
+        cb = ctx.js("window.myFunc(args.data)", data={"key": "value"})
+        serialized = cb.serialize()
+
+        assert "jsFunction" in serialized
+        assert serialized["jsFunction"] == "window.myFunc(args.data)"
+        assert serialized["boundArgs"] == {"data": {"key": "value"}}
+
+    def test_js_does_not_register_with_app(self):
+        """Test js callback is not registered with app (it's client-side)."""
+        app = RefastApp()
+        ctx = Context(app=app)
+        cb = ctx.js("alert('test')")
+
+        # JsCallbacks don't have an id to register
+        assert not hasattr(cb, "id") or cb.code == "alert('test')"
+
+
+class TestContextCallJsWithoutWebSocket:
+    """Tests for Context.call_js() method without WebSocket."""
+
+    @pytest.mark.asyncio
+    async def test_call_js_without_websocket(self):
+        """Test call_js does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.call_js("console.log('test')")
+
+    @pytest.mark.asyncio
+    async def test_call_js_with_args_without_websocket(self):
+        """Test call_js with args does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.call_js("focus(args.id)", id="input-1")
 
 

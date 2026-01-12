@@ -53,5 +53,9 @@ declare global {
             /** Version of the Refast client */
             version: string;
         };
+        /** React exposed globally for UMD extension bundles */
+        React: typeof React;
+        /** ReactDOM exposed globally for UMD extension bundles */
+        ReactDOM: typeof ReactDOM;
     }
 }

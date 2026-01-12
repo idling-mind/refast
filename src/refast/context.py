@@ -1,5 +1,6 @@
 """Context class for request handling."""
 
+import asyncio
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -36,6 +37,69 @@ class Callback:
             "callbackId": self.id,
             "boundArgs": self.bound_args,
         }
+
+
+@dataclass
+class JsCallback:
+    """
+    Represents a JavaScript function to be executed on the frontend.
+
+    Unlike regular Callbacks which invoke Python functions via WebSocket,
+    JsCallbacks execute JavaScript code directly in the browser without
+    a server roundtrip.
+
+    The JavaScript function receives an event object with the following structure:
+    - For DOM events: { value, checked, name, target, ... }
+    - For custom callbacks: the data passed to the callback
+
+    Example:
+        ```python
+        # Simple alert
+        Button("Click me", on_click=ctx.js("alert('Hello!')"))
+
+        # Toggle a class
+        Button("Toggle", on_click=ctx.js("document.body.classList.toggle('dark')"))
+
+        # Access event data
+        Input(on_change=ctx.js("console.log('Value:', event.value)"))
+
+        # Call a global function
+        Button("Save", on_click=ctx.js("window.myApp.save()"))
+
+        # With bound arguments
+        Button("Delete", on_click=ctx.js("deleteItem(args.itemId)", item_id=123))
+        ```
+
+    Attributes:
+        code: JavaScript code to execute
+        bound_args: Arguments available as 'args' object in the JS code
+    """
+
+    code: str
+    bound_args: dict[str, Any] = field(default_factory=dict)
+
+    def serialize(self) -> dict[str, Any]:
+        """Serialize for sending to frontend."""
+        return {
+            "jsFunction": self.code,
+            "boundArgs": self.bound_args,
+        }
+
+
+@dataclass
+class JsAction:
+    """
+    Represents a JavaScript action to be sent to the frontend for execution.
+
+    Used by ctx.call_js() to execute JavaScript code on the client.
+
+    Attributes:
+        code: JavaScript code to execute
+        args: Arguments passed to the JavaScript code
+    """
+
+    code: str
+    args: dict[str, Any] = field(default_factory=dict)
 
 
 class Context(Generic[T]):
@@ -77,6 +141,7 @@ class Context(Generic[T]):
         self._store: Store | None = None
         self._session: Session | None = None
         self._event_data: dict[str, Any] = {}
+        self._store_sync_future: asyncio.Future[None] | None = None
 
     @property
     def event_data(self) -> dict[str, Any]:
@@ -154,6 +219,128 @@ class Context(Generic[T]):
             self._app.register_callback(callback_id, func)
 
         return cb
+
+    def js(
+        self,
+        code: str,
+        **bound_args: Any,
+    ) -> JsCallback:
+        """
+        Create a JavaScript callback that executes on the frontend.
+
+        Unlike `callback()` which invokes a Python function via WebSocket,
+        `js()` executes JavaScript code directly in the browser without
+        a server roundtrip. This is useful for:
+
+        - UI interactions that don't need server state (toggling classes, animations)
+        - Calling existing JavaScript libraries or global functions
+        - Performance-critical interactions that need immediate response
+        - Simple client-side logic
+
+        The JavaScript code has access to:
+        - `event`: The event data object (value, checked, name, etc.)
+        - `args`: The bound arguments passed to js()
+        - `element`: The DOM element that triggered the event (if applicable)
+
+        Args:
+            code: JavaScript code to execute
+            **bound_args: Arguments available as `args` in the JS code
+
+        Returns:
+            JsCallback object that serializes for frontend
+
+        Example:
+            ```python
+            # Simple alert
+            Button("Alert", on_click=ctx.js("alert('Hello!')"))
+
+            # Toggle dark mode
+            Button(
+                "Toggle Theme",
+                on_click=ctx.js("document.body.classList.toggle('dark')")
+            )
+
+            # Access event value
+            Input(on_change=ctx.js("console.log('Input:', event.value)"))
+
+            # With bound arguments
+            Button(
+                "Delete",
+                on_click=ctx.js("deleteItem(args.itemId)", item_id=123)
+            )
+
+            # Call global functions
+            Button("Save", on_click=ctx.js("window.myApp.save(args.data)", data=my_data))
+
+            # Combine with Python callback - JS runs first, then Python
+            Button(
+                "Submit",
+                on_click=ctx.js("validateForm() && true")  # Use Python callback for real action
+            )
+            ```
+
+        Note:
+            For security, avoid using user-provided strings in `code`.
+            Bound arguments are properly serialized and safe to use.
+        """
+        return JsCallback(code=code, bound_args=bound_args)
+
+    async def call_js(
+        self,
+        code: str,
+        **args: Any,
+    ) -> None:
+        """
+        Execute JavaScript code on the frontend immediately.
+
+        Unlike `js()` which creates a callback for event handlers,
+        `call_js()` sends JavaScript to the frontend for immediate execution.
+        This is useful for:
+
+        - Triggering animations or transitions after state changes
+        - Interacting with third-party JavaScript libraries
+        - Scrolling, focusing, or other DOM manipulations
+        - Executing custom client-side logic from a Python callback
+
+        The JavaScript code has access to:
+        - `args`: The arguments passed to call_js()
+
+        Args:
+            code: JavaScript code to execute
+            **args: Arguments available as `args` in the JS code
+
+        Example:
+            ```python
+            async def save_complete(ctx: Context):
+                # Save to database...
+                ctx.state.set("saved", True)
+                await ctx.push_update()
+
+                # Trigger confetti animation
+                await ctx.call_js("confetti({ particleCount: 100 })")
+
+                # Scroll to top
+                await ctx.call_js("window.scrollTo({ top: 0, behavior: 'smooth' })")
+
+                # Focus an input
+                await ctx.call_js(
+                    "document.getElementById(args.inputId)?.focus()",
+                    input_id="search-input"
+                )
+            ```
+
+        Note:
+            For security, avoid using user-provided strings in `code`.
+            Arguments are properly serialized and safe to use.
+        """
+        if self._websocket:
+            await self._websocket.send_json(
+                {
+                    "type": "js_exec",
+                    "code": code,
+                    "args": args,
+                }
+            )
 
     async def push_update(self) -> None:
         """Push state updates to the frontend."""
@@ -420,6 +607,44 @@ class Context(Generic[T]):
                         "updates": updates,
                     }
                 )
+
+    async def _sync_store_from_browser(self, timeout: float = 2.0) -> None:
+        """
+        Request the browser to send its current storage state.
+
+        This is called by store.sync() to refresh the cache with
+        the latest browser values, including any JS changes.
+
+        Args:
+            timeout: Maximum time to wait for the browser response (seconds)
+        """
+        if not self._websocket:
+            return  # No websocket, nothing to sync
+
+        # Create a future to wait for the sync response
+        loop = asyncio.get_event_loop()
+        self._store_sync_future = loop.create_future()
+
+        # Request the browser to send its current storage state
+        await self._websocket.send_json({"type": "resync_store"})
+
+        # Wait for the response with timeout
+        try:
+            await asyncio.wait_for(self._store_sync_future, timeout=timeout)
+        except asyncio.TimeoutError:
+            # Log warning but don't fail - use cached values
+            pass
+        finally:
+            self._store_sync_future = None
+
+    def _resolve_store_sync(self) -> None:
+        """
+        Resolve the pending store sync future.
+
+        Called internally when the browser sends a store_sync response.
+        """
+        if self._store_sync_future and not self._store_sync_future.done():
+            self._store_sync_future.set_result(None)
 
     def _load_store_from_browser(self, data: dict[str, dict[str, str]]) -> None:
         """

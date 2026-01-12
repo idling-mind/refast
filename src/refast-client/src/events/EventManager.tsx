@@ -100,6 +100,23 @@ export function EventManagerProvider({
             onComponentUpdate(targetId, updateObj, operation);
           }
         }
+
+        // Handle JavaScript execution from backend
+        if (message.type === 'js_exec' && message.code) {
+          try {
+            // eslint-disable-next-line no-new-func
+            const fn = new Function('args', message.code);
+            fn(message.args || {});
+          } catch (error) {
+            console.error('[Refast] Error executing JavaScript from server:', error);
+            console.error('[Refast] Code:', message.code);
+          }
+        }
+
+        // Handle resync_store request from backend
+        if (message.type === 'resync_store') {
+          persistentStateManager.resyncStore();
+        }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }

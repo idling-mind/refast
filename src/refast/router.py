@@ -1,5 +1,6 @@
 """FastAPI router integration for Refast."""
 
+import asyncio
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -208,8 +209,22 @@ class RefastRouter:
         try:
             while True:
                 data = await websocket.receive_json()
-                # Process incoming events using the persistent context
-                await self._handle_websocket_message(websocket, data)
+                message_type = data.get("type")
+                
+                # Handle store_sync immediately (it's a response to resync_store)
+                # This must happen in the main loop to avoid deadlock when
+                # a callback is waiting for sync response
+                if message_type == "store_sync":
+                    store_data = data.get("data", {})
+                    ctx._load_store_from_browser(store_data)
+                    ctx._resolve_store_sync()
+                elif message_type == "callback":
+                    # Run callbacks in a separate task so the main loop can
+                    # continue receiving messages (needed for store.sync())
+                    asyncio.create_task(self._handle_websocket_message(websocket, data))
+                else:
+                    # Process other messages normally
+                    await self._handle_websocket_message(websocket, data)
         except WebSocketDisconnect:
             # Clean up context when WebSocket disconnects
             self._websocket_contexts.pop(websocket, None)

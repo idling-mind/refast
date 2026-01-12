@@ -98,6 +98,11 @@ class BrowserStore(ABC):
 
         Returns:
             The stored value or default
+
+        Note:
+            This returns the cached value. If JavaScript has modified
+            localStorage directly, call `await ctx.store.sync()` first
+            to refresh the cache from the browser.
         """
         return self._data.get(key, default)
 
@@ -334,6 +339,10 @@ class Store:
 
         # sessionStorage - persists until tab is closed
         ctx.store.session.set("temp_data", {"key": "value"})
+
+        # Sync from browser to get JS-modified values
+        await ctx.store.sync()
+        value = ctx.store.local.get("js_set_key")
         ```
     """
 
@@ -351,6 +360,7 @@ class Store:
             encoder: Custom encoder for serialization
             encrypt: Whether to encrypt stored values
         """
+        self._ctx = ctx
         self._local = LocalStore(ctx, encoder, encrypt)
         self._session = SessionStore(ctx, encoder, encrypt)
 
@@ -373,6 +383,28 @@ class Store:
             SessionStore instance for sessionStorage access
         """
         return self._session
+
+    async def sync(self) -> None:
+        """
+        Sync the store cache from the browser.
+
+        Call this method when you need to read values that JavaScript
+        may have modified directly in localStorage or sessionStorage.
+        After calling sync(), subsequent get() calls will return the
+        latest browser values.
+
+        Example:
+            ```python
+            async def read_js_value(ctx: Context):
+                # JS may have set this value directly
+                await ctx.store.sync()
+                
+                # Now get() returns the fresh browser value
+                value = ctx.store.local.get("js_set_key")
+                print(f"Value from browser: {value}")
+            ```
+        """
+        await self._ctx._sync_store_from_browser()
 
     def _load_from_browser(self, data: dict[str, dict[str, str]]) -> None:
         """

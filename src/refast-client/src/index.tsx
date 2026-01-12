@@ -179,6 +179,10 @@ declare global {
       /** Version of the Refast client */
       version: string;
     };
+    /** React exposed globally for UMD extension bundles */
+    React: typeof React;
+    /** ReactDOM exposed globally for UMD extension bundles */
+    ReactDOM: typeof ReactDOM;
   }
 }
 
@@ -189,3 +193,8 @@ window.RefastClient = {
   ReactDOM,
   version: '0.1.0',
 };
+
+// Also expose React and ReactDOM globally for UMD extension bundles
+// This allows extensions to use `external: ['react', 'react-dom']` in their build
+window.React = React;
+window.ReactDOM = ReactDOM;

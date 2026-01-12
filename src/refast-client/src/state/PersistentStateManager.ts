@@ -119,6 +119,27 @@ export class PersistentStateManager {
   }
 
   /**
+   * Resync the store state with the backend.
+   * This sends the current browser storage state as a store_sync message.
+   */
+  resyncStore(): void {
+    if (!this.websocket || this.websocket.readyState !== WebSocket.OPEN) {
+      console.warn('[Refast] Cannot resync store: WebSocket not connected');
+      return;
+    }
+
+    const data: StoreData = {
+      local: readStorage(localStorage, LOCAL_PREFIX),
+      session: readStorage(sessionStorage, SESSION_PREFIX),
+    };
+
+    this.websocket.send(JSON.stringify({
+      type: 'store_sync',
+      data,
+    }));
+  }
+
+  /**
    * Send the current browser storage state to the backend.
    */
   sendInitialState(): void {

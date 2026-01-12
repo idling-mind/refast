@@ -401,6 +401,192 @@ def home(ctx: Context):
     )
 ```
 
+### JavaScript Callbacks with `ctx.js()`
+
+For interactions that don't require server-side processing, you can use `ctx.js()` to execute JavaScript directly in the browser. This provides immediate feedback without a WebSocket roundtrip.
+
+#### When to Use `ctx.js()` vs `ctx.callback()`
+
+| Use `ctx.js()` for | Use `ctx.callback()` for |
+|-------------------|-------------------------|
+| UI animations and transitions | Database operations |
+| Toggling CSS classes | Server-side validation |
+| Calling client-side libraries | State that needs persistence |
+| Immediate visual feedback | Business logic |
+| DOM manipulations (scroll, focus) | Multi-client broadcasts |
+
+#### Basic Usage
+
+```python
+from refast import Context, RefastApp
+from refast.components import Button, Input, Container
+
+ui = RefastApp()
+
+@ui.page("/")
+def home(ctx: Context):
+    return Container(
+        children=[
+            # Simple alert
+            Button(
+                "Show Alert",
+                on_click=ctx.js("alert('Hello from JavaScript!')")
+            ),
+            
+            # Toggle dark mode
+            Button(
+                "Toggle Theme",
+                on_click=ctx.js("document.body.classList.toggle('dark')")
+            ),
+            
+            # Log input value
+            Input(
+                placeholder="Type something...",
+                on_change=ctx.js("console.log('Input value:', event.value)")
+            ),
+        ]
+    )
+```
+
+#### Available Variables in JavaScript Callbacks
+
+Inside the JavaScript code passed to `ctx.js()`, you have access to:
+
+- **`event`**: The event data object with properties like `value`, `checked`, `name`
+- **`args`**: The bound arguments passed to `ctx.js()`
+- **`element`**: The DOM element that triggered the event (if applicable)
+
+```python
+# Access event data
+Input(on_change=ctx.js("console.log('Value:', event.value)"))
+
+# Access bound arguments
+Button(
+    "Delete Item",
+    on_click=ctx.js(
+        "confirm('Delete ' + args.name + '?') && window.pendingDelete(args.id)",
+        id=item["id"],
+        name=item["name"]
+    )
+)
+
+# Access the triggering element
+Button(
+    "Animate",
+    on_click=ctx.js("element.classList.add('animate-pulse')")
+)
+```
+
+#### Calling External JavaScript Libraries
+
+```python
+# Confetti animation (requires confetti library)
+Button(
+    "Celebrate!",
+    on_click=ctx.js("confetti({ particleCount: 100, spread: 70 })")
+)
+
+# Clipboard API
+Button(
+    "Copy to Clipboard",
+    on_click=ctx.js(
+        "navigator.clipboard.writeText(args.text).then(() => alert('Copied!'))",
+        text="Hello, World!"
+    )
+)
+
+# Local storage
+Button(
+    "Save Preference",
+    on_click=ctx.js(
+        "localStorage.setItem('theme', args.theme); location.reload()",
+        theme="dark"
+    )
+)
+```
+
+#### Combining with Python Callbacks
+
+You can use JavaScript for immediate feedback and Python for server operations:
+
+```python
+async def save_to_database(ctx: Context):
+    """Save data to database after validation."""
+    # This runs on the server
+    data = ctx.event_data
+    await database.save(data)
+    await ctx.show_toast("Saved!", variant="success")
+
+@ui.page("/")
+def home(ctx: Context):
+    return Button(
+        "Save",
+        # JS for immediate visual feedback
+        on_click=ctx.js("this.disabled = true; this.textContent = 'Saving...'")
+    )
+    # For both, you'd typically use a separate loading state via ctx.callback()
+```
+
+### Executing JavaScript from Python Callbacks with `ctx.call_js()`
+
+When you need to execute JavaScript from within a Python callback (after some server-side processing), use `ctx.call_js()`:
+
+```python
+async def save_and_celebrate(ctx: Context):
+    """Save data and trigger client-side celebration."""
+    # Server-side logic
+    await database.save(ctx.event_data)
+    ctx.state.set("saved", True)
+    await ctx.push_update()
+    
+    # Trigger client-side JavaScript
+    await ctx.call_js("confetti({ particleCount: 100 })")
+    
+    # Scroll to top
+    await ctx.call_js("window.scrollTo({ top: 0, behavior: 'smooth' })")
+    
+    # Focus an input
+    await ctx.call_js(
+        "document.getElementById(args.input_id)?.focus()",
+        input_id="next-field"
+    )
+
+@ui.page("/")
+def form(ctx: Context):
+    return Button(
+        "Save & Celebrate",
+        on_click=ctx.callback(save_and_celebrate)
+    )
+```
+
+#### `ctx.call_js()` Use Cases
+
+- Triggering animations after server operations complete
+- Scrolling to specific elements after data loads
+- Focusing inputs after form submissions
+- Interacting with third-party JavaScript libraries
+- Playing sounds or showing visual effects
+
+#### Security Considerations
+
+⚠️ **Important**: Never use user-provided strings directly in the `code` parameter:
+
+```python
+# ❌ DANGEROUS - Never do this!
+user_input = request.query_params.get("action")
+Button(on_click=ctx.js(user_input))  # XSS vulnerability!
+
+# ✅ SAFE - Use bound arguments for user data
+Button(
+    on_click=ctx.js(
+        "handleAction(args.action)",
+        action=user_input  # Properly serialized, not executed as code
+    )
+)
+```
+
+Bound arguments are serialized as JSON data, not as executable code, making them safe to use with user-provided values.
+
 ---
 
 ## Creating the Frontend React Component
@@ -1217,3 +1403,378 @@ Creating a new component in Refast involves:
    - Document all props with types
 
 Following these patterns ensures consistency across the component library and makes it easy for others to contribute new components.
+
+---
+
+## Creating External Extensions
+
+External extensions allow third-party packages to add custom React components to Refast applications. This section covers how to create, package, and distribute Refast extensions.
+
+### Extension Architecture
+
+A Refast extension consists of:
+
+1. **Python Package**: Contains the Extension class and Python component classes
+2. **JavaScript Bundle**: UMD bundle that registers React components with RefastClient
+3. **Entry Point**: Enables auto-discovery when the package is installed
+
+### Project Structure
+
+```
+my-refast-extension/
+├── pyproject.toml              # Package configuration with entry point
+├── README.md
+├── frontend/                   # React component source
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   └── src/
+│       ├── index.tsx           # Entry point, registers with RefastClient
+│       ├── MyComponent.tsx     # React component(s)
+│       └── utils.ts
+└── src/
+    └── my_refast_extension/
+        ├── __init__.py         # Extension class and exports
+        ├── components.py       # Python component classes
+        └── static/             # Built JS/CSS assets (from frontend build)
+```
+
+### Step 1: Create the Python Extension Class
+
+The Extension class tells Refast where to find your static assets:
+
+```python
+# src/my_refast_extension/__init__.py
+"""My Refast Extension."""
+
+from pathlib import Path
+
+from refast.extensions import Extension
+
+from .components import MyComponent
+
+
+class MyExtension(Extension):
+    """
+    My custom extension for Refast.
+
+    Example:
+        ```python
+        from refast import RefastApp
+        from my_refast_extension import MyComponent
+
+        # Auto-discovered if installed, or register manually:
+        # ui = RefastApp(extensions=[MyExtension()])
+
+        ui = RefastApp()
+
+        @ui.page("/")
+        def home(ctx):
+            return MyComponent(value="Hello!")
+        ```
+    """
+
+    name = "my-refast-extension"  # Unique extension name
+    version = "0.1.0"
+    description = "My custom Refast extension"
+
+    # Static assets to inject into HTML (relative to static_path)
+    scripts = ["my-extension.umd.js"]  # JavaScript files
+    styles = []  # CSS files (optional)
+
+    @property
+    def static_path(self) -> Path:
+        """Path to the static assets directory."""
+        return Path(__file__).parent / "static"
+
+    @property
+    def components(self) -> list:
+        """List of Python component classes provided by this extension."""
+        return [MyComponent]
+
+
+__all__ = ["MyComponent", "MyExtension"]
+```
+
+### Step 2: Create the Python Component
+
+```python
+# src/my_refast_extension/components.py
+"""Component definitions for My Refast Extension."""
+
+from typing import Any
+
+from refast.components.base import Component
+from refast.components.registry import register_component
+
+
+@register_component(
+    name="MyComponent",
+    package="my-refast-extension",
+    module="components",
+)
+class MyComponent(Component):
+    """
+    My custom component.
+
+    Args:
+        value: The value to display
+        on_change: Callback when value changes
+        id: Component ID
+        class_name: CSS classes
+    """
+
+    component_type = "MyComponent"
+
+    def __init__(
+        self,
+        value: str = "",
+        on_change: Any = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.value = value
+        self.on_change = on_change
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "value": self.value,
+                "on_change": self.on_change.serialize() if self.on_change else None,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+```
+
+### Step 3: Create the React Component
+
+```tsx
+// frontend/src/MyComponent.tsx
+import React from 'react';
+
+interface MyComponentProps {
+  id?: string;
+  className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  'data-refast-id'?: string;
+}
+
+export function MyComponent({
+  id,
+  className,
+  value = '',
+  onChange,
+  'data-refast-id': dataRefastId,
+}: MyComponentProps): React.ReactElement {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
+
+  return (
+    <div
+      id={id}
+      className={className}
+      data-refast-id={dataRefastId}
+    >
+      <input
+        type="text"
+        value={value}
+        onChange={handleChange}
+        className="border rounded px-2 py-1"
+      />
+    </div>
+  );
+}
+```
+
+### Step 4: Register with RefastClient
+
+The entry point must register components with `window.RefastClient`:
+
+```tsx
+// frontend/src/index.tsx
+/**
+ * My Refast Extension
+ *
+ * Registers components with RefastClient when the script loads.
+ */
+
+import { MyComponent } from './MyComponent';
+
+// Type definition for RefastClient
+interface RefastClient {
+  componentRegistry: {
+    register: (name: string, component: React.ComponentType<unknown>) => void;
+    has: (name: string) => boolean;
+  };
+  React: typeof import('react');
+  ReactDOM: typeof import('react-dom');
+  version: string;
+}
+
+declare global {
+  interface Window {
+    RefastClient?: RefastClient;
+  }
+}
+
+function registerComponents(): void {
+  if (!window.RefastClient) {
+    console.error(
+      '[my-extension] RefastClient not found. ' +
+      'Ensure refast-client.js loads before this script.'
+    );
+    return;
+  }
+
+  const { componentRegistry } = window.RefastClient;
+
+  // Avoid duplicate registration
+  if (!componentRegistry.has('MyComponent')) {
+    componentRegistry.register('MyComponent', MyComponent as React.ComponentType<unknown>);
+    console.log('[my-extension] Registered MyComponent');
+  }
+}
+
+// Register immediately when script loads
+registerComponents();
+
+export { MyComponent };
+```
+
+### Step 5: Configure Vite Build
+
+The Vite config must output a UMD bundle that uses RefastClient's React:
+
+```typescript
+// frontend/vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: '../src/my_refast_extension/static',
+    emptyOutDir: true,
+    lib: {
+      entry: resolve(__dirname, 'src/index.tsx'),
+      name: 'MyRefastExtension',
+      fileName: 'my-extension',
+      formats: ['umd'],
+    },
+    rollupOptions: {
+      // Use React from RefastClient (avoid bundling duplicates)
+      external: ['react', 'react-dom'],
+      output: {
+        globals: {
+          react: 'window.RefastClient.React',
+          'react-dom': 'window.RefastClient.ReactDOM',
+        },
+      },
+    },
+  },
+  define: {
+    'process.env': {},
+  },
+});
+```
+
+### Step 6: Configure pyproject.toml
+
+Add the entry point for auto-discovery:
+
+```toml
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-refast-extension"
+version = "0.1.0"
+description = "My custom Refast extension"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "refast>=0.1.0",
+]
+
+# Entry point for auto-discovery by Refast
+[project.entry-points."refast.extensions"]
+my_extension = "my_refast_extension:MyExtension"
+
+[tool.setuptools.package-data]
+my_refast_extension = ["static/*"]
+```
+
+### Building and Installing
+
+```bash
+# Build frontend
+cd frontend
+npm install
+npm run build  # Outputs to src/my_refast_extension/static/
+
+# Install package locally
+cd ..
+pip install -e .
+```
+
+### Using the Extension
+
+Once installed, the extension is auto-discovered:
+
+```python
+from fastapi import FastAPI
+from refast import RefastApp, Context
+from my_refast_extension import MyComponent
+
+ui = RefastApp()  # Extension auto-discovered!
+
+@ui.page("/")
+def home(ctx: Context):
+    return MyComponent(value="Hello, World!")
+
+app = FastAPI()
+app.include_router(ui.router)
+```
+
+To disable auto-discovery and register manually:
+
+```python
+from my_refast_extension import MyExtension
+
+ui = RefastApp(
+    auto_discover_extensions=False,
+    extensions=[MyExtension()],
+)
+```
+
+### Extension Best Practices
+
+1. **Use RefastClient's React**: Never bundle React in your extension. Always use `external: ['react', 'react-dom']` and reference `window.RefastClient.React`.
+
+2. **Unique Names**: Use a unique `name` for your extension (e.g., `my-company-charts`) to avoid conflicts.
+
+3. **Snake Case Props**: Python components should emit `snake_case` props. The frontend auto-converts to camelCase.
+
+4. **Guard Registration**: Check `componentRegistry.has()` before registering to avoid duplicate registration errors.
+
+5. **Error Handling**: Log clear error messages if RefastClient is not available.
+
+6. **Static Assets**: Place built assets in `static/` directory and configure `package-data` in pyproject.toml.
+
+7. **Documentation**: Include docstrings in Python components and document all props in your README.
+
+### Complete Example: refast-sketch-canvas
+
+See the [refast-sketch-canvas](https://github.com/idling-mind/refast-sketch-canvas) package for a complete working example of a Refast extension.
+

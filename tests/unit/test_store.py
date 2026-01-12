@@ -283,6 +283,22 @@ class TestStore:
         assert store.local.get("key") == "value"
         assert store.session.get("key") is None
 
+    async def test_sync_calls_context_method(self):
+        """Test that sync() calls the context's _sync_store_from_browser method."""
+        sync_called = False
+
+        class MockContextWithSync:
+            _websocket = None
+
+            async def _sync_store_from_browser(self):
+                nonlocal sync_called
+                sync_called = True
+
+        ctx = MockContextWithSync()
+        store = Store(ctx)
+        await store.sync()
+        assert sync_called
+
 
 class TestPendingUpdates:
     """Tests for pending update queue."""

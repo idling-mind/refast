@@ -45,6 +45,11 @@ export declare class PersistentStateManager {
      */
     isInitialized(): boolean;
     /**
+     * Resync the store state with the backend.
+     * This sends the current browser storage state as a store_sync message.
+     */
+    resyncStore(): void;
+    /**
      * Send the current browser storage state to the backend.
      */
     sendInitialState(): void;

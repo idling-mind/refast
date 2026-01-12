@@ -1,4 +1,5 @@
 import { default as React } from 'react';
+import { DayPicker } from 'react-day-picker';
 
 interface SwitchProps {
     id?: string;
@@ -71,14 +72,23 @@ export declare function ToggleGroupItem({ id, className, label, icon, value, dis
 interface CalendarProps {
     id?: string;
     className?: string;
+    classNames?: Partial<React.ComponentProps<typeof DayPicker>['classNames']>;
+    captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
     mode?: 'single' | 'multiple' | 'range';
+    buttonVariant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+    formatters?: Partial<React.ComponentProps<typeof DayPicker>['formatters']>;
+    components?: Partial<React.ComponentProps<typeof DayPicker>['components']>;
     selected?: Date | Date[] | {
-        from: Date;
-        to: Date;
-    };
-    defaultMonth?: Date;
-    disabled?: boolean;
+        from?: Date | string;
+        to?: Date | string;
+    } | string | string[];
+    defaultMonth?: Date | string;
+    disabled?: boolean | ((date: Date) => boolean);
+    minDate?: Date | string;
+    maxDate?: Date | string;
     showOutsideDays?: boolean;
+    showWeekNumber?: boolean;
+    numberOfMonths?: number;
     onSelect?: (date: Date | Date[] | {
         from: Date;
         to: Date;
@@ -86,18 +96,29 @@ interface CalendarProps {
     onMonthChange?: (month: Date) => void;
     'data-refast-id'?: string;
 }
-export declare function Calendar({ id, className, mode: _mode, selected: _selected, showOutsideDays: _showOutsideDays, onSelect: _onSelect, 'data-refast-id': dataRefastId, }: CalendarProps): React.ReactElement;
+export declare function Calendar({ id, className, classNames, mode, showOutsideDays, captionLayout, buttonVariant, formatters, components, selected, defaultMonth, disabled, minDate, maxDate, numberOfMonths, onSelect, onMonthChange, showWeekNumber, ...restProps }: CalendarProps): import("react/jsx-runtime").JSX.Element;
 interface DatePickerProps {
     id?: string;
     className?: string;
-    value?: string;
+    value?: string | {
+        from?: string;
+        to?: string;
+    };
     placeholder?: string;
     disabled?: boolean;
     format?: string;
-    onChange?: (date: string | undefined) => void;
+    mode?: 'single' | 'range';
+    captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
+    minDate?: string;
+    maxDate?: string;
+    numberOfMonths?: number;
+    onChange?: (date: string | {
+        from?: string;
+        to?: string;
+    } | undefined) => void;
     'data-refast-id'?: string;
 }
-export declare function DatePicker({ id, className, value, placeholder, disabled, onChange, 'data-refast-id': dataRefastId, }: DatePickerProps): React.ReactElement;
+export declare function DatePicker({ id, className, value, placeholder, disabled, mode, captionLayout, minDate, maxDate, numberOfMonths, onChange, 'data-refast-id': dataRefastId, }: DatePickerProps): React.ReactElement;
 interface ComboboxOption {
     value: string;
     label: string;

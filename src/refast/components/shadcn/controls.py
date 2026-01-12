@@ -326,14 +326,36 @@ class Calendar(Component):
     """
     A date picker calendar component.
 
+    Supports single, multiple, and range selection modes.
+
     Example:
         ```python
+        # Single date selection
         Calendar(
             mode="single",
             selected=date(2024, 1, 15),
             on_select=ctx.callback(handle_select),
         )
+
+        # Date range selection with dropdown navigation
+        Calendar(
+            mode="range",
+            caption_layout="dropdown",  # Enable month/year dropdowns
+            min_date=date(2024, 1, 1),
+            max_date=date(2024, 12, 31),
+            on_select=ctx.callback(handle_range_select),
+        )
         ```
+
+    Args:
+        mode: Selection mode - "single", "multiple", or "range"
+        caption_layout: Header layout - "label" (default), "dropdown" (both month/year),
+                       "dropdown-months" (month only), "dropdown-years" (year only)
+        selected: Currently selected date(s)
+        default_month: Initial month to display
+        min_date: Minimum selectable date
+        max_date: Maximum selectable date
+        number_of_months: Number of months to display side by side
     """
 
     component_type: str = "Calendar"
@@ -341,10 +363,14 @@ class Calendar(Component):
     def __init__(
         self,
         mode: Literal["single", "multiple", "range"] = "single",
+        caption_layout: Literal["label", "dropdown", "dropdown-months", "dropdown-years"] = "label",
         selected: Any = None,  # date, list[date], or DateRange
         default_month: Any = None,  # date
         disabled: bool = False,
         show_outside_days: bool = True,
+        min_date: Any = None,  # date or ISO string - dates before this are disabled
+        max_date: Any = None,  # date or ISO string - dates after this are disabled
+        number_of_months: int | None = None,
         on_select: Any = None,
         on_month_change: Any = None,
         id: str | None = None,
@@ -353,10 +379,14 @@ class Calendar(Component):
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.mode = mode
+        self.caption_layout = caption_layout
         self.selected = selected
         self.default_month = default_month
         self.disabled = disabled
         self.show_outside_days = show_outside_days
+        self.min_date = min_date
+        self.max_date = max_date
+        self.number_of_months = number_of_months
         self.on_select = on_select
         self.on_month_change = on_month_change
 
@@ -378,10 +408,14 @@ class Calendar(Component):
             "id": self.id,
             "props": {
                 "mode": self.mode,
+                "caption_layout": self.caption_layout,
                 "selected": self._serialize_date(self.selected),
                 "default_month": self._serialize_date(self.default_month),
                 "disabled": self.disabled,
                 "show_outside_days": self.show_outside_days,
+                "min_date": self._serialize_date(self.min_date),
+                "max_date": self._serialize_date(self.max_date),
+                "number_of_months": self.number_of_months,
                 "on_select": self.on_select.serialize() if self.on_select else None,
                 "on_month_change": self.on_month_change.serialize() if self.on_month_change else None,
                 "class_name": self.class_name,
@@ -395,24 +429,50 @@ class DatePicker(Component):
     """
     A date picker with input and calendar popup.
 
+    Supports both single date selection and date range selection.
+
     Example:
         ```python
+        # Single date picker
         DatePicker(
             value=date(2024, 1, 15),
             placeholder="Pick a date",
             on_change=ctx.callback(handle_date_change),
         )
+
+        # Date range picker with dropdown navigation
+        DatePicker(
+            mode="range",
+            caption_layout="dropdown",  # Enable month/year dropdowns
+            placeholder="Select date range",
+            min_date="2024-01-01",
+            max_date="2024-12-31",
+            on_change=ctx.callback(handle_range_change),
+        )
         ```
+
+    Args:
+        mode: Selection mode - "single" or "range"
+        caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
+                       "dropdown-months", or "dropdown-years"
+        min_date: Minimum selectable date
+        max_date: Maximum selectable date
+        number_of_months: Number of months to display (defaults to 2 for range mode)
     """
 
     component_type: str = "DatePicker"
 
     def __init__(
         self,
-        value: Any = None,  # date
+        value: Any = None,  # date or {"from": date, "to": date} for range
         placeholder: str = "Pick a date",
         disabled: bool = False,
         format: str = "PPP",  # date-fns format
+        mode: Literal["single", "range"] = "single",
+        caption_layout: Literal["label", "dropdown", "dropdown-months", "dropdown-years"] = "label",
+        min_date: Any = None,  # date or ISO string
+        max_date: Any = None,  # date or ISO string
+        number_of_months: int | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -423,17 +483,41 @@ class DatePicker(Component):
         self.placeholder = placeholder
         self.disabled = disabled
         self.format = format
+        self.mode = mode
+        self.caption_layout = caption_layout
+        self.min_date = min_date
+        self.max_date = max_date
+        self.number_of_months = number_of_months
         self.on_change = on_change
+
+    def _serialize_date_value(self, d: Any) -> str | dict[str, str | None] | None:
+        """Serialize date value to ISO string or range object."""
+        if d is None:
+            return None
+        if hasattr(d, "isoformat"):
+            return d.isoformat()
+        if isinstance(d, dict):
+            # Range mode: {"from": date, "to": date}
+            return {
+                "from": d.get("from").isoformat() if d.get("from") and hasattr(d.get("from"), "isoformat") else d.get("from"),
+                "to": d.get("to").isoformat() if d.get("to") and hasattr(d.get("to"), "isoformat") else d.get("to"),
+            }
+        return str(d)
 
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "value": self.value.isoformat() if hasattr(self.value, "isoformat") else self.value,
+                "value": self._serialize_date_value(self.value),
                 "placeholder": self.placeholder,
                 "disabled": self.disabled,
                 "format": self.format,
+                "mode": self.mode,
+                "caption_layout": self.caption_layout,
+                "min_date": self.min_date.isoformat() if hasattr(self.min_date, "isoformat") else self.min_date,
+                "max_date": self.max_date.isoformat() if hasattr(self.max_date, "isoformat") else self.max_date,
+                "number_of_months": self.number_of_months,
                 "on_change": self.on_change.serialize() if self.on_change else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),

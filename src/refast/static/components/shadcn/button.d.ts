@@ -28,4 +28,8 @@ interface IconButtonProps {
  * Uses Lucide icons via the Icon component.
  */
 export declare const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAttributes<HTMLButtonElement>>;
+export declare const buttonVariants: (props?: ({
+    variant?: "link" | "default" | "secondary" | "destructive" | "outline" | "ghost" | null | undefined;
+    size?: "default" | "icon" | "sm" | "lg" | "icon-sm" | "icon-lg" | null | undefined;
+} & import('class-variance-authority/types').ClassProp) | undefined) => string;
 export {};

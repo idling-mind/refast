@@ -3,6 +3,13 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import * as TogglePrimitive from '@radix-ui/react-toggle';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
+import { DayPicker, DayButton, getDefaultClassNames, type Matcher } from 'react-day-picker';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react"
+import { Button, buttonVariants } from './button';
 import { cn } from '../../utils';
 import { Icon } from './icon';
 
@@ -370,14 +377,57 @@ export function ToggleGroupItem({
 // Calendar (using react-day-picker)
 // ============================================================================
 
+// Helper to parse a date string or Date to Date object
+function parseDate(value: string | Date | undefined | null): Date | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date) return value;
+  if (typeof value === 'string') {
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+  return undefined;
+}
+
+// Helper to parse date range from various formats
+function parseDateRange(
+  value: string | { from?: string | Date; to?: string | Date } | undefined | null
+): { from: Date | undefined; to: Date | undefined } | undefined {
+  if (!value) return undefined;
+  if (typeof value === 'object' && 'from' in value) {
+    return {
+      from: parseDate(value.from as string | Date | undefined),
+      to: parseDate(value.to as string | Date | undefined),
+    };
+  }
+  return undefined;
+}
+
+// Helper to parse array of dates
+function parseDateArray(value: (string | Date)[] | undefined | null): Date[] | undefined {
+  if (!value || !Array.isArray(value)) return undefined;
+  return value.map(d => parseDate(d)).filter((d): d is Date => d !== undefined);
+}
+
 interface CalendarProps {
   id?: string;
   className?: string;
+  classNames?: Partial<React.ComponentProps<typeof DayPicker>['classNames']>;
+  captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
   mode?: 'single' | 'multiple' | 'range';
-  selected?: Date | Date[] | { from: Date; to: Date };
-  defaultMonth?: Date;
-  disabled?: boolean;
+  buttonVariant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+  formatters?: Partial<React.ComponentProps<typeof DayPicker>['formatters']>;
+  components?: Partial<React.ComponentProps<typeof DayPicker>['components']>;
+  // Accept both Date objects and ISO strings from Python
+  selected?: Date | Date[] | { from?: Date | string; to?: Date | string } | string | string[];
+  defaultMonth?: Date | string;
+  disabled?: boolean | ((date: Date) => boolean);
+  // Min/max date constraints
+  minDate?: Date | string;
+  maxDate?: Date | string;
   showOutsideDays?: boolean;
+  showWeekNumber?: boolean;
+  numberOfMonths?: number;
+  // Callbacks that serialize dates to ISO strings for Python
   onSelect?: (date: Date | Date[] | { from: Date; to: Date } | undefined) => void;
   onMonthChange?: (month: Date) => void;
   'data-refast-id'?: string;
@@ -386,49 +436,329 @@ interface CalendarProps {
 export function Calendar({
   id,
   className,
-  mode: _mode = 'single',
-  selected: _selected,
-  showOutsideDays: _showOutsideDays = true,
-  onSelect: _onSelect,
-  'data-refast-id': dataRefastId,
-}: CalendarProps): React.ReactElement {
-  // Note: Full implementation requires react-day-picker
-  // This is a placeholder that will be enhanced when the package is installed
-  const [currentDate] = React.useState(new Date());
-  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  classNames,
+  mode = 'single',
+  showOutsideDays = true,
+  captionLayout = "label",
+  buttonVariant = "ghost",
+  formatters,
+  components,
+  selected,
+  defaultMonth,
+  disabled,
+  minDate,
+  maxDate,
+  numberOfMonths,
+  onSelect,
+  onMonthChange,
+  showWeekNumber,
+  ...restProps
+}: CalendarProps) {
+  const defaultClassNames = getDefaultClassNames();
+
+  // Parse selected value based on mode
+  const parsedSelected = React.useMemo(() => {
+    if (mode === 'range') {
+      return parseDateRange(selected as { from?: string | Date; to?: string | Date } | undefined);
+    } else if (mode === 'multiple') {
+      return parseDateArray(selected as (string | Date)[] | undefined);
+    } else {
+      return parseDate(selected as string | Date | undefined);
+    }
+  }, [mode, selected]);
+
+  // Parse defaultMonth
+  const parsedDefaultMonth = React.useMemo(() => parseDate(defaultMonth as string | Date | undefined), [defaultMonth]);
+
+  // Parse min/max dates and create disabled matcher
+  const parsedMinDate = React.useMemo(() => parseDate(minDate as string | Date | undefined), [minDate]);
+  const parsedMaxDate = React.useMemo(() => parseDate(maxDate as string | Date | undefined), [maxDate]);
+
+  // Build disabled matcher combining min/max with any existing disabled prop
+  const disabledMatcher = React.useMemo((): Matcher | Matcher[] | undefined => {
+    const matchers: Matcher[] = [];
+    
+    if (parsedMinDate) {
+      matchers.push({ before: parsedMinDate });
+    }
+    if (parsedMaxDate) {
+      matchers.push({ after: parsedMaxDate });
+    }
+    if (typeof disabled === 'function') {
+      matchers.push(disabled);
+    } else if (disabled === true) {
+      // If disabled is true, disable all dates
+      matchers.push(() => true);
+    }
+    
+    return matchers.length > 0 ? matchers : undefined;
+  }, [parsedMinDate, parsedMaxDate, disabled]);
+
+  // Handle select and serialize dates back to ISO strings
+  const handleSelect = React.useCallback((value: Date | Date[] | { from?: Date; to?: Date } | undefined) => {
+    if (!onSelect) return;
+    
+    if (!value) {
+      onSelect(undefined);
+      return;
+    }
+    
+    // For range mode, serialize the range object
+    if (mode === 'range' && typeof value === 'object' && 'from' in value) {
+      const range = value as { from?: Date; to?: Date };
+      // Send as object with ISO strings - will be converted in callback handler
+      onSelect({
+        from: range.from!,
+        to: range.to!,
+      } as { from: Date; to: Date });
+      return;
+    }
+    
+    // For multiple mode, serialize array
+    if (mode === 'multiple' && Array.isArray(value)) {
+      onSelect(value);
+      return;
+    }
+    
+    // For single mode
+    onSelect(value as Date);
+  }, [mode, onSelect]);
+
+  // Handle month change
+  const handleMonthChange = React.useCallback((month: Date) => {
+    if (onMonthChange) {
+      onMonthChange(month);
+    }
+  }, [onMonthChange]);
+
+  // Build props based on mode
+  const modeProps = React.useMemo(() => {
+    if (mode === 'range') {
+      return {
+        mode: 'range' as const,
+        selected: parsedSelected as { from: Date | undefined; to: Date | undefined } | undefined,
+        onSelect: handleSelect as (range: { from?: Date; to?: Date } | undefined) => void,
+      };
+    } else if (mode === 'multiple') {
+      return {
+        mode: 'multiple' as const,
+        selected: parsedSelected as Date[] | undefined,
+        onSelect: handleSelect as (dates: Date[] | undefined) => void,
+      };
+    } else {
+      return {
+        mode: 'single' as const,
+        selected: parsedSelected as Date | undefined,
+        onSelect: handleSelect as (date: Date | undefined) => void,
+      };
+    }
+  }, [mode, parsedSelected, handleSelect]);
 
   return (
-    <div
-      id={id}
-      className={cn('p-3', className)}
-      data-refast-id={dataRefastId}
-    >
-      <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-        <div className="space-y-4">
-          <div className="flex justify-center pt-1 relative items-center">
-            <span className="text-sm font-medium">{monthName}</span>
-          </div>
-          <div className="w-full border-collapse space-y-1">
-            <div className="flex">
-              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-                <div
-                  key={day}
-                  className="text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-            {/* Calendar grid placeholder */}
-            <div className="text-sm text-muted-foreground text-center py-4">
-              Calendar requires react-day-picker
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    <DayPicker
+      showOutsideDays={showOutsideDays}
+      className={cn(
+        "bg-background group/calendar p-3 [--cell-size:2.5rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
+        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
+        className
+      )}
+      captionLayout={captionLayout}
+      defaultMonth={parsedDefaultMonth}
+      disabled={disabledMatcher}
+      numberOfMonths={numberOfMonths}
+      onMonthChange={handleMonthChange}
+      formatters={{
+        formatMonthDropdown: (date) =>
+          date.toLocaleString("default", { month: "short" }),
+        ...formatters,
+      }}
+      classNames={{
+        root: cn("w-fit", defaultClassNames.root),
+        months: cn(
+          "flex gap-4 flex-col md:flex-row relative",
+          defaultClassNames.months
+        ),
+        month: cn("flex flex-col w-full gap-4", defaultClassNames.month),
+        nav: cn(
+          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
+          defaultClassNames.nav
+        ),
+        button_previous: cn(
+          buttonVariants({ variant: buttonVariant }),
+          "size-[var(--cell-size)] aria-disabled:opacity-50 p-0 select-none",
+          defaultClassNames.button_previous
+        ),
+        button_next: cn(
+          buttonVariants({ variant: buttonVariant }),
+          "size-[var(--cell-size)] aria-disabled:opacity-50 p-0 select-none",
+          defaultClassNames.button_next
+        ),
+        month_caption: cn(
+          "flex items-center justify-center h-[var(--cell-size)] w-full px-[var(--cell-size)]",
+          defaultClassNames.month_caption
+        ),
+        dropdowns: cn(
+          "w-full flex items-center text-sm font-medium justify-center h-[var(--cell-size)] gap-2",
+          defaultClassNames.dropdowns
+        ),
+        dropdown_root: cn(
+          "relative",
+          defaultClassNames.dropdown_root
+        ),
+        dropdown: cn(
+          "absolute inset-0 cursor-pointer opacity-0 z-10 w-full h-full",
+          defaultClassNames.dropdown
+        ),
+        months_dropdown: cn(
+          "inline-flex items-center justify-center gap-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+        ),
+        years_dropdown: cn(
+          "inline-flex items-center justify-center gap-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+        ),
+        caption_label: cn(
+          "select-none font-medium",
+          captionLayout === "label"
+            ? "text-sm"
+            : "rounded-md px-2 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+          defaultClassNames.caption_label
+        ),
+        table: "w-full border-collapse",
+        weekdays: cn("flex", defaultClassNames.weekdays),
+        weekday: cn(
+          "text-muted-foreground rounded-md flex-1 font-normal text-sm select-none w-[var(--cell-size)] h-[var(--cell-size)] flex items-center justify-center",
+          defaultClassNames.weekday
+        ),
+        week: cn("flex w-full mt-2", defaultClassNames.week),
+        week_number_header: cn(
+          "select-none w-[var(--cell-size)]",
+          defaultClassNames.week_number_header
+        ),
+        week_number: cn(
+          "text-sm select-none text-muted-foreground",
+          defaultClassNames.week_number
+        ),
+        day: cn(
+          "relative w-[var(--cell-size)] h-[var(--cell-size)] p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-md group/day select-none",
+          showWeekNumber
+            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-md"
+            : "[&:first-child[data-selected=true]_button]:rounded-l-md",
+          defaultClassNames.day
+        ),
+        range_start: cn(
+          "rounded-l-md bg-accent",
+          defaultClassNames.range_start
+        ),
+        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
+        today: cn(
+          "bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
+          defaultClassNames.today
+        ),
+        outside: cn(
+          "text-muted-foreground aria-selected:text-muted-foreground",
+          defaultClassNames.outside
+        ),
+        disabled: cn(
+          "text-muted-foreground opacity-50",
+          defaultClassNames.disabled
+        ),
+        hidden: cn("invisible", defaultClassNames.hidden),
+        ...classNames,
+      }}
+      components={{
+        Root: ({ className, rootRef, ...props }) => {
+          return (
+            <div
+              data-slot="calendar"
+              ref={rootRef}
+              className={cn(className)}
+              {...props}
+            />
+          )
+        },
+        Chevron: ({ className, orientation, ...props }) => {
+          if (orientation === "left") {
+            return (
+              <ChevronLeftIcon className={cn("size-4", className)} {...props} />
+            )
+          }
+          if (orientation === "right") {
+            return (
+              <ChevronRightIcon
+                className={cn("size-4", className)}
+                {...props}
+              />
+            )
+          }
+          return (
+            <ChevronDownIcon className={cn("size-4", className)} {...props} />
+          )
+        },
+        DayButton: CalendarDayButton,
+        WeekNumber: ({ children, ...props }) => {
+          return (
+            <td {...props}>
+              <div className="flex size-[var(--cell-size)] items-center justify-center text-center">
+                {children}
+              </div>
+            </td>
+          )
+        },
+        ...components,
+      }}
+      {...modeProps}
+      {...restProps}
+    />
+  )
 }
+function CalendarDayButton({
+  className,
+  day,
+  modifiers,
+  ...props
+}: React.ComponentProps<typeof DayButton>) {
+  const defaultClassNames = getDefaultClassNames()
+  const ref = React.useRef<HTMLButtonElement>(null)
+  React.useEffect(() => {
+    if (modifiers.focused) ref.current?.focus()
+  }, [modifiers.focused])
+  return (
+    <Button
+      ref={ref}
+      variant="ghost"
+      size="icon"
+      data-day={day.date.toLocaleDateString()}
+      data-selected-single={
+        modifiers.selected &&
+        !modifiers.range_start &&
+        !modifiers.range_end &&
+        !modifiers.range_middle
+      }
+      data-range-start={modifiers.range_start}
+      data-range-end={modifiers.range_end}
+      data-range-middle={modifiers.range_middle}
+      className={cn(
+        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground",
+        "data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground",
+        "data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground",
+        "data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground",
+        "group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50",
+        "dark:hover:text-accent-foreground",
+        "flex size-[var(--cell-size)] items-center justify-center",
+        "leading-none font-normal text-sm",
+        "group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px]",
+        "data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md",
+        "data-[range-middle=true]:rounded-none",
+        "data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md",
+        defaultClassNames.day,
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
 
 // ============================================================================
 // DatePicker
@@ -437,11 +767,18 @@ export function Calendar({
 interface DatePickerProps {
   id?: string;
   className?: string;
-  value?: string;
+  // For single mode: ISO string or Date; for range mode: { from?: string, to?: string }
+  value?: string | { from?: string; to?: string };
   placeholder?: string;
   disabled?: boolean;
   format?: string;
-  onChange?: (date: string | undefined) => void;
+  mode?: 'single' | 'range';
+  captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
+  minDate?: string;
+  maxDate?: string;
+  numberOfMonths?: number;
+  // onChange sends ISO strings back to Python
+  onChange?: (date: string | { from?: string; to?: string } | undefined) => void;
   'data-refast-id'?: string;
 }
 
@@ -451,20 +788,125 @@ export function DatePicker({
   value,
   placeholder = 'Pick a date',
   disabled = false,
+  mode = 'single',
+  captionLayout = 'label',
+  minDate,
+  maxDate,
+  numberOfMonths,
   onChange,
   'data-refast-id': dataRefastId,
 }: DatePickerProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Parse the value based on mode
+  const parsedValue = React.useMemo(() => {
+    if (mode === 'range') {
+      if (!value) return undefined;
+      if (typeof value === 'object' && ('from' in value || 'to' in value)) {
+        return {
+          from: value.from ? new Date(value.from) : undefined,
+          to: value.to ? new Date(value.to) : undefined,
+        };
+      }
+      return undefined;
+    } else {
+      if (!value) return undefined;
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        return isNaN(parsed.getTime()) ? undefined : parsed;
+      }
+      return undefined;
+    }
+  }, [mode, value]);
+
+  // Local state for selection
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    value ? new Date(value) : undefined
+    mode === 'single' ? (parsedValue as Date | undefined) : undefined
+  );
+  const [selectedRange, setSelectedRange] = React.useState<{ from?: Date; to?: Date } | undefined>(
+    mode === 'range' ? (parsedValue as { from?: Date; to?: Date } | undefined) : undefined
   );
 
-  const displayValue = selectedDate
-    ? selectedDate.toLocaleDateString()
-    : placeholder;
+  // Sync local state with prop changes
+  React.useEffect(() => {
+    if (mode === 'single') {
+      setSelectedDate(parsedValue as Date | undefined);
+    } else {
+      setSelectedRange(parsedValue as { from?: Date; to?: Date } | undefined);
+    }
+  }, [mode, parsedValue]);
+
+  // Close on click outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
+
+  // Format display value
+  const displayValue = React.useMemo(() => {
+    if (mode === 'range') {
+      if (!selectedRange?.from) return placeholder;
+      if (!selectedRange.to) {
+        return selectedRange.from.toLocaleDateString();
+      }
+      return `${selectedRange.from.toLocaleDateString()} - ${selectedRange.to.toLocaleDateString()}`;
+    } else {
+      return selectedDate ? selectedDate.toLocaleDateString() : placeholder;
+    }
+  }, [mode, selectedDate, selectedRange, placeholder]);
+
+  // Handle single date selection
+  const handleSingleSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    setOpen(false);
+    if (onChange) {
+      onChange(date ? date.toISOString() : undefined);
+    }
+  };
+
+  // Handle range selection
+  const handleRangeSelect = (range: { from?: Date; to?: Date } | undefined) => {
+    setSelectedRange(range);
+    // Close only when both dates are selected
+    if (range?.from && range?.to) {
+      setOpen(false);
+    }
+    if (onChange) {
+      if (!range) {
+        onChange(undefined);
+      } else {
+        onChange({
+          from: range.from?.toISOString(),
+          to: range.to?.toISOString(),
+        });
+      }
+    }
+  };
+
+  const hasValue = mode === 'range' ? !!selectedRange?.from : !!selectedDate;
 
   return (
-    <div className={cn('relative', className)} data-refast-id={dataRefastId}>
+    <div ref={containerRef} className={cn('relative', className)} data-refast-id={dataRefastId}>
       <button
         id={id}
         type="button"
@@ -475,10 +917,10 @@ export function DatePicker({
           'ring-offset-background placeholder:text-muted-foreground',
           'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          !selectedDate && 'text-muted-foreground'
+          !hasValue && 'text-muted-foreground'
         )}
       >
-        <span>{displayValue}</span>
+        <span className="truncate">{displayValue}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -489,7 +931,7 @@ export function DatePicker({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="ml-2 h-4 w-4 opacity-50"
+          className="ml-2 h-4 w-4 shrink-0 opacity-50"
         >
           <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
           <line x1="16" x2="16" y1="2" y2="6" />
@@ -499,17 +941,26 @@ export function DatePicker({
       </button>
       {open && (
         <div className="absolute top-full left-0 z-50 mt-2 rounded-md border bg-popover p-0 text-popover-foreground shadow-md">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => {
-              setSelectedDate(date as Date);
-              setOpen(false);
-              if (onChange) {
-                onChange(date ? (date as Date).toISOString() : undefined);
-              }
-            }}
-          />
+          {mode === 'range' ? (
+            <Calendar
+              mode="range"
+              captionLayout={captionLayout}
+              selected={selectedRange}
+              onSelect={(value) => handleRangeSelect(value as { from?: Date; to?: Date } | undefined)}
+              minDate={minDate}
+              maxDate={maxDate}
+              numberOfMonths={numberOfMonths || 2}
+            />
+          ) : (
+            <Calendar
+              mode="single"
+              captionLayout={captionLayout}
+              selected={selectedDate}
+              onSelect={(value) => handleSingleSelect(value as Date | undefined)}
+              minDate={minDate}
+              maxDate={maxDate}
+            />
+          )}
         </div>
       )}
     </div>

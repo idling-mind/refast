@@ -49,6 +49,7 @@ from refast.components import (
     Column,
     Combobox,
     Container,
+    DatePicker,
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
@@ -88,6 +89,7 @@ from refast.components import (
     ToggleGroup,
     ToggleGroupItem,
 )
+from refast.components.shadcn.input import Textarea
 
 # Create the Refast app
 ui = RefastApp(title="Component Showcase")
@@ -335,6 +337,59 @@ def home(ctx: Context):
                                         ],
                                     ),
                                     Separator(),
+                                    Column(
+                                        [
+                                            Label("Inputs"),
+                                            Input(
+                                                name="name",
+                                                placeholder="Your name here...",
+                                                type="text",
+                                            ),
+                                            Input(
+                                                name="email",
+                                                placeholder="Your email here...",
+                                                type="email",
+                                            ),
+                                            Input(
+                                                name="password",
+                                                placeholder="Your password here...",
+                                                type="password",
+                                            ),
+                                            Input(
+                                                name="website",
+                                                placeholder="Your website here...",
+                                                type="url",
+                                            ),
+                                            Input(
+                                                name="phone",
+                                                placeholder="Your phone here...",
+                                                type="tel",
+                                            ),
+                                            Input(
+                                                name="number",
+                                                placeholder="Your number here...",
+                                                type="number",
+                                            ),
+                                            DatePicker(
+                                                placeholder="Select single date",
+                                                caption_layout="dropdown",
+                                            ),
+                                            Label("Date Range (Min: 2024-01-01, Max: 2024-12-31)"),
+                                            DatePicker(
+                                                mode="range",
+                                                placeholder="Select date range",
+                                                caption_layout="dropdown",
+                                                min_date="2024-01-01",
+                                                max_date="2024-12-31"
+                                            ),
+                                            Textarea(
+                                                name="message",
+                                                placeholder="Your message here...",
+                                                rows=4,
+                                            ),
+                                        ],
+                                        gap=4,
+                                    ),
                                     # Slider
                                     Column(
                                         gap=2,

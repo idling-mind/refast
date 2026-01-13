@@ -57,51 +57,6 @@ def hello_world_page(ctx: Context):
                 class_name="flex flex-row gap-4",
             ),
             ThemeSwitcher(default_theme="system"),
-            Container(
-                [
-                    ResizablePanelGroup(
-                        direction="horizontal",
-                        children=[
-                            ResizablePanel(
-                                min_size=20,
-                                default_size=50,
-                                children=[Text("Resizable Panel 1 (50%)")],
-                                class_name="bg-card p-4 rounded-lg shadow-md",
-                            ),
-                            ResizableHandle(with_handle=True),
-                            ResizablePanel(
-                                min_size=20,
-                                default_size=50,
-                                children=[
-                                    ResizablePanelGroup(
-                                        direction="vertical",
-                                        children=[
-                                            ResizablePanel(
-                                                min_size=20,
-                                                default_size=70,
-                                                children=[Text("Resizable Panel 2 (70%)")],
-                                                class_name="bg-card p-4 rounded-lg shadow-md",
-                                            ),
-                                            ResizableHandle(with_handle=True),
-                                            ResizablePanel(
-                                                min_size=20,
-                                                default_size=30,
-                                                children=[Text("Resizable Panel 3 (30%)")],
-                                                class_name="bg-card p-4 rounded-lg shadow-md",
-                                            ),
-                                        ],
-                                        style={"height": "400px", "width": "100%"},
-                                    )
-                                ],
-                                class_name="bg-card",
-                            ),
-                        ],
-                        class_name="border rounded-lg",
-                        style={"width": "100%"},
-                    )
-                ],
-                style={"width": "100%", "maxWidth": "56rem"},
-            ),
         ],
         class_name="flex flex-col gap-6 items-center justify-center bg-background",
         style={"minHeight": "100vh"},

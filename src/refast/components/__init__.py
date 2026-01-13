@@ -14,6 +14,7 @@ from refast.components.shadcn import (
     Accordion,
     # Feedback
     Alert,
+    ConnectionStatus,
     # Overlay
     AlertDialog,
     AlertDialogAction,
@@ -284,6 +285,7 @@ __all__ = [
     "Label",
     # Feedback
     "Alert",
+    "ConnectionStatus",
     "Toast",
     "Modal",
     "Dialog",

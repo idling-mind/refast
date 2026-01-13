@@ -12,6 +12,7 @@ import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, Che
 import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Toast, Skeleton } from './shadcn/feedback';
+import { ConnectionStatus } from './shadcn/ConnectionStatus';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem } from './shadcn/data_display';
 
 // Import new Stage 9 components - Controls
@@ -170,6 +171,7 @@ componentRegistry.register('Progress', Progress);
 componentRegistry.register('Spinner', Spinner);
 componentRegistry.register('Toast', Toast);
 componentRegistry.register('Skeleton', Skeleton);
+componentRegistry.register('ConnectionStatus', ConnectionStatus);
 
 // Register data display components
 componentRegistry.register('Table', Table);

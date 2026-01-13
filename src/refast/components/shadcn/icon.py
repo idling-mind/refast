@@ -258,6 +258,7 @@ ICON_NAMES = Literal[
     "compass",
     "globe",
     "wifi",
+    "wifi-off",
     "bluetooth",
     "battery",
     "power",

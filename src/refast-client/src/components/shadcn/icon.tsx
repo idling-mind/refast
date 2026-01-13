@@ -225,6 +225,7 @@ import {
   Octagon,
   HelpCircle,
   LifeBuoy,
+  WifiOff,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -433,6 +434,7 @@ const iconMap: Record<string, LucideIcon> = {
   'globe': Globe,
   'world': Globe,
   'wifi': Wifi,
+  'wifi-off': WifiOff,
   'bluetooth': Bluetooth,
   'battery': Battery,
   'power': Power,

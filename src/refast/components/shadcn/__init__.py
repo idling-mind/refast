@@ -43,6 +43,7 @@ from refast.components.shadcn.data_display import (
 )
 from refast.components.shadcn.feedback import (
     Alert,
+    ConnectionStatus,
     Dialog,
     Modal,
     Progress,
@@ -245,6 +246,7 @@ __all__ = [
     "Label",
     # Feedback
     "Alert",
+    "ConnectionStatus",
     "Toast",
     "Modal",
     "Dialog",

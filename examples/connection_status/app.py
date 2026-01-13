@@ -37,6 +37,7 @@ from refast.components import (
     Grid,
     Heading,
     Icon,
+    List,
     Paragraph,
     Row,
     Spinner,
@@ -133,51 +134,15 @@ def home(ctx: Context):
                                         "Try these steps to see it in action:",
                                         class_name="mb-4",
                                     ),
-                                    Column(
-                                        class_name="gap-2 pl-4",
-                                        children=[
-                                            Row(
-                                                class_name="items-center",
-                                                gap=2,
-                                                children=[
-                                                    Badge("1", variant="outline"),
-                                                    Text(
-                                                        "Stop the uvicorn server (Ctrl+C in the terminal)"
-                                                    ),
-                                                ],
-                                            ),
-                                            Row(
-                                                class_name="items-center",
-                                                gap=2,
-                                                children=[
-                                                    Badge("2", variant="outline"),
-                                                    Text(
-                                                        "Watch the disconnection indicator appear "
-                                                        "(bottom-right corner)"
-                                                    ),
-                                                ],
-                                            ),
-                                            Row(
-                                                class_name="items-center",
-                                                children=[
-                                                    Badge("3", variant="outline"),
-                                                    Text(
-                                                        "Restart the server: uvicorn app:app --reload"
-                                                    ),
-                                                ],
-                                            ),
-                                            Row(
-                                                class_name="items-center",
-                                                gap=2,
-                                                children=[
-                                                    Badge("4", variant="outline"),
-                                                    Text(
-                                                        "See the reconnection toast notification"
-                                                    ),
-                                                ],
-                                            ),
+                                    List(
+                                        [
+                                            "Stop the uvicorn server (Ctrl+C in the terminal) to simulate",
+                                            "Watch the disconnection indicator appear (top-left and bottom-right).",
+                                            "Restart the server to reconnect and see the indicator disappear.",
+                                            "See the reconnection toast notification.",
                                         ],
-                                    ),
+                                        ordered=True,
+                                    )
                                 ]
                             ),
                         ]

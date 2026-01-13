@@ -72,7 +72,7 @@ function componentsEqual(comp1: ComponentTree, comp2: ComponentTree): boolean {
   if (comp1.type !== comp2.type) return false;
   if (comp1.id !== comp2.id) return false;
   if (!propsEqual(comp1.props, comp2.props)) return false;
-  if (!childrenEqual(comp1.children, comp2.children)) return false;
+  if (!childrenEqual(comp1.children || [], comp2.children || [])) return false;
   return true;
 }
 
@@ -101,12 +101,14 @@ function diffAndMerge(
   let childrenChanged = false;
   const newChildren: (ComponentTree | string)[] = [];
   
-  // Handle different children lengths
-  const maxLen = Math.max(oldTree.children.length, newTree.children.length);
+  // Handle different children lengths (default to empty array if undefined)
+  const oldChildren = oldTree.children || [];
+  const newChildrenArr = newTree.children || [];
+  const maxLen = Math.max(oldChildren.length, newChildrenArr.length);
   
   for (let i = 0; i < maxLen; i++) {
-    const oldChild = oldTree.children[i];
-    const newChild = newTree.children[i];
+    const oldChild = oldChildren[i];
+    const newChild = newChildrenArr[i];
     
     if (newChild === undefined) {
       // Child was removed
@@ -342,7 +344,7 @@ function applyUpdate(
         if (update) {
           return {
             ...tree,
-            children: [...tree.children, update],
+            children: [...(tree.children || []), update],
           };
         }
         return tree;
@@ -351,7 +353,7 @@ function applyUpdate(
         if (update) {
           return {
             ...tree,
-            children: [update, ...tree.children],
+            children: [update, ...(tree.children || [])],
           };
         }
         return tree;
@@ -361,8 +363,8 @@ function applyUpdate(
     }
   }
 
-  // Recursively search children
-  const newChildren = tree.children
+  // Recursively search children (default to empty array if undefined)
+  const newChildren = (tree.children || [])
     .map((child) => {
       if (typeof child === 'string') return child;
 
@@ -392,7 +394,7 @@ export function findComponent(
     return tree;
   }
 
-  for (const child of tree.children) {
+  for (const child of tree.children || []) {
     if (typeof child !== 'string') {
       const found = findComponent(child, id);
       if (found) {
@@ -416,7 +418,7 @@ export function getComponentPath(
     return [...path, id];
   }
 
-  for (const child of tree.children) {
+  for (const child of tree.children || []) {
     if (typeof child !== 'string') {
       const found = getComponentPath(child, id, [...path, tree.id]);
       if (found) {

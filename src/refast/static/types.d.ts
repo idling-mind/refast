@@ -2,12 +2,13 @@ import { default as React } from 'react';
 
 /**
  * Component tree structure from Python backend.
+ * Note: children may be undefined for leaf components (e.g., chart elements)
  */
 export interface ComponentTree {
     type: string;
     id: string;
     props: Record<string, unknown>;
-    children: (ComponentTree | string)[];
+    children?: (ComponentTree | string)[];
 }
 /**
  * Props passed to rendered components.

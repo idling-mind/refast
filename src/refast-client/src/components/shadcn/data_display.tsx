@@ -1,4 +1,5 @@
 import React from 'react';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cn } from '../../utils';
 
 interface TableProps {
@@ -367,6 +368,7 @@ interface TooltipProps {
   className?: string;
   content: string;
   side?: 'top' | 'right' | 'bottom' | 'left';
+  sideOffset?: number;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -379,40 +381,43 @@ export function Tooltip({
   className,
   content,
   side = 'top',
+  sideOffset,
   children,
   'data-refast-id': dataRefastId,
 }: TooltipProps): React.ReactElement {
-  const [isVisible, setIsVisible] = React.useState(false);
-
-  const positionClasses = {
-    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-    right: 'left-full top-1/2 -translate-y-1/2 ml-2',
-    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-    left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-  };
+  // Ensure trigger is a single element for Radix's asChild and attach id/data-refast-id to it
+  const trigger = React.Children.count(children) === 1 && React.isValidElement(children)
+    ? React.cloneElement(children as React.ReactElement, { id, 'data-refast-id': dataRefastId })
+    : <span id={id} data-refast-id={dataRefastId}>{children}</span>;
 
   return (
-    <div
-      id={id}
-      className={cn('relative inline-block', className)}
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
-      data-refast-id={dataRefastId}
-    >
-      {children}
-      {isVisible && (
-        <div
-          className={cn(
-            'absolute z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
-            positionClasses[side]
-          )}
-        >
-          {content}
-        </div>
-      )}
-    </div>
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>
+          {trigger}
+        </TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <TooltipPrimitive.Content
+              side={side}
+              sideOffset={typeof sideOffset === 'number' ? sideOffset : 4}
+            className={cn(
+              'z-50 rounded-md bg-foreground text-background text-sm px-3 py-1.5 shadow-md animate-in fade-in-0 zoom-in-95',
+              className
+            )}
+          >
+            {content}
+            <TooltipPrimitive.Arrow className="fill-foreground" />
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 }
+
+// Re-exports for convenience (match shadcn API surface)
+export const TooltipTrigger = TooltipPrimitive.Trigger;
+export const TooltipContent = TooltipPrimitive.Content;
+export const TooltipProvider = TooltipPrimitive.Provider;
 
 // Tabs Context
 interface TabsContextValue {

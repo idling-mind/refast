@@ -158,6 +158,13 @@ class TestTooltip:
         rendered = tooltip.render()
         assert rendered["props"]["side"] == "bottom"
 
+    def test_tooltip_side_offset(self):
+        """Test Tooltip side_offset prop."""
+        tooltip = Tooltip(content="Text", side="bottom", side_offset=8)
+        rendered = tooltip.render()
+        assert rendered["props"]["side"] == "bottom"
+        assert rendered["props"]["side_offset"] == 8
+
 
 class TestTabs:
     """Tests for Tabs component."""

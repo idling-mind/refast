@@ -439,7 +439,8 @@ def board(ctx: Context):
                                                                 content="Create New Task",
                                                                 children=[
                                                                     IconButton(icon="plus", aria_label="Create Task", variant="primary")
-                                                                ]
+                                                                ],
+                                                                side="bottom",
                                                             ),
                                                         ],
                                                     ),

@@ -1,5 +1,6 @@
 import { default as React } from 'react';
 
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 interface TableProps {
     id?: string;
     className?: string;
@@ -97,13 +98,17 @@ interface TooltipProps {
     className?: string;
     content: string;
     side?: 'top' | 'right' | 'bottom' | 'left';
+    sideOffset?: number;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
  * Tooltip component - hover tooltip.
  */
-export declare function Tooltip({ id, className, content, side, children, 'data-refast-id': dataRefastId, }: TooltipProps): React.ReactElement;
+export declare function Tooltip({ id, className, content, side, sideOffset, children, 'data-refast-id': dataRefastId, }: TooltipProps): React.ReactElement;
+export declare const TooltipTrigger: React.ForwardRefExoticComponent<TooltipPrimitive.TooltipTriggerProps & React.RefAttributes<HTMLButtonElement>>;
+export declare const TooltipContent: React.ForwardRefExoticComponent<TooltipPrimitive.TooltipContentProps & React.RefAttributes<HTMLDivElement>>;
+export declare const TooltipProvider: React.FC<TooltipPrimitive.TooltipProviderProps>;
 interface TabsProps {
     id?: string;
     className?: string;

@@ -371,6 +371,7 @@ class Tooltip(Component):
         content: str,
         children: list[Component | str] | None = None,
         side: Literal["top", "right", "bottom", "left"] = "top",
+        side_offset: int | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -380,6 +381,7 @@ class Tooltip(Component):
             self._children = children
         self.content = content
         self.side = side
+        self.side_offset = side_offset
 
     def render(self) -> dict[str, Any]:
         return {
@@ -388,6 +390,7 @@ class Tooltip(Component):
             "props": {
                 "content": self.content,
                 "side": self.side,
+                "side_offset": self.side_offset,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

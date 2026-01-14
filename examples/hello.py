@@ -9,9 +9,7 @@ from refast.components import (
     Container,
     Text,
     ThemeSwitcher,
-    ResizablePanel,
-    ResizableHandle,
-    ResizablePanelGroup,
+    Tooltip,
 )
 
 ui = RefastApp(title="Hello World App")
@@ -43,10 +41,16 @@ def hello_world_page(ctx: Context):
             ),
             Container(
                 [
-                    Button(
-                        "Start Refresh",
-                        on_click=ctx.callback(start_refresh),
-                        disabled=refresh_state,
+                    Tooltip(
+                        children=[
+                            Button(
+                                "Start Refresh",
+                                on_click=ctx.callback(start_refresh),
+                                disabled=refresh_state,
+                            ),
+                        ],
+                        content="Starts periodic refresh every 5 seconds",
+                        side_offset=8,
                     ),
                     Button(
                         "Stop refresh",

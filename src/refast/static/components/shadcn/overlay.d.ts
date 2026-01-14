@@ -1,10 +1,10 @@
 import { BaseProps, ChildrenProp } from './types';
 /**
  * Overlay Components using Radix UI primitives
- * AlertDialog, Sheet, Drawer, HoverCard, Popover
+ * Dialog, Sheet, Drawer, HoverCard, Popover
  */
 import * as React from 'react';
-export interface AlertDialogProps extends BaseProps, ChildrenProp {
+export interface DialogProps extends BaseProps, ChildrenProp {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     title?: string;
@@ -16,46 +16,46 @@ export interface AlertDialogProps extends BaseProps, ChildrenProp {
     trigger?: React.ReactNode;
     variant?: 'default' | 'destructive';
 }
-export declare function AlertDialog({ open, onOpenChange, title, description, confirmLabel, cancelLabel, onConfirm, onCancel, trigger, variant, className, children, ...props }: AlertDialogProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogTriggerProps extends ChildrenProp {
+export declare function Dialog({ open, onOpenChange, title, description, confirmLabel, cancelLabel, onConfirm, onCancel, trigger, variant, className, children, ...props }: DialogProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogTriggerProps extends ChildrenProp {
     asChild?: boolean;
     className?: string;
 }
-export declare function AlertDialogTrigger({ asChild, className, children, }: AlertDialogTriggerProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogContentProps extends ChildrenProp {
+export declare function DialogTrigger({ asChild, className, children, }: DialogTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogContentProps extends ChildrenProp {
     className?: string;
 }
-export declare function AlertDialogContent({ className, children, }: AlertDialogContentProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogHeaderProps extends ChildrenProp {
+export declare function DialogContent({ className, children, }: DialogContentProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogHeaderProps extends ChildrenProp {
     className?: string;
 }
-export declare function AlertDialogHeader({ className, children, }: AlertDialogHeaderProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogFooterProps extends ChildrenProp {
+export declare function DialogHeader({ className, children, }: DialogHeaderProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogFooterProps extends ChildrenProp {
     className?: string;
 }
-export declare function AlertDialogFooter({ className, children, }: AlertDialogFooterProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogTitleProps extends ChildrenProp {
+export declare function DialogFooter({ className, children, }: DialogFooterProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogTitleProps extends ChildrenProp {
     title?: string;
     className?: string;
 }
-export declare function AlertDialogTitle({ title, className, children, }: AlertDialogTitleProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogDescriptionProps extends ChildrenProp {
+export declare function DialogTitle({ title, className, children, }: DialogTitleProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogDescriptionProps extends ChildrenProp {
     description?: string;
     className?: string;
 }
-export declare function AlertDialogDescription({ description, className, children, }: AlertDialogDescriptionProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogActionProps extends ChildrenProp {
+export declare function DialogDescription({ description, className, children, }: DialogDescriptionProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogActionProps extends ChildrenProp {
     label?: string;
     onClick?: () => void;
     className?: string;
 }
-export declare function AlertDialogAction({ label, onClick, className, children, }: AlertDialogActionProps): import("react/jsx-runtime").JSX.Element;
-export interface AlertDialogCancelProps extends ChildrenProp {
+export declare function DialogAction({ label, onClick, className, children, }: DialogActionProps): import("react/jsx-runtime").JSX.Element;
+export interface DialogCancelProps extends ChildrenProp {
     label?: string;
     onClick?: () => void;
     className?: string;
 }
-export declare function AlertDialogCancel({ label, onClick, className, children, }: AlertDialogCancelProps): import("react/jsx-runtime").JSX.Element;
+export declare function DialogCancel({ label, onClick, className, children, }: DialogCancelProps): import("react/jsx-runtime").JSX.Element;
 export interface SheetProps extends ChildrenProp {
     open?: boolean;
     defaultOpen?: boolean;
@@ -230,15 +230,15 @@ export interface ContextMenuCheckboxItemProps extends ChildrenProp {
 }
 export declare function ContextMenuCheckboxItem({ checked, onCheckedChange, disabled, className, children, }: ContextMenuCheckboxItemProps): import("react/jsx-runtime").JSX.Element;
 export declare const OverlayComponents: {
-    AlertDialog: typeof AlertDialog;
-    AlertDialogTrigger: typeof AlertDialogTrigger;
-    AlertDialogContent: typeof AlertDialogContent;
-    AlertDialogHeader: typeof AlertDialogHeader;
-    AlertDialogFooter: typeof AlertDialogFooter;
-    AlertDialogTitle: typeof AlertDialogTitle;
-    AlertDialogDescription: typeof AlertDialogDescription;
-    AlertDialogAction: typeof AlertDialogAction;
-    AlertDialogCancel: typeof AlertDialogCancel;
+    Dialog: typeof Dialog;
+    DialogTrigger: typeof DialogTrigger;
+    DialogContent: typeof DialogContent;
+    DialogHeader: typeof DialogHeader;
+    DialogFooter: typeof DialogFooter;
+    DialogTitle: typeof DialogTitle;
+    DialogDescription: typeof DialogDescription;
+    DialogAction: typeof DialogAction;
+    DialogCancel: typeof DialogCancel;
     Sheet: typeof Sheet;
     SheetTrigger: typeof SheetTrigger;
     SheetContent: typeof SheetContent;

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { Container, Text, Fragment } from '../base';
 import { Button } from '../shadcn/button';
 import { Card, CardHeader, CardContent, CardTitle } from '../shadcn/card';
-import { Row, Column, Stack, Grid, Center } from '../shadcn/layout';
+import { Row, Column, Grid, Center } from '../shadcn/layout';
 import { Input, Checkbox } from '../shadcn/input';
 import { Heading, Paragraph, Link } from '../shadcn/typography';
 import { Alert, Badge, Progress, Spinner } from '../shadcn/feedback';
@@ -75,11 +75,6 @@ describe('Layout Components', () => {
   it('renders Column', () => {
     render(<Column>Column content</Column>);
     expect(screen.getByText('Column content')).toBeInTheDocument();
-  });
-
-  it('renders Stack', () => {
-    render(<Stack spacing={4}>Stack content</Stack>);
-    expect(screen.getByText('Stack content')).toBeInTheDocument();
   });
 
   it('renders Grid', () => {

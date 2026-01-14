@@ -14,16 +14,6 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
-    # Overlays
-    Dialog,
-    DialogAction,
-    DialogCancel,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
     AspectRatio,
     Avatar,
     # Feedback
@@ -50,6 +40,23 @@ from refast.components import (
     Combobox,
     Container,
     DatePicker,
+    # Overlays
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
@@ -673,6 +680,18 @@ def home(ctx: Context):
                                             ),
                                         ]
                                     ),
+                                    Drawer(
+                                        children=[
+                                            DrawerTrigger(Button("Open Drawer")),
+                                            DrawerContent(
+                                                [
+                                                    DrawerHeader(
+                                                        DrawerTitle("Move Goal"),
+                                                    )
+                                                ]
+                                            ),
+                                        ]
+                                    ),
                                 ],
                             ),
                         ],
@@ -1089,7 +1108,7 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                         ],
                         class_name="border rounded-lg",
                         style={"width": "100%"},
-                    )
+                    ),
                 ],
                 class_name="mt-8 w-full",
             ),

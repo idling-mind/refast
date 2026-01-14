@@ -20,25 +20,14 @@ interface ColumnProps {
     justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
     align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
     gap?: number | string;
+    wrap?: boolean;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
  * Column component - vertical flex container.
  */
-export declare function Column({ id, className, justify, align, gap, children, 'data-refast-id': dataRefastId, }: ColumnProps): React.ReactElement;
-interface StackProps {
-    id?: string;
-    className?: string;
-    spacing?: number | string;
-    direction?: 'vertical' | 'horizontal';
-    children?: React.ReactNode;
-    'data-refast-id'?: string;
-}
-/**
- * Stack component - flex container with spacing.
- */
-export declare function Stack({ id, className, spacing, direction, children, 'data-refast-id': dataRefastId, }: StackProps): React.ReactElement;
+export declare function Column({ id, className, justify, align, gap, wrap, children, 'data-refast-id': dataRefastId, }: ColumnProps): React.ReactElement;
 interface GridProps {
     id?: string;
     className?: string;
@@ -69,22 +58,4 @@ interface CenterProps {
  * Center component - centers content horizontally and vertically.
  */
 export declare function Center({ id, className, children, 'data-refast-id': dataRefastId, }: CenterProps): React.ReactElement;
-interface SpacerProps {
-    size?: number | string;
-    'data-refast-id'?: string;
-}
-/**
- * Spacer component - flexible space element.
- */
-export declare function Spacer({ size, 'data-refast-id': dataRefastId, }: SpacerProps): React.ReactElement;
-interface DividerProps {
-    id?: string;
-    orientation?: 'horizontal' | 'vertical';
-    className?: string;
-    'data-refast-id'?: string;
-}
-/**
- * Divider component - visual separator.
- */
-export declare function Divider({ id, orientation, className, 'data-refast-id': dataRefastId, }: DividerProps): React.ReactElement;
 export {};

@@ -71,20 +71,6 @@ interface SpinnerProps {
  * Spinner component - loading spinner.
  */
 export declare function Spinner({ id, className, size, 'data-refast-id': dataRefastId, }: SpinnerProps): React.ReactElement;
-interface ToastProps {
-    id?: string;
-    className?: string;
-    variant?: 'default' | 'destructive' | 'success';
-    title?: string;
-    description?: string;
-    onClose?: () => void;
-    children?: React.ReactNode;
-    'data-refast-id'?: string;
-}
-/**
- * Toast component - notification toast.
- */
-export declare function Toast({ id, className, variant, title, description, onClose, children, 'data-refast-id': dataRefastId, }: ToastProps): React.ReactElement;
 interface SkeletonProps {
     id?: string;
     className?: string;

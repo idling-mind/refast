@@ -113,25 +113,15 @@ interface RadioGroupProps {
     defaultValue?: string;
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
-    options?: Array<{
-        value: string;
-        label: string;
-        disabled?: boolean;
-    }>;
     label?: string;
     onValueChange?: (value: string) => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
- * RadioGroup component - container for radio buttons with options support.
+ * RadioGroup component - container for radio buttons using children composition.
  */
-export declare function RadioGroup({ id, className, name, value, defaultValue, disabled, orientation, options, label, onValueChange, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
-interface CheckboxGroupOption {
-    value: string;
-    label: string;
-    disabled?: boolean;
-}
+export declare function RadioGroup({ id, className, name, value, defaultValue, disabled, orientation, label, onValueChange, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
 interface CheckboxGroupProps {
     id?: string;
     className?: string;
@@ -140,13 +130,13 @@ interface CheckboxGroupProps {
     defaultValue?: string[];
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
-    options?: CheckboxGroupOption[];
     label?: string;
     onChange?: (value: string[]) => void;
+    children?: React.ReactNode;
     'data-refast-id'?: string;
 }
 /**
- * CheckboxGroup component - group of checkboxes for multi-selection.
+ * CheckboxGroup component - group of checkboxes using children composition.
  */
-export declare function CheckboxGroup({ id, className, name, value, defaultValue, disabled, orientation, options, label, onChange, 'data-refast-id': dataRefastId, }: CheckboxGroupProps): React.ReactElement;
+export declare function CheckboxGroup({ id, className, name, value, defaultValue, disabled, orientation, label, onChange, children, 'data-refast-id': dataRefastId, }: CheckboxGroupProps): React.ReactElement;
 export {};

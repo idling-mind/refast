@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ComponentTree, CallbackRef, JsCallbackRef } from '../types';
+import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
 import { debounce, throttle } from '../utils';
@@ -45,6 +45,8 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
         result[camelKey] = createCallbackHandler(value, eventManager);
       } else if (isJsCallbackRef(value)) {
         result[camelKey] = createJsCallbackHandler(value);
+      } else if (isBoundMethodCallbackRef(value)) {
+        result[camelKey] = createBoundMethodCallbackHandler(value);
       } else if (isFormatterString(key, value)) {
         // Convert formatter strings to functions (e.g., tickFormatter)
         result[camelKey] = createFormatterFunction(value as string);
@@ -120,6 +122,20 @@ function isJsCallbackRef(value: unknown): value is JsCallbackRef {
     typeof value === 'object' &&
     value !== null &&
     'jsFunction' in value
+  );
+}
+
+/**
+ * Check if a value is a bound method callback reference (calls a method on a component).
+ */
+function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCallbackRef {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'boundMethod' in value &&
+    typeof (value as BoundMethodCallbackRef).boundMethod === 'object' &&
+    'targetId' in (value as BoundMethodCallbackRef).boundMethod &&
+    'methodName' in (value as BoundMethodCallbackRef).boundMethod
   );
 }
 
@@ -248,6 +264,46 @@ function createJsCallbackHandler(
     } catch (error) {
       console.error('[Refast] Error executing JavaScript callback:', error);
       console.error('[Refast] Code:', jsFunction);
+    }
+  };
+}
+
+/**
+ * Create a handler function for a bound method callback reference.
+ * Calls a specific method on a component identified by its ID.
+ */
+function createBoundMethodCallbackHandler(
+  ref: BoundMethodCallbackRef
+): (...args: unknown[]) => void {
+  const { boundMethod } = ref;
+  const { targetId, methodName, args: methodArgs } = boundMethod;
+
+  return () => {
+    try {
+      const element = document.getElementById(targetId);
+      if (element) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const method = (element as any)[methodName];
+        if (typeof method === 'function') {
+          // Call the method with the provided arguments
+          const argValues = Object.values(methodArgs);
+          if (argValues.length === 0) {
+            method.call(element);
+          } else if (argValues.length === 1) {
+            method.call(element, argValues[0]);
+          } else {
+            // For multiple arguments, pass them individually
+            method.apply(element, argValues);
+          }
+        } else {
+          console.warn(`[Refast] Method '${methodName}' not found on element '${targetId}'`);
+        }
+      } else {
+        console.warn(`[Refast] Element with id '${targetId}' not found`);
+      }
+    } catch (error) {
+      console.error('[Refast] Error calling bound method:', error);
+      console.error('[Refast] Target:', targetId, 'Method:', methodName);
     }
   };
 }

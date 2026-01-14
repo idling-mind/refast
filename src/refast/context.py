@@ -102,6 +102,48 @@ class JsAction:
     args: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class BoundJsCallback:
+    """
+    Represents a bound method call to be executed on a component in the frontend.
+
+    Unlike JsCallback which executes arbitrary JavaScript code,
+    BoundJsCallback calls a specific method on a component identified by its ID.
+    This is useful for calling component methods without a server roundtrip.
+
+    Example:
+        ```python
+        # Call clearCanvas method on a SketchCanvas component
+        Button("Clear", on_click=ctx.bound_js("my-canvas", "clearCanvas"))
+
+        # Call a method with arguments
+        Button("Load", on_click=ctx.bound_js("my-canvas", "loadPaths", paths=my_paths))
+
+        # Toggle eraser mode
+        Button("Eraser", on_click=ctx.bound_js("my-canvas", "eraseMode", erase=True))
+        ```
+
+    Attributes:
+        target_id: ID of the target component
+        method_name: Name of the method to call on the component
+        args: Arguments to pass to the method (as keyword arguments)
+    """
+
+    target_id: str
+    method_name: str
+    args: dict[str, Any] = field(default_factory=dict)
+
+    def serialize(self) -> dict[str, Any]:
+        """Serialize for sending to frontend."""
+        return {
+            "boundMethod": {
+                "targetId": self.target_id,
+                "methodName": self.method_name,
+                "args": self.args,
+            }
+        }
+
+
 class Context(Generic[T]):
     """
     Request context passed to page functions and callbacks.
@@ -285,6 +327,67 @@ class Context(Generic[T]):
         """
         return JsCallback(code=code, bound_args=bound_args)
 
+    def bound_js(
+        self,
+        target_id: str,
+        method_name: str,
+        **args: Any,
+    ) -> BoundJsCallback:
+        """
+        Create a bound method callback that calls a component method on the frontend.
+
+        Unlike `js()` which executes arbitrary JavaScript code,
+        `bound_js()` calls a specific method on a component identified by its ID.
+        This is useful for:
+
+        - Calling component-specific methods (e.g., clearCanvas, undo, redo)
+        - Interacting with components that expose imperative methods
+        - Client-side operations without server roundtrip
+
+        Components must expose methods by binding them to the wrapper DOM element.
+        See the Component Development Guide for how to properly expose methods.
+
+        Args:
+            target_id: ID of the target component
+            method_name: Name of the method to call
+            **args: Arguments to pass to the method
+
+        Returns:
+            BoundJsCallback object that serializes for frontend
+
+        Example:
+            ```python
+            # Create a SketchCanvas with an ID
+            canvas = SketchCanvas(id="my-canvas")
+
+            # Call component methods without server roundtrip
+            Button("Clear", on_click=ctx.bound_js("my-canvas", "clearCanvas"))
+            Button("Undo", on_click=ctx.bound_js("my-canvas", "undo"))
+            Button("Redo", on_click=ctx.bound_js("my-canvas", "redo"))
+
+            # Call a method with arguments
+            Button(
+                "Eraser On",
+                on_click=ctx.bound_js("my-canvas", "eraseMode", erase=True)
+            )
+            Button(
+                "Eraser Off",
+                on_click=ctx.bound_js("my-canvas", "eraseMode", erase=False)
+            )
+
+            # Load paths into the canvas
+            Button(
+                "Load Drawing",
+                on_click=ctx.bound_js("my-canvas", "loadPaths", paths=saved_paths)
+            )
+            ```
+
+        Note:
+            The target component must have the method bound to its wrapper element.
+            If the method or component doesn't exist, a warning will be logged.
+        """
+        return BoundJsCallback(target_id=target_id, method_name=method_name, args=args)
+
     async def call_js(
         self,
         code: str,
@@ -338,6 +441,66 @@ class Context(Generic[T]):
                 {
                     "type": "js_exec",
                     "code": code,
+                    "args": args,
+                }
+            )
+
+    async def call_bound_js(
+        self,
+        target_id: str,
+        method_name: str,
+        **args: Any,
+    ) -> None:
+        """
+        Call a method on a component in the frontend immediately.
+
+        Unlike `bound_js()` which creates a callback for event handlers,
+        `call_bound_js()` sends a method call to the frontend for immediate execution.
+        This is useful for:
+
+        - Calling component methods after server-side processing
+        - Triggering component actions in response to data changes
+        - Imperatively controlling components from Python callbacks
+
+        Args:
+            target_id: ID of the target component
+            method_name: Name of the method to call
+            **args: Arguments to pass to the method
+
+        Example:
+            ```python
+            async def save_drawing(ctx: Context):
+                # Export the paths from the canvas
+                # (In a real app, you'd need to use a different approach
+                # since exportPaths returns a Promise)
+                await ctx.call_bound_js("my-canvas", "clearCanvas")
+
+            async def load_saved_drawing(ctx: Context):
+                # Load paths from database
+                saved_paths = await database.get_drawing(ctx.event_data["id"])
+
+                # Load the paths into the canvas
+                await ctx.call_bound_js("my-canvas", "loadPaths", paths=saved_paths)
+
+            async def toggle_eraser(ctx: Context):
+                is_eraser = ctx.state.get("eraser_mode", False)
+                ctx.state.set("eraser_mode", not is_eraser)
+                await ctx.push_update()
+
+                # Update the canvas mode
+                await ctx.call_bound_js("my-canvas", "eraseMode", erase=not is_eraser)
+            ```
+
+        Note:
+            The target component must have the method bound to its wrapper element.
+            If the method or component doesn't exist, a warning will be logged.
+        """
+        if self._websocket:
+            await self._websocket.send_json(
+                {
+                    "type": "bound_method_call",
+                    "targetId": target_id,
+                    "methodName": method_name,
                     "args": args,
                 }
             )

@@ -3,7 +3,7 @@
 import pytest
 
 from refast import RefastApp
-from refast.context import Callback, Context, JsCallback, JsAction
+from refast.context import BoundJsCallback, Callback, Context, JsAction, JsCallback
 
 
 class TestCallback:
@@ -358,3 +358,127 @@ class TestContextCallJsWithoutWebSocket:
         await ctx.call_js("focus(args.id)", id="input-1")
 
 
+class TestBoundJsCallback:
+    """Tests for BoundJsCallback dataclass."""
+
+    def test_bound_js_callback_has_target_id(self):
+        """Test BoundJsCallback stores a target ID."""
+        cb = BoundJsCallback(target_id="my-canvas", method_name="clearCanvas")
+        assert cb.target_id == "my-canvas"
+
+    def test_bound_js_callback_has_method_name(self):
+        """Test BoundJsCallback stores a method name."""
+        cb = BoundJsCallback(target_id="my-canvas", method_name="clearCanvas")
+        assert cb.method_name == "clearCanvas"
+
+    def test_bound_js_callback_default_args(self):
+        """Test BoundJsCallback has empty args by default."""
+        cb = BoundJsCallback(target_id="my-canvas", method_name="clearCanvas")
+        assert cb.args == {}
+
+    def test_bound_js_callback_with_args(self):
+        """Test BoundJsCallback stores arguments."""
+        cb = BoundJsCallback(
+            target_id="my-canvas", method_name="eraseMode", args={"erase": True}
+        )
+        assert cb.args == {"erase": True}
+
+    def test_bound_js_callback_serialize(self):
+        """Test BoundJsCallback serialization."""
+        cb = BoundJsCallback(
+            target_id="my-canvas", method_name="loadPaths", args={"paths": [1, 2, 3]}
+        )
+        serialized = cb.serialize()
+
+        assert "boundMethod" in serialized
+        assert serialized["boundMethod"]["targetId"] == "my-canvas"
+        assert serialized["boundMethod"]["methodName"] == "loadPaths"
+        assert serialized["boundMethod"]["args"] == {"paths": [1, 2, 3]}
+
+    def test_bound_js_callback_serialize_empty_args(self):
+        """Test BoundJsCallback serialization with empty args."""
+        cb = BoundJsCallback(target_id="my-canvas", method_name="undo")
+        serialized = cb.serialize()
+
+        assert serialized["boundMethod"]["targetId"] == "my-canvas"
+        assert serialized["boundMethod"]["methodName"] == "undo"
+        assert serialized["boundMethod"]["args"] == {}
+
+
+class TestContextBoundJs:
+    """Tests for Context.bound_js() method."""
+
+    def test_bound_js_creates_bound_js_callback_object(self):
+        """Test bound_js method creates a BoundJsCallback."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "clearCanvas")
+        assert isinstance(cb, BoundJsCallback)
+
+    def test_bound_js_stores_target_id(self):
+        """Test bound_js method stores the target ID."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "clearCanvas")
+        assert cb.target_id == "my-canvas"
+
+    def test_bound_js_stores_method_name(self):
+        """Test bound_js method stores the method name."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "undo")
+        assert cb.method_name == "undo"
+
+    def test_bound_js_with_args(self):
+        """Test bound_js with arguments."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "eraseMode", erase=True)
+        assert cb.args == {"erase": True}
+
+    def test_bound_js_with_multiple_args(self):
+        """Test bound_js with multiple arguments."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "loadPaths", paths=[1, 2], append=False)
+        assert cb.args == {"paths": [1, 2], "append": False}
+
+    def test_bound_js_serialize_format(self):
+        """Test bound_js callback serializes correctly."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "exportImage", image_type="png")
+        serialized = cb.serialize()
+
+        assert "boundMethod" in serialized
+        assert serialized["boundMethod"]["targetId"] == "my-canvas"
+        assert serialized["boundMethod"]["methodName"] == "exportImage"
+        assert serialized["boundMethod"]["args"] == {"image_type": "png"}
+
+    def test_bound_js_does_not_register_with_app(self):
+        """Test bound_js callback is not registered with app (it's client-side)."""
+        app = RefastApp()
+        ctx = Context(app=app)
+        cb = ctx.bound_js("my-canvas", "clearCanvas")
+
+        # BoundJsCallbacks don't have a callback id to register
+        assert cb.target_id == "my-canvas"
+
+
+class TestContextCallBoundJsWithoutWebSocket:
+    """Tests for Context.call_bound_js() method without WebSocket."""
+
+    @pytest.mark.asyncio
+    async def test_call_bound_js_without_websocket(self):
+        """Test call_bound_js does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.call_bound_js("my-canvas", "clearCanvas")
+
+    @pytest.mark.asyncio
+    async def test_call_bound_js_with_args_without_websocket(self):
+        """Test call_bound_js with args does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.call_bound_js("my-canvas", "eraseMode", erase=True)
+
+    @pytest.mark.asyncio
+    async def test_call_bound_js_with_multiple_args_without_websocket(self):
+        """Test call_bound_js with multiple args does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.call_bound_js("my-canvas", "loadPaths", paths=[1, 2, 3], clear=True)

@@ -37,14 +37,28 @@ export interface JsCallbackRef {
     boundArgs: Record<string, unknown>;
 }
 /**
- * Combined callback type that can be either a Python callback or a JS callback.
+ * Bound method callback reference from backend (calls a method on a component).
  */
-export type AnyCallbackRef = CallbackRef | JsCallbackRef;
+export interface BoundMethodRef {
+    targetId: string;
+    methodName: string;
+    args: Record<string, unknown>;
+}
+/**
+ * Bound method callback wrapper (for event handlers).
+ */
+export interface BoundMethodCallbackRef {
+    boundMethod: BoundMethodRef;
+}
+/**
+ * Combined callback type that can be either a Python callback, a JS callback, or a bound method callback.
+ */
+export type AnyCallbackRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRef;
 /**
  * Update message from backend.
  */
 export interface UpdateMessage {
-    type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store';
+    type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call';
     operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children';
     targetId?: string;
     component?: ComponentTree;
@@ -75,6 +89,7 @@ export interface UpdateMessage {
     id?: string;
     code?: string;
     args?: Record<string, unknown>;
+    methodName?: string;
 }
 /**
  * Store update operation from backend.

@@ -113,6 +113,37 @@ export function EventManagerProvider({
           }
         }
 
+        // Handle bound method calls from backend
+        if (message.type === 'bound_method_call' && message.targetId && message.methodName) {
+          try {
+            const element = document.getElementById(message.targetId);
+            if (element) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const method = (element as any)[message.methodName];
+              if (typeof method === 'function') {
+                // Call the method with the provided arguments
+                const args = message.args || {};
+                const argValues = Object.values(args);
+                if (argValues.length === 0) {
+                  method.call(element);
+                } else if (argValues.length === 1) {
+                  method.call(element, argValues[0]);
+                } else {
+                  // For multiple arguments, pass them individually
+                  method.apply(element, argValues);
+                }
+              } else {
+                console.warn(`[Refast] Method '${message.methodName}' not found on element '${message.targetId}'`);
+              }
+            } else {
+              console.warn(`[Refast] Element with id '${message.targetId}' not found`);
+            }
+          } catch (error) {
+            console.error('[Refast] Error calling bound method:', error);
+            console.error('[Refast] Target:', message.targetId, 'Method:', message.methodName);
+          }
+        }
+
         // Handle resync_store request from backend
         if (message.type === 'resync_store') {
           persistentStateManager.resyncStore();

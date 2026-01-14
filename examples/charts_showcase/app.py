@@ -1,7 +1,8 @@
 import asyncio
+import random
+
 import uvicorn
 from fastapi import FastAPI
-import random
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -101,12 +102,12 @@ def get_data():
     ]
 
     # Scatter Chart Data
-    data["scatter_data"] = [
+    data["scatter-series-a"] = [
         {"x": random.randint(100, 400), "y": random.randint(100, 400), "z": random.randint(100, 400)}
         for _ in range(6)
     ]
 
-    data["scatter_data_2"] = [
+    data["scatter-series-b"] = [
         {"x": random.randint(150, 350), "y": random.randint(150, 350), "z": random.randint(100, 400)}
         for _ in range(6)
     ]
@@ -124,10 +125,10 @@ def get_data():
 
     # Funnel Chart Data
     data["funnel_data"] = [
-        {"name": "Visited", "value": 5000, "fill": "hsl(var(--chart-1))"},
-        {"name": "Cart", "value": 2500, "fill": "hsl(var(--chart-2))"},
-        {"name": "Checkout", "value": 1800, "fill": "hsl(var(--chart-3))"},
-        {"name": "Purchase", "value": 800, "fill": "hsl(var(--chart-4))"},
+        {"name": "Visited", "value": random.randint(2500,5000), "fill": "hsl(var(--chart-1))"},
+        {"name": "Cart", "value": random.randint(1800,2500), "fill": "hsl(var(--chart-2))"},
+        {"name": "Checkout", "value": random.randint(800, 1800), "fill": "hsl(var(--chart-3))"},
+        {"name": "Purchase", "value": random.randint(100,800), "fill": "hsl(var(--chart-4))"},
     ]
 
     # Treemap Data
@@ -201,7 +202,10 @@ async def update_chart_data(ctx: Context):
     await asyncio.sleep(1)
     await ctx.update_props("radial-bar-chart", {"data": new_data["radial_data"]})
     await asyncio.sleep(1)
-    await ctx.update_props("scatter-chart", {"data": new_data["scatter_data"]})
+    await ctx.update_props("scatter-series-a", {"data": new_data["scatter-series-a"]})
+    await ctx.update_props("scatter-series-b", {"data": new_data["scatter-series-b"]})
+    await asyncio.sleep(1)
+    await ctx.update_props("funnel-chart", {"data": new_data["funnel_data"]})
     await asyncio.sleep(1)
     await ctx.update_props("composed-chart", {"data": new_data["composed_data"]})
     await asyncio.sleep(1)
@@ -274,9 +278,9 @@ def home(ctx: Context):
                     # NOTE: Treemap and Sankey are commented out for now
                     # as they require special handling outside ResponsiveContainer
                     # # Treemap Section (NEW)
-                    # _render_treemap_card(),
+                    _render_treemap_card(),
                     # # Sankey Section (NEW)
-                    # _render_sankey_card(),
+                    _render_sankey_card(),
                 ],
             ),
         ],
@@ -573,7 +577,6 @@ def _render_scatter_chart_card():
                         min_height=300,
                         children=ScatterChart(
                             id="scatter-chart",
-                            data=get_data()["scatter_data"],
                             margin={"top": 20, "right": 20, "bottom": 20, "left": 20},
                             children=[
                                 CartesianGrid(stroke_dasharray="3 3"),
@@ -597,14 +600,14 @@ def _render_scatter_chart_card():
                                 Scatter(
                                     name="Series A",
                                     id="scatter-series-a",
-                                    data=get_data()["scatter_data"],
+                                    data=get_data()["scatter-series-a"],
                                     fill="hsl(var(--chart-1))",
                                     shape="circle",
                                 ),
                                 Scatter(
                                     id="scatter-series-b",
                                     name="Series B",
-                                    data=get_data()["scatter_data_2"],
+                                    data=get_data()["scatter-series-b"],
                                     fill="hsl(var(--chart-2))",
                                     shape="diamond",
                                 ),
@@ -773,7 +776,7 @@ def _render_sankey_card():
                 children=[
                     ChartContainer(
                         config={
-                            "value": ChartConfig(label="Users"),
+                            "value": ChartConfig(label="name"),
                         },
                         min_height=350,
                         children=Sankey(

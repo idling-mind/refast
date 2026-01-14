@@ -9,7 +9,11 @@ This comprehensive guide explains how to create and register new components and 
 3. [Creating a Simple Component](#creating-a-simple-component)
 4. [Creating a Component Collection](#creating-a-component-collection)
 5. [Handling Events and Callbacks](#handling-events-and-callbacks)
+   - [JavaScript Callbacks with `ctx.js()`](#javascript-callbacks-with-ctxjs)
+   - [Executing JavaScript from Python Callbacks with `ctx.call_js()`](#executing-javascript-from-python-callbacks-with-ctxcall_js)
+   - [Calling Bound Component Methods](#calling-bound-component-methods-with-ctxbound_js-and-ctxcall_bound_js)
 6. [Creating the Frontend React Component](#creating-the-frontend-react-component)
+   - [Exposing Component Methods](#exposing-component-methods)
 7. [Registering Components](#registering-components)
 8. [Testing Components](#testing-components)
 9. [Best Practices](#best-practices)
@@ -587,6 +591,99 @@ Button(
 
 Bound arguments are serialized as JSON data, not as executable code, making them safe to use with user-provided values.
 
+### Calling Bound Component Methods with `ctx.bound_js()` and `ctx.call_bound_js()`
+
+Some components expose imperative methods that can be called from Python. For example, a canvas component might expose `clearCanvas()`, `undo()`, or `loadPaths()` methods. Refast provides two ways to call these methods:
+
+#### `ctx.bound_js()` - For Event Handlers (No Server Roundtrip)
+
+Use `ctx.bound_js()` to call component methods directly from event handlers without a server roundtrip. This is similar to `ctx.js()` but specifically for calling methods on components:
+
+```python
+from refast import RefastApp, Context
+from refast_sketch_canvas import SketchCanvas  # Example extension component
+
+ui = RefastApp()
+
+@ui.page("/")
+def canvas_page(ctx: Context):
+    return Container(
+        children=[
+            # Canvas component with an ID
+            SketchCanvas(id="my-canvas", width="600px", height="400px"),
+            
+            # Control buttons that call canvas methods directly
+            HStack(
+                children=[
+                    Button("Clear", on_click=ctx.bound_js("my-canvas", "clearCanvas")),
+                    Button("Undo", on_click=ctx.bound_js("my-canvas", "undo")),
+                    Button("Redo", on_click=ctx.bound_js("my-canvas", "redo")),
+                    
+                    # Method with arguments
+                    Button(
+                        "Eraser On",
+                        on_click=ctx.bound_js("my-canvas", "eraseMode", erase=True)
+                    ),
+                    Button(
+                        "Eraser Off",
+                        on_click=ctx.bound_js("my-canvas", "eraseMode", erase=False)
+                    ),
+                ]
+            ),
+        ]
+    )
+```
+
+#### `ctx.call_bound_js()` - For Server-Side Callbacks (With Server Roundtrip)
+
+Use `ctx.call_bound_js()` when you need to call component methods from within a Python callback, typically after some server-side processing:
+
+```python
+async def load_saved_drawing(ctx: Context):
+    """Load a saved drawing from the database."""
+    drawing_id = ctx.event_data.get("drawing_id")
+    
+    # Fetch paths from database
+    paths = await database.get_drawing(drawing_id)
+    
+    # Load the paths into the canvas
+    await ctx.call_bound_js("my-canvas", "loadPaths", paths=paths)
+    
+    await ctx.show_toast("Drawing loaded!", variant="success")
+
+
+async def clear_and_save_state(ctx: Context):
+    """Clear canvas and update server state."""
+    # Clear the canvas
+    await ctx.call_bound_js("my-canvas", "clearCanvas")
+    
+    # Update server state
+    ctx.state.set("canvas_cleared", True)
+    await ctx.push_update()
+
+
+@ui.page("/")
+def canvas_page(ctx: Context):
+    return Container(
+        children=[
+            SketchCanvas(id="my-canvas"),
+            Button("Load Saved", on_click=ctx.callback(load_saved_drawing)),
+            Button("Clear & Save", on_click=ctx.callback(clear_and_save_state)),
+        ]
+    )
+```
+
+#### When to Use Each Method
+
+| Method | Use Case | Server Roundtrip |
+|--------|----------|------------------|
+| `ctx.bound_js()` | Simple UI interactions (clear, undo, toggle) | No |
+| `ctx.call_bound_js()` | After server processing (load data, save state) | Yes |
+
+#### Creating Components with Bound Methods
+
+For components to support `ctx.bound_js()` and `ctx.call_bound_js()`, they must expose methods on their wrapper DOM element. See [Exposing Component Methods](#exposing-component-methods) in the Frontend React Component section below.
+
 ---
 
 ## Creating the Frontend React Component
@@ -699,6 +796,214 @@ import { Rating } from './shadcn/rating';
 // Register in the registry (near the end)
 componentRegistry.register('Rating', Rating);
 ```
+
+### Exposing Component Methods
+
+To allow Python code to call methods on your component using `ctx.bound_js()` or `ctx.call_bound_js()`, you need to expose those methods on the wrapper DOM element. This pattern is essential for components with imperative APIs (like canvas, video players, or rich text editors).
+
+#### Basic Pattern
+
+Use `useRef`, `useEffect`, and optionally `useImperativeHandle` to expose methods:
+
+```tsx
+import React, { forwardRef, useRef, useEffect, useImperativeHandle } from 'react';
+
+// Define the methods your component exposes
+export interface MyComponentRef {
+  clear: () => void;
+  reset: () => void;
+  getValue: () => string;
+  setValue: (value: string) => void;
+}
+
+interface MyComponentProps {
+  id?: string;
+  className?: string;
+  initialValue?: string;
+  'data-refast-id'?: string;
+}
+
+export const MyComponent = forwardRef<MyComponentRef | null, MyComponentProps>(
+  ({ id, className, initialValue = '', 'data-refast-id': dataRefastId }, ref) => {
+    // Reference to the inner component or state
+    const internalRef = useRef<HTMLInputElement>(null);
+    // Reference to the wrapper div that will have methods attached
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const [value, setValue] = React.useState(initialValue);
+
+    // Define the imperative methods
+    const clear = () => setValue('');
+    const reset = () => setValue(initialValue);
+    const getValue = () => value;
+    const setValueMethod = (newValue: string) => setValue(newValue);
+
+    // Expose methods via useImperativeHandle (for React refs)
+    useImperativeHandle(ref, () => ({
+      clear,
+      reset,
+      getValue,
+      setValue: setValueMethod,
+    }));
+
+    // CRITICAL: Attach methods to the wrapper DOM element
+    // This allows ctx.bound_js() and ctx.call_bound_js() to find and call them
+    useEffect(() => {
+      const wrapper = wrapperRef.current;
+      if (wrapper) {
+        // Attach each method to the DOM element
+        (wrapper as any).clear = clear;
+        (wrapper as any).reset = reset;
+        (wrapper as any).getValue = getValue;
+        (wrapper as any).setValue = setValueMethod;
+      }
+      
+      // Cleanup: remove methods when component unmounts
+      return () => {
+        if (wrapper) {
+          delete (wrapper as any).clear;
+          delete (wrapper as any).reset;
+          delete (wrapper as any).getValue;
+          delete (wrapper as any).setValue;
+        }
+      };
+    }, [value, initialValue]); // Re-attach if dependencies change
+
+    return (
+      <div
+        ref={wrapperRef}
+        id={id}  // IMPORTANT: The id is used by ctx.bound_js() to find this element
+        className={className}
+        data-refast-id={dataRefastId}
+      >
+        <input
+          ref={internalRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </div>
+    );
+  }
+);
+
+MyComponent.displayName = 'MyComponent';
+```
+
+#### Complete Example: SketchCanvas Component
+
+Here's a real-world example from the `refast-sketch-canvas` extension:
+
+```tsx
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import { ReactSketchCanvas, type ReactSketchCanvasRef } from 'react-sketch-canvas';
+
+export interface SketchCanvasProps {
+  id?: string;
+  className?: string;
+  strokeColor?: string;
+  // ... other props
+  'data-refast-id'?: string;
+}
+
+export const SketchCanvas = forwardRef<ReactSketchCanvasRef | null, SketchCanvasProps>(
+  ({ id, className, strokeColor = 'black', 'data-refast-id': dataRefastId, ...props }, ref) => {
+    const canvasRef = useRef<ReactSketchCanvasRef>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // Expose methods via useImperativeHandle (for React refs)
+    useImperativeHandle(ref, () => ({
+      clearCanvas: () => canvasRef.current?.clearCanvas(),
+      undo: () => canvasRef.current?.undo(),
+      redo: () => canvasRef.current?.redo(),
+      resetCanvas: () => canvasRef.current?.resetCanvas(),
+      eraseMode: (erase: boolean) => canvasRef.current?.eraseMode(erase),
+      exportImage: (imageType: "jpeg" | "png") => canvasRef.current?.exportImage(imageType),
+      exportPaths: () => canvasRef.current?.exportPaths(),
+      loadPaths: (paths: any[]) => canvasRef.current?.loadPaths(paths),
+    } as any));
+
+    // Attach methods to the DOM element for ctx.bound_js() / ctx.call_bound_js()
+    React.useEffect(() => {
+      const wrapper = wrapperRef.current;
+      if (wrapper && canvasRef.current) {
+        (wrapper as any).clearCanvas = () => canvasRef.current?.clearCanvas();
+        (wrapper as any).undo = () => canvasRef.current?.undo();
+        (wrapper as any).redo = () => canvasRef.current?.redo();
+        (wrapper as any).resetCanvas = () => canvasRef.current?.resetCanvas();
+        (wrapper as any).eraseMode = (erase: boolean) => canvasRef.current?.eraseMode(erase);
+        (wrapper as any).exportImage = (imageType: "jpeg" | "png") => 
+          canvasRef.current?.exportImage(imageType);
+        (wrapper as any).exportPaths = () => canvasRef.current?.exportPaths();
+        (wrapper as any).loadPaths = (paths: any[]) => canvasRef.current?.loadPaths(paths);
+      }
+    }, []);
+
+    return (
+      <div 
+        ref={wrapperRef}
+        id={id}  // Required for ctx.bound_js() to find this element
+        className={className}
+        data-refast-id={dataRefastId}
+      >
+        <ReactSketchCanvas
+          ref={canvasRef}
+          strokeColor={strokeColor}
+          {...props}
+        />
+      </div>
+    );
+  }
+);
+
+SketchCanvas.displayName = 'SketchCanvas';
+```
+
+#### Documenting Component Methods
+
+Components should document their available methods in the Python component class docstring:
+
+```python
+class SketchCanvas(Component):
+    """
+    Canvas component for drawing and sketching.
+    
+    Example:
+        ```python
+        SketchCanvas(
+            id="my-canvas",
+            stroke_color="blue",
+            stroke_width=4,
+        )
+        ```
+    
+    Bound Methods (for ctx.bound_js() / ctx.call_bound_js()):
+        - clearCanvas(): Clear all drawings from the canvas
+        - undo(): Undo the last stroke
+        - redo(): Redo the last undone stroke
+        - resetCanvas(): Reset the canvas to initial state
+        - eraseMode(erase: bool): Toggle eraser mode
+        - exportImage(imageType: str): Export as "jpeg" or "png"
+        - exportPaths(): Export drawing paths as JSON
+        - loadPaths(paths: list): Load paths into the canvas
+    
+    Args:
+        id: Component ID (required for bound method calls)
+        stroke_color: Color of the stroke
+        stroke_width: Width of the stroke
+        # ... other args
+    """
+```
+
+#### Key Points
+
+1. **Wrapper Element ID**: The `id` prop must be set on the wrapper element that has the methods attached. This is how `ctx.bound_js()` finds the element.
+
+2. **Method Attachment**: Methods are attached to the DOM element in a `useEffect` hook. This ensures they're available after the component mounts.
+
+3. **Cleanup**: Remove methods in the cleanup function to prevent memory leaks and stale references.
+
+4. **Dependency Array**: Include any values that methods depend on in the `useEffect` dependency array to ensure methods use current values.
+
+5. **TypeScript**: Use `(element as any)` to bypass TypeScript's type checking when attaching methods to DOM elements, since DOM elements don't natively have custom methods.
 
 ---
 
@@ -1689,43 +1994,159 @@ export default defineConfig({
 
 ### Step 6: Configure pyproject.toml
 
-Add the entry point for auto-discovery:
+Use Hatchling with a custom build hook to automatically build the frontend during package installation:
 
 ```toml
 # pyproject.toml
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "my-refast-extension"
 version = "0.1.0"
 description = "My custom Refast extension"
 readme = "README.md"
+authors = [
+  { name = "Your Name", email = "your.email@example.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 requires-python = ">=3.10"
 dependencies = [
     "refast>=0.1.0",
 ]
 
+[project.urls]
+"Homepage" = "https://github.com/yourusername/my-refast-extension"
+
 # Entry point for auto-discovery by Refast
 [project.entry-points."refast.extensions"]
 my_extension = "my_refast_extension:MyExtension"
 
-[tool.setuptools.package-data]
-my_refast_extension = ["static/*"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/my_refast_extension"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "frontend/",
+    "README.md",
+    "pyproject.toml",
+    "hatch_build.py",
+]
+
+[tool.hatch.build.hooks.custom]
+# Custom build hook defined in hatch_build.py
+# Runs npm install && npm run build before packaging
+path = "hatch_build.py"
+```
+
+### Step 7: Create the Build Hook
+
+The build hook automatically compiles frontend assets when the package is built:
+
+```python
+# hatch_build.py
+"""Custom Hatch build hook to build frontend assets before packaging."""
+
+import os
+import subprocess
+from pathlib import Path
+from typing import Any
+
+from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+
+class CustomBuildHook(BuildHookInterface):
+    """Build hook that compiles the React frontend before packaging."""
+
+    PLUGIN_NAME = "custom"
+
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+        """
+        Build the frontend assets before the package is built.
+
+        This hook runs `npm install` and `npm run build` in the frontend
+        directory to compile the React components into a UMD bundle.
+        """
+        root = Path(self.root)
+        frontend_dir = root / "frontend"
+        static_dir = root / "src" / "my_refast_extension" / "static"
+
+        # Skip if we're in an sdist (source already built) or static exists
+        if not frontend_dir.exists():
+            self.app.display_info("Frontend directory not found, skipping build")
+            return
+
+        # Check if npm is available
+        npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
+        
+        try:
+            subprocess.run(
+                [npm_cmd, "--version"],
+                check=True,
+                capture_output=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            if static_dir.exists() and any(static_dir.iterdir()):
+                self.app.display_info(
+                    "npm not found but static files exist, skipping build"
+                )
+                return
+            raise RuntimeError(
+                "npm is required to build the frontend. "
+                "Please install Node.js or pre-build the frontend."
+            )
+
+        self.app.display_info("Installing frontend dependencies...")
+        subprocess.run(
+            [npm_cmd, "install"],
+            cwd=frontend_dir,
+            check=True,
+            shell=(os.name == "nt"),
+        )
+
+        self.app.display_info("Building frontend assets...")
+        subprocess.run(
+            [npm_cmd, "run", "build"],
+            cwd=frontend_dir,
+            check=True,
+            shell=(os.name == "nt"),
+        )
+
+        # Verify build output exists
+        if not static_dir.exists() or not any(static_dir.iterdir()):
+            raise RuntimeError(
+                f"Frontend build did not produce output in {static_dir}"
+            )
+
+        self.app.display_info("Frontend build complete!")
 ```
 
 ### Building and Installing
 
+With the hatch build hook, the frontend is built automatically:
+
 ```bash
-# Build frontend
+# Install package locally (builds frontend automatically)
+pip install -e .
+
+# Or build a wheel/sdist distribution
+pip install build
+python -m build
+```
+
+For development, you can also build the frontend manually:
+
+```bash
+# Build frontend manually
 cd frontend
 npm install
 npm run build  # Outputs to src/my_refast_extension/static/
-
-# Install package locally
-cd ..
-pip install -e .
 ```
 
 ### Using the Extension
@@ -1770,9 +2191,31 @@ ui = RefastApp(
 
 5. **Error Handling**: Log clear error messages if RefastClient is not available.
 
-6. **Static Assets**: Place built assets in `static/` directory and configure `package-data` in pyproject.toml.
+6. **Static Assets**: Place built assets in `static/` directory and configure the hatch build hook for automatic compilation.
 
 7. **Documentation**: Include docstrings in Python components and document all props in your README.
+
+8. **Hatch Build Hook**: Use a custom hatch build hook to automatically compile frontend assets during package installation.
+
+### Cookiecutter Template
+
+For the fastest way to create a new Refast extension, use the cookiecutter template:
+
+```bash
+# Install cookiecutter
+pip install cookiecutter
+
+# Generate a new extension
+cookiecutter gh:idling-mind/refast-extension-template
+```
+
+The template includes:
+- Full project structure with Python backend and React frontend
+- Hatch build system with automatic frontend compilation
+- Entry point for auto-discovery by Refast
+- TypeScript + Vite configuration
+- Example component with proper prop handling and bound methods
+- Optional example app demonstrating usage
 
 ### Complete Example: refast-sketch-canvas
 

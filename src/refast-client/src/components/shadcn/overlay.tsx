@@ -541,7 +541,6 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
   onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
-  trigger?: React.ReactNode;
 }
 
 export function Drawer({
@@ -549,18 +548,21 @@ export function Drawer({
   onOpenChange,
   title,
   description,
-  trigger,
   className,
   children,
   ...props
 }: DrawerProps) {
+  // Compositional API usage: when children provided, render them inside the Root
+  if (children && React.Children.count(children) > 0) {
+    return (
+      <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+        {children}
+      </DialogPrimitive.Root>
+    );
+  }
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      {trigger && (
-        <DialogPrimitive.Trigger asChild>
-          {trigger}
-        </DialogPrimitive.Trigger>
-      )}
+      {/* Removed trigger usage as it is deprecated */}
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className={cn(
@@ -595,6 +597,119 @@ export function Drawer({
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
+  );
+}
+
+// ============================================================================
+// Drawer (Compositional API)
+// ============================================================================
+
+export interface DrawerTriggerProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function DrawerTrigger({
+  asChild = true,
+  className,
+  children,
+}: DrawerTriggerProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  const shouldUseAsChild = asChild && !!singleChild;
+
+  return (
+    <DialogPrimitive.Trigger asChild={shouldUseAsChild} className={className}>
+      {shouldUseAsChild ? singleChild : children}
+    </DialogPrimitive.Trigger>
+  );
+}
+
+export interface DrawerContentProps extends ChildrenProp {
+  className?: string;
+}
+
+export function DrawerContent({ className, children }: DrawerContentProps) {
+  return (
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Overlay
+        className={cn(
+          'fixed inset-0 z-50 bg-black/80',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+        )}
+      />
+      <DialogPrimitive.Content
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+          className
+        )}
+      >
+        <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+        <div className="p-4">{children}</div>
+      </DialogPrimitive.Content>
+    </DialogPrimitive.Portal>
+  );
+}
+
+export interface DrawerHeaderProps extends ChildrenProp {
+  className?: string;
+}
+
+export function DrawerHeader({ className, children }: DrawerHeaderProps) {
+  return <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}>{children}</div>;
+}
+
+export interface DrawerFooterProps extends ChildrenProp {
+  className?: string;
+}
+
+export function DrawerFooter({ className, children }: DrawerFooterProps) {
+  return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}>{children}</div>;
+}
+
+export interface DrawerTitleProps extends ChildrenProp {
+  title?: string;
+  className?: string;
+}
+
+export function DrawerTitle({ title, className, children }: DrawerTitleProps) {
+  return (
+    <DialogPrimitive.Title className={cn('text-lg font-semibold text-foreground', className)}>
+      {title || children}
+    </DialogPrimitive.Title>
+  );
+}
+
+export interface DrawerDescriptionProps extends ChildrenProp {
+  description?: string;
+  className?: string;
+}
+
+export function DrawerDescription({ description, className, children }: DrawerDescriptionProps) {
+  return (
+    <DialogPrimitive.Description className={cn('text-sm text-muted-foreground', className)}>
+      {description || children}
+    </DialogPrimitive.Description>
+  );
+}
+
+export interface DrawerCloseProps extends ChildrenProp {
+  asChild?: boolean;
+  className?: string;
+}
+
+export function DrawerClose({ asChild = true, className, children }: DrawerCloseProps) {
+  const childrenArray = React.Children.toArray(children);
+  const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
+  const shouldUseAsChild = asChild && !!singleChild;
+
+  return (
+    <DialogPrimitive.Close asChild={shouldUseAsChild} className={className}>
+      {shouldUseAsChild ? singleChild : children}
+    </DialogPrimitive.Close>
   );
 }
 

@@ -686,11 +686,19 @@ def home(ctx: Context):
                                             DrawerContent(
                                                 [
                                                     DrawerHeader(
-                                                        DrawerTitle("Move Goal"),
+                                                        [
+                                                            DrawerTitle("Move Goal"),
+                                                            DrawerDescription("Set your Daily activity Goal")
+                                                        ]
+                                                    ),
+                                                    Container(
+                                                        [Text("Here is the drawer content")],
+                                                        class_name="mt-8"
                                                     )
                                                 ]
                                             ),
-                                        ]
+                                        ],
+                                        on_open_change=ctx.js("console.log('Drawer changed', event);")
                                     ),
                                 ],
                             ),
@@ -741,9 +749,11 @@ def home(ctx: Context):
                                                             CardContent(
                                                                 children=[
                                                                     Text(
-                                                                        "Hidden content revealed!"
+                                                                        "Hidden content revealed!",
+                                                                        class_name="font-medium"
                                                                     ),
-                                                                ]
+                                                                ],
+                                                                class_name="p-8"
                                                             ),
                                                         ],
                                                     ),

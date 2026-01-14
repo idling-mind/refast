@@ -12,6 +12,13 @@ from refast.components.shadcn.overlay import (
     DialogTitle,
     DialogTrigger,
     Drawer,
+    DrawerTrigger,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerClose,
     HoverCard,
     Popover,
     Sheet,
@@ -162,6 +169,36 @@ class TestDrawer:
         drawer = Drawer(on_open_change=cb)
         rendered = drawer.render()
         assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
+
+    def test_drawer_compositional_children(self):
+        """Test Drawer with composition-based children."""
+        drawer = Drawer(
+            children=[
+                DrawerTrigger(children=Button(label="Open")),
+                DrawerContent(
+                    children=[
+                        DrawerHeader(
+                            children=[
+                                DrawerTitle(title="Title"),
+                                DrawerDescription(description="Desc"),
+                            ]
+                        ),
+                        DrawerFooter(children=[Button(label="Submit")]),
+                    ]
+                ),
+            ]
+        )
+        rendered = drawer.render()
+        assert rendered["type"] == "Drawer"
+        assert len(rendered["children"]) == 2
+        assert rendered["children"][0]["type"] == "DrawerTrigger"
+        assert rendered["children"][1]["type"] == "DrawerContent"
+
+    def test_drawer_close_renders(self):
+        """Test DrawerClose renders correctly."""
+        close = DrawerClose()
+        rendered = close.render()
+        assert rendered["type"] == "DrawerClose"
 
 
 class TestHoverCard:

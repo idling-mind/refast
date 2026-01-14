@@ -100,9 +100,40 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
     onOpenChange?: (open: boolean) => void;
     title?: string;
     description?: string;
-    trigger?: React.ReactNode;
 }
-export declare function Drawer({ open, onOpenChange, title, description, trigger, className, children, ...props }: DrawerProps): import("react/jsx-runtime").JSX.Element;
+export declare function Drawer({ open, onOpenChange, title, description, className, children, ...props }: DrawerProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerTriggerProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function DrawerTrigger({ asChild, className, children, }: DrawerTriggerProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerContentProps extends ChildrenProp {
+    className?: string;
+}
+export declare function DrawerContent({ className, children }: DrawerContentProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerHeaderProps extends ChildrenProp {
+    className?: string;
+}
+export declare function DrawerHeader({ className, children }: DrawerHeaderProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerFooterProps extends ChildrenProp {
+    className?: string;
+}
+export declare function DrawerFooter({ className, children }: DrawerFooterProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerTitleProps extends ChildrenProp {
+    title?: string;
+    className?: string;
+}
+export declare function DrawerTitle({ title, className, children }: DrawerTitleProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerDescriptionProps extends ChildrenProp {
+    description?: string;
+    className?: string;
+}
+export declare function DrawerDescription({ description, className, children }: DrawerDescriptionProps): import("react/jsx-runtime").JSX.Element;
+export interface DrawerCloseProps extends ChildrenProp {
+    asChild?: boolean;
+    className?: string;
+}
+export declare function DrawerClose({ asChild, className, children }: DrawerCloseProps): import("react/jsx-runtime").JSX.Element;
 export interface HoverCardProps extends BaseProps, ChildrenProp {
     trigger?: React.ReactNode;
     openDelay?: number;

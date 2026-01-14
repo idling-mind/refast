@@ -36,9 +36,10 @@ import {
 import {
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter,
   DialogTitle, DialogDescription, DialogAction, DialogCancel,
+  Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger,
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
   SheetTitle, SheetDescription, SheetClose,
-  Drawer, HoverCard, HoverCardTrigger, HoverCardContent,
+  HoverCard, HoverCardTrigger, HoverCardContent,
   Popover, PopoverTrigger, PopoverContent,
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
@@ -279,6 +280,13 @@ componentRegistry.register('SheetTitle', SheetTitle);
 componentRegistry.register('SheetDescription', SheetDescription);
 componentRegistry.register('SheetClose', SheetClose);
 componentRegistry.register('Drawer', Drawer);
+componentRegistry.register('DrawerTrigger', DrawerTrigger);
+componentRegistry.register('DrawerContent', DrawerContent);
+componentRegistry.register('DrawerHeader', DrawerHeader);
+componentRegistry.register('DrawerFooter', DrawerFooter);
+componentRegistry.register('DrawerTitle', DrawerTitle);
+componentRegistry.register('DrawerDescription', DrawerDescription);
+componentRegistry.register('DrawerClose', DrawerClose);
 componentRegistry.register('HoverCard', HoverCard);
 componentRegistry.register('HoverCardTrigger', HoverCardTrigger);
 componentRegistry.register('HoverCardContent', HoverCardContent);

@@ -68,6 +68,9 @@ from refast.components import (
     PopoverContent,
     PopoverTrigger,
     RadioGroup,
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
     Row,
     ScrollArea,
     # Utility
@@ -380,7 +383,7 @@ def home(ctx: Context):
                                                 placeholder="Select date range",
                                                 caption_layout="dropdown",
                                                 min_date="2024-01-01",
-                                                max_date="2024-12-31"
+                                                max_date="2024-12-31",
                                             ),
                                             Textarea(
                                                 name="message",
@@ -794,7 +797,7 @@ def home(ctx: Context):
                 children=[
                     CardHeader(
                         children=[
-                            CardTitle("New Components"),
+                            CardTitle("More Components"),
                             CardDescription("Image, Markdown, CheckboxGroup, and RadioGroup"),
                         ]
                     ),
@@ -815,6 +818,7 @@ def home(ctx: Context):
                                             Row(
                                                 gap=4,
                                                 wrap=True,
+                                                justify="center",
                                                 children=[
                                                     Column(
                                                         gap=1,
@@ -824,7 +828,7 @@ def home(ctx: Context):
                                                                 alt="Mountain landscape",
                                                                 width=300,
                                                                 height=200,
-                                                                fit="cover",
+                                                                object_fit="cover",
                                                                 loading=True,
                                                                 class_name="rounded-md",
                                                             ),
@@ -857,13 +861,13 @@ def home(ctx: Context):
                                                             Image(
                                                                 src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=300&h=200&fit=crop",
                                                                 alt="Lake view",
-                                                                width=300,
+                                                                width=200,
                                                                 height=200,
-                                                                fit="contain",
+                                                                object_fit="contain",
                                                                 class_name="rounded-md bg-muted",
                                                             ),
                                                             Text(
-                                                                "fit=contain",
+                                                                "object_fit=contain",
                                                                 class_name="text-xs text-muted-foreground",
                                                             ),
                                                         ],
@@ -908,9 +912,7 @@ Inline math: $E = mc^2$
 
 Display math:
 
-$$
-\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
-$$
+$$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
 
 | Feature | Status |
 |---------|--------|
@@ -1045,6 +1047,62 @@ $$
                 class_name="mt-8",
                 children=[
                     render_pagination(ctx, current_page),
+                ],
+            ),
+            Container(
+                [
+                    Text("Resizable Panels Example", class_name="text-lg font-medium"),
+                    ResizablePanelGroup(
+                        direction="horizontal",
+                        children=[
+                            ResizablePanel(
+                                min_size=20,
+                                default_size=50,
+                                children=[Text("Resizable Panel 1 (50%)")],
+                                class_name="bg-card p-4",
+                            ),
+                            ResizableHandle(with_handle=True),
+                            ResizablePanel(
+                                min_size=20,
+                                default_size=50,
+                                children=[
+                                    ResizablePanelGroup(
+                                        direction="vertical",
+                                        children=[
+                                            ResizablePanel(
+                                                min_size=20,
+                                                default_size=70,
+                                                children=[Text("Resizable Panel 2 (70%)")],
+                                                class_name="bg-card p-4",
+                                            ),
+                                            ResizableHandle(with_handle=True),
+                                            ResizablePanel(
+                                                min_size=20,
+                                                default_size=30,
+                                                children=[Text("Resizable Panel 3 (30%)")],
+                                                class_name="bg-card p-4",
+                                            ),
+                                        ],
+                                        style={"height": "400px", "width": "100%"},
+                                    )
+                                ],
+                                class_name="bg-card",
+                            ),
+                        ],
+                        class_name="border rounded-lg",
+                        style={"width": "100%"},
+                    )
+                ],
+                class_name="mt-8 w-full",
+            ),
+            Row(
+                justify="center",
+                class_name="my-8",
+                children=[
+                    Text(
+                        "© 2024 Refast Framework. All rights reserved.",
+                        class_name="text-sm text-muted-foreground",
+                    )
                 ],
             ),
         ],

@@ -628,7 +628,7 @@ class Image(Component):
             alt="A beautiful photo",
             width=400,
             height=300,
-            fit="cover",
+            object_fit="cover",
             loading=True,
             fallback_src="/images/placeholder.jpg",
         )
@@ -639,7 +639,7 @@ class Image(Component):
         alt: Alternative text for the image.
         width: Width of the image (number in pixels or CSS string).
         height: Height of the image (number in pixels or CSS string).
-        fit: Object fit style - how the image should be resized to fit its container.
+        object_fit: Object fit style - how the image should be resized to fit its container.
         loading: Whether to show a loading skeleton while the image loads.
         fallback_src: Fallback image URL to show if the main image fails to load.
     """
@@ -652,7 +652,7 @@ class Image(Component):
         alt: str = "",
         width: int | str | None = None,
         height: int | str | None = None,
-        fit: Literal["contain", "cover", "fill", "none", "scale-down"] = "cover",
+        object_fit: Literal["contain", "cover", "fill", "none", "scale-down"] = "cover",
         loading: bool = False,
         fallback_src: str | None = None,
         id: str | None = None,
@@ -664,7 +664,7 @@ class Image(Component):
         self.alt = alt
         self.width = width
         self.height = height
-        self.fit = fit
+        self.object_fit = object_fit
         self.loading = loading
         self.fallback_src = fallback_src
 
@@ -677,7 +677,7 @@ class Image(Component):
                 "alt": self.alt,
                 "width": self.width,
                 "height": self.height,
-                "object_fit": self.fit,
+                "object_fit": self.object_fit,
                 "loading": self.loading,
                 "fallback_src": self.fallback_src,
                 "class_name": self.class_name,

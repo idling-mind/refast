@@ -275,7 +275,7 @@ class TestImage:
     def test_image_object_fit(self):
         """Test Image object fit options."""
         for fit in ["contain", "cover", "fill", "none", "scale-down"]:
-            img = Image(src="/photo.jpg", fit=fit)
+            img = Image(src="/photo.jpg", object_fit=fit)
             rendered = img.render()
             assert rendered["props"]["object_fit"] == fit
 

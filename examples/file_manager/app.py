@@ -13,15 +13,15 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -721,9 +721,9 @@ def home(ctx: Context):
                                                         size="sm",
                                                         on_click=ctx.callback(paste_items),
                                                     ),
-                                                    AlertDialog(
+                                                    Dialog(
                                                         children=[
-                                                            AlertDialogTrigger(
+                                                            DialogTrigger(
                                                                 children=Button(
                                                                     label="Delete",
                                                                     variant="destructive",
@@ -732,24 +732,24 @@ def home(ctx: Context):
                                                                     == 0,
                                                                 )
                                                             ),
-                                                            AlertDialogContent(
+                                                            DialogContent(
                                                                 children=[
-                                                                    AlertDialogHeader(
+                                                                    DialogHeader(
                                                                         children=[
-                                                                            AlertDialogTitle(
+                                                                            DialogTitle(
                                                                                 title="Delete Items"
                                                                             ),
-                                                                            AlertDialogDescription(
+                                                                            DialogDescription(
                                                                                 description=f"Are you sure you want to delete {len(selected_items)} item(s)? This action cannot be undone."
                                                                             ),
                                                                         ]
                                                                     ),
-                                                                    AlertDialogFooter(
+                                                                    DialogFooter(
                                                                         children=[
-                                                                            AlertDialogCancel(
+                                                                            DialogCancel(
                                                                                 label="Cancel"
                                                                             ),
-                                                                            AlertDialogAction(
+                                                                            DialogAction(
                                                                                 label="Delete",
                                                                                 on_click=ctx.callback(
                                                                                     delete_items

@@ -3,7 +3,7 @@
 This example demonstrates:
 - Controls: Switch, Slider, Toggle, Calendar, DatePicker, Combobox
 - Navigation: Breadcrumb, Tabs, Pagination, Menubar
-- Overlays: AlertDialog, Sheet, Drawer, Popover, HoverCard
+- Overlays: Dialog, Sheet, Drawer, Popover, HoverCard
 - Utility: Separator, AspectRatio, ScrollArea, Collapsible, Carousel
 - New: Image, Markdown, CheckboxGroup, RadioGroup
 """
@@ -15,15 +15,15 @@ from fastapi import FastAPI
 from refast import Context, RefastApp
 from refast.components import (
     # Overlays
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
     AspectRatio,
     Avatar,
     # Feedback
@@ -82,7 +82,6 @@ from refast.components import (
     SheetTitle,
     SheetTrigger,
     Slider,
-    Spacer,
     # Controls
     Switch,
     TabItem,
@@ -440,7 +439,6 @@ def home(ctx: Context):
                                                             on_toggle_change
                                                         ),
                                                     ),
-                                                    Spacer(size=2),
                                                     ToggleGroup(
                                                         type="multiple",
                                                         default_value={"home": True},
@@ -521,30 +519,30 @@ def home(ctx: Context):
                                 wrap=True,
                                 children=[
                                     # Alert Dialog
-                                    AlertDialog(
+                                    Dialog(
                                         children=[
-                                            AlertDialogTrigger(
+                                            DialogTrigger(
                                                 as_child=True,
                                                 children=Button(
                                                     label="Delete Item", variant="destructive"
                                                 ),
                                             ),
-                                            AlertDialogContent(
+                                            DialogContent(
                                                 children=[
-                                                    AlertDialogHeader(
+                                                    DialogHeader(
                                                         children=[
-                                                            AlertDialogTitle(
+                                                            DialogTitle(
                                                                 title="Are you absolutely sure?"
                                                             ),
-                                                            AlertDialogDescription(
+                                                            DialogDescription(
                                                                 description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
                                                             ),
                                                         ]
                                                     ),
-                                                    AlertDialogFooter(
+                                                    DialogFooter(
                                                         children=[
-                                                            AlertDialogCancel(label="Cancel"),
-                                                            AlertDialogAction(
+                                                            DialogCancel(label="Cancel"),
+                                                            DialogAction(
                                                                 label="Delete",
                                                                 on_click=ctx.callback(
                                                                     on_confirm_delete

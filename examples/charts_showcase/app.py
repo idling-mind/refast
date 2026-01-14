@@ -1,3 +1,4 @@
+import asyncio
 import uvicorn
 from fastapi import FastAPI
 import random
@@ -189,13 +190,21 @@ async def update_chart_data(ctx: Context):
     # For now, it just prints the event data
     new_data = get_data()
     await ctx.update_props("area-chart", {"data": new_data["area_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("bar-chart", {"data": new_data["bar_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("line-chart", {"data": new_data["line_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("pie-chart", {"data": new_data["pie_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("radar-chart", {"data": new_data["radar_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("radial-bar-chart", {"data": new_data["radial_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("scatter-chart", {"data": new_data["scatter_data"]})
+    await asyncio.sleep(1)
     await ctx.update_props("composed-chart", {"data": new_data["composed_data"]})
+    await asyncio.sleep(1)
     await ctx.show_toast("Chart data updated", variant="success")
 
 @ui.page("/")

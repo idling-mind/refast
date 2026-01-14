@@ -78,6 +78,7 @@ class Column(Component):
         justify: Literal["start", "end", "center", "between", "around", "evenly"] = "start",
         align: Literal["start", "end", "center", "stretch", "baseline"] = "stretch",
         gap: int | str = 0,
+        wrap: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -88,6 +89,7 @@ class Column(Component):
         self.justify = justify
         self.align = align
         self.gap = gap
+        self.wrap = wrap
 
     def render(self) -> dict[str, Any]:
         return {
@@ -97,44 +99,7 @@ class Column(Component):
                 "justify": self.justify,
                 "align": self.align,
                 "gap": self.gap,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
-            "children": self._render_children(),
-        }
-
-
-class Stack(Component):
-    """
-    Stack container with consistent spacing.
-
-    Similar to Column but with simpler API for common use cases.
-    """
-
-    component_type: str = "Stack"
-
-    def __init__(
-        self,
-        children: list[Component | str] | None = None,
-        spacing: int | str = 4,
-        direction: Literal["vertical", "horizontal"] = "vertical",
-        id: str | None = None,
-        class_name: str = "",
-        **props: Any,
-    ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
-        self.spacing = spacing
-        self.direction = direction
-
-    def render(self) -> dict[str, Any]:
-        return {
-            "type": self.component_type,
-            "id": self.id,
-            "props": {
-                "spacing": self.spacing,
-                "direction": self.direction,
+                "wrap": self.wrap,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -258,51 +223,5 @@ class Center(Component):
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
-        }
-
-
-class Spacer(Component):
-    """Flexible spacer that expands to fill available space."""
-
-    component_type: str = "Spacer"
-
-    def __init__(self, size: int | str | None = None, **props: Any):
-        super().__init__(**props)
-        self.size = size
-
-    def render(self) -> dict[str, Any]:
-        return {
-            "type": self.component_type,
-            "id": self.id,
-            "props": {"size": self.size, **self._serialize_extra_props()},
-            "children": [],
-        }
-
-
-class Divider(Component):
-    """Horizontal or vertical divider line."""
-
-    component_type: str = "Divider"
-
-    def __init__(
-        self,
-        orientation: Literal["horizontal", "vertical"] = "horizontal",
-        id: str | None = None,
-        class_name: str = "",
-        **props: Any,
-    ):
-        super().__init__(id=id, class_name=class_name, **props)
-        self.orientation = orientation
-
-    def render(self) -> dict[str, Any]:
-        return {
-            "type": self.component_type,
-            "id": self.id,
-            "props": {
-                "orientation": self.orientation,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
-            "children": [],
         }
 

@@ -66,6 +66,7 @@ interface ColumnProps {
   justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
   align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
   gap?: number | string;
+  wrap?: boolean;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -79,6 +80,7 @@ export function Column({
   justify = 'start',
   align = 'stretch',
   gap = 0,
+  wrap = false,
   children,
   'data-refast-id': dataRefastId,
 }: ColumnProps): React.ReactElement {
@@ -102,46 +104,8 @@ export function Column({
   return (
     <div
       id={id}
-      className={cn('flex flex-col', justifyClass, alignClass, className)}
+      className={cn('flex flex-col', justifyClass, alignClass, wrap && 'flex-wrap', className)}
       style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
-      data-refast-id={dataRefastId}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface StackProps {
-  id?: string;
-  className?: string;
-  spacing?: number | string;
-  direction?: 'vertical' | 'horizontal';
-  children?: React.ReactNode;
-  'data-refast-id'?: string;
-}
-
-/**
- * Stack component - flex container with spacing.
- */
-export function Stack({
-  id,
-  className,
-  spacing = 4,
-  direction = 'vertical',
-  children,
-  'data-refast-id': dataRefastId,
-}: StackProps): React.ReactElement {
-  return (
-    <div
-      id={id}
-      className={cn(
-        'flex',
-        direction === 'vertical' ? 'flex-col' : 'flex-row',
-        className
-      )}
-      style={{
-        gap: typeof spacing === 'number' ? `${spacing * 0.25}rem` : spacing,
-      }}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -233,55 +197,5 @@ export function Center({
     >
       {children}
     </div>
-  );
-}
-
-interface SpacerProps {
-  size?: number | string;
-  'data-refast-id'?: string;
-}
-
-/**
- * Spacer component - flexible space element.
- */
-export function Spacer({
-  size,
-  'data-refast-id': dataRefastId,
-}: SpacerProps): React.ReactElement {
-  return (
-    <div
-      className="flex-grow"
-      style={size ? { flexGrow: 0, flexBasis: typeof size === 'number' ? `${size * 0.25}rem` : size } : undefined}
-      data-refast-id={dataRefastId}
-    />
-  );
-}
-
-interface DividerProps {
-  id?: string;
-  orientation?: 'horizontal' | 'vertical';
-  className?: string;
-  'data-refast-id'?: string;
-}
-
-/**
- * Divider component - visual separator.
- */
-export function Divider({
-  id,
-  orientation = 'horizontal',
-  className,
-  'data-refast-id': dataRefastId,
-}: DividerProps): React.ReactElement {
-  return (
-    <div
-      id={id}
-      className={cn(
-        'bg-border',
-        orientation === 'horizontal' ? 'h-px w-full' : 'w-px h-full',
-        className
-      )}
-      data-refast-id={dataRefastId}
-    />
   );
 }

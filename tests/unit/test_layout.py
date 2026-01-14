@@ -4,12 +4,9 @@ from refast.components.base import Text
 from refast.components.shadcn.layout import (
     Center,
     Column,
-    Divider,
     Flex,
     Grid,
     Row,
-    Spacer,
-    Stack,
 )
 
 
@@ -60,23 +57,11 @@ class TestColumn:
         rendered = col.render()
         assert rendered["props"]["align"] == "stretch"
 
-
-class TestStack:
-    """Tests for Stack component."""
-
-    def test_stack_renders(self):
-        """Test Stack renders correctly."""
-        stack = Stack(spacing=8, direction="horizontal")
-        rendered = stack.render()
-        assert rendered["type"] == "Stack"
-        assert rendered["props"]["spacing"] == 8
-        assert rendered["props"]["direction"] == "horizontal"
-
-    def test_stack_default_vertical(self):
-        """Test Stack defaults to vertical."""
-        stack = Stack()
-        rendered = stack.render()
-        assert rendered["props"]["direction"] == "vertical"
+    def test_column_wrap(self):
+        """Test Column wrap prop."""
+        col = Column(wrap=True)
+        rendered = col.render()
+        assert rendered["props"]["wrap"] is True
 
 
 class TestGrid:
@@ -125,40 +110,6 @@ class TestCenter:
         rendered = center.render()
         assert rendered["type"] == "Center"
         assert len(rendered["children"]) == 1
-
-
-class TestSpacer:
-    """Tests for Spacer component."""
-
-    def test_spacer_renders(self):
-        """Test Spacer renders correctly."""
-        spacer = Spacer(size=20)
-        rendered = spacer.render()
-        assert rendered["type"] == "Spacer"
-        assert rendered["props"]["size"] == 20
-
-    def test_spacer_no_children(self):
-        """Test Spacer has no children."""
-        spacer = Spacer()
-        rendered = spacer.render()
-        assert rendered["children"] == []
-
-
-class TestDivider:
-    """Tests for Divider component."""
-
-    def test_divider_renders(self):
-        """Test Divider renders correctly."""
-        divider = Divider()
-        rendered = divider.render()
-        assert rendered["type"] == "Divider"
-        assert rendered["props"]["orientation"] == "horizontal"
-
-    def test_divider_vertical(self):
-        """Test Divider vertical orientation."""
-        divider = Divider(orientation="vertical")
-        rendered = divider.render()
-        assert rendered["props"]["orientation"] == "vertical"
 
 
 

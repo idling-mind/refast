@@ -154,7 +154,7 @@ class TestCheckbox:
         mock = MockCallback()
         cb = Checkbox(on_change=mock)
         rendered = cb.render()
-        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_checked_change"] == {"callbackId": "cb-123"}
 
 
 class TestRadio:
@@ -188,76 +188,66 @@ class TestCheckboxGroup:
 
     def test_checkbox_group_renders(self):
         """Test CheckboxGroup renders correctly."""
-        options = [
-            {"value": "apple", "label": "Apple"},
-            {"value": "banana", "label": "Banana"},
-            {"value": "orange", "label": "Orange"},
+        children = [
+            Checkbox(value="apple", label="Apple"),
+            Checkbox(value="banana", label="Banana"),
+            Checkbox(value="orange", label="Orange"),
         ]
-        cbg = CheckboxGroup(name="fruits", options=options)
+        cbg = CheckboxGroup(name="fruits", children=children)
         rendered = cbg.render()
         assert rendered["type"] == "CheckboxGroup"
         assert rendered["props"]["name"] == "fruits"
-        assert rendered["props"]["options"] == options
+        assert len(rendered["children"]) == 3
 
     def test_checkbox_group_with_label(self):
         """Test CheckboxGroup with label."""
         cbg = CheckboxGroup(
             name="fruits",
             label="Select fruits",
-            options=[{"value": "apple", "label": "Apple"}],
+            children=[Checkbox(value="apple", label="Apple")],
         )
         rendered = cbg.render()
         assert rendered["props"]["label"] == "Select fruits"
 
     def test_checkbox_group_with_selected_values(self):
         """Test CheckboxGroup with pre-selected values."""
-        options = [
-            {"value": "a", "label": "A"},
-            {"value": "b", "label": "B"},
-            {"value": "c", "label": "C"},
+        children = [
+            Checkbox(value="a", label="A"),
+            Checkbox(value="b", label="B"),
+            Checkbox(value="c", label="C"),
         ]
-        cbg = CheckboxGroup(name="letters", options=options, value=["a", "c"])
+        cbg = CheckboxGroup(name="letters", children=children, value=["a", "c"])
         rendered = cbg.render()
         assert rendered["props"]["value"] == ["a", "c"]
 
     def test_checkbox_group_empty_value(self):
         """Test CheckboxGroup with no selection defaults to empty list."""
-        cbg = CheckboxGroup(name="test", options=[])
+        cbg = CheckboxGroup(name="test")
         rendered = cbg.render()
         assert rendered["props"]["value"] == []
 
     def test_checkbox_group_orientation(self):
         """Test CheckboxGroup orientation options."""
-        cbg_v = CheckboxGroup(name="test", options=[], orientation="vertical")
+        cbg_v = CheckboxGroup(name="test", orientation="vertical")
         rendered_v = cbg_v.render()
         assert rendered_v["props"]["orientation"] == "vertical"
 
-        cbg_h = CheckboxGroup(name="test", options=[], orientation="horizontal")
+        cbg_h = CheckboxGroup(name="test", orientation="horizontal")
         rendered_h = cbg_h.render()
         assert rendered_h["props"]["orientation"] == "horizontal"
 
     def test_checkbox_group_disabled(self):
         """Test CheckboxGroup disabled state."""
-        cbg = CheckboxGroup(name="test", options=[], disabled=True)
+        cbg = CheckboxGroup(name="test", disabled=True)
         rendered = cbg.render()
         assert rendered["props"]["disabled"] is True
 
     def test_checkbox_group_with_callback(self):
         """Test CheckboxGroup with on_change callback."""
         cb = MockCallback()
-        cbg = CheckboxGroup(name="test", options=[], on_change=cb)
+        cbg = CheckboxGroup(name="test", on_change=cb)
         rendered = cbg.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
-
-    def test_checkbox_group_with_disabled_options(self):
-        """Test CheckboxGroup with individual disabled options."""
-        options = [
-            {"value": "a", "label": "A"},
-            {"value": "b", "label": "B", "disabled": True},
-        ]
-        cbg = CheckboxGroup(name="test", options=options)
-        rendered = cbg.render()
-        assert rendered["props"]["options"][1]["disabled"] is True
 
 
 class TestRadioGroup:
@@ -265,75 +255,65 @@ class TestRadioGroup:
 
     def test_radio_group_renders(self):
         """Test RadioGroup renders correctly."""
-        options = [
-            {"value": "male", "label": "Male"},
-            {"value": "female", "label": "Female"},
-            {"value": "other", "label": "Other"},
+        children = [
+            Radio(name="gender", value="male", label="Male"),
+            Radio(name="gender", value="female", label="Female"),
+            Radio(name="gender", value="other", label="Other"),
         ]
-        rg = RadioGroup(name="gender", options=options)
+        rg = RadioGroup(name="gender", children=children)
         rendered = rg.render()
         assert rendered["type"] == "RadioGroup"
         assert rendered["props"]["name"] == "gender"
-        assert rendered["props"]["options"] == options
+        assert len(rendered["children"]) == 3
 
     def test_radio_group_with_label(self):
         """Test RadioGroup with label."""
         rg = RadioGroup(
             name="gender",
             label="Select gender",
-            options=[{"value": "male", "label": "Male"}],
+            children=[Radio(name="gender", value="male", label="Male")],
         )
         rendered = rg.render()
         assert rendered["props"]["label"] == "Select gender"
 
     def test_radio_group_with_selected_value(self):
         """Test RadioGroup with pre-selected value."""
-        options = [
-            {"value": "a", "label": "A"},
-            {"value": "b", "label": "B"},
+        children = [
+            Radio(name="choice", value="a", label="A"),
+            Radio(name="choice", value="b", label="B"),
         ]
-        rg = RadioGroup(name="choice", options=options, value="b")
+        rg = RadioGroup(name="choice", children=children, value="b")
         rendered = rg.render()
         assert rendered["props"]["value"] == "b"
 
     def test_radio_group_no_value(self):
         """Test RadioGroup with no selection."""
-        rg = RadioGroup(name="test", options=[])
+        rg = RadioGroup(name="test")
         rendered = rg.render()
         assert rendered["props"]["value"] is None
 
     def test_radio_group_orientation(self):
         """Test RadioGroup orientation options."""
-        rg_v = RadioGroup(name="test", options=[], orientation="vertical")
+        rg_v = RadioGroup(name="test", orientation="vertical")
         rendered_v = rg_v.render()
         assert rendered_v["props"]["orientation"] == "vertical"
 
-        rg_h = RadioGroup(name="test", options=[], orientation="horizontal")
+        rg_h = RadioGroup(name="test", orientation="horizontal")
         rendered_h = rg_h.render()
         assert rendered_h["props"]["orientation"] == "horizontal"
 
     def test_radio_group_disabled(self):
         """Test RadioGroup disabled state."""
-        rg = RadioGroup(name="test", options=[], disabled=True)
+        rg = RadioGroup(name="test", disabled=True)
         rendered = rg.render()
         assert rendered["props"]["disabled"] is True
 
     def test_radio_group_with_callback(self):
         """Test RadioGroup with on_change callback."""
         cb = MockCallback()
-        rg = RadioGroup(name="test", options=[], on_change=cb)
+        rg = RadioGroup(name="test", on_change=cb)
         rendered = rg.render()
-        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
-
-    def test_radio_group_with_disabled_options(self):
-        """Test RadioGroup with individual disabled options."""
-        options = [
-            {"value": "a", "label": "A"},
-            {"value": "b", "label": "B", "disabled": True},
-        ]
-        rg = RadioGroup(name="test", options=options)
-        rendered = rg.render()
-        assert rendered["props"]["options"][1]["disabled"] is True
+        assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
 
 
 

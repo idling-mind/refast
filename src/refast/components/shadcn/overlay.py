@@ -5,25 +5,25 @@ from typing import Any, Literal, Union
 from refast.components.base import Component
 
 
-class AlertDialog(Component):
+class Dialog(Component):
     """
     A modal dialog that interrupts the user with important content.
 
     Example:
         ```python
-        AlertDialog(
+        Dialog(
             open=show_dialog,
             on_open_change=ctx.callback(handle_dialog_change),
             children=[
-                AlertDialogTrigger(Button("Delete")),
-                AlertDialogContent(
-                    AlertDialogHeader(
-                        AlertDialogTitle("Are you absolutely sure?"),
-                        AlertDialogDescription("This action cannot be undone."),
+                DialogTrigger(Button("Delete")),
+                DialogContent(
+                    DialogHeader(
+                        DialogTitle("Are you absolutely sure?"),
+                        DialogDescription("This action cannot be undone."),
                     ),
-                    AlertDialogFooter(
-                        AlertDialogCancel("Cancel"),
-                        AlertDialogAction("Continue"),
+                    DialogFooter(
+                        DialogCancel("Cancel"),
+                        DialogAction("Continue"),
                     ),
                 ),
             ]
@@ -31,7 +31,7 @@ class AlertDialog(Component):
         ```
     """
 
-    component_type: str = "AlertDialog"
+    component_type: str = "Dialog"
 
     def __init__(
         self,
@@ -70,10 +70,10 @@ class AlertDialog(Component):
         }
 
 
-class AlertDialogTrigger(Component):
+class DialogTrigger(Component):
     """The button that opens the alert dialog."""
 
-    component_type: str = "AlertDialogTrigger"
+    component_type: str = "DialogTrigger"
 
     def __init__(
         self,
@@ -104,10 +104,10 @@ class AlertDialogTrigger(Component):
         }
 
 
-class AlertDialogContent(Component):
+class DialogContent(Component):
     """The content of the alert dialog."""
 
-    component_type: str = "AlertDialogContent"
+    component_type: str = "DialogContent"
 
     def __init__(
         self,
@@ -135,10 +135,10 @@ class AlertDialogContent(Component):
         }
 
 
-class AlertDialogHeader(Component):
+class DialogHeader(Component):
     """The header section of the alert dialog."""
 
-    component_type: str = "AlertDialogHeader"
+    component_type: str = "DialogHeader"
 
     def __init__(
         self,
@@ -166,10 +166,10 @@ class AlertDialogHeader(Component):
         }
 
 
-class AlertDialogFooter(Component):
+class DialogFooter(Component):
     """The footer section of the alert dialog."""
 
-    component_type: str = "AlertDialogFooter"
+    component_type: str = "DialogFooter"
 
     def __init__(
         self,
@@ -197,10 +197,10 @@ class AlertDialogFooter(Component):
         }
 
 
-class AlertDialogTitle(Component):
+class DialogTitle(Component):
     """The title of the alert dialog."""
 
-    component_type: str = "AlertDialogTitle"
+    component_type: str = "DialogTitle"
 
     def __init__(
         self,
@@ -224,10 +224,10 @@ class AlertDialogTitle(Component):
         }
 
 
-class AlertDialogDescription(Component):
+class DialogDescription(Component):
     """The description of the alert dialog."""
 
-    component_type: str = "AlertDialogDescription"
+    component_type: str = "DialogDescription"
 
     def __init__(
         self,
@@ -251,10 +251,10 @@ class AlertDialogDescription(Component):
         }
 
 
-class AlertDialogAction(Component):
+class DialogAction(Component):
     """The confirm action button."""
 
-    component_type: str = "AlertDialogAction"
+    component_type: str = "DialogAction"
 
     def __init__(
         self,
@@ -285,10 +285,10 @@ class AlertDialogAction(Component):
         }
 
 
-class AlertDialogCancel(Component):
+class DialogCancel(Component):
     """The cancel action button."""
 
-    component_type: str = "AlertDialogCancel"
+    component_type: str = "DialogCancel"
 
     def __init__(
         self,

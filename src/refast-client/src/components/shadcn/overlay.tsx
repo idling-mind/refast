@@ -1,6 +1,6 @@
 /**
  * Overlay Components using Radix UI primitives
- * AlertDialog, Sheet, Drawer, HoverCard, Popover
+ * Dialog, Sheet, Drawer, HoverCard, Popover
  */
 
 import * as React from 'react';
@@ -12,10 +12,10 @@ import type { BaseProps, ChildrenProp } from './types';
 import { Icon } from './icon';
 
 // ============================================================================
-// AlertDialog
+// Dialog
 // ============================================================================
 
-export interface AlertDialogProps extends BaseProps, ChildrenProp {
+export interface DialogProps extends BaseProps, ChildrenProp {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   title?: string;
@@ -28,7 +28,7 @@ export interface AlertDialogProps extends BaseProps, ChildrenProp {
   variant?: 'default' | 'destructive';
 }
 
-export function AlertDialog({
+export function Dialog({
   open,
   onOpenChange,
   title,
@@ -42,7 +42,7 @@ export function AlertDialog({
   className,
   children,
   ...props
-}: AlertDialogProps) {
+}: DialogProps) {
   // Compositional API usage (when trigger is not provided prop but likely in children)
   if (!trigger && children && React.Children.count(children) > 0) {
     return (
@@ -143,19 +143,19 @@ export function AlertDialog({
 }
 
 // ============================================================================
-// AlertDialog (Compositional API)
+// Dialog (Compositional API)
 // ============================================================================
 
-export interface AlertDialogTriggerProps extends ChildrenProp {
+export interface DialogTriggerProps extends ChildrenProp {
   asChild?: boolean;
   className?: string;
 }
 
-export function AlertDialogTrigger({
+export function DialogTrigger({
   asChild = true,
   className,
   children,
-}: AlertDialogTriggerProps) {
+}: DialogTriggerProps) {
   const childrenArray = React.Children.toArray(children);
   const singleChild = childrenArray.length === 1 ? childrenArray[0] : null;
   const shouldUseAsChild = asChild && !!singleChild;
@@ -167,14 +167,14 @@ export function AlertDialogTrigger({
   );
 }
 
-export interface AlertDialogContentProps extends ChildrenProp {
+export interface DialogContentProps extends ChildrenProp {
   className?: string;
 }
 
-export function AlertDialogContent({
+export function DialogContent({
   className,
   children,
-}: AlertDialogContentProps) {
+}: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
@@ -203,14 +203,14 @@ export function AlertDialogContent({
   );
 }
 
-export interface AlertDialogHeaderProps extends ChildrenProp {
+export interface DialogHeaderProps extends ChildrenProp {
   className?: string;
 }
 
-export function AlertDialogHeader({
+export function DialogHeader({
   className,
   children,
-}: AlertDialogHeaderProps) {
+}: DialogHeaderProps) {
   return (
     <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}>
       {children}
@@ -218,14 +218,14 @@ export function AlertDialogHeader({
   );
 }
 
-export interface AlertDialogFooterProps extends ChildrenProp {
+export interface DialogFooterProps extends ChildrenProp {
   className?: string;
 }
 
-export function AlertDialogFooter({
+export function DialogFooter({
   className,
   children,
-}: AlertDialogFooterProps) {
+}: DialogFooterProps) {
   return (
     <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}>
       {children}
@@ -233,16 +233,16 @@ export function AlertDialogFooter({
   );
 }
 
-export interface AlertDialogTitleProps extends ChildrenProp {
+export interface DialogTitleProps extends ChildrenProp {
   title?: string;
   className?: string;
 }
 
-export function AlertDialogTitle({
+export function DialogTitle({
   title,
   className,
   children,
-}: AlertDialogTitleProps) {
+}: DialogTitleProps) {
   return (
     <DialogPrimitive.Title className={cn('text-lg font-semibold', className)}>
       {title || children}
@@ -250,16 +250,16 @@ export function AlertDialogTitle({
   );
 }
 
-export interface AlertDialogDescriptionProps extends ChildrenProp {
+export interface DialogDescriptionProps extends ChildrenProp {
   description?: string;
   className?: string;
 }
 
-export function AlertDialogDescription({
+export function DialogDescription({
   description,
   className,
   children,
-}: AlertDialogDescriptionProps) {
+}: DialogDescriptionProps) {
   return (
     <DialogPrimitive.Description className={cn('text-sm text-muted-foreground', className)}>
       {description || children}
@@ -267,18 +267,18 @@ export function AlertDialogDescription({
   );
 }
 
-export interface AlertDialogActionProps extends ChildrenProp {
+export interface DialogActionProps extends ChildrenProp {
   label?: string;
   onClick?: () => void;
   className?: string;
 }
 
-export function AlertDialogAction({
+export function DialogAction({
   label,
   onClick,
   className,
   children,
-}: AlertDialogActionProps) {
+}: DialogActionProps) {
   return (
     <DialogPrimitive.Close
       onClick={onClick}
@@ -296,18 +296,18 @@ export function AlertDialogAction({
   );
 }
 
-export interface AlertDialogCancelProps extends ChildrenProp {
+export interface DialogCancelProps extends ChildrenProp {
   label?: string;
   onClick?: () => void;
   className?: string;
 }
 
-export function AlertDialogCancel({
+export function DialogCancel({
   label,
   onClick,
   className,
   children,
-}: AlertDialogCancelProps) {
+}: DialogCancelProps) {
   return (
     <DialogPrimitive.Close
       onClick={onClick}
@@ -1339,15 +1339,15 @@ export function ContextMenuCheckboxItem({
 // ============================================================================
 
 export const OverlayComponents = {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogAction,
+  DialogCancel,
   Sheet,
   SheetTrigger,
   SheetContent,

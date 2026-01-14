@@ -4,14 +4,14 @@ import React from 'react';
 import { Container, Text, Fragment } from './base';
 
 // Import shadcn components
-import { Row, Column, Stack, Grid, Flex, Center, Spacer, Divider } from './shadcn/layout';
+import { Row, Column, Grid, Flex, Center } from './shadcn/layout';
 import { Button, IconButton } from './shadcn/button';
 import { Icon } from './shadcn/icon';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
 import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
 import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
-import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Toast, Skeleton } from './shadcn/feedback';
+import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
 import { ConnectionStatus } from './shadcn/ConnectionStatus';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem } from './shadcn/data_display';
 
@@ -34,8 +34,8 @@ import {
 
 // Import new Stage 9 components - Overlay
 import {
-  AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
-  AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel,
+  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter,
+  DialogTitle, DialogDescription, DialogAction, DialogCancel,
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
   SheetTitle, SheetDescription, SheetClose,
   Drawer, HoverCard, HoverCardTrigger, HoverCardContent,
@@ -52,7 +52,7 @@ import {
 import {
   Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
-  ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher, Toaster
+  ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
 
 // Import chart components
@@ -121,12 +121,9 @@ componentRegistry.register('Slot', Slot);
 // Register layout components
 componentRegistry.register('Row', Row);
 componentRegistry.register('Column', Column);
-componentRegistry.register('Stack', Stack);
 componentRegistry.register('Grid', Grid);
 componentRegistry.register('Flex', Flex);
 componentRegistry.register('Center', Center);
-componentRegistry.register('Spacer', Spacer);
-componentRegistry.register('Divider', Divider);
 
 // Register button components
 componentRegistry.register('Button', Button);
@@ -169,7 +166,6 @@ componentRegistry.register('AlertDescription', AlertDescription);
 componentRegistry.register('Badge', Badge);
 componentRegistry.register('Progress', Progress);
 componentRegistry.register('Spinner', Spinner);
-componentRegistry.register('Toast', Toast);
 componentRegistry.register('Skeleton', Skeleton);
 componentRegistry.register('ConnectionStatus', ConnectionStatus);
 
@@ -265,15 +261,15 @@ componentRegistry.register('SidebarRail', SidebarRail);
 componentRegistry.register('SidebarTrigger', SidebarTrigger);
 
 // Register overlay components (Stage 9)
-componentRegistry.register('AlertDialog', AlertDialog);
-componentRegistry.register('AlertDialogTrigger', AlertDialogTrigger);
-componentRegistry.register('AlertDialogContent', AlertDialogContent);
-componentRegistry.register('AlertDialogHeader', AlertDialogHeader);
-componentRegistry.register('AlertDialogFooter', AlertDialogFooter);
-componentRegistry.register('AlertDialogTitle', AlertDialogTitle);
-componentRegistry.register('AlertDialogDescription', AlertDialogDescription);
-componentRegistry.register('AlertDialogAction', AlertDialogAction);
-componentRegistry.register('AlertDialogCancel', AlertDialogCancel);
+componentRegistry.register('Dialog', Dialog);
+componentRegistry.register('DialogTrigger', DialogTrigger);
+componentRegistry.register('DialogContent', DialogContent);
+componentRegistry.register('DialogHeader', DialogHeader);
+componentRegistry.register('DialogFooter', DialogFooter);
+componentRegistry.register('DialogTitle', DialogTitle);
+componentRegistry.register('DialogDescription', DialogDescription);
+componentRegistry.register('DialogAction', DialogAction);
+componentRegistry.register('DialogCancel', DialogCancel);
 componentRegistry.register('Sheet', Sheet);
 componentRegistry.register('SheetTrigger', SheetTrigger);
 componentRegistry.register('SheetContent', SheetContent);
@@ -324,7 +320,6 @@ componentRegistry.register('ResizablePanelGroup', ResizablePanelGroup);
 componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
 componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
-componentRegistry.register('Toaster', Toaster);
 
 // Register chart components (Stage 10)
 componentRegistry.register('ChartContainer', ChartContainer);

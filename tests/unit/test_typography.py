@@ -60,7 +60,7 @@ class TestCode:
         code = Code("const x = 1;")
         rendered = code.render()
         assert rendered["type"] == "Code"
-        assert rendered["children"] == ["const x = 1;"]
+        assert rendered["props"]["code"] == "const x = 1;"
         # Default inline should be True
         assert rendered["props"]["inline"] is True
 

@@ -254,20 +254,20 @@ class CheckboxGroup(Component):
         CheckboxGroup(
             name="fruits",
             label="Select your favorite fruits",
-            options=[
-                {"value": "apple", "label": "Apple"},
-                {"value": "banana", "label": "Banana"},
-                {"value": "orange", "label": "Orange", "disabled": True},
-            ],
             value=["apple"],
             on_change=ctx.callback(handle_change),
+            children=[
+                Checkbox(value="apple", label="Apple"),
+                Checkbox(value="banana", label="Banana"),
+                Checkbox(value="orange", label="Orange", disabled=True),
+            ],
         )
         ```
 
     Args:
         name: The name for the checkbox group (used for form submission).
         label: Label text for the entire group.
-        options: List of options, each with value, label, and optional disabled.
+        children: Checkbox components as children.
         value: List of currently selected values.
         orientation: Layout orientation - "vertical" or "horizontal".
         disabled: Whether the entire group is disabled.
@@ -279,7 +279,7 @@ class CheckboxGroup(Component):
     def __init__(
         self,
         name: str,
-        options: list[dict[str, Any]],
+        children: list[Component | str] | None = None,
         label: str | None = None,
         value: list[str] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
@@ -290,8 +290,9 @@ class CheckboxGroup(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
         self.name = name
-        self.options = options
         self.label = label
         self.value = value or []
         self.orientation = orientation
@@ -301,7 +302,6 @@ class CheckboxGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,
-            "options": self.options,
             "label": self.label,
             "value": self.value,
             "orientation": self.orientation,
@@ -317,7 +317,7 @@ class CheckboxGroup(Component):
             "type": self.component_type,
             "id": self.id,
             "props": props,
-            "children": [],
+            "children": self._render_children(),
         }
 
 
@@ -377,21 +377,21 @@ class RadioGroup(Component):
         RadioGroup(
             name="gender",
             label="Select your gender",
-            options=[
-                {"value": "male", "label": "Male"},
-                {"value": "female", "label": "Female"},
-                {"value": "other", "label": "Other"},
-            ],
             value="male",
             orientation="vertical",
             on_change=ctx.callback(handle_change),
+            children=[
+                Radio(value="male", label="Male"),
+                Radio(value="female", label="Female"),
+                Radio(value="other", label="Other"),
+            ],
         )
         ```
 
     Args:
         name: The name for the radio group (used for form submission).
         label: Label text for the entire group.
-        options: List of options, each with value, label, and optional disabled.
+        children: Radio components as children.
         value: Currently selected value.
         orientation: Layout orientation - "vertical" or "horizontal".
         disabled: Whether the entire group is disabled.
@@ -403,7 +403,7 @@ class RadioGroup(Component):
     def __init__(
         self,
         name: str,
-        options: list[dict[str, Any]],
+        children: list[Component | str] | None = None,
         label: str | None = None,
         value: str | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
@@ -414,8 +414,9 @@ class RadioGroup(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        if children:
+            self._children = children
         self.name = name
-        self.options = options
         self.label = label
         self.value = value
         self.orientation = orientation
@@ -425,7 +426,6 @@ class RadioGroup(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,
-            "options": self.options,
             "label": self.label,
             "value": self.value,
             "orientation": self.orientation,
@@ -441,6 +441,6 @@ class RadioGroup(Component):
             "type": self.component_type,
             "id": self.id,
             "props": props,
-            "children": [],
+            "children": self._render_children(),
         }
 

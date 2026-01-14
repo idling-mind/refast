@@ -2,15 +2,15 @@
 
 from refast.components.shadcn.button import Button
 from refast.components.shadcn.overlay import (
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
     Drawer,
     HoverCard,
     Popover,
@@ -26,32 +26,32 @@ class MockCallback:
         return {"callbackId": "cb-123"}
 
 
-class TestAlertDialog:
-    """Tests for AlertDialog component."""
+class TestDialog:
+    """Tests for Dialog component."""
 
     def test_alert_dialog_renders(self):
-        """Test AlertDialog renders correctly."""
-        dialog = AlertDialog()
+        """Test Dialog renders correctly."""
+        dialog = Dialog()
         rendered = dialog.render()
-        assert rendered["type"] == "AlertDialog"
+        assert rendered["type"] == "Dialog"
 
     def test_alert_dialog_with_children(self):
-        """Test AlertDialog with composition-based children."""
-        dialog = AlertDialog(
+        """Test Dialog with composition-based children."""
+        dialog = Dialog(
             children=[
-                AlertDialogTrigger(children=Button(label="Open")),
-                AlertDialogContent(
+                DialogTrigger(children=Button(label="Open")),
+                DialogContent(
                     children=[
-                        AlertDialogHeader(
+                        DialogHeader(
                             children=[
-                                AlertDialogTitle(title="Confirm Action"),
-                                AlertDialogDescription(description="Are you sure?"),
+                                DialogTitle(title="Confirm Action"),
+                                DialogDescription(description="Are you sure?"),
                             ]
                         ),
-                        AlertDialogFooter(
+                        DialogFooter(
                             children=[
-                                AlertDialogCancel(label="Cancel"),
-                                AlertDialogAction(label="Continue"),
+                                DialogCancel(label="Cancel"),
+                                DialogAction(label="Continue"),
                             ]
                         ),
                     ]
@@ -59,25 +59,25 @@ class TestAlertDialog:
             ]
         )
         rendered = dialog.render()
-        assert rendered["type"] == "AlertDialog"
+        assert rendered["type"] == "Dialog"
         assert len(rendered["children"]) == 2
 
     def test_alert_dialog_default_open(self):
-        """Test AlertDialog default open state."""
-        dialog = AlertDialog(default_open=True)
+        """Test Dialog default open state."""
+        dialog = Dialog(default_open=True)
         rendered = dialog.render()
         assert rendered["props"]["default_open"] is True
 
     def test_alert_dialog_open_state(self):
-        """Test AlertDialog open state."""
-        dialog = AlertDialog(open=True)
+        """Test Dialog open state."""
+        dialog = Dialog(open=True)
         rendered = dialog.render()
         assert rendered["props"]["open"] is True
 
     def test_alert_dialog_with_callback(self):
-        """Test AlertDialog with onOpenChange callback."""
+        """Test Dialog with onOpenChange callback."""
         cb = MockCallback()
-        dialog = AlertDialog(on_open_change=cb)
+        dialog = Dialog(on_open_change=cb)
         rendered = dialog.render()
         assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 

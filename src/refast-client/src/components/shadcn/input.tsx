@@ -501,7 +501,6 @@ interface RadioGroupProps {
   defaultValue?: string;
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
-  options?: Array<{ value: string; label: string; disabled?: boolean }>;
   label?: string;
   onValueChange?: (value: string) => void;
   children?: React.ReactNode;
@@ -509,7 +508,7 @@ interface RadioGroupProps {
 }
 
 /**
- * RadioGroup component - container for radio buttons with options support.
+ * RadioGroup component - container for radio buttons using children composition.
  */
 export function RadioGroup({
   id,
@@ -519,7 +518,6 @@ export function RadioGroup({
   defaultValue,
   disabled = false,
   orientation = 'vertical',
-  options,
   label,
   onValueChange,
   children,
@@ -563,40 +561,10 @@ export function RadioGroup({
         orientation={orientation}
         id={rootId}
       >
-        {options?.map((option) => (
-          <div className="flex items-center space-x-2" key={option.value}>
-            <RadioGroupPrimitive.Item
-              value={option.value}
-              id={`${rootId}-${option.value}`}
-              disabled={disabled || option.disabled}
-              className={cn(
-                'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50'
-              )}
-            >
-              <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-                <Circle className="h-2.5 w-2.5 fill-current text-current" />
-              </RadioGroupPrimitive.Indicator>
-            </RadioGroupPrimitive.Item>
-            <label
-              htmlFor={`${rootId}-${option.value}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {option.label}
-            </label>
-          </div>
-        ))}
         {children}
       </RadioGroupPrimitive.Root>
     </div>
   );
-}
-
-interface CheckboxGroupOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
 }
 
 interface CheckboxGroupProps {
@@ -607,14 +575,14 @@ interface CheckboxGroupProps {
   defaultValue?: string[];
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
-  options?: CheckboxGroupOption[];
   label?: string;
   onChange?: (value: string[]) => void;
+  children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * CheckboxGroup component - group of checkboxes for multi-selection.
+ * CheckboxGroup component - group of checkboxes using children composition.
  */
 export function CheckboxGroup({
   id,
@@ -624,9 +592,9 @@ export function CheckboxGroup({
   defaultValue,
   disabled = false,
   orientation = 'vertical',
-  options,
   label,
   onChange,
+  children,
   'data-refast-id': dataRefastId,
 }: CheckboxGroupProps): React.ReactElement {
   const generatedId = React.useId();
@@ -642,22 +610,34 @@ export function CheckboxGroup({
     }
   }, [value]);
 
-  const handleCheckedChange = (optionValue: string, checked: boolean) => {
-    let newValue: string[];
-    if (checked) {
-      if (!localValue.includes(optionValue)) {
-        newValue = [...localValue, optionValue];
-      } else {
-        newValue = localValue;
-      }
-    } else {
-      newValue = localValue.filter((v) => v !== optionValue);
+  // Clone children to inject checked state and onChange handlers
+  const enhancedChildren = React.Children.map(children, (child) => {
+    if (React.isValidElement(child) && child.props.value) {
+      const childValue = child.props.value as string;
+      return React.cloneElement(child as React.ReactElement<CheckboxProps>, {
+        name,
+        checked: localValue.includes(childValue),
+        disabled: disabled || child.props.disabled,
+        onCheckedChange: (checked: boolean) => {
+          let newValue: string[];
+          if (checked) {
+            if (!localValue.includes(childValue)) {
+              newValue = [...localValue, childValue];
+            } else {
+              newValue = localValue;
+            }
+          } else {
+            newValue = localValue.filter((v) => v !== childValue);
+          }
+          setLocalValue(newValue);
+          if (onChange) {
+            onChange(newValue);
+          }
+        },
+      });
     }
-    setLocalValue(newValue);
-    if (onChange) {
-      onChange(newValue);
-    }
-  };
+    return child;
+  });
 
   return (
     <div
@@ -677,17 +657,7 @@ export function CheckboxGroup({
           orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
         )}
       >
-        {options?.map((option) => (
-          <Checkbox
-            key={option.value}
-            id={`${rootId}-${option.value}`}
-            name={name}
-            checked={localValue.includes(option.value)}
-            disabled={disabled || option.disabled}
-            onCheckedChange={(checked) => handleCheckedChange(option.value, checked)}
-            label={option.label}
-          />
-        ))}
+        {enhancedChildren}
       </div>
     </div>
   );

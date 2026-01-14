@@ -37,6 +37,7 @@ from refast.components import (
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
+    Column,
     Container,
     DropdownMenu,
     DropdownMenuContent,
@@ -70,7 +71,6 @@ from refast.components import (
     SidebarRail,
     SidebarSeparator,
     SidebarTrigger,
-    Stack,
     Text,
 )
 
@@ -350,7 +350,7 @@ def create_main_content(ctx, variant: str):
                     Heading("Sidebar Showcase", level=1),
                 ],
             ),
-            Stack(
+            Column(
                 gap="6",
                 children=[
                     Card(
@@ -365,7 +365,7 @@ def create_main_content(ctx, variant: str):
                             ),
                             CardContent(
                                 children=[
-                                    Stack(
+                                    Column(
                                         gap="4",
                                         children=[
                                             Text(
@@ -451,7 +451,7 @@ def create_main_content(ctx, variant: str):
                             ),
                             CardContent(
                                 children=[
-                                    Stack(
+                                    Column(
                                         gap="2",
                                         children=[
                                             Text(
@@ -491,7 +491,7 @@ def create_main_content(ctx, variant: str):
                             ),
                             CardContent(
                                 children=[
-                                    Stack(
+                                    Column(
                                         gap="2",
                                         children=[
                                             Text(f"Variant: {variant}"),
@@ -571,7 +571,7 @@ def floating(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -634,7 +634,7 @@ def inset(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -691,7 +691,7 @@ def right_sidebar(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -828,7 +828,7 @@ def collapsible_menu_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -1113,7 +1113,7 @@ def dropdown_actions_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -1141,7 +1141,7 @@ def dropdown_actions_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -1321,7 +1321,7 @@ def skeleton_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -1386,7 +1386,7 @@ def offcanvas_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(
@@ -1451,7 +1451,7 @@ def none_collapsible_demo(ctx):
                                     ),
                                     CardContent(
                                         children=[
-                                            Stack(
+                                            Column(
                                                 gap="2",
                                                 children=[
                                                     Text(

@@ -3,12 +3,9 @@
 from refast.components.shadcn.feedback import (
     Alert,
     ConnectionStatus,
-    Dialog,
-    Modal,
     Progress,
     Skeleton,
     Spinner,
-    Toast,
 )
 
 
@@ -43,80 +40,6 @@ class TestAlert:
         rendered = alert.render()
         assert rendered["props"]["dismissible"] is True
         assert rendered["props"]["on_dismiss"] == {"callbackId": "cb-123"}
-
-
-class TestToast:
-    """Tests for Toast component."""
-
-    def test_toast_renders(self):
-        """Test Toast renders correctly."""
-        toast = Toast(title="Success", message="Operation completed")
-        rendered = toast.render()
-        assert rendered["type"] == "Toast"
-        assert rendered["props"]["title"] == "Success"
-        assert rendered["props"]["duration"] == 3000
-
-    def test_toast_variant(self):
-        """Test Toast variant prop."""
-        toast = Toast(variant="success")
-        rendered = toast.render()
-        assert rendered["props"]["variant"] == "success"
-
-    def test_toast_duration(self):
-        """Test Toast duration prop."""
-        toast = Toast(duration=5000)
-        rendered = toast.render()
-        assert rendered["props"]["duration"] == 5000
-
-
-class TestModal:
-    """Tests for Modal component."""
-
-    def test_modal_renders(self):
-        """Test Modal renders correctly."""
-        modal = Modal(title="Confirm", open=True)
-        rendered = modal.render()
-        assert rendered["type"] == "Modal"
-        assert rendered["props"]["title"] == "Confirm"
-        assert rendered["props"]["open"] is True
-
-    def test_modal_size(self):
-        """Test Modal size prop."""
-        modal = Modal(size="lg")
-        rendered = modal.render()
-        assert rendered["props"]["size"] == "lg"
-
-    def test_modal_with_callback(self):
-        """Test Modal with on_close callback."""
-        cb = MockCallback()
-        modal = Modal(on_close=cb)
-        rendered = modal.render()
-        assert rendered["props"]["on_close"] == {"callbackId": "cb-123"}
-
-
-class TestDialog:
-    """Tests for Dialog component."""
-
-    def test_dialog_renders(self):
-        """Test Dialog renders correctly."""
-        dialog = Dialog(title="Delete Item", description="Are you sure?")
-        rendered = dialog.render()
-        assert rendered["type"] == "Dialog"
-        assert rendered["props"]["title"] == "Delete Item"
-        assert rendered["props"]["description"] == "Are you sure?"
-
-    def test_dialog_open(self):
-        """Test Dialog open state."""
-        dialog = Dialog(open=True)
-        rendered = dialog.render()
-        assert rendered["props"]["open"] is True
-
-    def test_dialog_with_callback(self):
-        """Test Dialog with on_open_change callback."""
-        cb = MockCallback()
-        dialog = Dialog(on_open_change=cb)
-        rendered = dialog.render()
-        assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
 
 
 class TestSpinner:

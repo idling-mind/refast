@@ -15,15 +15,15 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
     Avatar,
     Badge,
     Button,
@@ -286,9 +286,9 @@ def home(ctx: Context):
                                             )
                                             if selected_ids
                                             else "",
-                                            AlertDialog(
+                                            Dialog(
                                                 children=[
-                                                    AlertDialogTrigger(
+                                                    DialogTrigger(
                                                         children=Button(
                                                             label="Delete Selected",
                                                             variant="destructive",
@@ -296,24 +296,24 @@ def home(ctx: Context):
                                                             disabled=len(selected_ids) == 0,
                                                         )
                                                     ),
-                                                    AlertDialogContent(
+                                                    DialogContent(
                                                         children=[
-                                                            AlertDialogHeader(
+                                                            DialogHeader(
                                                                 children=[
-                                                                    AlertDialogTitle(
+                                                                    DialogTitle(
                                                                         title="Delete Users"
                                                                     ),
-                                                                    AlertDialogDescription(
+                                                                    DialogDescription(
                                                                         description=f"Are you sure you want to delete {len(selected_ids)} users? This action cannot be undone."
                                                                     ),
                                                                 ]
                                                             ),
-                                                            AlertDialogFooter(
+                                                            DialogFooter(
                                                                 children=[
-                                                                    AlertDialogCancel(
+                                                                    DialogCancel(
                                                                         label="Cancel"
                                                                     ),
-                                                                    AlertDialogAction(
+                                                                    DialogAction(
                                                                         label="Delete",
                                                                         on_click=ctx.callback(
                                                                             on_bulk_delete

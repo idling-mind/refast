@@ -284,64 +284,6 @@ export function Spinner({
   );
 }
 
-interface ToastProps {
-  id?: string;
-  className?: string;
-  variant?: 'default' | 'destructive' | 'success';
-  title?: string;
-  description?: string;
-  onClose?: () => void;
-  children?: React.ReactNode;
-  'data-refast-id'?: string;
-}
-
-/**
- * Toast component - notification toast.
- */
-export function Toast({
-  id,
-  className,
-  variant = 'default',
-  title,
-  description,
-  onClose,
-  children,
-  'data-refast-id': dataRefastId,
-}: ToastProps): React.ReactElement {
-  const variantClasses = {
-    default: 'bg-background border',
-    destructive: 'destructive group border-destructive bg-destructive text-destructive-foreground',
-    success: 'bg-green-50 border-green-200 text-green-900',
-  };
-
-  return (
-    <div
-      id={id}
-      className={cn(
-        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md p-6 pr-8 shadow-lg transition-all',
-        variantClasses[variant],
-        className
-      )}
-      data-refast-id={dataRefastId}
-    >
-      <div className="grid gap-1">
-        {title && <div className="text-sm font-semibold">{title}</div>}
-        {description && <div className="text-sm opacity-90">{description}</div>}
-        {children}
-      </div>
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100"
-        >
-          <span className="sr-only">Close</span>
-          <span aria-hidden="true">×</span>
-        </button>
-      )}
-    </div>
-  );
-}
-
 interface SkeletonProps {
   id?: string;
   className?: string;

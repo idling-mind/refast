@@ -122,15 +122,21 @@ export function EventManagerProvider({
               const method = (element as any)[message.methodName];
               if (typeof method === 'function') {
                 // Call the method with the provided arguments
-                const args = message.args || {};
-                const argValues = Object.values(args);
-                if (argValues.length === 0) {
+                // For bound_method_call, args is always an array
+                const positionalArgs = (Array.isArray(message.args) ? message.args : []) as unknown[];
+                const kwargs = message.kwargs || {};
+                
+                // Combine positional args and kwargs
+                // If there are kwargs, pass them as the last argument (as an object)
+                const hasKwargs = Object.keys(kwargs).length > 0;
+                const allArgs = hasKwargs ? [...positionalArgs, kwargs] : positionalArgs;
+                
+                if (allArgs.length === 0) {
                   method.call(element);
-                } else if (argValues.length === 1) {
-                  method.call(element, argValues[0]);
+                } else if (allArgs.length === 1) {
+                  method.call(element, allArgs[0]);
                 } else {
-                  // For multiple arguments, pass them individually
-                  method.apply(element, argValues);
+                  method.apply(element, allArgs);
                 }
               } else {
                 console.warn(`[Refast] Method '${message.methodName}' not found on element '${message.targetId}'`);

@@ -276,7 +276,7 @@ function createBoundMethodCallbackHandler(
   ref: BoundMethodCallbackRef
 ): (...args: unknown[]) => void {
   const { boundMethod } = ref;
-  const { targetId, methodName, args: methodArgs } = boundMethod;
+  const { targetId, methodName, args: positionalArgs = [], kwargs = {} } = boundMethod;
 
   return () => {
     try {
@@ -285,15 +285,17 @@ function createBoundMethodCallbackHandler(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const method = (element as any)[methodName];
         if (typeof method === 'function') {
-          // Call the method with the provided arguments
-          const argValues = Object.values(methodArgs);
-          if (argValues.length === 0) {
+          // Combine positional args and kwargs
+          // If there are kwargs, pass them as the last argument (as an object)
+          const hasKwargs = Object.keys(kwargs).length > 0;
+          const allArgs = hasKwargs ? [...positionalArgs, kwargs] : positionalArgs;
+          
+          if (allArgs.length === 0) {
             method.call(element);
-          } else if (argValues.length === 1) {
-            method.call(element, argValues[0]);
+          } else if (allArgs.length === 1) {
+            method.call(element, allArgs[0]);
           } else {
-            // For multiple arguments, pass them individually
-            method.apply(element, argValues);
+            method.apply(element, allArgs);
           }
         } else {
           console.warn(`[Refast] Method '${methodName}' not found on element '${targetId}'`);

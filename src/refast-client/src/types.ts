@@ -46,7 +46,8 @@ export interface JsCallbackRef {
 export interface BoundMethodRef {
   targetId: string;
   methodName: string;
-  args: Record<string, unknown>;
+  args: unknown[];
+  kwargs: Record<string, unknown>;
 }
 
 /**
@@ -91,9 +92,10 @@ export interface UpdateMessage {
   id?: string;  // toast_id
   // JS execution properties
   code?: string;
-  args?: Record<string, unknown>;
+  args?: unknown[] | Record<string, unknown>;  // Array for bound_method_call, Record for js_exec
   // Bound method call properties
   methodName?: string;
+  kwargs?: Record<string, unknown>;
 }
 
 /**

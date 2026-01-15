@@ -116,22 +116,30 @@ class BoundJsCallback:
         # Call clearCanvas method on a SketchCanvas component
         Button("Clear", on_click=ctx.bound_js("my-canvas", "clearCanvas"))
 
-        # Call a method with arguments
+        # Call a method with positional arguments
+        Button("Set Size", on_click=ctx.bound_js("my-canvas", "setSize", 800, 600))
+
+        # Call a method with keyword arguments
         Button("Load", on_click=ctx.bound_js("my-canvas", "loadPaths", paths=my_paths))
 
+        # Call a method with both positional and keyword arguments
+        Button("Draw", on_click=ctx.bound_js("my-canvas", "draw", "circle", x=100, y=200))
+
         # Toggle eraser mode
-        Button("Eraser", on_click=ctx.bound_js("my-canvas", "eraseMode", erase=True))
+        Button("Eraser", on_click=ctx.bound_js("my-canvas", "eraseMode", True))
         ```
 
     Attributes:
         target_id: ID of the target component
         method_name: Name of the method to call on the component
-        args: Arguments to pass to the method (as keyword arguments)
+        args: Positional arguments to pass to the method
+        kwargs: Keyword arguments to pass to the method
     """
 
     target_id: str
     method_name: str
-    args: dict[str, Any] = field(default_factory=dict)
+    args: tuple[Any, ...] = field(default_factory=tuple)
+    kwargs: dict[str, Any] = field(default_factory=dict)
 
     def serialize(self) -> dict[str, Any]:
         """Serialize for sending to frontend."""
@@ -139,7 +147,8 @@ class BoundJsCallback:
             "boundMethod": {
                 "targetId": self.target_id,
                 "methodName": self.method_name,
-                "args": self.args,
+                "args": list(self.args),
+                "kwargs": self.kwargs,
             }
         }
 
@@ -331,7 +340,8 @@ class Context(Generic[T]):
         self,
         target_id: str,
         method_name: str,
-        **args: Any,
+        *args: Any,
+        **kwargs: Any,
     ) -> BoundJsCallback:
         """
         Create a bound method callback that calls a component method on the frontend.
@@ -350,7 +360,8 @@ class Context(Generic[T]):
         Args:
             target_id: ID of the target component
             method_name: Name of the method to call
-            **args: Arguments to pass to the method
+            *args: Positional arguments to pass to the method
+            **kwargs: Keyword arguments to pass to the method
 
         Returns:
             BoundJsCallback object that serializes for frontend
@@ -365,20 +376,26 @@ class Context(Generic[T]):
             Button("Undo", on_click=ctx.bound_js("my-canvas", "undo"))
             Button("Redo", on_click=ctx.bound_js("my-canvas", "redo"))
 
-            # Call a method with arguments
+            # Call a method with positional argument
             Button(
                 "Eraser On",
-                on_click=ctx.bound_js("my-canvas", "eraseMode", erase=True)
+                on_click=ctx.bound_js("my-canvas", "eraseMode", True)
             )
             Button(
                 "Eraser Off",
-                on_click=ctx.bound_js("my-canvas", "eraseMode", erase=False)
+                on_click=ctx.bound_js("my-canvas", "eraseMode", False)
             )
 
-            # Load paths into the canvas
+            # Call a method with keyword arguments
             Button(
                 "Load Drawing",
                 on_click=ctx.bound_js("my-canvas", "loadPaths", paths=saved_paths)
+            )
+
+            # Call a method with both positional and keyword arguments
+            Button(
+                "Draw Circle",
+                on_click=ctx.bound_js("my-canvas", "drawShape", "circle", x=100, y=200)
             )
             ```
 
@@ -386,7 +403,7 @@ class Context(Generic[T]):
             The target component must have the method bound to its wrapper element.
             If the method or component doesn't exist, a warning will be logged.
         """
-        return BoundJsCallback(target_id=target_id, method_name=method_name, args=args)
+        return BoundJsCallback(target_id=target_id, method_name=method_name, args=args, kwargs=kwargs)
 
     async def call_js(
         self,
@@ -449,7 +466,8 @@ class Context(Generic[T]):
         self,
         target_id: str,
         method_name: str,
-        **args: Any,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         """
         Call a method on a component in the frontend immediately.
@@ -465,7 +483,8 @@ class Context(Generic[T]):
         Args:
             target_id: ID of the target component
             method_name: Name of the method to call
-            **args: Arguments to pass to the method
+            *args: Positional arguments to pass to the method
+            **kwargs: Keyword arguments to pass to the method
 
         Example:
             ```python
@@ -487,8 +506,12 @@ class Context(Generic[T]):
                 ctx.state.set("eraser_mode", not is_eraser)
                 await ctx.push_update()
 
-                # Update the canvas mode
-                await ctx.call_bound_js("my-canvas", "eraseMode", erase=not is_eraser)
+                # Update the canvas mode (positional arg)
+                await ctx.call_bound_js("my-canvas", "eraseMode", not is_eraser)
+
+            async def draw_shape(ctx: Context):
+                # Call with both positional and keyword arguments
+                await ctx.call_bound_js("my-canvas", "drawShape", "circle", x=100, y=200)
             ```
 
         Note:
@@ -501,7 +524,8 @@ class Context(Generic[T]):
                     "type": "bound_method_call",
                     "targetId": target_id,
                     "methodName": method_name,
-                    "args": args,
+                    "args": list(args),
+                    "kwargs": kwargs,
                 }
             )
 

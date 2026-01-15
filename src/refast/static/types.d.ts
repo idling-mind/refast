@@ -42,7 +42,8 @@ export interface JsCallbackRef {
 export interface BoundMethodRef {
     targetId: string;
     methodName: string;
-    args: Record<string, unknown>;
+    args: unknown[];
+    kwargs: Record<string, unknown>;
 }
 /**
  * Bound method callback wrapper (for event handlers).
@@ -88,8 +89,9 @@ export interface UpdateMessage {
     };
     id?: string;
     code?: string;
-    args?: Record<string, unknown>;
+    args?: unknown[] | Record<string, unknown>;
     methodName?: string;
+    kwargs?: Record<string, unknown>;
 }
 /**
  * Store update operation from backend.

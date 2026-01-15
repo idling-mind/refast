@@ -374,26 +374,59 @@ class TestBoundJsCallback:
     def test_bound_js_callback_default_args(self):
         """Test BoundJsCallback has empty args by default."""
         cb = BoundJsCallback(target_id="my-canvas", method_name="clearCanvas")
-        assert cb.args == {}
+        assert cb.args == ()
+        assert cb.kwargs == {}
 
     def test_bound_js_callback_with_args(self):
         """Test BoundJsCallback stores arguments."""
         cb = BoundJsCallback(
-            target_id="my-canvas", method_name="eraseMode", args={"erase": True}
+            target_id="my-canvas", method_name="eraseMode", args=(True,)
         )
-        assert cb.args == {"erase": True}
+        assert cb.args == (True,)
+
+    def test_bound_js_callback_with_kwargs(self):
+        """Test BoundJsCallback stores keyword arguments."""
+        cb = BoundJsCallback(
+            target_id="my-canvas", method_name="eraseMode", kwargs={"erase": True}
+        )
+        assert cb.kwargs == {"erase": True}
+
+    def test_bound_js_callback_with_args_and_kwargs(self):
+        """Test BoundJsCallback stores both args and kwargs."""
+        cb = BoundJsCallback(
+            target_id="my-canvas",
+            method_name="drawShape",
+            args=("circle",),
+            kwargs={"x": 100, "y": 200},
+        )
+        assert cb.args == ("circle",)
+        assert cb.kwargs == {"x": 100, "y": 200}
 
     def test_bound_js_callback_serialize(self):
         """Test BoundJsCallback serialization."""
         cb = BoundJsCallback(
-            target_id="my-canvas", method_name="loadPaths", args={"paths": [1, 2, 3]}
+            target_id="my-canvas", method_name="loadPaths", kwargs={"paths": [1, 2, 3]}
         )
         serialized = cb.serialize()
 
         assert "boundMethod" in serialized
         assert serialized["boundMethod"]["targetId"] == "my-canvas"
         assert serialized["boundMethod"]["methodName"] == "loadPaths"
-        assert serialized["boundMethod"]["args"] == {"paths": [1, 2, 3]}
+        assert serialized["boundMethod"]["args"] == []
+        assert serialized["boundMethod"]["kwargs"] == {"paths": [1, 2, 3]}
+
+    def test_bound_js_callback_serialize_with_positional_args(self):
+        """Test BoundJsCallback serialization with positional args."""
+        cb = BoundJsCallback(
+            target_id="my-canvas",
+            method_name="drawShape",
+            args=("circle", 100, 200),
+            kwargs={"fill": "red"},
+        )
+        serialized = cb.serialize()
+
+        assert serialized["boundMethod"]["args"] == ["circle", 100, 200]
+        assert serialized["boundMethod"]["kwargs"] == {"fill": "red"}
 
     def test_bound_js_callback_serialize_empty_args(self):
         """Test BoundJsCallback serialization with empty args."""
@@ -402,7 +435,8 @@ class TestBoundJsCallback:
 
         assert serialized["boundMethod"]["targetId"] == "my-canvas"
         assert serialized["boundMethod"]["methodName"] == "undo"
-        assert serialized["boundMethod"]["args"] == {}
+        assert serialized["boundMethod"]["args"] == []
+        assert serialized["boundMethod"]["kwargs"] == {}
 
 
 class TestContextBoundJs:
@@ -426,17 +460,33 @@ class TestContextBoundJs:
         cb = ctx.bound_js("my-canvas", "undo")
         assert cb.method_name == "undo"
 
-    def test_bound_js_with_args(self):
-        """Test bound_js with arguments."""
+    def test_bound_js_with_positional_args(self):
+        """Test bound_js with positional arguments."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "eraseMode", True)
+        assert cb.args == (True,)
+        assert cb.kwargs == {}
+
+    def test_bound_js_with_kwargs(self):
+        """Test bound_js with keyword arguments."""
         ctx = Context()
         cb = ctx.bound_js("my-canvas", "eraseMode", erase=True)
-        assert cb.args == {"erase": True}
+        assert cb.args == ()
+        assert cb.kwargs == {"erase": True}
 
-    def test_bound_js_with_multiple_args(self):
-        """Test bound_js with multiple arguments."""
+    def test_bound_js_with_multiple_kwargs(self):
+        """Test bound_js with multiple keyword arguments."""
         ctx = Context()
         cb = ctx.bound_js("my-canvas", "loadPaths", paths=[1, 2], append=False)
-        assert cb.args == {"paths": [1, 2], "append": False}
+        assert cb.args == ()
+        assert cb.kwargs == {"paths": [1, 2], "append": False}
+
+    def test_bound_js_with_args_and_kwargs(self):
+        """Test bound_js with both positional and keyword arguments."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "drawShape", "circle", x=100, y=200)
+        assert cb.args == ("circle",)
+        assert cb.kwargs == {"x": 100, "y": 200}
 
     def test_bound_js_serialize_format(self):
         """Test bound_js callback serializes correctly."""
@@ -447,7 +497,17 @@ class TestContextBoundJs:
         assert "boundMethod" in serialized
         assert serialized["boundMethod"]["targetId"] == "my-canvas"
         assert serialized["boundMethod"]["methodName"] == "exportImage"
-        assert serialized["boundMethod"]["args"] == {"image_type": "png"}
+        assert serialized["boundMethod"]["args"] == []
+        assert serialized["boundMethod"]["kwargs"] == {"image_type": "png"}
+
+    def test_bound_js_serialize_format_with_positional_args(self):
+        """Test bound_js callback serializes correctly with positional args."""
+        ctx = Context()
+        cb = ctx.bound_js("my-canvas", "setSize", 800, 600)
+        serialized = cb.serialize()
+
+        assert serialized["boundMethod"]["args"] == [800, 600]
+        assert serialized["boundMethod"]["kwargs"] == {}
 
     def test_bound_js_does_not_register_with_app(self):
         """Test bound_js callback is not registered with app (it's client-side)."""

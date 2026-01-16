@@ -161,13 +161,12 @@ class MyComponent(Component):
   
   const { componentRegistry, React } = window.RefastClient;
   
+  // Note: onClick is already a function (converted by ComponentRenderer)
   const MyComponent = ({ title, value, onClick, className, children }) => {
     const handleClick = () => {
-      if (onClick && onClick.callbackId) {
-        // Trigger callback via WebSocket
-        window.dispatchEvent(new CustomEvent('refast:callback', {
-          detail: { callbackId: onClick.callbackId, data: { value } }
-        }));
+      // Simply call the function - it's already wrapped by Refast
+      if (onClick) {
+        onClick({ value });
       }
     };
     
@@ -284,6 +283,8 @@ ui = RefastApp(
 ---
 
 ## Creating Python Components
+
+> **Note**: For a deep dive into component architecture, prop naming conventions, and event handling, see the [Component Development Guide](COMPONENT_DEVELOPMENT.md).
 
 ### Basic Component
 
@@ -466,32 +467,13 @@ const { componentRegistry } = window.RefastClient;
 // Import your React library
 import { SomeLibraryComponent } from 'some-library';
 
-// Type for callback references from Python
-interface CallbackRef {
-  callbackId: string;
-  [key: string]: any;
-}
-
-// Helper to invoke callbacks
-function invokeCallback(callback: CallbackRef | undefined, data: Record<string, any> = {}) {
-  if (!callback?.callbackId) return;
-  
-  // Get WebSocket client from window
-  const ws = (window as any).__REFAST_WS__;
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({
-      type: 'callback',
-      callbackId: callback.callbackId,
-      data,
-    }));
-  }
-}
-
-// Your component
+// Your component props
+// IMPORTANT: Callbacks are converted to functions by ComponentRenderer
+// so you receive actual functions, not CallbackRef objects
 interface MyComponentProps {
   title: string;
   value: number;
-  onClick?: CallbackRef;
+  onClick?: (data: Record<string, unknown>) => void;  // Already a function!
   className?: string;
   children?: React.ReactNode;
 }
@@ -504,7 +486,10 @@ const MyComponent: React.FC<MyComponentProps> = ({
   children,
 }) => {
   const handleClick = () => {
-    invokeCallback(onClick, { value });
+    // Simply call the function - ComponentRenderer already wrapped it
+    if (onClick) {
+      onClick({ value });
+    }
   };
   
   return (
@@ -523,21 +508,69 @@ componentRegistry.register('MyComponent', MyComponent);
 export { MyComponent };
 ```
 
+### Understanding Callback Handling
+
+**Important:** When Refast's `ComponentRenderer` renders your extension component, it automatically converts callback references (the serialized `{ callbackId: "..." }` objects) into actual JavaScript functions. This means:
+
+1. **Your component receives functions, not callback refs** - The `onClick` prop is already a callable function
+2. **Just call the function with event data** - No need to manually dispatch events or access WebSocket
+3. **The data you pass becomes `ctx.event.data` in Python** - Include any relevant event information
+
+```tsx
+// ✅ CORRECT - Callbacks are already functions
+interface MyComponentProps {
+  onClick?: (data: Record<string, unknown>) => void;
+}
+
+const MyComponent: React.FC<MyComponentProps> = ({ onClick }) => {
+  const handleClick = () => {
+    onClick?.({ value: 42, name: "test" });  // Just call it!
+  };
+  return <button onClick={handleClick}>Click me</button>;
+};
+```
+
+### Manual Callback Invocation (Advanced)
+
+In rare cases where you need to invoke callbacks manually (e.g., from library event handlers that don't go through ComponentRenderer's prop processing), use the `refast:callback` custom event:
+
+```tsx
+// Type for raw callback references (before ComponentRenderer processes them)
+interface CallbackRef {
+  callbackId: string;
+  boundArgs?: Record<string, unknown>;
+}
+
+// Helper to manually invoke callbacks via Refast's event system
+function invokeCallback(callback: CallbackRef | undefined, data: Record<string, unknown> = {}): void {
+  if (!callback?.callbackId) return;
+  
+  // Dispatch custom event that Refast's EventManager listens for
+  const event = new CustomEvent('refast:callback', {
+    detail: {
+      callbackId: callback.callbackId,
+      data: { ...(callback.boundArgs || {}), ...data },
+    },
+  });
+  window.dispatchEvent(event);
+}
+```
+
+**When to use manual invocation:**
+- Wrapping libraries that manage their own event systems (e.g., ECharts, D3)
+- Events triggered outside React's synthetic event system
+- Canvas or WebGL libraries with custom event handling
+
 ### Handling Callbacks
 
 Callbacks from Python are serialized as objects with a `callbackId`:
 
 ```javascript
 // Python: on_click=ctx.callback(handle_click)
-// Serializes to: { callbackId: "abc123", ... }
+// Serializes to: { callbackId: "abc123", boundArgs: {...}, ... }
 
-// In your React component:
-const handleClick = () => {
-  if (props.onClick?.callbackId) {
-    // Send via WebSocket
-    invokeCallback(props.onClick, { clicked: true, value: 42 });
-  }
-};
+// ComponentRenderer converts this to a function automatically
+// Your component receives: onClick = (data) => { /* sends to server */ }
 ```
 
 ### Rendering Children
@@ -783,6 +816,99 @@ const MapProvider: React.FC<Props> = ({ children }) => {
 componentRegistry.register('MapProvider', MapProvider);
 ```
 
+### Wrapping Libraries with Custom Event Systems
+
+Some libraries (like ECharts, D3, Three.js) manage their own event systems outside of React. In these cases, callback props won't be automatically converted to functions because they're not passed through React's prop system.
+
+**The Problem:**
+```tsx
+// ECharts manages its own events - not through React props
+useEffect(() => {
+  const chart = echarts.init(containerRef.current);
+  
+  // This callback comes from props, but ECharts calls it directly
+  // NOT through ComponentRenderer's prop processing
+  chart.on('click', (params) => {
+    // onClick here is still a CallbackRef object, not a function!
+    onClick(params);  // ❌ Won't work - onClick is { callbackId: "..." }
+  });
+}, []);
+```
+
+**The Solution - Use `refast:callback` Custom Event:**
+
+```tsx
+import React, { useRef, useEffect } from 'react';
+import * as echarts from 'echarts';
+
+// Type for raw callback references
+interface CallbackRef {
+  callbackId: string;
+  boundArgs?: Record<string, unknown>;
+}
+
+// Helper to invoke callbacks via Refast's event system
+function invokeCallback(callback: CallbackRef | undefined, data: Record<string, unknown> = {}): void {
+  if (!callback?.callbackId) return;
+  
+  // Dispatch custom event that Refast's EventManager listens for
+  const event = new CustomEvent('refast:callback', {
+    detail: {
+      callbackId: callback.callbackId,
+      data: { ...(callback.boundArgs || {}), ...data },
+    },
+  });
+  window.dispatchEvent(event);
+}
+
+interface EChartsProps {
+  option?: object;
+  onClick?: CallbackRef;  // Raw callback ref (not processed by ComponentRenderer)
+}
+
+const EChartsComponent: React.FC<EChartsProps> = ({ option, onClick }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<echarts.ECharts | null>(null);
+  
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const chart = echarts.init(containerRef.current);
+    chartRef.current = chart;
+    
+    if (option) {
+      chart.setOption(option);
+    }
+    
+    // Setup event handler - manually invoke the callback
+    if (onClick) {
+      chart.on('click', (params: unknown) => {
+        // Serialize event params and invoke callback
+        invokeCallback(onClick, {
+          name: (params as any).name,
+          value: (params as any).value,
+          seriesName: (params as any).seriesName,
+        });
+      });
+    }
+    
+    return () => {
+      chart.dispose();
+    };
+  }, [option, onClick]);
+  
+  return <div ref={containerRef} style={{ width: '100%', height: '400px' }} />;
+};
+
+componentRegistry.register('ECharts', EChartsComponent);
+```
+
+**Key Points:**
+1. **Identify when manual invocation is needed** - If your library manages events outside React's synthetic event system
+2. **Use `refast:callback` custom event** - This is what Refast's EventManager listens for
+3. **Include `boundArgs`** - Merge them with your event data for proper callback argument handling
+4. **Serialize event data** - Only include serializable data (no DOM elements, circular references)
+
 ---
 
 ## Complete Example: refast-leaflet
@@ -1025,9 +1151,29 @@ def home(ctx):
 
 ### Callbacks Not Working
 
-1. Ensure callback is serialized: `self.on_click.serialize() if self.on_click else None`
-2. Check WebSocket connection in browser DevTools
-3. Verify callback ID is passed correctly
+There are two callback patterns in Refast extensions. Make sure you're using the right one:
+
+**Pattern 1: Standard React Props (most components)**
+- ComponentRenderer converts callback refs to functions automatically
+- Your component receives a callable function
+- Just call it: `onClick?.({ value: 42 })`
+
+**Pattern 2: Library-managed events (ECharts, D3, etc.)**
+- Library events bypass React's prop system
+- You receive raw CallbackRef objects
+- Must dispatch `refast:callback` custom event manually
+
+**Debugging Steps:**
+1. **Check what you're receiving** - Add `console.log(typeof onClick, onClick)` to see if it's a function or object
+2. **If it's a function** - Just call it with event data
+3. **If it's an object with `callbackId`** - Use manual `refast:callback` dispatch:
+   ```javascript
+   window.dispatchEvent(new CustomEvent('refast:callback', {
+     detail: { callbackId: onClick.callbackId, data: { value: 42 } }
+   }));
+   ```
+4. **Verify Python serialization** - Ensure callback is serialized: `self.on_click.serialize() if self.on_click else None`
+5. **Check WebSocket connection** - Open DevTools Network tab, filter by WS, verify messages are being sent/received
 
 ### CSS Not Applied
 

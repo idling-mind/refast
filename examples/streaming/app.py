@@ -34,6 +34,7 @@ from refast.components import (
     Row,
     Separator,
     Text,
+    ThemeSwitcher,
 )
 from refast.components.shadcn.charts import (
     Bar,
@@ -93,6 +94,7 @@ async def stream_markdown(ctx: Context):
     # Clear previous content and show streaming indicator
     await ctx.update_props("markdown-output", {"content": "", "streaming": True})
     await ctx.update_text("stream-status", "Streaming...")
+    await ctx.update_props("stream-status", {"variant": "primary"})
     await ctx.update_props("stop-streaming", {"disabled": False})
     ctx.state.set("streaming_stopped", False)
 
@@ -106,14 +108,18 @@ async def stream_markdown(ctx: Context):
         # Simulate varying token generation speed
         await asyncio.sleep(random.uniform(0.02, 0.08))
         if ctx.state.get("streaming_stopped", False):
-            await ctx.show_toast("Streaming stopped by user.", "info")
+            await ctx.update_text("stream-status", "Stopped")
+            await ctx.update_props("stream-status", {"variant": "warning"})
+            await ctx.show_toast("Streaming stopped by user.", "warning")
             break
-
-    # Done streaming
+    else:
+        # Done streaming
+        await ctx.update_text("stream-status", "Complete")
+        await ctx.update_props("stream-status", {"variant": "success"})
+        await ctx.show_toast("Streaming markdown complete!", "success")
     await ctx.update_props("markdown-output", {"streaming": False})
-    await ctx.update_text("stream-status", "Complete!")
     await ctx.update_props("stop-streaming", {"disabled": True})
-    await ctx.show_toast("Streaming markdown complete!", "success")
+
 
 async def stop_streaming(ctx: Context):
     """Stop the streaming process (simulated)."""
@@ -215,14 +221,20 @@ def home(ctx: Context):
         class_name="max-w-4xl mx-auto py-8 px-4",
         children=[
             # Header
-            Column(
-                class_name="space-y-2 mb-8",
+            Row(
+                justify="between",
                 children=[
-                    Heading("Streaming Demo"),
-                    Text(
-                        "Streaming content with append_prop and real-time chart updates",
-                        class_name="text-muted-foreground text-lg",
+                    Column(
+                        class_name="space-y-2 mb-8",
+                        children=[
+                            Heading("Streaming Demo"),
+                            Text(
+                                "Streaming content with append_prop and real-time chart updates",
+                                class_name="text-muted-foreground text-lg",
+                            ),
+                        ],
                     ),
+                    ThemeSwitcher(),
                 ],
             ),
             # Markdown Streaming Demo

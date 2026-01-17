@@ -36,13 +36,13 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.charts import (
+    Bar,
+    BarChart,
     CartesianGrid,
     ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
-    Line,
-    LineChart,
     XAxis,
     YAxis,
 )
@@ -347,9 +347,10 @@ def home(ctx: Context):
                             ),
                             ChartContainer(
                                 config={"value": chart_config},
-                                class_name="h-[350px] w-full",
+                                class_name="w-full",
+                                height=350,
                                 children=[
-                                    LineChart(
+                                    BarChart(
                                         id="live-chart",
                                         animation_duration=100,
                                         data=get_initial_chart_data(),
@@ -372,12 +373,8 @@ def home(ctx: Context):
                                                     hide_label=True,
                                                 ),
                                             ),
-                                            Line(
+                                            Bar(
                                                 data_key="value",
-                                                type="natural",
-                                                stroke="var(--color-value)",
-                                                stroke_width=2,
-                                                dot=True,
                                             ),
                                         ],
                                     ),

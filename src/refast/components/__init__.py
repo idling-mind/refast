@@ -12,23 +12,10 @@ from refast.components.registry import (
 # Re-export shadcn components
 from refast.components.shadcn import (
     Accordion,
-    # Feedback
     Alert,
-    ConnectionStatus,
-    # Overlay
-    Dialog,
-    DialogAction,
-    DialogCancel,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
     AspectRatio,
     Avatar,
     Badge,
-    # Navigation
     Breadcrumb,
     BreadcrumbEllipsis,
     BreadcrumbItem,
@@ -36,10 +23,8 @@ from refast.components.shadcn import (
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-    # Button
     Button,
     Calendar,
-    # Card
     Card,
     CardContent,
     CardDescription,
@@ -68,6 +53,7 @@ from refast.components.shadcn import (
     CommandList,
     CommandSeparator,
     CommandShortcut,
+    ConnectionStatus,
     ContextMenu,
     ContextMenuCheckboxItem,
     ContextMenuContent,
@@ -76,6 +62,15 @@ from refast.components.shadcn import (
     ContextMenuTrigger,
     DataTable,
     DatePicker,
+    Dialog,
+    DialogAction,
+    DialogCancel,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
     Drawer,
     DrawerClose,
     DrawerContent,
@@ -98,11 +93,9 @@ from refast.components.shadcn import (
     DropdownMenuTrigger,
     Empty,
     Flex,
-    # Form
     Form,
     FormField,
     Grid,
-    # Typography
     Heading,
     HoverCard,
     HoverCardContent,
@@ -110,7 +103,6 @@ from refast.components.shadcn import (
     Icon,
     IconButton,
     Image,
-    # Input
     Input,
     InputOTP,
     InputOTPGroup,
@@ -157,12 +149,10 @@ from refast.components.shadcn import (
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
-    # Layout
     Row,
     ScrollArea,
     ScrollBar,
     Select,
-    # Utility
     Separator,
     Sheet,
     SheetClose,
@@ -197,10 +187,8 @@ from refast.components.shadcn import (
     Skeleton,
     Slider,
     Spinner,
-    # Controls
     Switch,
     TabItem,
-    # Data Display
     Table,
     TableBody,
     TableCell,

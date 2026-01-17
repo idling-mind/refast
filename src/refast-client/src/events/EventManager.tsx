@@ -83,23 +83,9 @@ export function EventManagerProvider({
           persistentStateManager.handleStoreReady();
         }
 
-        // Handle component updates
-        if (message.type === 'update' && onComponentUpdate) {
-          const { operation, targetId, component, children, props } = message;
-
-          if (targetId) {
-            // Build the update object based on operation type
-            let updateObj: ComponentTree | null = component || null;
-            
-            if (operation === 'update_children' && children) {
-              updateObj = { type: '', id: '', props: {}, children } as ComponentTree;
-            } else if (operation === 'update_props' && props) {
-              updateObj = { type: '', id: '', props, children: [] } as ComponentTree;
-            }
-            
-            onComponentUpdate(targetId, updateObj, operation);
-          }
-        }
+        // Note: Component updates (message.type === 'update') are handled by the 
+        // registered update handlers via handleUpdate in StateManager.
+        // We don't call onComponentUpdate here to avoid processing updates twice.
 
         // Handle JavaScript execution from backend
         if (message.type === 'js_exec' && message.code) {

@@ -218,9 +218,19 @@ export function useStateManager(initialTree?: ComponentTree) {
       switch (message.type) {
         case 'update':
           if (message.targetId && message.operation) {
+            // Build the update object based on operation type
+            let updateObj: ComponentTree | null = message.component || null;
+            
+            // For update_children and update_props, the data comes in separate fields
+            if (message.operation === 'update_children' && message.children) {
+              updateObj = { type: '', id: '', props: {}, children: message.children } as ComponentTree;
+            } else if (message.operation === 'update_props' && message.props) {
+              updateObj = { type: '', id: '', props: message.props, children: [] } as ComponentTree;
+            }
+            
             updateComponent(
               message.targetId,
-              message.component || null,
+              updateObj,
               message.operation
             );
           }

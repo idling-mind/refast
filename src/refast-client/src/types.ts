@@ -67,11 +67,14 @@ export type AnyCallbackRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRe
  */
 export interface UpdateMessage {
   type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call';
-  operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children';
+  operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children' | 'append_prop';
   targetId?: string;
   component?: ComponentTree;
   props?: Record<string, unknown>;
   children?: (ComponentTree | string)[];
+  // append_prop specific fields
+  propName?: string;
+  value?: unknown;
   state?: Record<string, unknown>;
   path?: string;
   message?: string;

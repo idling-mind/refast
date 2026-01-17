@@ -610,6 +610,59 @@ class Context(Generic[T]):
                 }
             )
 
+    async def append_prop(
+        self,
+        target_id: str,
+        prop_name: str,
+        value: Any,
+    ) -> None:
+        """
+        Append a value to a component's prop.
+
+        For string props (like 'content' in Markdown), the value is concatenated.
+        For list/array props (like 'data' in charts), the value is appended or extended.
+
+        This is useful for streaming scenarios where you want to incrementally
+        update a component without replacing the entire prop value.
+
+        Args:
+            target_id: ID of the target component
+            prop_name: Name of the prop to append to
+            value: Value to append (string for concatenation, any for list append)
+
+        Example:
+            ```python
+            # Streaming text to a Markdown component
+            async def stream_response(ctx: Context):
+                await ctx.update_props("output", {"streaming": True})
+                
+                async for chunk in llm_stream():
+                    await ctx.append_prop("output", "content", chunk)
+                
+                await ctx.update_props("output", {"streaming": False})
+
+            # Appending data points to a chart
+            async def add_data_point(ctx: Context):
+                new_point = {"x": time.time(), "y": sensor.read()}
+                await ctx.append_prop("my-chart", "data", new_point)
+
+            # Extending chart data with multiple points
+            async def add_batch_data(ctx: Context):
+                new_points = [{"x": i, "y": v} for i, v in enumerate(values)]
+                await ctx.append_prop("my-chart", "data", new_points)
+            ```
+        """
+        if self._websocket:
+            await self._websocket.send_json(
+                {
+                    "type": "update",
+                    "operation": "append_prop",
+                    "targetId": target_id,
+                    "propName": prop_name,
+                    "value": value,
+                }
+            )
+
     async def navigate(self, path: str) -> None:
         """Navigate to a different page."""
         if self._websocket:

@@ -226,6 +226,9 @@ export function useStateManager(initialTree?: ComponentTree) {
               updateObj = { type: '', id: '', props: {}, children: message.children } as ComponentTree;
             } else if (message.operation === 'update_props' && message.props) {
               updateObj = { type: '', id: '', props: message.props, children: [] } as ComponentTree;
+            } else if (message.operation === 'append_prop' && message.propName !== undefined) {
+              // For append_prop, we pass propName and value via props
+              updateObj = { type: '', id: '', props: { __propName: message.propName, __value: message.value }, children: [] } as ComponentTree;
             }
             
             updateComponent(
@@ -367,6 +370,45 @@ function applyUpdate(
           };
         }
         return tree;
+
+      case 'append_prop': {
+        // Append to a specific prop (string concatenation or array append)
+        const propName = update?.props?.__propName as string;
+        const value = update?.props?.__value;
+        if (!propName) return tree;
+
+        const currentValue = tree.props[propName];
+        let newValue: unknown;
+
+        if (typeof currentValue === 'string' && typeof value === 'string') {
+          // String concatenation
+          newValue = currentValue + value;
+        } else if (Array.isArray(currentValue)) {
+          // Array append - if value is array, extend; otherwise push
+          if (Array.isArray(value)) {
+            newValue = [...currentValue, ...value];
+          } else {
+            newValue = [...currentValue, value];
+          }
+        } else if (currentValue === undefined || currentValue === null) {
+          // Prop doesn't exist yet - initialize it
+          if (typeof value === 'string') {
+            newValue = value;
+          } else if (Array.isArray(value)) {
+            newValue = value;
+          } else {
+            newValue = [value];
+          }
+        } else {
+          // Fallback: try to concatenate or just replace
+          newValue = value;
+        }
+
+        return {
+          ...tree,
+          props: { ...tree.props, [propName]: newValue },
+        };
+      }
 
       default:
         return tree;

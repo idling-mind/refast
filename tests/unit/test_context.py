@@ -1,6 +1,7 @@
 """Tests for Context class and Callback."""
 
 import pytest
+from unittest.mock import AsyncMock
 
 from refast import RefastApp
 from refast.context import BoundJsCallback, Callback, Context, JsAction, JsCallback
@@ -204,6 +205,12 @@ class TestContextWithoutWebSocket:
         """Test update_text does nothing without websocket."""
         ctx = Context()
         await ctx.update_text("target-id", "New text")
+
+    @pytest.mark.asyncio
+    async def test_append_prop_without_websocket(self):
+        """Test append_prop does nothing without websocket."""
+        ctx = Context()
+        await ctx.append_prop("target-id", "content", "new text")
 
     @pytest.mark.asyncio
     async def test_refresh_without_websocket(self):
@@ -542,3 +549,62 @@ class TestContextCallBoundJsWithoutWebSocket:
         ctx = Context()
         # Should not raise
         await ctx.call_bound_js("my-canvas", "loadPaths", paths=[1, 2, 3], clear=True)
+
+
+class TestContextAppendProp:
+    """Tests for Context.append_prop() method."""
+
+    @pytest.mark.asyncio
+    async def test_append_prop_sends_correct_message(self):
+        """Test append_prop sends correct WebSocket message."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.append_prop("markdown-output", "content", "new text")
+
+        ws.send_json.assert_called_once_with({
+            "type": "update",
+            "operation": "append_prop",
+            "targetId": "markdown-output",
+            "propName": "content",
+            "value": "new text",
+        })
+
+    @pytest.mark.asyncio
+    async def test_append_prop_with_list_value(self):
+        """Test append_prop with list value."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.append_prop("my-chart", "data", [{"x": 1, "y": 2}])
+
+        ws.send_json.assert_called_once_with({
+            "type": "update",
+            "operation": "append_prop",
+            "targetId": "my-chart",
+            "propName": "data",
+            "value": [{"x": 1, "y": 2}],
+        })
+
+    @pytest.mark.asyncio
+    async def test_append_prop_with_single_item(self):
+        """Test append_prop with single item for array."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.append_prop("my-chart", "data", {"x": 1, "y": 2})
+
+        ws.send_json.assert_called_once_with({
+            "type": "update",
+            "operation": "append_prop",
+            "targetId": "my-chart",
+            "propName": "data",
+            "value": {"x": 1, "y": 2},
+        })
+
+    @pytest.mark.asyncio
+    async def test_append_prop_without_websocket(self):
+        """Test append_prop does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.append_prop("target-id", "content", "new text")

@@ -1,6 +1,52 @@
 import { default as React } from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+interface AccordionProps {
+    id?: string;
+    className?: string;
+    type?: 'single' | 'multiple';
+    collapsible?: boolean;
+    defaultValue?: string | string[];
+    value?: string | string[];
+    onValueChange?: (value: string | string[]) => void;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * Accordion component - expandable/collapsible sections.
+ */
+export declare function Accordion({ id, className, type, collapsible, defaultValue, value, onValueChange, children, 'data-refast-id': dataRefastId, }: AccordionProps): React.ReactElement;
+interface AccordionItemProps {
+    id?: string;
+    className?: string;
+    value: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * AccordionItem component - individual accordion section.
+ */
+export declare function AccordionItem({ id, className, value, children, 'data-refast-id': dataRefastId, }: AccordionItemProps): React.ReactElement;
+interface AccordionTriggerProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * AccordionTrigger component - clickable header to toggle section.
+ */
+export declare const AccordionTrigger: React.ForwardRefExoticComponent<AccordionTriggerProps & React.RefAttributes<HTMLButtonElement>>;
+interface AccordionContentProps {
+    id?: string;
+    className?: string;
+    children?: React.ReactNode;
+    'data-refast-id'?: string;
+}
+/**
+ * AccordionContent component - content revealed when section is open.
+ */
+export declare const AccordionContent: React.ForwardRefExoticComponent<AccordionContentProps & React.RefAttributes<HTMLDivElement>>;
 interface TableProps {
     id?: string;
     className?: string;

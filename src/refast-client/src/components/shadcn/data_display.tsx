@@ -1,6 +1,161 @@
 import React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import * as AccordionPrimitive from '@radix-ui/react-accordion';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '../../utils';
+
+// ============================================================================
+// Accordion Components
+// ============================================================================
+
+interface AccordionProps {
+  id?: string;
+  className?: string;
+  type?: 'single' | 'multiple';
+  collapsible?: boolean;
+  defaultValue?: string | string[];
+  value?: string | string[];
+  onValueChange?: (value: string | string[]) => void;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * Accordion component - expandable/collapsible sections.
+ */
+export function Accordion({
+  id,
+  className,
+  type = 'single',
+  collapsible = true,
+  defaultValue,
+  value,
+  onValueChange,
+  children,
+  'data-refast-id': dataRefastId,
+}: AccordionProps): React.ReactElement {
+  // Handle controlled vs uncontrolled based on type
+  if (type === 'single') {
+    return (
+      <AccordionPrimitive.Root
+        id={id}
+        type="single"
+        collapsible={collapsible}
+        defaultValue={defaultValue as string | undefined}
+        value={value as string | undefined}
+        onValueChange={onValueChange as ((value: string) => void) | undefined}
+        className={cn('w-full', className)}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+      </AccordionPrimitive.Root>
+    );
+  }
+
+  return (
+    <AccordionPrimitive.Root
+      id={id}
+      type="multiple"
+      defaultValue={defaultValue as string[] | undefined}
+      value={value as string[] | undefined}
+      onValueChange={onValueChange as ((value: string[]) => void) | undefined}
+      className={cn('w-full', className)}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </AccordionPrimitive.Root>
+  );
+}
+
+interface AccordionItemProps {
+  id?: string;
+  className?: string;
+  value: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * AccordionItem component - individual accordion section.
+ */
+export function AccordionItem({
+  id,
+  className,
+  value,
+  children,
+  'data-refast-id': dataRefastId,
+}: AccordionItemProps): React.ReactElement {
+  return (
+    <AccordionPrimitive.Item
+      id={id}
+      value={value}
+      className={cn('border-b', className)}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </AccordionPrimitive.Item>
+  );
+}
+
+interface AccordionTriggerProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * AccordionTrigger component - clickable header to toggle section.
+ */
+export const AccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Trigger>,
+  AccordionTriggerProps
+>(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
+  <AccordionPrimitive.Header className="flex">
+    <AccordionPrimitive.Trigger
+      ref={ref}
+      id={id}
+      className={cn(
+        'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+        className
+      )}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+    </AccordionPrimitive.Trigger>
+  </AccordionPrimitive.Header>
+));
+AccordionTrigger.displayName = 'AccordionTrigger';
+
+interface AccordionContentProps {
+  id?: string;
+  className?: string;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * AccordionContent component - content revealed when section is open.
+ */
+export const AccordionContent = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Content>,
+  AccordionContentProps
+>(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
+  <AccordionPrimitive.Content
+    ref={ref}
+    id={id}
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    data-refast-id={dataRefastId}
+  >
+    <div className={cn('pb-4 pt-0', className)}>{children}</div>
+  </AccordionPrimitive.Content>
+));
+AccordionContent.displayName = 'AccordionContent';
+
+// ============================================================================
+// Table Components
+// ============================================================================
 
 interface TableProps {
   id?: string;

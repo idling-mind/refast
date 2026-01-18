@@ -483,6 +483,7 @@ class Accordion(Component):
         Accordion(
             type="single",
             collapsible=True,
+            on_value_change=ctx.callback(handle_change),
             children=[
                 AccordionItem(
                     value="item-1",
@@ -494,6 +495,13 @@ class Accordion(Component):
             ]
         )
         ```
+
+    Args:
+        children: List of AccordionItem components.
+        type: "single" allows one item open at a time, "multiple" allows multiple.
+        collapsible: If True and type="single", allows closing all items.
+        default_value: Initially open item(s). String for single, list for multiple.
+        on_value_change: Callback when the open items change. Receives {"value": ...}.
     """
 
     component_type: str = "Accordion"
@@ -504,6 +512,7 @@ class Accordion(Component):
         type: Literal["single", "multiple"] = "single",
         collapsible: bool = True,
         default_value: str | list[str] | None = None,
+        on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -514,6 +523,7 @@ class Accordion(Component):
         self.accordion_type = type
         self.collapsible = collapsible
         self.default_value = default_value
+        self.on_value_change = on_value_change
 
     def render(self) -> dict[str, Any]:
         return {
@@ -523,6 +533,9 @@ class Accordion(Component):
                 "type": self.accordion_type,
                 "collapsible": self.collapsible,
                 "default_value": self.default_value,
+                "on_value_change": (
+                    self.on_value_change.serialize() if self.on_value_change else None
+                ),
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

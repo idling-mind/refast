@@ -36,6 +36,10 @@ from refast.components import (
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
+    Accordion,
+    AccordionItem,
+    AccordionTrigger,
+    AccordionContent,
     Column,
     Combobox,
     Container,
@@ -127,6 +131,16 @@ async def on_toggle_change(ctx: Context):
     active = [k for k, v in formats.items() if v]
     msg = f"Active formats: {', '.join(active)}" if active else "No formats active"
     await ctx.show_toast(msg, variant="info")
+
+
+async def on_accordion_change(ctx: Context):
+    """Handle accordion value change and update status text."""
+    value = ctx.event_data.get("value", "")
+    if isinstance(value, list):
+        display = ", ".join(value)
+    else:
+        display = value or "None"
+    await ctx.update_text("accordion-status", f"Open: {display}")
 
 
 async def on_checkbox_group_change(ctx: Context):
@@ -269,6 +283,50 @@ def home(ctx: Context):
                     Column([ThemeSwitcher()]),
                 ],
                 justify="between",
+            ),
+            # Accordion example inserted near top
+            Card(
+                class_name="mb-4",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Accordion Example"),
+                            CardDescription("Simple Accordion with interactive status"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=4,
+                                children=[
+                                    Text("Open: None", id="accordion-status", class_name="text-sm mb-2"),
+                                    Accordion(
+                                        default_value=None,
+                                        type="single",
+                                        collapsible=True,
+                                        on_value_change=ctx.callback(on_accordion_change),
+                                        children=[
+                                            AccordionItem(
+                                                value="item-1",
+                                                children=[
+                                                    AccordionTrigger(children=["Item One"]),
+                                                    AccordionContent(children=[Text("Content for item one.")]),
+                                                ],
+                                            ),
+                                            AccordionItem(
+                                                value="item-2",
+                                                children=[
+                                                    AccordionTrigger(children=["Item Two"]),
+                                                    AccordionContent(children=[Text("Content for item two.")]),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
             ),
             # Breadcrumb navigation
             Breadcrumb(

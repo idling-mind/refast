@@ -12,6 +12,9 @@ from refast.components.registry import (
 # Re-export shadcn components
 from refast.components.shadcn import (
     Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
     Alert,
     AspectRatio,
     Avatar,
@@ -283,6 +286,9 @@ __all__ = [
     "Tabs",
     "TabItem",
     "Accordion",
+    "AccordionContent",
+    "AccordionItem",
+    "AccordionTrigger",
     # Typography
     "Heading",
     "Paragraph",

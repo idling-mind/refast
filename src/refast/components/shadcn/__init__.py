@@ -1,7 +1,6 @@
 """shadcn-based components."""
 
 from refast.components.shadcn.button import Button, IconButton
-from refast.components.shadcn.icon import Icon
 from refast.components.shadcn.card import (
     Card,
     CardContent,
@@ -26,6 +25,9 @@ from refast.components.shadcn.controls import (
 )
 from refast.components.shadcn.data_display import (
     Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
     Avatar,
     Badge,
     DataTable,
@@ -49,6 +51,7 @@ from refast.components.shadcn.feedback import (
     Spinner,
 )
 from refast.components.shadcn.form import Form, FormField, Label
+from refast.components.shadcn.icon import Icon
 from refast.components.shadcn.input import (
     Checkbox,
     CheckboxGroup,
@@ -130,6 +133,12 @@ from refast.components.shadcn.navigation import (
     SidebarTrigger,
 )
 from refast.components.shadcn.overlay import (
+    ContextMenu,
+    ContextMenuCheckboxItem,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
     Dialog,
     DialogAction,
     DialogCancel,
@@ -139,12 +148,6 @@ from refast.components.shadcn.overlay import (
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    ContextMenu,
-    ContextMenuCheckboxItem,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuSeparator,
-    ContextMenuTrigger,
     Drawer,
     DrawerClose,
     DrawerContent,
@@ -257,6 +260,9 @@ __all__ = [
     "Tabs",
     "TabItem",
     "Accordion",
+    "AccordionContent",
+    "AccordionItem",
+    "AccordionTrigger",
     # Typography
     "Heading",
     "Paragraph",

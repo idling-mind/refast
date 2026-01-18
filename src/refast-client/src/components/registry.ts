@@ -13,7 +13,7 @@ import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
 import { ConnectionStatus } from './shadcn/ConnectionStatus';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem } from './shadcn/data_display';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './shadcn/data_display';
 
 // Import new Stage 9 components - Controls
 import { Switch, Slider, Toggle, ToggleGroup, ToggleGroupItem, DatePicker, Calendar, Combobox, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from './shadcn/controls';
@@ -182,6 +182,10 @@ componentRegistry.register('Image', Image);
 componentRegistry.register('Tooltip', Tooltip);
 componentRegistry.register('Tabs', Tabs);
 componentRegistry.register('TabItem', TabItem);
+componentRegistry.register('Accordion', Accordion);
+componentRegistry.register('AccordionItem', AccordionItem);
+componentRegistry.register('AccordionTrigger', AccordionTrigger);
+componentRegistry.register('AccordionContent', AccordionContent);
 
 // Register control components (Stage 9)
 componentRegistry.register('Switch', Switch);

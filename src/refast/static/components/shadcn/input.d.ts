@@ -1,5 +1,10 @@
 import { default as React } from 'react';
 
+interface OptionItem {
+    value: string;
+    label: string;
+    disabled?: boolean;
+}
 interface InputProps {
     id?: string;
     className?: string;
@@ -114,6 +119,7 @@ interface RadioGroupProps {
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
     label?: string;
+    options?: OptionItem[];
     onValueChange?: (value: string) => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
@@ -121,7 +127,7 @@ interface RadioGroupProps {
 /**
  * RadioGroup component - container for radio buttons using children composition.
  */
-export declare function RadioGroup({ id, className, name, value, defaultValue, disabled, orientation, label, onValueChange, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
+export declare function RadioGroup({ id, className, name, value, defaultValue, disabled, orientation, label, options, onValueChange, children, 'data-refast-id': dataRefastId, }: RadioGroupProps): React.ReactElement;
 interface CheckboxGroupProps {
     id?: string;
     className?: string;
@@ -131,6 +137,7 @@ interface CheckboxGroupProps {
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
     label?: string;
+    options?: OptionItem[];
     onChange?: (value: string[]) => void;
     children?: React.ReactNode;
     'data-refast-id'?: string;
@@ -138,5 +145,5 @@ interface CheckboxGroupProps {
 /**
  * CheckboxGroup component - group of checkboxes using children composition.
  */
-export declare function CheckboxGroup({ id, className, name, value, defaultValue, disabled, orientation, label, onChange, children, 'data-refast-id': dataRefastId, }: CheckboxGroupProps): React.ReactElement;
+export declare function CheckboxGroup({ id, className, name, value, defaultValue, disabled, orientation, label, options, onChange, children, 'data-refast-id': dataRefastId, }: CheckboxGroupProps): React.ReactElement;
 export {};

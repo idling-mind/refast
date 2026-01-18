@@ -1,8 +1,15 @@
 import React from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { Check } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
+
+// Type for options array used in RadioGroup and CheckboxGroup
+interface OptionItem {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
 
 interface InputProps {
   id?: string;
@@ -502,6 +509,7 @@ interface RadioGroupProps {
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
   label?: string;
+  options?: OptionItem[];
   onValueChange?: (value: string) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -519,6 +527,7 @@ export function RadioGroup({
   disabled = false,
   orientation = 'vertical',
   label,
+  options,
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
@@ -541,6 +550,40 @@ export function RadioGroup({
     }
   };
 
+  // Render radio items from options if provided
+  const renderItems = () => {
+    if (options && options.length > 0) {
+      return options.map((option) => (
+        <div key={option.value} className="flex items-center space-x-2">
+          <RadioGroupPrimitive.Item
+            value={option.value}
+            id={`${rootId}-${option.value}`}
+            disabled={option.disabled}
+            className={cn(
+              'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50'
+            )}
+          >
+            <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+              <Circle className="h-2.5 w-2.5 fill-current text-current" />
+            </RadioGroupPrimitive.Indicator>
+          </RadioGroupPrimitive.Item>
+          <label
+            htmlFor={`${rootId}-${option.value}`}
+            className={cn(
+              'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+              option.disabled && 'cursor-not-allowed opacity-70'
+            )}
+          >
+            {option.label}
+          </label>
+        </div>
+      ));
+    }
+    return children;
+  };
+
   return (
     <div className={cn('space-y-2', className)} data-refast-id={dataRefastId}>
       {label && (
@@ -561,7 +604,7 @@ export function RadioGroup({
         orientation={orientation}
         id={rootId}
       >
-        {children}
+        {renderItems()}
       </RadioGroupPrimitive.Root>
     </div>
   );
@@ -576,6 +619,7 @@ interface CheckboxGroupProps {
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
   label?: string;
+  options?: OptionItem[];
   onChange?: (value: string[]) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -593,6 +637,7 @@ export function CheckboxGroup({
   disabled = false,
   orientation = 'vertical',
   label,
+  options,
   onChange,
   children,
   'data-refast-id': dataRefastId,
@@ -610,34 +655,77 @@ export function CheckboxGroup({
     }
   }, [value]);
 
-  // Clone children to inject checked state and onChange handlers
-  const enhancedChildren = React.Children.map(children, (child) => {
-    if (React.isValidElement(child) && child.props.value) {
-      const childValue = child.props.value as string;
-      return React.cloneElement(child as React.ReactElement<CheckboxProps>, {
-        name,
-        checked: localValue.includes(childValue),
-        disabled: disabled || child.props.disabled,
-        onCheckedChange: (checked: boolean) => {
-          let newValue: string[];
-          if (checked) {
-            if (!localValue.includes(childValue)) {
-              newValue = [...localValue, childValue];
-            } else {
-              newValue = localValue;
-            }
-          } else {
-            newValue = localValue.filter((v) => v !== childValue);
-          }
-          setLocalValue(newValue);
-          if (onChange) {
-            onChange(newValue);
-          }
-        },
+  const handleCheckedChange = (optionValue: string, checked: boolean) => {
+    let newValue: string[];
+    if (checked) {
+      if (!localValue.includes(optionValue)) {
+        newValue = [...localValue, optionValue];
+      } else {
+        newValue = localValue;
+      }
+    } else {
+      newValue = localValue.filter((v) => v !== optionValue);
+    }
+    setLocalValue(newValue);
+    if (onChange) {
+      onChange(newValue);
+    }
+  };
+
+  // Render checkbox items from options if provided
+  const renderItems = () => {
+    if (options && options.length > 0) {
+      return options.map((option) => {
+        const checkboxId = `${rootId}-${option.value}`;
+        const isChecked = localValue.includes(option.value);
+        const isDisabled = disabled || option.disabled;
+        return (
+          <div key={option.value} className="flex items-center space-x-2">
+            <CheckboxPrimitive.Root
+              id={checkboxId}
+              name={name}
+              value={option.value}
+              checked={isChecked}
+              disabled={isDisabled}
+              onCheckedChange={(checked) => handleCheckedChange(option.value, checked === true)}
+              className={cn(
+                'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground'
+              )}
+            >
+              <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
+                <Check className="h-4 w-4" />
+              </CheckboxPrimitive.Indicator>
+            </CheckboxPrimitive.Root>
+            <label
+              htmlFor={checkboxId}
+              className={cn(
+                'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+                isDisabled && 'cursor-not-allowed opacity-70'
+              )}
+            >
+              {option.label}
+            </label>
+          </div>
+        );
       });
     }
-    return child;
-  });
+    // Fall back to children composition
+    return React.Children.map(children, (child) => {
+      if (React.isValidElement(child) && child.props.value) {
+        const childValue = child.props.value as string;
+        return React.cloneElement(child as React.ReactElement<CheckboxProps>, {
+          name,
+          checked: localValue.includes(childValue),
+          disabled: disabled || child.props.disabled,
+          onCheckedChange: (checked: boolean) => handleCheckedChange(childValue, checked),
+        });
+      }
+      return child;
+    });
+  };
 
   return (
     <div
@@ -657,7 +745,7 @@ export function CheckboxGroup({
           orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
         )}
       >
-        {enhancedChildren}
+        {renderItems()}
       </div>
     </div>
   );

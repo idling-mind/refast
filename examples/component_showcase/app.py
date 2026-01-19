@@ -446,8 +446,8 @@ def home(ctx: Context):
                                                 mode="range",
                                                 placeholder="Select date range",
                                                 caption_layout="dropdown",
-                                                min_date="2024-01-01",
-                                                max_date="2024-12-31",
+                                                # min_date="2024-01-01",
+                                                # max_date="2024-12-31",
                                             ),
                                             Textarea(
                                                 name="message",

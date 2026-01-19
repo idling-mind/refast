@@ -887,8 +887,9 @@ export function DatePicker({
   // Handle range selection
   const handleRangeSelect = (range: { from?: Date; to?: Date } | undefined) => {
     setSelectedRange(range);
-    // Close only when both dates are selected
-    if (range?.from && range?.to) {
+    // Close only when both dates are selected AND they are different dates
+    // (When user clicks the first date, react-day-picker sets from=to=clickedDate initially)
+    if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
       setOpen(false);
     }
     if (onChange) {

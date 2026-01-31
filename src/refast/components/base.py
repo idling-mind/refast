@@ -60,9 +60,11 @@ class Component(ABC):
         return self
 
     def _render_children(self) -> list[dict[str, Any] | str]:
-        """Render all children to dicts."""
+        """Render all children to dicts, filtering out None values."""
         result = []
         for child in self._children:
+            if child is None:
+                continue
             if isinstance(child, Component):
                 result.append(child.render())
             else:

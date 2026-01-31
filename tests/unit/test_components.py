@@ -163,5 +163,28 @@ class TestRenderChildren:
         assert rendered["children"][0]["type"] == "Text"
         assert rendered["children"][1] == "plain text"
 
+    def test_renders_children_filters_none(self):
+        """Test rendering filters out None children."""
+        container = Container(children=[Text("A"), None, Text("B"), None])
+        rendered = container.render()
+        assert len(rendered["children"]) == 2
+        assert rendered["children"][0]["type"] == "Text"
+        assert rendered["children"][0]["children"] == ["A"]
+        assert rendered["children"][1]["type"] == "Text"
+        assert rendered["children"][1]["children"] == ["B"]
+
+    def test_renders_children_filters_none_with_conditional(self):
+        """Test rendering with conditional None pattern."""
+        show_alert = False
+        container = Container(
+            children=[
+                Text("Always shown"),
+                Text("Conditional") if show_alert else None,
+            ]
+        )
+        rendered = container.render()
+        assert len(rendered["children"]) == 1
+        assert rendered["children"][0]["children"] == ["Always shown"]
+
 
 

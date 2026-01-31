@@ -67,14 +67,17 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
       return null;
     }
 
+    // Filter out null/undefined values and 'None' strings (defensive check)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return children.map((child: any, index: number) => (
-      <ComponentRenderer
-        key={typeof child === 'string' ? index : child.id || index}
-        tree={child}
-        onUpdate={onUpdate}
-      />
-    ));
+    return children
+      .filter((child: any) => child != null && child !== 'None')
+      .map((child: any, index: number) => (
+        <ComponentRenderer
+          key={typeof child === 'string' ? index : child.id || index}
+          tree={child}
+          onUpdate={onUpdate}
+        />
+      ));
   }, [children, onUpdate]);
 
   // Handle parentStyle for wrapper div

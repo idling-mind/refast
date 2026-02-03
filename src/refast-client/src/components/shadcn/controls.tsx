@@ -12,6 +12,7 @@ import {
 import { Button, buttonVariants } from './button';
 import { cn } from '../../utils';
 import { Icon } from './icon';
+import { InputWrapper } from './input';
 
 // ============================================================================
 // Switch
@@ -72,6 +73,10 @@ export function Switch({
 interface SliderProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   value?: number[];
   defaultValue?: number[];
   min?: number;
@@ -87,6 +92,10 @@ interface SliderProps {
 export function Slider({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   value,
   defaultValue = [0],
   min = 0,
@@ -98,7 +107,7 @@ export function Slider({
   onValueCommit,
   'data-refast-id': dataRefastId,
 }: SliderProps): React.ReactElement {
-  return (
+  const sliderElement = (
     <SliderPrimitive.Root
       id={id}
       value={value}
@@ -115,7 +124,6 @@ export function Slider({
         orientation === 'vertical' && 'flex-col h-full w-auto',
         className
       )}
-      data-refast-id={dataRefastId}
     >
       <SliderPrimitive.Track
         className={cn(
@@ -137,6 +145,24 @@ export function Slider({
       ))}
     </SliderPrimitive.Root>
   );
+
+  // Wrap with InputWrapper if label, description, or error is provided
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {sliderElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{sliderElement}</div>;
 }
 
 // ============================================================================
@@ -767,6 +793,10 @@ function CalendarDayButton({
 interface DatePickerProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   // For single mode: ISO string or Date; for range mode: { from?: string, to?: string }
   value?: string | { from?: string; to?: string };
   placeholder?: string;
@@ -785,6 +815,10 @@ interface DatePickerProps {
 export function DatePicker({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   value,
   placeholder = 'Pick a date',
   disabled = false,
@@ -906,18 +940,19 @@ export function DatePicker({
 
   const hasValue = mode === 'range' ? !!selectedRange?.from : !!selectedDate;
 
-  return (
-    <div ref={containerRef} className={cn('relative', className)} data-refast-id={dataRefastId}>
+  const datePickerElement = (
+    <div ref={containerRef} className={cn('relative', className)}>
       <button
         id={id}
         type="button"
         disabled={disabled}
         onClick={() => setOpen(!open)}
         className={cn(
-          'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm',
+          'flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm',
           'ring-offset-background placeholder:text-muted-foreground',
           'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
+          error ? 'border-destructive' : 'border-input',
           !hasValue && 'text-muted-foreground'
         )}
       >
@@ -966,6 +1001,24 @@ export function DatePicker({
       )}
     </div>
   );
+
+  // Wrap with InputWrapper if label, description, or error is provided
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {datePickerElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{datePickerElement}</div>;
 }
 
 // ============================================================================
@@ -980,6 +1033,10 @@ interface ComboboxOption {
 interface ComboboxProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   options?: ComboboxOption[];
   value?: string | string[];
   placeholder?: string;
@@ -994,6 +1051,10 @@ interface ComboboxProps {
 export function Combobox({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   options = [],
   value,
   placeholder = 'Select...',
@@ -1094,11 +1155,10 @@ export function Combobox({
     }
   };
 
-  return (
+  const comboboxElement = (
     <div
       ref={containerRef}
       className={cn('relative', className)}
-      data-refast-id={dataRefastId}
     >
       <button
         id={id}
@@ -1106,22 +1166,23 @@ export function Combobox({
         disabled={disabled}
         onClick={() => setOpen(!open)}
         className={cn(
-          'flex min-h-[2.5rem] w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm',
+          'flex min-h-[2.5rem] w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm',
           'ring-offset-background placeholder:text-muted-foreground',
           'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-          'disabled:cursor-not-allowed disabled:opacity-50'
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          error ? 'border-destructive' : 'border-input'
         )}
       >
         {multiselect && Array.isArray(internalValue) && internalValue.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {internalValue.map((val) => {
-              const label = options.find((o) => o.value === val)?.label || val;
+              const optLabel = options.find((o) => o.value === val)?.label || val;
               return (
                 <div
                   key={val}
                   className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground"
                 >
-                  {label}
+                  {optLabel}
                   <div
                     role="button"
                     className="ml-1 cursor-pointer rounded-full p-0.5 hover:bg-secondary-foreground/20"
@@ -1240,6 +1301,24 @@ export function Combobox({
       )}
     </div>
   );
+
+  // Wrap with InputWrapper if label, description, or error is provided
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {comboboxElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{comboboxElement}</div>;
 }
 
 // ============================================================================
@@ -1249,6 +1328,10 @@ export function Combobox({
 interface InputOTPProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   maxLength?: number;
   value?: string;
   disabled?: boolean;
@@ -1262,6 +1345,10 @@ interface InputOTPProps {
 export function InputOTP({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   maxLength = 6,
   value = '',
   disabled = false,
@@ -1295,25 +1382,18 @@ export function InputOTP({
     }
   };
 
-  // If children are provided, render them (for custom layout)
-  if (children) {
-    return (
-      <div
-        id={id}
-        className={cn('flex items-center gap-2', className)}
-        data-refast-id={dataRefastId}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  // Default simple layout
-  return (
+  // The OTP input element
+  const inputOTPElement = children ? (
     <div
       id={id}
       className={cn('flex items-center gap-2', className)}
-      data-refast-id={dataRefastId}
+    >
+      {children}
+    </div>
+  ) : (
+    <div
+      id={id}
+      className={cn('flex items-center gap-2', className)}
     >
       {Array.from({ length: maxLength }).map((_, index) => (
         <input
@@ -1327,14 +1407,33 @@ export function InputOTP({
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           className={cn(
-            'h-10 w-10 rounded-md border border-input bg-background text-center text-sm',
+            'h-10 w-10 rounded-md border bg-background text-center text-sm',
             'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-            'disabled:cursor-not-allowed disabled:opacity-50'
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            error ? 'border-destructive' : 'border-input'
           )}
         />
       ))}
     </div>
   );
+
+  // Wrap with InputWrapper if label, description, or error is provided
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {inputOTPElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{inputOTPElement}</div>;
 }
 
 interface InputOTPGroupProps {

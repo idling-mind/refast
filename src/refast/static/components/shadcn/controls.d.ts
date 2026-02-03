@@ -15,6 +15,10 @@ export declare function Switch({ id, className, checked, defaultChecked, disable
 interface SliderProps {
     id?: string;
     className?: string;
+    label?: string;
+    description?: string;
+    required?: boolean;
+    error?: string;
     value?: number[];
     defaultValue?: number[];
     min?: number;
@@ -26,7 +30,7 @@ interface SliderProps {
     onValueCommit?: (value: number[]) => void;
     'data-refast-id'?: string;
 }
-export declare function Slider({ id, className, value, defaultValue, min, max, step, disabled, orientation, onValueChange, onValueCommit, 'data-refast-id': dataRefastId, }: SliderProps): React.ReactElement;
+export declare function Slider({ id, className, label, description, required, error, value, defaultValue, min, max, step, disabled, orientation, onValueChange, onValueCommit, 'data-refast-id': dataRefastId, }: SliderProps): React.ReactElement;
 interface ToggleProps {
     id?: string;
     className?: string;
@@ -100,6 +104,10 @@ export declare function Calendar({ id, className, classNames, mode, showOutsideD
 interface DatePickerProps {
     id?: string;
     className?: string;
+    label?: string;
+    description?: string;
+    required?: boolean;
+    error?: string;
     value?: string | {
         from?: string;
         to?: string;
@@ -118,7 +126,7 @@ interface DatePickerProps {
     } | undefined) => void;
     'data-refast-id'?: string;
 }
-export declare function DatePicker({ id, className, value, placeholder, disabled, mode, captionLayout, minDate, maxDate, numberOfMonths, onChange, 'data-refast-id': dataRefastId, }: DatePickerProps): React.ReactElement;
+export declare function DatePicker({ id, className, label, description, required, error, value, placeholder, disabled, mode, captionLayout, minDate, maxDate, numberOfMonths, onChange, 'data-refast-id': dataRefastId, }: DatePickerProps): React.ReactElement;
 interface ComboboxOption {
     value: string;
     label: string;
@@ -126,6 +134,10 @@ interface ComboboxOption {
 interface ComboboxProps {
     id?: string;
     className?: string;
+    label?: string;
+    description?: string;
+    required?: boolean;
+    error?: string;
     options?: ComboboxOption[];
     value?: string | string[];
     placeholder?: string;
@@ -136,10 +148,14 @@ interface ComboboxProps {
     onSelect?: (value: string | string[]) => void;
     'data-refast-id'?: string;
 }
-export declare function Combobox({ id, className, options, value, placeholder, searchPlaceholder, emptyText, multiselect, disabled, onSelect, 'data-refast-id': dataRefastId, }: ComboboxProps): React.ReactElement;
+export declare function Combobox({ id, className, label, description, required, error, options, value, placeholder, searchPlaceholder, emptyText, multiselect, disabled, onSelect, 'data-refast-id': dataRefastId, }: ComboboxProps): React.ReactElement;
 interface InputOTPProps {
     id?: string;
     className?: string;
+    label?: string;
+    description?: string;
+    required?: boolean;
+    error?: string;
     maxLength?: number;
     value?: string;
     disabled?: boolean;
@@ -149,7 +165,7 @@ interface InputOTPProps {
     children?: React.ReactNode;
     'data-refast-id'?: string;
 }
-export declare function InputOTP({ id, className, maxLength, value, disabled, onChange, onComplete, children, 'data-refast-id': dataRefastId, }: InputOTPProps): React.ReactElement;
+export declare function InputOTP({ id, className, label, description, required, error, maxLength, value, disabled, onChange, onComplete, children, 'data-refast-id': dataRefastId, }: InputOTPProps): React.ReactElement;
 interface InputOTPGroupProps {
     id?: string;
     className?: string;

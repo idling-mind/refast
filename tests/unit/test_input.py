@@ -36,6 +36,23 @@ class TestInput:
         rendered = inp.render()
         assert rendered["props"]["label"] == "Full Name"
 
+    def test_input_with_description(self):
+        """Test Input with description."""
+        inp = Input(name="email", description="We'll never share your email")
+        rendered = inp.render()
+        assert rendered["props"]["description"] == "We'll never share your email"
+
+    def test_input_with_label_and_description(self):
+        """Test Input with both label and description."""
+        inp = Input(
+            name="email",
+            label="Email Address",
+            description="Enter your email address"
+        )
+        rendered = inp.render()
+        assert rendered["props"]["label"] == "Email Address"
+        assert rendered["props"]["description"] == "Enter your email address"
+
     def test_input_with_value(self):
         """Test Input with value."""
         inp = Input(name="test", value="initial")
@@ -47,6 +64,13 @@ class TestInput:
         inp = Input(name="test", required=True)
         rendered = inp.render()
         assert rendered["props"]["required"] is True
+
+    def test_input_required_with_label(self):
+        """Test Input required prop with label (for asterisk display)."""
+        inp = Input(name="test", label="Required Field", required=True)
+        rendered = inp.render()
+        assert rendered["props"]["required"] is True
+        assert rendered["props"]["label"] == "Required Field"
 
     def test_input_disabled(self):
         """Test Input disabled prop."""
@@ -60,6 +84,23 @@ class TestInput:
         rendered = inp.render()
         assert rendered["props"]["read_only"] is True
 
+    def test_input_with_error(self):
+        """Test Input with error message."""
+        inp = Input(name="email", error="Invalid email address")
+        rendered = inp.render()
+        assert rendered["props"]["error"] == "Invalid email address"
+
+    def test_input_with_error_and_description(self):
+        """Test Input with both error and description (error takes precedence)."""
+        inp = Input(
+            name="email",
+            description="Enter your email",
+            error="Invalid email address"
+        )
+        rendered = inp.render()
+        assert rendered["props"]["description"] == "Enter your email"
+        assert rendered["props"]["error"] == "Invalid email address"
+
     def test_input_with_callbacks(self):
         """Test Input with callbacks."""
         cb = MockCallback()
@@ -69,10 +110,73 @@ class TestInput:
         assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
         assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
 
+    def test_input_with_keyboard_events(self):
+        """Test Input with keyboard event callbacks."""
+        cb = MockCallback()
+        inp = Input(
+            name="test",
+            on_keydown=cb,
+            on_keyup=cb
+        )
+        rendered = inp.render()
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+
+    def test_input_with_input_event(self):
+        """Test Input with onInput event callback."""
+        cb = MockCallback()
+        inp = Input(name="test", on_input=cb)
+        rendered = inp.render()
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
+
+    def test_input_with_all_events(self):
+        """Test Input with all event callbacks."""
+        cb = MockCallback()
+        inp = Input(
+            name="test",
+            on_change=cb,
+            on_blur=cb,
+            on_focus=cb,
+            on_keydown=cb,
+            on_keyup=cb,
+            on_input=cb
+        )
+        rendered = inp.render()
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
+
     def test_input_with_debounce(self):
         """Test Input debounce prop."""
         inp = Input(name="search", debounce=300)
         rendered = inp.render()
+        assert rendered["props"]["debounce"] == 300
+
+    def test_input_complete_example(self):
+        """Test Input with all features combined."""
+        cb = MockCallback()
+        inp = Input(
+            name="email",
+            label="Email Address",
+            description="We'll never share your email",
+            type="email",
+            placeholder="you@example.com",
+            value="",
+            required=True,
+            error="",
+            debounce=300,
+            on_change=cb,
+            on_keydown=cb
+        )
+        rendered = inp.render()
+        assert rendered["props"]["name"] == "email"
+        assert rendered["props"]["label"] == "Email Address"
+        assert rendered["props"]["description"] == "We'll never share your email"
+        assert rendered["props"]["type"] == "email"
+        assert rendered["props"]["required"] is True
         assert rendered["props"]["debounce"] == 300
 
 

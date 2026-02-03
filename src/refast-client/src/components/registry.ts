@@ -8,7 +8,7 @@ import { Row, Column, Grid, Flex, Center } from './shadcn/layout';
 import { Button, IconButton } from './shadcn/button';
 import { Icon } from './shadcn/icon';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
-import { Input, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
+import { Input, InputWrapper, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
 import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
@@ -141,6 +141,7 @@ componentRegistry.register('CardDescription', CardDescription);
 
 // Register input components
 componentRegistry.register('Input', Input);
+componentRegistry.register('InputWrapper', InputWrapper);
 componentRegistry.register('Textarea', Textarea);
 componentRegistry.register('Select', Select);
 componentRegistry.register('SelectOption', SelectOption);

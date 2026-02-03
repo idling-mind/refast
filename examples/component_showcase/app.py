@@ -7,13 +7,16 @@ This example demonstrates:
 - Utility: Separator, AspectRatio, ScrollArea, Collapsible, Carousel
 - New: Image, Markdown, CheckboxGroup, RadioGroup
 """
-
 from textwrap import dedent
 
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
     AspectRatio,
     Avatar,
     # Feedback
@@ -36,10 +39,6 @@ from refast.components import (
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-    Accordion,
-    AccordionItem,
-    AccordionTrigger,
-    AccordionContent,
     Column,
     Combobox,
     Container,
@@ -66,6 +65,7 @@ from refast.components import (
     HoverCardTrigger,
     Image,
     Input,
+    InputWrapper,
     Label,
     Markdown,
     Pagination,
@@ -409,40 +409,63 @@ def home(ctx: Context):
                                             Label("Inputs"),
                                             Input(
                                                 name="name",
+                                                label="Name",
+                                                description="Your full name",
+                                                required=True,
                                                 placeholder="Your name here...",
                                                 type="text",
                                             ),
                                             Input(
                                                 name="email",
+                                                label="Email",
+                                                description="Your email address",
                                                 placeholder="Your email here...",
                                                 type="email",
                                             ),
                                             Input(
                                                 name="password",
+                                                label="Password",
+                                                description="Choose a strong password",
                                                 placeholder="Your password here...",
                                                 type="password",
                                             ),
                                             Input(
                                                 name="website",
+                                                label="Website",
+                                                description="Your website URL",
                                                 placeholder="Your website here...",
                                                 type="url",
                                             ),
                                             Input(
                                                 name="phone",
+                                                label="Phone",
+                                                description="Your phone number",
                                                 placeholder="Your phone here...",
                                                 type="tel",
                                             ),
                                             Input(
                                                 name="number",
+                                                label="Number",
+                                                description="Enter a numeric value",
                                                 placeholder="Your number here...",
+                                                value="-1",
+                                                error="Must be a positive number",
                                                 type="number",
                                             ),
-                                            DatePicker(
-                                                placeholder="Select single date",
-                                                caption_layout="dropdown",
+                                            InputWrapper(
+                                                label="Date of Birth",
+                                                description="Select your birth date",
+                                                required=True,
+                                                children=[
+                                                    DatePicker(
+                                                        placeholder="Select single date",
+                                                        caption_layout="dropdown",
+                                                    ),
+                                                ]
                                             ),
-                                            Label("Date Range (Min: 2024-01-01, Max: 2024-12-31)"),
                                             DatePicker(
+                                                label="Select Date Range",
+                                                description="Choose a start and end date",
                                                 mode="range",
                                                 placeholder="Select date range",
                                                 caption_layout="dropdown",
@@ -451,6 +474,8 @@ def home(ctx: Context):
                                             ),
                                             Textarea(
                                                 name="message",
+                                                label="Message",
+                                                description="Enter your message",
                                                 placeholder="Your message here...",
                                                 rows=4,
                                             ),
@@ -533,8 +558,9 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Label("Select Framework"),
                                             Combobox(
+                                                label="Select a framework",
+                                                description="Single select combobox example",
                                                 placeholder="Choose a framework...",
                                                 options=[
                                                     {"value": "react", "label": "React"},
@@ -545,10 +571,9 @@ def home(ctx: Context):
                                                 on_select=ctx.callback(dropdown_select),
                                             ),
                                             Separator(class_name="mt-4 mb-4"),
-                                            Label(
-                                                "You can select multiple options in this combobox."
-                                            ),
                                             Combobox(
+                                                label="Select frameworks",
+                                                description="Multi select combobox example",
                                                 placeholder="Choose frameworks...",
                                                 options=[
                                                     {"value": "react", "label": "React"},

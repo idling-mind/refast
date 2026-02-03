@@ -111,6 +111,7 @@ from refast.components.shadcn import (
     InputOTPGroup,
     InputOTPSeparator,
     InputOTPSlot,
+    InputWrapper,
     Kbd,
     Label,
     Link,
@@ -241,6 +242,7 @@ __all__ = [
     "CardDescription",
     # Input
     "Input",
+    "InputWrapper",
     "Textarea",
     "Select",
     "Checkbox",

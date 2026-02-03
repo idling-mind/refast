@@ -4,6 +4,67 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
 
+// ============================================================================
+// InputWrapper - Reusable wrapper for form controls with label, description, error
+// ============================================================================
+
+export interface InputWrapperProps {
+  id?: string;
+  className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * InputWrapper - A reusable wrapper component for form controls.
+ * Provides consistent styling for label, description, required indicator, and error messages.
+ * 
+ * Can be used standalone or internally by form components like Input, Slider, DatePicker, etc.
+ */
+export function InputWrapper({
+  id,
+  className,
+  label,
+  description,
+  required = false,
+  error,
+  children,
+  'data-refast-id': dataRefastId,
+}: InputWrapperProps): React.ReactElement {
+  // If no label, description, or error, just return the children
+  if (!label && !description && !error) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className={cn('mb-2', className)} data-input-wrapper data-refast-id={dataRefastId}>
+    {/* <div className={className} data-input-wrapper data-refast-id={dataRefastId}> */}
+      {label && (
+        <label
+          htmlFor={id}
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {label}
+          {required && <span className="text-destructive ml-1">*</span>}
+        </label>
+      )}
+      {description && (
+        <p className="text-sm text-muted-foreground">{description}</p>
+      )}
+      <div className="my-1">
+        {children}
+      </div>
+      {error && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
+    </div>
+  );
+}
+
 // Type for options array used in RadioGroup and CheckboxGroup
 interface OptionItem {
   value: string;
@@ -14,37 +75,49 @@ interface OptionItem {
 interface InputProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
   type?: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
   placeholder?: string;
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
   required?: boolean;
+  error?: string;
   name?: string;
   debounce?: number;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onKeydown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyup?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onInput?: (event: React.FormEvent<HTMLInputElement>) => void;
   'data-refast-id'?: string;
 }
 
 /**
- * Input component - shadcn-styled text input.
+ * Input component - shadcn-styled text input with label, description, and error support.
  */
 export function Input({
   id,
   className,
+  label,
+  description,
   type = 'text',
   placeholder,
   value,
   defaultValue,
   disabled = false,
   required = false,
+  error,
   name,
   debounce = 0,
   onChange,
   onBlur,
   onFocus,
+  onKeydown,
+  onKeyup,
+  onInput,
   'data-refast-id': dataRefastId,
 }: InputProps): React.ReactElement {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
@@ -105,7 +178,7 @@ export function Input({
     [debounce]
   );
 
-  return (
+  const inputElement = (
     <input
       id={id}
       type={type}
@@ -117,27 +190,52 @@ export function Input({
       onChange={handleChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onKeyDown={onKeydown}
+      onKeyUp={onKeyup}
+      onInput={onInput}
       className={cn(
-        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+        'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm',
         'ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium',
-        'placeholder:text-muted-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
+        error
+          ? 'border-destructive placeholder:text-destructive'
+          : 'border-input placeholder:text-muted-foreground',
         className
       )}
-      data-refast-id={dataRefastId}
     />
   );
+
+  // Wrap with InputWrapper if label, description, or error is provided
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {inputElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{inputElement}</div>;
 }
 
 interface TextareaProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   placeholder?: string;
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
-  required?: boolean;
   rows?: number;
   name?: string;
   debounce?: number;
@@ -148,16 +246,19 @@ interface TextareaProps {
 }
 
 /**
- * Textarea component - shadcn-styled textarea.
+ * Textarea component - shadcn-styled textarea with label, description, and error support.
  */
 export function Textarea({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   placeholder,
   value,
   defaultValue,
   disabled = false,
-  required = false,
   rows = 3,
   name,
   debounce = 0,
@@ -224,7 +325,7 @@ export function Textarea({
     [debounce]
   );
 
-  return (
+  const textareaElement = (
     <textarea
       id={id}
       placeholder={placeholder}
@@ -237,15 +338,32 @@ export function Textarea({
       onBlur={onBlur}
       onFocus={onFocus}
       className={cn(
-        'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+        'flex min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm',
         'ring-offset-background placeholder:text-muted-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
+        error ? 'border-destructive' : 'border-input',
         className
       )}
-      data-refast-id={dataRefastId}
     />
   );
+
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {textareaElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{textareaElement}</div>;
 }
 
 interface SelectOption {
@@ -257,11 +375,14 @@ interface SelectOption {
 interface SelectProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   placeholder?: string;
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
-  required?: boolean;
   name?: string;
   options?: SelectOption[];
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -270,16 +391,19 @@ interface SelectProps {
 }
 
 /**
- * Select component - shadcn-styled select input.
+ * Select component - shadcn-styled select input with label, description, and error support.
  */
 export function Select({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   placeholder,
   value,
   defaultValue,
   disabled = false,
-  required = false,
   name,
   options,
   onChange,
@@ -301,7 +425,7 @@ export function Select({
     }
   };
 
-  return (
+  const selectElement = (
     <select
       id={id}
       value={localValue}
@@ -310,13 +434,13 @@ export function Select({
       name={name}
       onChange={handleChange}
       className={cn(
-        'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm',
+        'flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm',
         'ring-offset-background placeholder:text-muted-foreground',
         'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
+        error ? 'border-destructive' : 'border-input',
         className
       )}
-      data-refast-id={dataRefastId}
     >
       {placeholder && (
         <option value="" disabled>
@@ -331,6 +455,23 @@ export function Select({
       {children}
     </select>
   );
+
+  if (label || description || error) {
+    return (
+      <InputWrapper
+        id={id}
+        label={label}
+        description={description}
+        required={required}
+        error={error}
+        data-refast-id={dataRefastId}
+      >
+        {selectElement}
+      </InputWrapper>
+    );
+  }
+
+  return <div data-refast-id={dataRefastId}>{selectElement}</div>;
 }
 
 interface SelectOptionProps {
@@ -359,29 +500,35 @@ export function SelectOption({
 interface CheckboxProps {
   id?: string;
   className?: string;
+  label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   checked?: boolean;
   defaultChecked?: boolean;
   disabled?: boolean;
   name?: string;
   value?: string;
   onCheckedChange?: (checked: boolean) => void;
-  label?: string;
   'data-refast-id'?: string;
 }
 
 /**
- * Checkbox component - shadcn-styled checkbox.
+ * Checkbox component - shadcn-styled checkbox with label, description, and error support.
  */
 export function Checkbox({
   id,
   className,
+  label,
+  description,
+  required = false,
+  error,
   checked,
   defaultChecked,
   disabled = false,
   name,
   value,
   onCheckedChange,
-  label,
   'data-refast-id': dataRefastId,
 }: CheckboxProps): React.ReactElement {
   const generatedId = React.useId();
@@ -395,16 +542,16 @@ export function Checkbox({
     }
   }, [checked]);
 
-  const handleCheckedChange = (checked: boolean | 'indeterminate') => {
-    const newChecked = checked === true;
+  const handleCheckedChange = (checkedState: boolean | 'indeterminate') => {
+    const newChecked = checkedState === true;
     setLocalChecked(newChecked);
     if (onCheckedChange) {
       onCheckedChange(newChecked);
     }
   };
 
-  return (
-    <div className={cn('flex items-center space-x-2', className)} data-refast-id={dataRefastId}>
+  const checkboxElement = (
+    <div className="flex items-center space-x-2">
       <CheckboxPrimitive.Root
         id={checkboxId}
         name={name}
@@ -414,10 +561,11 @@ export function Checkbox({
         disabled={disabled}
         onCheckedChange={handleCheckedChange}
         className={cn(
-          'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background',
+          'peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground'
+          'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+          error ? 'border-destructive' : 'border-primary'
         )}
       >
         <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
@@ -430,10 +578,27 @@ export function Checkbox({
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </label>
       )}
     </div>
   );
+
+  if (description || error) {
+    return (
+      <div className={cn('space-y-1', className)} data-refast-id={dataRefastId}>
+        {checkboxElement}
+        {description && (
+          <p className="text-sm text-muted-foreground ml-6">{description}</p>
+        )}
+        {error && (
+          <p className="text-xs text-destructive ml-6">{error}</p>
+        )}
+      </div>
+    );
+  }
+
+  return <div className={className} data-refast-id={dataRefastId}>{checkboxElement}</div>;
 }
 
 interface RadioProps {
@@ -446,6 +611,9 @@ interface RadioProps {
   value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   'data-refast-id'?: string;
 }
 
@@ -462,6 +630,9 @@ export function Radio({
   value,
   onChange,
   label,
+  description,
+  required,
+  error,
   'data-refast-id': dataRefastId,
 }: RadioProps): React.ReactElement {
   const [localChecked, setLocalChecked] = React.useState(checked !== undefined ? checked : (defaultChecked || false));
@@ -480,23 +651,39 @@ export function Radio({
   };
 
   return (
-    <label className={cn('flex items-center space-x-2', className)} data-refast-id={dataRefastId}>
-      <input
-        id={id}
-        type="radio"
-        checked={localChecked}
-        disabled={disabled}
-        name={name}
-        value={value}
-        onChange={handleChange}
-        className={cn(
-          'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'disabled:cursor-not-allowed disabled:opacity-50'
+    <div className="space-y-1" data-refast-id={dataRefastId}>
+      <label className={cn('flex items-center space-x-2', className)}>
+        <input
+          id={id}
+          type="radio"
+          checked={localChecked}
+          disabled={disabled}
+          name={name}
+          value={value}
+          onChange={handleChange}
+          className={cn(
+            'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            error && 'border-destructive'
+          )}
+        />
+        {label && (
+          <span className="text-sm font-medium leading-none">
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </span>
         )}
-      />
-      {label && <span className="text-sm font-medium leading-none">{label}</span>}
-    </label>
+      </label>
+      {(description || error) && (
+        <div className="ml-6">
+          {description && !error && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -509,6 +696,9 @@ interface RadioGroupProps {
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
   label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   options?: OptionItem[];
   onValueChange?: (value: string) => void;
   children?: React.ReactNode;
@@ -527,6 +717,9 @@ export function RadioGroup({
   disabled = false,
   orientation = 'vertical',
   label,
+  description,
+  required,
+  error,
   options,
   onValueChange,
   children,
@@ -562,7 +755,8 @@ export function RadioGroup({
             className={cn(
               'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50'
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              error && 'border-destructive'
             )}
           >
             <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
@@ -585,11 +779,15 @@ export function RadioGroup({
   };
 
   return (
-    <div className={cn('space-y-2', className)} data-refast-id={dataRefastId}>
+    <div className={cn('space-y-1', className)} data-refast-id={dataRefastId}>
       {label && (
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </label>
+      )}
+      {description && !error && (
+        <p className="text-sm text-muted-foreground">{description}</p>
       )}
       <RadioGroupPrimitive.Root
         className={cn(
@@ -606,6 +804,7 @@ export function RadioGroup({
       >
         {renderItems()}
       </RadioGroupPrimitive.Root>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
@@ -619,6 +818,9 @@ interface CheckboxGroupProps {
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
   label?: string;
+  description?: string;
+  required?: boolean;
+  error?: string;
   options?: OptionItem[];
   onChange?: (value: string[]) => void;
   children?: React.ReactNode;
@@ -637,6 +839,9 @@ export function CheckboxGroup({
   disabled = false,
   orientation = 'vertical',
   label,
+  description,
+  required,
+  error,
   options,
   onChange,
   children,
@@ -692,7 +897,8 @@ export function CheckboxGroup({
                 'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'disabled:cursor-not-allowed disabled:opacity-50',
-                'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground'
+                'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+                error && 'border-destructive'
               )}
             >
               <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
@@ -731,13 +937,17 @@ export function CheckboxGroup({
     <div
       id={rootId}
       role="group"
-      className={cn('space-y-2', className)}
+      className={cn('space-y-1', className)}
       data-refast-id={dataRefastId}
     >
       {label && (
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </label>
+      )}
+      {description && !error && (
+        <p className="text-sm text-muted-foreground">{description}</p>
       )}
       <div
         className={cn(
@@ -747,6 +957,7 @@ export function CheckboxGroup({
       >
         {renderItems()}
       </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

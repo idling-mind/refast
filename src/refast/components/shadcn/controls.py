@@ -70,6 +70,8 @@ class Slider(Component):
     Example:
         ```python
         Slider(
+            label="Volume",
+            description="Adjust the volume level",
             value=[50],
             min=0,
             max=100,
@@ -90,6 +92,10 @@ class Slider(Component):
         step: float = 1,
         disabled: bool = False,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
+        label: str | None = None,
+        description: str | None = None,
+        required: bool = False,
+        error: str | None = None,
         on_value_change: Any = None,
         on_value_commit: Any = None,
         id: str | None = None,
@@ -104,6 +110,10 @@ class Slider(Component):
         self.step = step
         self.disabled = disabled
         self.orientation = orientation
+        self.label = label
+        self.description = description
+        self.required = required
+        self.error = error
         self.on_value_change = on_value_change
         self.on_value_commit = on_value_commit
 
@@ -115,6 +125,10 @@ class Slider(Component):
             "step": self.step,
             "disabled": self.disabled,
             "orientation": self.orientation,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -433,15 +447,19 @@ class DatePicker(Component):
 
     Example:
         ```python
-        # Single date picker
+        # Single date picker with label
         DatePicker(
+            label="Birth Date",
+            description="Enter your date of birth",
             value=date(2024, 1, 15),
             placeholder="Pick a date",
+            required=True,
             on_change=ctx.callback(handle_date_change),
         )
 
         # Date range picker with dropdown navigation
         DatePicker(
+            label="Date Range",
             mode="range",
             caption_layout="dropdown",  # Enable month/year dropdowns
             placeholder="Select date range",
@@ -452,6 +470,10 @@ class DatePicker(Component):
         ```
 
     Args:
+        label: Label text displayed above the input
+        description: Help text displayed below the label
+        required: Whether the field is required (shows asterisk)
+        error: Error message to display
         mode: Selection mode - "single" or "range"
         caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
                        "dropdown-months", or "dropdown-years"
@@ -473,6 +495,10 @@ class DatePicker(Component):
         min_date: Any = None,  # date or ISO string
         max_date: Any = None,  # date or ISO string
         number_of_months: int | None = None,
+        label: str | None = None,
+        description: str | None = None,
+        required: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -488,6 +514,10 @@ class DatePicker(Component):
         self.min_date = min_date
         self.max_date = max_date
         self.number_of_months = number_of_months
+        self.label = label
+        self.description = description
+        self.required = required
+        self.error = error
         self.on_change = on_change
 
     def _serialize_date_value(self, d: Any) -> str | dict[str, str | None] | None:
@@ -518,6 +548,10 @@ class DatePicker(Component):
                 "min_date": self.min_date.isoformat() if hasattr(self.min_date, "isoformat") else self.min_date,
                 "max_date": self.max_date.isoformat() if hasattr(self.max_date, "isoformat") else self.max_date,
                 "number_of_months": self.number_of_months,
+                "label": self.label,
+                "description": self.description,
+                "required": self.required,
+                "error": self.error,
                 "on_change": self.on_change.serialize() if self.on_change else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -533,12 +567,15 @@ class Combobox(Component):
     Example:
         ```python
         Combobox(
+            label="Framework",
+            description="Select your preferred framework",
             options=[
                 {"value": "next", "label": "Next.js"},
                 {"value": "react", "label": "React"},
             ],
             placeholder="Select framework...",
             multiselect=True,
+            required=True,
             on_select=ctx.callback(handle_select),
         )
         ```
@@ -555,6 +592,10 @@ class Combobox(Component):
         empty_text: str = "No results found.",
         multiselect: bool = False,
         disabled: bool = False,
+        label: str | None = None,
+        description: str | None = None,
+        required: bool = False,
+        error: str | None = None,
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -568,6 +609,10 @@ class Combobox(Component):
         self.empty_text = empty_text
         self.multiselect = multiselect
         self.disabled = disabled
+        self.label = label
+        self.description = description
+        self.required = required
+        self.error = error
         self.on_select = on_select
 
     def render(self) -> dict[str, Any]:
@@ -582,6 +627,10 @@ class Combobox(Component):
                 "empty_text": self.empty_text,
                 "multiselect": self.multiselect,
                 "disabled": self.disabled,
+                "label": self.label,
+                "description": self.description,
+                "required": self.required,
+                "error": self.error,
                 "on_select": self.on_select.serialize() if self.on_select else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -597,7 +646,10 @@ class InputOTP(Component):
     Example:
         ```python
         InputOTP(
+            label="Verification Code",
+            description="Enter the 6-digit code sent to your email",
             max_length=6,
+            required=True,
             on_complete=ctx.callback(handle_complete),
         )
         ```
@@ -611,6 +663,10 @@ class InputOTP(Component):
         value: str = "",
         disabled: bool = False,
         pattern: str | None = None,  # Regex pattern for each character
+        label: str | None = None,
+        description: str | None = None,
+        required: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         on_complete: Any = None,
         children: list["Component"] | None = None,
@@ -623,6 +679,10 @@ class InputOTP(Component):
         self.value = value
         self.disabled = disabled
         self.pattern = pattern
+        self.label = label
+        self.description = description
+        self.required = required
+        self.error = error
         self.on_change = on_change
         self.on_complete = on_complete
         if children:
@@ -637,6 +697,10 @@ class InputOTP(Component):
                 "value": self.value,
                 "disabled": self.disabled,
                 "pattern": self.pattern,
+                "label": self.label,
+                "description": self.description,
+                "required": self.required,
+                "error": self.error,
                 "on_change": self.on_change.serialize() if self.on_change else None,
                 "on_complete": self.on_complete.serialize() if self.on_complete else None,
                 "class_name": self.class_name,

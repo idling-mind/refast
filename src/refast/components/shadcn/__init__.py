@@ -56,6 +56,7 @@ from refast.components.shadcn.input import (
     Checkbox,
     CheckboxGroup,
     Input,
+    InputWrapper,
     Radio,
     RadioGroup,
     Select,
@@ -228,6 +229,7 @@ __all__ = [
     "CardDescription",
     # Input
     "Input",
+    "InputWrapper",
     "Textarea",
     "Select",
     "Checkbox",

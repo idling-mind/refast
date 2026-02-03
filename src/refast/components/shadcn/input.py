@@ -5,6 +5,64 @@ from typing import Any, Literal
 from refast.components.base import Component
 
 
+class InputWrapper(Component):
+    """
+    A wrapper component for form controls with label, description, required indicator, and error.
+
+    Use this component to wrap any form control to add consistent styling for labels,
+    descriptions, required indicators, and error messages.
+
+    Example:
+        ```python
+        InputWrapper(
+            label="Custom Field",
+            description="This is a custom field with a wrapper",
+            required=True,
+            error="This field has an error",
+            children=[
+                Slider(value=[50], min=0, max=100),
+            ],
+        )
+        ```
+    """
+
+    component_type: str = "InputWrapper"
+
+    def __init__(
+        self,
+        label: str | None = None,
+        description: str | None = None,
+        required: bool = False,
+        error: str | None = None,
+        children: list["Component"] | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.label = label
+        self.description = description
+        self.required = required
+        self.error = error
+        if children:
+            self._children = children
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "label": self.label,
+                "description": self.description,
+                "required": self.required,
+                "error": self.error,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
 class Input(Component):
     """
     Text input component.
@@ -14,8 +72,11 @@ class Input(Component):
         Input(
             name="email",
             label="Email Address",
+            description="We'll never share your email.",
             type="email",
             placeholder="you@example.com",
+            required=True,
+            error="Please enter a valid email",
             on_change=ctx.callback(handle_change),
         )
         ```
@@ -27,16 +88,21 @@ class Input(Component):
         self,
         name: str,
         label: str | None = None,
+        description: str | None = None,
         type: Literal["text", "email", "password", "number", "tel", "url", "search"] = "text",
         placeholder: str = "",
         value: str = "",
         required: bool = False,
         disabled: bool = False,
         readonly: bool = False,
+        error: str | None = None,
         debounce: int = 0,
         on_change: Any = None,
         on_blur: Any = None,
         on_focus: Any = None,
+        on_keydown: Any = None,
+        on_keyup: Any = None,
+        on_input: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -44,27 +110,34 @@ class Input(Component):
         super().__init__(id=id, class_name=class_name, **props)
         self.name = name
         self.label = label
+        self.description = description
         self.input_type = type
         self.placeholder = placeholder
         self.value = value
         self.required = required
         self.disabled = disabled
         self.readonly = readonly
+        self.error = error
         self.debounce = debounce
         self.on_change = on_change
         self.on_blur = on_blur
         self.on_focus = on_focus
+        self.on_keydown = on_keydown
+        self.on_keyup = on_keyup
+        self.on_input = on_input
 
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,
             "label": self.label,
+            "description": self.description,
             "type": self.input_type,
             "placeholder": self.placeholder,
             "value": self.value,
             "required": self.required,
             "disabled": self.disabled,
             "read_only": self.readonly,
+            "error": self.error,
             "debounce": self.debounce,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
@@ -76,6 +149,12 @@ class Input(Component):
             props["on_blur"] = self.on_blur.serialize()
         if self.on_focus:
             props["on_focus"] = self.on_focus.serialize()
+        if self.on_keydown:
+            props["on_keydown"] = self.on_keydown.serialize()
+        if self.on_keyup:
+            props["on_keyup"] = self.on_keyup.serialize()
+        if self.on_input:
+            props["on_input"] = self.on_input.serialize()
 
         # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's live-validated
         # But if value is None, we could treat it as uncontrolled. The current __init__ defaults value to ""
@@ -98,11 +177,13 @@ class Textarea(Component):
         self,
         name: str,
         label: str | None = None,
+        description: str | None = None,
         placeholder: str = "",
         value: str = "",
         rows: int = 3,
         required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         debounce: int = 0,
         on_change: Any = None,
         id: str | None = None,
@@ -112,11 +193,13 @@ class Textarea(Component):
         super().__init__(id=id, class_name=class_name, **props)
         self.name = name
         self.label = label
+        self.description = description
         self.placeholder = placeholder
         self.value = value
         self.rows = rows
         self.required = required
         self.disabled = disabled
+        self.error = error
         self.debounce = debounce
         self.on_change = on_change
 
@@ -124,11 +207,13 @@ class Textarea(Component):
         props = {
             "name": self.name,
             "label": self.label,
+            "description": self.description,
             "placeholder": self.placeholder,
             "value": self.value,
             "rows": self.rows,
             "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "debounce": self.debounce,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
@@ -155,10 +240,12 @@ class Select(Component):
         name: str,
         options: list[dict[str, str]],  # [{"value": "a", "label": "Option A"}, ...]
         label: str | None = None,
+        description: str | None = None,
         value: str = "",
         placeholder: str = "Select...",
         required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -168,10 +255,12 @@ class Select(Component):
         self.name = name
         self.options = options
         self.label = label
+        self.description = description
         self.value = value
         self.placeholder = placeholder
         self.required = required
         self.disabled = disabled
+        self.error = error
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
@@ -179,10 +268,12 @@ class Select(Component):
             "name": self.name,
             "options": self.options,
             "label": self.label,
+            "description": self.description,
             "value": self.value,
             "placeholder": self.placeholder,
             "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -208,8 +299,11 @@ class Checkbox(Component):
         name: str | None = None,
         value: str | None = None,
         label: str | None = None,
+        description: str | None = None,
         checked: bool = False,
+        required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -219,8 +313,11 @@ class Checkbox(Component):
         self.name = name
         self.value = value
         self.label = label
+        self.description = description
         self.checked = checked
+        self.required = required
         self.disabled = disabled
+        self.error = error
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
@@ -228,8 +325,11 @@ class Checkbox(Component):
             "name": self.name,
             "value": self.value,
             "label": self.label,
+            "description": self.description,
             "checked": self.checked,
+            "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -254,7 +354,10 @@ class CheckboxGroup(Component):
         CheckboxGroup(
             name="fruits",
             label="Select your favorite fruits",
+            description="Choose as many as you like",
             value=["apple"],
+            required=True,
+            error="Please select at least one fruit",
             on_change=ctx.callback(handle_change),
             children=[
                 Checkbox(value="apple", label="Apple"),
@@ -267,10 +370,13 @@ class CheckboxGroup(Component):
     Args:
         name: The name for the checkbox group (used for form submission).
         label: Label text for the entire group.
+        description: Description text displayed below the label.
         children: Checkbox components as children.
         value: List of currently selected values.
         orientation: Layout orientation - "vertical" or "horizontal".
+        required: Whether the field is required (shows asterisk).
         disabled: Whether the entire group is disabled.
+        error: Error message to display.
         on_change: Callback when selection changes (receives list of selected values).
     """
 
@@ -281,9 +387,12 @@ class CheckboxGroup(Component):
         name: str,
         children: list[Component | str] | None = None,
         label: str | None = None,
+        description: str | None = None,
         value: list[str] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
+        required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -294,18 +403,24 @@ class CheckboxGroup(Component):
             self._children = children
         self.name = name
         self.label = label
+        self.description = description
         self.value = value or []
         self.orientation = orientation
+        self.required = required
         self.disabled = disabled
+        self.error = error
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,
             "label": self.label,
+            "description": self.description,
             "value": self.value,
             "orientation": self.orientation,
+            "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -331,8 +446,11 @@ class Radio(Component):
         name: str,
         value: str,
         label: str | None = None,
+        description: str | None = None,
         checked: bool = False,
+        required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -342,8 +460,11 @@ class Radio(Component):
         self.name = name
         self.value = value
         self.label = label
+        self.description = description
         self.checked = checked
+        self.required = required
         self.disabled = disabled
+        self.error = error
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
@@ -351,8 +472,11 @@ class Radio(Component):
             "name": self.name,
             "value": self.value,
             "label": self.label,
+            "description": self.description,
             "checked": self.checked,
+            "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -377,8 +501,11 @@ class RadioGroup(Component):
         RadioGroup(
             name="gender",
             label="Select your gender",
+            description="This information is optional",
             value="male",
             orientation="vertical",
+            required=True,
+            error="Please select an option",
             on_change=ctx.callback(handle_change),
             children=[
                 Radio(value="male", label="Male"),
@@ -391,10 +518,13 @@ class RadioGroup(Component):
     Args:
         name: The name for the radio group (used for form submission).
         label: Label text for the entire group.
+        description: Description text displayed below the label.
         children: Radio components as children.
         value: Currently selected value.
         orientation: Layout orientation - "vertical" or "horizontal".
+        required: Whether the field is required (shows asterisk).
         disabled: Whether the entire group is disabled.
+        error: Error message to display.
         on_change: Callback when selection changes (receives selected value).
     """
 
@@ -405,9 +535,12 @@ class RadioGroup(Component):
         name: str,
         children: list[Component | str] | None = None,
         label: str | None = None,
+        description: str | None = None,
         value: str | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
+        required: bool = False,
         disabled: bool = False,
+        error: str | None = None,
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -418,18 +551,24 @@ class RadioGroup(Component):
             self._children = children
         self.name = name
         self.label = label
+        self.description = description
         self.value = value
         self.orientation = orientation
+        self.required = required
         self.disabled = disabled
+        self.error = error
         self.on_change = on_change
 
     def render(self) -> dict[str, Any]:
         props = {
             "name": self.name,
             "label": self.label,
+            "description": self.description,
             "value": self.value,
             "orientation": self.orientation,
+            "required": self.required,
             "disabled": self.disabled,
+            "error": self.error,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

@@ -212,8 +212,8 @@ def chat(ctx: Context):
 
     return Container(
         id="main-container",
-        class_name="mt-6 px-4 flex flex-col",
-        style={"maxWidth": "42rem", "marginLeft": "auto", "marginRight": "auto", "height": "100vh"},
+        class_name="p-4 flex flex-col",
+        style={"height": "100vh"},
         children=[
             Card(
                 id="chat-card",

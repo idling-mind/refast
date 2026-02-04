@@ -804,7 +804,7 @@ class MenubarContent(Component):
             "id": self.id,
             "props": {
                 "align": self.align,
-                "sideOffset": self.side_offset,
+                "side_offset": self.side_offset,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1383,7 +1383,7 @@ class SidebarProvider(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "defaultOpen": self.default_open,
+                "default_open": self.default_open,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1998,7 +1998,7 @@ class SidebarMenuButton(Component):
             "id": self.id,
             "props": {
                 "icon": self.icon,
-                "isActive": self.is_active,
+                "is_active": self.is_active,
                 "variant": self.variant,
                 "size": self.size,
                 "href": self.href,
@@ -2061,7 +2061,7 @@ class SidebarMenuAction(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "showOnHover": self.show_on_hover,
+                "show_on_hover": self.show_on_hover,
                 "onClick": self.on_click.serialize() if self.on_click else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -2221,7 +2221,7 @@ class SidebarMenuSubButton(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "isActive": self.is_active,
+                "is_active": self.is_active,
                 "size": self.size,
                 "href": self.href,
                 "onClick": self.on_click.serialize() if self.on_click else None,
@@ -2264,7 +2264,7 @@ class SidebarMenuSkeleton(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "showIcon": self.show_icon,
+                "show_icon": self.show_icon,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

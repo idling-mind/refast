@@ -83,11 +83,11 @@ export interface UpdateMessage {
   eventType?: string;
   data?: unknown;
   updates?: StoreUpdate[];
-  // Toast-specific properties
+  // Toast-specific properties (snake_case from Python backend)
   description?: string;
   position?: string;
   dismissible?: boolean;
-  closeButton?: boolean;
+  close_button?: boolean;
   invert?: boolean;
   icon?: string;
   action?: { label: string; callback_id: string };

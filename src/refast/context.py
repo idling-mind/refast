@@ -771,7 +771,7 @@ class Context(Generic[T]):
             if position is not None:
                 payload["position"] = position
             if close_button is not None:
-                payload["closeButton"] = close_button
+                payload["close_button"] = close_button
             if action is not None:
                 payload["action"] = action
             if cancel is not None:

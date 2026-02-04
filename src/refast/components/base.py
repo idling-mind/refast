@@ -1,8 +1,43 @@
 """Base component classes."""
 
+import logging
+import os
+import re
 import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Self
+
+logger = logging.getLogger(__name__)
+
+# Enable prop validation in development mode
+_VALIDATE_PROPS = os.environ.get("REFAST_VALIDATE_PROPS", "").lower() in ("1", "true", "yes")
+
+
+def _has_camel_case(key: str) -> bool:
+    """Check if a key appears to be camelCase (has lowercase followed by uppercase)."""
+    # Skip keys that are all lowercase or start with underscore
+    if "_" in key or key.startswith("_"):
+        return False
+    return bool(re.search(r"[a-z][A-Z]", key))
+
+
+def _validate_prop_keys(props: dict[str, Any], component_type: str) -> None:
+    """
+    Validate that prop keys use snake_case convention.
+
+    In development mode (REFAST_VALIDATE_PROPS=1), this will log warnings
+    for any camelCase keys found in props.
+    """
+    if not _VALIDATE_PROPS:
+        return
+
+    camel_keys = [key for key in props.keys() if _has_camel_case(key)]
+    if camel_keys:
+        logger.warning(
+            f"[{component_type}] Props contain camelCase keys which should be snake_case: "
+            f"{camel_keys}. The frontend will NOT convert these correctly. "
+            f"Use snake_case (e.g., 'icon_position' instead of 'iconPosition')."
+        )
 
 
 class Component(ABC):
@@ -87,6 +122,18 @@ class Component(ABC):
             result["parent_style"] = self.parent_style
 
         return result
+
+    def _validate_props(self, props: dict[str, Any]) -> None:
+        """
+        Validate that props use snake_case convention.
+
+        Call this in development to catch camelCase prop keys early.
+        Enable validation by setting REFAST_VALIDATE_PROPS=1 environment variable.
+
+        Args:
+            props: The props dictionary to validate
+        """
+        _validate_prop_keys(props, self.component_type)
 
     @staticmethod
     def _to_camel_case(snake_str: str) -> str:

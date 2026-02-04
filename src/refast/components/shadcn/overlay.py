@@ -721,7 +721,7 @@ class PopoverContent(Component):
             "id": self.id,
             "props": {
                 "side": self.side,
-                "sideOffset": self.side_offset,
+                "side_offset": self.side_offset,
                 "align": self.align,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -773,8 +773,8 @@ class HoverCard(Component):
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
-            "openDelay": self.open_delay,
-            "closeDelay": self.close_delay,
+            "open_delay": self.open_delay,
+            "close_delay": self.close_delay,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -857,7 +857,7 @@ class HoverCardContent(Component):
             "id": self.id,
             "props": {
                 "side": self.side,
-                "sideOffset": self.side_offset,
+                "side_offset": self.side_offset,
                 "align": self.align,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -986,7 +986,7 @@ class DropdownMenuContent(Component):
             "id": self.id,
             "props": {
                 "side": self.side,
-                "sideOffset": self.side_offset,
+                "side_offset": self.side_offset,
                 "align": self.align,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -1544,7 +1544,7 @@ class Drawer(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "shouldScaleBackground": self.should_scale_background,
+            "should_scale_background": self.should_scale_background,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

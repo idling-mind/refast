@@ -78,7 +78,7 @@ export interface UpdateMessage {
     description?: string;
     position?: string;
     dismissible?: boolean;
-    closeButton?: boolean;
+    close_button?: boolean;
     invert?: boolean;
     icon?: string;
     action?: {

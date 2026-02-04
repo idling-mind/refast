@@ -250,7 +250,7 @@ class CollapsibleTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "asChild": self.as_child,
+                "as_child": self.as_child,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -537,11 +537,11 @@ class ResizablePanel(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "defaultSize": self.default_size,
-            "minSize": self.min_size,
-            "maxSize": self.max_size,
+            "default_size": self.default_size,
+            "min_size": self.min_size,
+            "max_size": self.max_size,
             "collapsible": self.collapsible,
-            "collapsedSize": self.collapsed_size,
+            "collapsed_size": self.collapsed_size,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -581,7 +581,7 @@ class ResizableHandle(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "withHandle": self.with_handle,
+                "with_handle": self.with_handle,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -673,9 +673,9 @@ class Toaster(Component):
             "position": self.position,
             "expand": self.expand,
             "duration": self.duration,
-            "visibleToasts": self.visible_toasts,
-            "closeButton": self.close_button,
-            "richColors": self.rich_colors,
+            "visible_toasts": self.visible_toasts,
+            "close_button": self.close_button,
+            "rich_colors": self.rich_colors,
             "theme": self.theme,
             "gap": self.gap,
             "dir": self.dir,
@@ -887,9 +887,9 @@ class ThemeSwitcher(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "defaultTheme": self.default_theme,
-                "storageKey": self.storage_key,
-                "showSystemOption": self.show_system_option,
+                "default_theme": self.default_theme,
+                "storage_key": self.storage_key,
+                "show_system_option": self.show_system_option,
                 "mode": self.mode,
                 "on_change": self.on_change.serialize() if self.on_change else None,
                 "class_name": self.class_name,

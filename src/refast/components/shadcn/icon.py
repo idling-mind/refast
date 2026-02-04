@@ -68,7 +68,7 @@ class Icon(Component):
         props = {
             "name": self.name,
             "size": self.size,
-            "strokeWidth": self.stroke_width,
+            "stroke_width": self.stroke_width,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

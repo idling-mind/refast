@@ -8,7 +8,7 @@ interface ToastEventDetail {
   duration?: number;
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
   dismissible?: boolean;
-  closeButton?: boolean;
+  close_button?: boolean;
   invert?: boolean;
   action?: { label: string; callback_id: string };
   cancel?: { label: string; callback_id: string };
@@ -112,7 +112,7 @@ export function ToastManager({
         duration: customDuration,
         position: customPosition,
         dismissible = true,
-        closeButton: customCloseButton,
+        close_button,
         invert: customInvert,
         action,
         cancel,
@@ -125,7 +125,7 @@ export function ToastManager({
         duration: customDuration,
         position: customPosition,
         dismissible,
-        closeButton: customCloseButton,
+        closeButton: close_button,
         invert: customInvert,
         id,
       };

@@ -221,14 +221,14 @@ class TestResizablePanel:
         """Test ResizablePanel with default size."""
         panel = ResizablePanel(default_size=30)
         rendered = panel.render()
-        assert rendered["props"]["defaultSize"] == 30
+        assert rendered["props"]["default_size"] == 30
 
     def test_resizable_panel_min_max_size(self):
         """Test ResizablePanel with min/max size."""
         panel = ResizablePanel(min_size=10, max_size=80)
         rendered = panel.render()
-        assert rendered["props"]["minSize"] == 10
-        assert rendered["props"]["maxSize"] == 80
+        assert rendered["props"]["min_size"] == 10
+        assert rendered["props"]["max_size"] == 80
 
 
 class TestResizableHandle:
@@ -244,7 +244,7 @@ class TestResizableHandle:
         """Test ResizableHandle with visual handle."""
         handle = ResizableHandle(with_handle=True)
         rendered = handle.render()
-        assert rendered["props"]["withHandle"] is True
+        assert rendered["props"]["with_handle"] is True
 
 
 class TestThemeSwitcher:
@@ -260,25 +260,25 @@ class TestThemeSwitcher:
         """Test ThemeSwitcher with default system theme."""
         switcher = ThemeSwitcher()
         rendered = switcher.render()
-        assert rendered["props"]["defaultTheme"] == "system"
+        assert rendered["props"]["default_theme"] == "system"
 
     def test_theme_switcher_default_theme_light(self):
         """Test ThemeSwitcher with light default theme."""
         switcher = ThemeSwitcher(default_theme="light")
         rendered = switcher.render()
-        assert rendered["props"]["defaultTheme"] == "light"
+        assert rendered["props"]["default_theme"] == "light"
 
     def test_theme_switcher_default_theme_dark(self):
         """Test ThemeSwitcher with dark default theme."""
         switcher = ThemeSwitcher(default_theme="dark")
         rendered = switcher.render()
-        assert rendered["props"]["defaultTheme"] == "dark"
+        assert rendered["props"]["default_theme"] == "dark"
 
     def test_theme_switcher_storage_key(self):
         """Test ThemeSwitcher with custom storage key."""
         switcher = ThemeSwitcher(storage_key="my-app-theme")
         rendered = switcher.render()
-        assert rendered["props"]["storageKey"] == "my-app-theme"
+        assert rendered["props"]["storage_key"] == "my-app-theme"
 
     def test_theme_switcher_toggle_mode(self):
         """Test ThemeSwitcher in toggle mode."""
@@ -296,7 +296,7 @@ class TestThemeSwitcher:
         """Test ThemeSwitcher with show_system_option."""
         switcher = ThemeSwitcher(show_system_option=False)
         rendered = switcher.render()
-        assert rendered["props"]["showSystemOption"] is False
+        assert rendered["props"]["show_system_option"] is False
 
     def test_theme_switcher_with_callback(self):
         """Test ThemeSwitcher with on_change callback."""

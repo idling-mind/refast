@@ -284,7 +284,26 @@ ui = RefastApp(
 
 ## Creating Python Components
 
-> **Note**: For a deep dive into component architecture, prop naming conventions, and event handling, see the [Component Development Guide](COMPONENT_DEVELOPMENT.md).
+> **Note**: For a deep dive into component architecture, prop naming conventions, and event handling, see the [Component Development Guide](COMPONENT_DEVELOPMENT.md) and [Naming Conventions](NAMING_CONVENTIONS.md).
+
+### Prop Naming: Always Use snake_case
+
+**Critical:** All props emitted from Python components must use `snake_case`. The frontend automatically converts them to `camelCase` for React.
+
+```python
+def render(self) -> dict[str, Any]:
+    return {
+        "type": self.component_type,
+        "id": self.id,
+        "props": {
+            "min_value": self.min_value,  # ✅ snake_case
+            "max_value": self.max_value,  # ✅ snake_case
+            "on_change": self._serialize_callback(self.on_change),
+            "class_name": self.class_name,
+        },
+        "children": self._render_children(),
+    }
+```
 
 ### Basic Component
 

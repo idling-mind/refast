@@ -155,7 +155,7 @@ class TestDrawer:
         """Test Drawer should scale background option."""
         drawer = Drawer(should_scale_background=False)
         rendered = drawer.render()
-        assert rendered["props"]["shouldScaleBackground"] is False
+        assert rendered["props"]["should_scale_background"] is False
 
     def test_drawer_open_state(self):
         """Test Drawer open state."""
@@ -214,15 +214,15 @@ class TestHoverCard:
         """Test HoverCard with custom delays."""
         card = HoverCard(open_delay=500, close_delay=200)
         rendered = card.render()
-        assert rendered["props"]["openDelay"] == 500
-        assert rendered["props"]["closeDelay"] == 200
+        assert rendered["props"]["open_delay"] == 500
+        assert rendered["props"]["close_delay"] == 200
 
     def test_hover_card_default_delays(self):
         """Test HoverCard default delay values."""
         card = HoverCard()
         rendered = card.render()
-        assert rendered["props"]["openDelay"] == 700
-        assert rendered["props"]["closeDelay"] == 300
+        assert rendered["props"]["open_delay"] == 700
+        assert rendered["props"]["close_delay"] == 300
 
     def test_hover_card_open_state(self):
         """Test HoverCard open state."""

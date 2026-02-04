@@ -255,7 +255,7 @@ export function useStateManager(initialTree?: ComponentTree) {
 
         case 'toast':
           // Trigger a custom event for toast notifications
-          // Forward all toast options from the server
+          // Forward all toast options from the server (snake_case)
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
               new CustomEvent('refast:toast', {
@@ -266,7 +266,7 @@ export function useStateManager(initialTree?: ComponentTree) {
                   description: message.description,
                   position: message.position,
                   dismissible: message.dismissible,
-                  closeButton: message.closeButton,
+                  close_button: message.close_button,
                   invert: message.invert,
                   icon: message.icon,
                   action: message.action,

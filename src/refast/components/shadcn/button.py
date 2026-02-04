@@ -89,7 +89,7 @@ class Button(Component):
 
         if self.icon:
             props["icon"] = self.icon
-            props["iconPosition"] = self.icon_position
+            props["icon_position"] = self.icon_position
 
         if self.on_click:
             props["on_click"] = self.on_click.serialize()

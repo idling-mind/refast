@@ -41,6 +41,8 @@ Python Component → render() → JSON → WebSocket → React ComponentRenderer
 
 **Important:** All prop names emitted from Python components' `render()` methods must use `snake_case`. The frontend `ComponentRenderer` automatically converts these to `camelCase` for React components.
 
+> **See Also:** [NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md) for complete naming convention documentation.
+
 ```python
 # ✅ CORRECT - Use snake_case in render()
 def render(self) -> dict[str, Any]:
@@ -73,6 +75,18 @@ await ctx.update_props("my-component", {"foreground_color": "red", "is_disabled"
 # ❌ WRONG  
 await ctx.update_props("my-component", {"foregroundColor": "red", "isDisabled": True})
 ```
+
+#### Development Validation
+
+Enable prop validation during development to catch camelCase props early:
+
+```bash
+# Set environment variable before running your app
+export REFAST_VALIDATE_PROPS=1  # Linux/Mac
+$env:REFAST_VALIDATE_PROPS="1"  # PowerShell
+```
+
+You can also call `self._validate_props(props)` in your `render()` method to log warnings for any camelCase keys.
 
 ### Base Component Class
 
@@ -181,7 +195,7 @@ class Rating(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "maxStars": self.max_stars,  # camelCase for JS
+                "max_stars": self.max_stars,  # snake_case - frontend converts to camelCase
                 "size": self.size,
                 "readonly": self.readonly,
                 "on_change": self.on_change.serialize() if self.on_change else None,
@@ -1113,14 +1127,14 @@ class TestRating:
         
         assert rendered["type"] == "Rating"
         assert rendered["props"]["value"] == 3
-        assert rendered["props"]["maxStars"] == 5
+        assert rendered["props"]["max_stars"] == 5
     
     def test_rating_custom_max_stars(self):
         """Test Rating with custom max stars."""
         rating = Rating(value=7, max_stars=10)
         rendered = rating.render()
         
-        assert rendered["props"]["maxStars"] == 10
+        assert rendered["props"]["max_stars"] == 10
     
     def test_rating_size(self):
         """Test Rating size prop."""
@@ -1194,12 +1208,16 @@ uv run pytest tests/unit/test_rating.py -v
 
 ### 1. Naming Conventions
 
-| Python | TypeScript/React | JSON Props |
-|--------|------------------|------------|
-| `class_name` | `className` | `className` |
-| `on_click` | `onClick` | `onClick` |
-| `max_stars` | `maxStars` | `maxStars` |
-| `html_for` | `htmlFor` | `htmlFor` |
+> **See Also:** [NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md) for complete documentation.
+
+| Python Param | Python render() | React Component |
+|--------------|-----------------|------------------|
+| `class_name` | `class_name` | `className` (auto-converted) |
+| `on_click` | `on_click` | `onClick` (auto-converted) |
+| `max_stars` | `max_stars` | `maxStars` (auto-converted) |
+| `html_for` | `html_for` | `htmlFor` (auto-converted) |
+
+**Rule:** Python `render()` must emit `snake_case` props. The frontend `ComponentRenderer` automatically converts them to `camelCase` for React.
 
 ### 2. Type Hints
 
@@ -1388,10 +1406,10 @@ class Rating(Component):
             "id": self.id,
             "props": {
                 "value": self.value,
-                "maxStars": self.max_stars,
+                "max_stars": self.max_stars,
                 "size": self.size,
                 "readonly": self.readonly,
-                "showValue": self.show_value,
+                "show_value": self.show_value,
                 "on_change": self.on_change.serialize() if self.on_change else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -1534,10 +1552,10 @@ class TestRating:
         
         assert rendered["type"] == "Rating"
         assert rendered["props"]["value"] == 0
-        assert rendered["props"]["maxStars"] == 5
+        assert rendered["props"]["max_stars"] == 5
         assert rendered["props"]["size"] == "md"
         assert rendered["props"]["readonly"] is False
-        assert rendered["props"]["showValue"] is False
+        assert rendered["props"]["show_value"] is False
         assert rendered["props"]["on_change"] is None
     
     def test_rating_custom_values(self):
@@ -1552,10 +1570,10 @@ class TestRating:
         rendered = rating.render()
         
         assert rendered["props"]["value"] == 3
-        assert rendered["props"]["maxStars"] == 10
+        assert rendered["props"]["max_stars"] == 10
         assert rendered["props"]["size"] == "lg"
         assert rendered["props"]["readonly"] is True
-        assert rendered["props"]["showValue"] is True
+        assert rendered["props"]["show_value"] is True
     
     def test_rating_value_clamped(self):
         """Test Rating value is clamped to valid range."""
@@ -1881,7 +1899,7 @@ ui = RefastApp(
 
 2. **Unique Names**: Use a unique `name` for your extension (e.g., `my-company-charts`) to avoid conflicts.
 
-3. **Snake Case Props**: Python components should emit `snake_case` props. The frontend auto-converts to camelCase.
+3. **Snake Case Props**: Python components must emit `snake_case` props. The frontend auto-converts to camelCase. See [NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md) for complete documentation.
 
 4. **Guard Registration**: Check `componentRegistry.has()` before registering to avoid duplicate registration errors.
 

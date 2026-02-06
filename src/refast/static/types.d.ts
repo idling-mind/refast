@@ -28,6 +28,22 @@ export interface CallbackRef {
     boundArgs: Record<string, unknown>;
     debounce?: number;
     throttle?: number;
+    /**
+     * Store directive for saving event data to the prop store.
+     * - string: Store the event's "value" under this key
+     * - object: Map event data keys to prop store keys (e.g., {"value": "email"})
+     */
+    storeAs?: string | Record<string, string>;
+    /**
+     * If true, only store the value without invoking the callback.
+     * Useful for capturing input values without server roundtrips.
+     */
+    storeOnly?: boolean;
+    /**
+     * List of prop store keys to include with this callback.
+     * Only these values are sent (not the entire store).
+     */
+    props?: string[];
 }
 /**
  * JavaScript callback reference from backend (client-side execution).
@@ -114,6 +130,11 @@ export interface EventMessage {
     eventType?: string;
     data?: Record<string, unknown>;
     boundArgs?: Record<string, unknown>;
+    /**
+     * Prop store values captured from component events.
+     * Sent with every callback invocation for backend access via ctx.prop_store.
+     */
+    propStore?: Record<string, unknown>;
 }
 /**
  * WebSocket connection state.

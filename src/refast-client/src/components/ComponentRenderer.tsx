@@ -3,6 +3,7 @@ import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef } fro
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
 import { debounce, throttle } from '../utils';
+import { propStore } from '../state/PropStore';
 
 interface ComponentRendererProps {
   tree: ComponentTree | string;
@@ -209,19 +210,56 @@ interface EventManagerInterface {
 
 /**
  * Create a handler function for a callback reference.
+ * Handles store_as directives for prop store and optional store-only mode.
+ * When `props` is specified, only those prop store values are sent.
  */
 function createCallbackHandler(
   ref: CallbackRef,
   eventManager: EventManagerInterface
 ): (...args: unknown[]) => void {
-  const { callbackId, boundArgs, debounce: debounceMs, throttle: throttleMs } = ref;
+  const { callbackId, boundArgs, debounce: debounceMs, throttle: throttleMs, storeAs, storeOnly, props } = ref;
 
   let handler = (...args: unknown[]) => {
     // Extract event data from args
     const eventData = extractEventData(args);
 
+    // Handle store_as directive - store values in the prop store
+    if (storeAs) {
+      if (typeof storeAs === 'string') {
+        // Simple form: store_as="key" stores eventData.value as key
+        propStore.set(storeAs, eventData.value);
+      } else if (typeof storeAs === 'object') {
+        // Advanced form: store_as={"value": "email", "name": "field_name"}
+        // Maps event data keys to prop store keys
+        for (const [eventKey, storeKey] of Object.entries(storeAs)) {
+          if (eventKey in eventData) {
+            propStore.set(storeKey, eventData[eventKey]);
+          }
+        }
+      }
+    }
+
+    // If store-only mode, don't invoke the callback (no server roundtrip)
+    if (storeOnly) {
+      return;
+    }
+
+    // Build the data to send with the callback
+    // If props is specified, include only those prop store values
+    // Otherwise, don't include any prop store values (unless explicitly requested)
+    let propsData: Record<string, unknown> = {};
+    if (props && props.length > 0) {
+      for (const key of props) {
+        const value = propStore.get(key);
+        if (value !== undefined) {
+          propsData[key] = value;
+        }
+      }
+    }
+
     eventManager.invokeCallback(callbackId, {
       ...boundArgs,
+      ...propsData,
       ...eventData,
     });
   };

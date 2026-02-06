@@ -25,18 +25,51 @@ class Callback:
 
     Callbacks are serializable references to Python functions that
     the frontend can invoke via WebSocket.
+
+    The `store_as` parameter enables frontend-only state storage:
+    - When specified, event values are stored in the prop store
+    - Stored values are available to all subsequent callbacks
+    - Avoids server roundtrips for input state synchronization
+
+    The `props` parameter specifies which prop store values to include:
+    - Only requested props are sent with the callback (not the entire store)
+    - Values are passed as keyword arguments to the callback function
+
+    Example:
+        ```python
+        # Store input value as "email" in prop store (no server call)
+        Input(on_change=ctx.callback(store_as="email"))
+        Input(on_change=ctx.callback(store_as="name"))
+
+        # Request specific props - they come as kwargs
+        Button(on_click=ctx.callback(submit, props=["email", "name"]))
+
+        async def submit(ctx, email: str, name: str):
+            # email and name are passed directly!
+            print(f"Email: {email}, Name: {name}")
+        ```
     """
 
     id: str
-    func: Callable
+    func: Callable | None
     bound_args: dict[str, Any] = field(default_factory=dict)
+    store_as: str | dict[str, str] | None = None
+    store_only: bool = False
+    props: list[str] | None = None
 
     def serialize(self) -> dict[str, Any]:
         """Serialize for sending to frontend."""
-        return {
+        result = {
             "callbackId": self.id,
             "boundArgs": self.bound_args,
         }
+        if self.store_as is not None:
+            result["storeAs"] = self.store_as
+        if self.store_only:
+            result["storeOnly"] = True
+        if self.props is not None:
+            result["props"] = self.props
+        return result
 
 
 @dataclass
@@ -192,6 +225,7 @@ class Context(Generic[T]):
         self._store: Store | None = None
         self._session: Session | None = None
         self._event_data: dict[str, Any] = {}
+        self._prop_store: dict[str, Any] = {}
         self._store_sync_future: asyncio.Future[None] | None = None
 
     @property
@@ -202,6 +236,37 @@ class Context(Generic[T]):
     def set_event_data(self, data: dict[str, Any]) -> None:
         """Set the event data (called by event manager)."""
         self._event_data = data
+
+    @property
+    def prop_store(self) -> dict[str, Any]:
+        """
+        Access values stored from component events via store_as.
+
+        The prop store is a frontend-only key-value store that captures
+        values from component events (like input changes) without requiring
+        server roundtrips. Values are sent to the backend only when a
+        callback is invoked.
+
+        Example:
+            ```python
+            # In page function, set up store_as for inputs
+            Input(on_change=ctx.callback(store_as="email"))
+            Input(on_change=ctx.callback(store_as="username"))
+
+            # In callback, access stored values
+            async def submit(ctx):
+                email = ctx.prop_store.get("email", "")
+                username = ctx.prop_store.get("username", "")
+            ```
+
+        Returns:
+            Dict containing all values stored via store_as directives
+        """
+        return self._prop_store
+
+    def set_prop_store(self, data: dict[str, Any]) -> None:
+        """Set the prop store data (called by event manager)."""
+        self._prop_store = data
 
     @property
     def state(self) -> State:
@@ -241,14 +306,22 @@ class Context(Generic[T]):
 
     def callback(
         self,
-        func: Callable,
+        func: Callable | None = None,
+        *,
+        store_as: str | dict[str, str] | None = None,
+        props: list[str] | None = None,
         **bound_args: Any,
     ) -> Callback:
         """
         Create a callback that can be triggered from the frontend.
 
         Args:
-            func: The function to call
+            func: The function to call (optional if store_as is provided)
+            store_as: Store event data in the prop store. Can be:
+                - str: Store event's "value" under this key
+                - dict: Map event data keys to store keys (e.g., {"value": "email"})
+            props: List of prop store keys to include with this callback.
+                Values are passed as keyword arguments to the function.
             **bound_args: Arguments to bind to the callback
 
         Returns:
@@ -256,17 +329,35 @@ class Context(Generic[T]):
 
         Example:
             ```python
+            # Store-only callback (no server roundtrip)
+            Input(on_change=ctx.callback(store_as="email"))
+            Input(on_change=ctx.callback(store_as="name"))
+
+            # Request specific props - they come as kwargs
             Button(
-                "Delete",
-                on_click=ctx.callback(delete_item, item_id=item["id"])
+                "Submit",
+                on_click=ctx.callback(handle_submit, props=["email", "name"])
             )
+
+            async def handle_submit(ctx, email: str, name: str):
+                # Props are passed directly as arguments!
+                print(f"Email: {email}, Name: {name}")
             ```
         """
         callback_id = str(uuid.uuid4())
-        cb = Callback(id=callback_id, func=func, bound_args=bound_args)
+        store_only = func is None and store_as is not None
+        
+        cb = Callback(
+            id=callback_id,
+            func=func,
+            bound_args=bound_args,
+            store_as=store_as,
+            store_only=store_only,
+            props=props,
+        )
 
-        # Register with app
-        if self._app:
+        # Register with app (only if there's a function to call)
+        if self._app and func is not None:
             self._app.register_callback(callback_id, func)
 
         return cb

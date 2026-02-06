@@ -201,6 +201,11 @@ class EventManager:
         if hasattr(ctx, "set_event_data"):
             ctx.set_event_data(merged_args)
 
+        # Set prop_store on context so callbacks can access stored values
+        prop_store = event_data.get("propStore", {})
+        if hasattr(ctx, "set_prop_store"):
+            ctx.set_prop_store(prop_store)
+
         try:
             if asyncio.iscoroutinefunction(callback):
                 return await callback(ctx, **merged_args)

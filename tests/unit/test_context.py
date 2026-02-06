@@ -608,3 +608,169 @@ class TestContextAppendProp:
         ctx = Context()
         # Should not raise
         await ctx.append_prop("target-id", "content", "new text")
+
+
+class TestCallbackWithStoreAs:
+    """Tests for Callback with store_as feature."""
+
+    def test_callback_store_as_string(self):
+        """Test Callback with store_as as string."""
+
+        def my_func():
+            pass
+
+        cb = Callback(id="test-id", func=my_func, store_as="email")
+        assert cb.store_as == "email"
+        assert cb.store_only is False
+
+    def test_callback_store_as_dict(self):
+        """Test Callback with store_as as dict mapping."""
+
+        def my_func():
+            pass
+
+        cb = Callback(id="test-id", func=my_func, store_as={"value": "email", "name": "field"})
+        assert cb.store_as == {"value": "email", "name": "field"}
+
+    def test_callback_store_only(self):
+        """Test Callback in store-only mode."""
+        cb = Callback(id="test-id", func=None, store_as="email", store_only=True)
+        assert cb.store_as == "email"
+        assert cb.store_only is True
+        assert cb.func is None
+
+    def test_callback_serialize_with_store_as_string(self):
+        """Test Callback serialization includes storeAs."""
+
+        def my_func():
+            pass
+
+        cb = Callback(id="test-id", func=my_func, store_as="email")
+        serialized = cb.serialize()
+
+        assert serialized["callbackId"] == "test-id"
+        assert serialized["storeAs"] == "email"
+        assert "storeOnly" not in serialized  # Not store-only
+
+    def test_callback_serialize_with_store_as_dict(self):
+        """Test Callback serialization with dict store_as."""
+
+        def my_func():
+            pass
+
+        cb = Callback(id="test-id", func=my_func, store_as={"value": "user_email"})
+        serialized = cb.serialize()
+
+        assert serialized["storeAs"] == {"value": "user_email"}
+
+    def test_callback_serialize_with_store_only(self):
+        """Test Callback serialization in store-only mode."""
+        cb = Callback(id="test-id", func=None, store_as="field", store_only=True)
+        serialized = cb.serialize()
+
+        assert serialized["storeAs"] == "field"
+        assert serialized["storeOnly"] is True
+
+    def test_callback_serialize_without_store_as(self):
+        """Test Callback serialization without store_as doesn't include it."""
+
+        def my_func():
+            pass
+
+        cb = Callback(id="test-id", func=my_func)
+        serialized = cb.serialize()
+
+        assert "storeAs" not in serialized
+        assert "storeOnly" not in serialized
+
+
+class TestContextCallbackWithStoreAs:
+    """Tests for Context.callback() with store_as parameter."""
+
+    def test_callback_with_store_as_string(self):
+        """Test ctx.callback with store_as string."""
+        ctx = Context()
+
+        def my_handler():
+            pass
+
+        cb = ctx.callback(my_handler, store_as="email")
+        assert cb.store_as == "email"
+        assert cb.store_only is False
+
+    def test_callback_store_only_no_func(self):
+        """Test ctx.callback with only store_as creates store-only callback."""
+        ctx = Context()
+
+        cb = ctx.callback(store_as="username")
+        assert cb.store_as == "username"
+        assert cb.store_only is True
+        assert cb.func is None
+
+    def test_callback_store_only_not_registered_with_app(self):
+        """Test store-only callback is not registered with app."""
+        app = RefastApp()
+        ctx = Context(app=app)
+
+        cb = ctx.callback(store_as="field")
+
+        # Store-only callbacks have no function to register
+        assert app.get_callback(cb.id) is None
+
+    def test_callback_with_store_as_and_func_is_registered(self):
+        """Test callback with both store_as and func is registered."""
+        app = RefastApp()
+        ctx = Context(app=app)
+
+        def my_handler():
+            pass
+
+        cb = ctx.callback(my_handler, store_as="email")
+
+        assert cb.store_as == "email"
+        assert cb.store_only is False
+        assert app.get_callback(cb.id) == my_handler
+
+    def test_callback_with_store_as_dict_mapping(self):
+        """Test ctx.callback with store_as dict mapping."""
+        ctx = Context()
+
+        def my_handler():
+            pass
+
+        cb = ctx.callback(my_handler, store_as={"value": "email", "name": "field_name"})
+        assert cb.store_as == {"value": "email", "name": "field_name"}
+
+
+class TestContextPropStore:
+    """Tests for Context.prop_store property."""
+
+    def test_prop_store_default_empty(self):
+        """Test prop_store is empty by default."""
+        ctx = Context()
+        assert ctx.prop_store == {}
+
+    def test_set_prop_store(self):
+        """Test setting prop_store data."""
+        ctx = Context()
+        ctx.set_prop_store({"email": "test@example.com", "name": "John"})
+
+        assert ctx.prop_store.get("email") == "test@example.com"
+        assert ctx.prop_store.get("name") == "John"
+
+    def test_prop_store_get_with_default(self):
+        """Test prop_store.get with default value."""
+        ctx = Context()
+        ctx.set_prop_store({"email": "test@example.com"})
+
+        assert ctx.prop_store.get("email") == "test@example.com"
+        assert ctx.prop_store.get("missing", "default") == "default"
+
+    def test_prop_store_is_dict(self):
+        """Test prop_store supports dict operations."""
+        ctx = Context()
+        ctx.set_prop_store({"a": 1, "b": 2})
+
+        assert "a" in ctx.prop_store
+        assert list(ctx.prop_store.keys()) == ["a", "b"]
+        assert list(ctx.prop_store.values()) == [1, 2]

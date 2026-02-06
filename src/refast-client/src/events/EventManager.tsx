@@ -45,6 +45,7 @@ export function EventManagerProvider({
       const { callbackId, data } = customEvent.detail;
       
       if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        // Note: requested props should already be merged into data
         const message = {
           type: 'callback',
           callbackId,
@@ -156,6 +157,8 @@ export function EventManagerProvider({
         return;
       }
 
+      // Note: requested props are already merged into data by createCallbackHandler
+      // We no longer send the entire propStore - only explicitly requested props
       const message: EventMessage = {
         type: 'callback',
         callbackId,

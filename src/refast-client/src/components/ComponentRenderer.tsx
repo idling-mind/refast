@@ -246,13 +246,41 @@ function createCallbackHandler(
 
     // Build the data to send with the callback
     // If props is specified, include only those prop store values
-    // Otherwise, don't include any prop store values (unless explicitly requested)
+    // Props can be exact keys or regex patterns (e.g., "input_[0-9]+")
     let propsData: Record<string, unknown> = {};
     if (props && props.length > 0) {
-      for (const key of props) {
-        const value = propStore.get(key);
-        if (value !== undefined) {
-          propsData[key] = value;
+      const allStoreKeys = propStore.keys();
+      
+      for (const pattern of props) {
+        // Check if pattern contains regex metacharacters
+        const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
+        
+        if (isRegex) {
+          // Treat as regex pattern - match against all store keys
+          try {
+            const regex = new RegExp(`^${pattern}$`);
+            for (const key of allStoreKeys) {
+              if (regex.test(key)) {
+                const value = propStore.get(key);
+                if (value !== undefined) {
+                  propsData[key] = value;
+                }
+              }
+            }
+          } catch (e) {
+            // Invalid regex, treat as literal key
+            console.warn(`[Refast] Invalid regex pattern in props: ${pattern}`);
+            const value = propStore.get(pattern);
+            if (value !== undefined) {
+              propsData[pattern] = value;
+            }
+          }
+        } else {
+          // Exact key match
+          const value = propStore.get(pattern);
+          if (value !== undefined) {
+            propsData[pattern] = value;
+          }
         }
       }
     }

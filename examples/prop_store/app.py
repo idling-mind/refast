@@ -35,19 +35,19 @@ from refast.components import (
 ui = RefastApp(title="Prop Store Example")
 
 
-async def handle_submit(ctx: Context, fullname: str = "", email: str = "", message: str = ""):
+async def handle_submit(ctx: Context, input_name: str = "", input_email: str = "", message: str = ""):
     """Handle form submission using prop values passed as arguments.
     
     Note: Props requested via props=["fullname", "email", "message"] are 
     passed directly as keyword arguments - no need to use ctx.prop_store!
     """
-    print(f"Form submitted: fullname={fullname}, email={email}, message={message}")
+    print(f"Form submitted: fullname={input_name}, email={input_email}, message={message}")
     
     # Validation
     errors = []
-    if not fullname:
+    if not input_name:
         errors.append("Name is required")
-    if not email or "@" not in email:
+    if not input_email or "@" not in input_email:
         errors.append("Valid email is required")
     if not message:
         errors.append("Message is required")
@@ -61,8 +61,8 @@ async def handle_submit(ctx: Context, fullname: str = "", email: str = "", messa
         ctx.state.set("errors", [])
         ctx.state.set("success", True)
         ctx.state.set("submitted_data", {
-            "fullname": fullname,
-            "email": email,
+            "fullname": input_name,
+            "email": input_email,
             "message": message,
         })
     
@@ -178,7 +178,7 @@ def home(ctx: Context):
                                         placeholder="Enter your name",
                                         # store_as="name" captures the input value
                                         # without a server roundtrip
-                                        on_change=ctx.callback(store_as="fullname"),
+                                        on_change=ctx.callback(store_as="input_name"),
                                     ),
                                 ]
                             ),
@@ -193,7 +193,7 @@ def home(ctx: Context):
                                         name="email",
                                         type="email",
                                         placeholder="Enter your email",
-                                        on_change=ctx.callback(store_as="email"),
+                                        on_change=ctx.callback(store_as="input_email"),
                                     ),
                                 ]
                             ),
@@ -219,7 +219,7 @@ def home(ctx: Context):
                                 "Submit",
                                 on_click=ctx.callback(
                                     handle_submit,
-                                    props=["fullname", "email", "message"]
+                                    props=["input_.*", "message"]
                                 ),
                                 class_name="w-full",
                             ),

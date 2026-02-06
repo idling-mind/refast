@@ -53,6 +53,11 @@ declare class PropStore {
      */
     getAll(): Record<string, unknown>;
     /**
+     * Get all keys in the prop store.
+     * Used for regex pattern matching.
+     */
+    keys(): string[];
+    /**
      * Subscribe to prop store changes.
      */
     subscribe(listener: PropStoreListener): () => void;

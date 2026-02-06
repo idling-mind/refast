@@ -80,6 +80,14 @@ class PropStore {
   }
 
   /**
+   * Get all keys in the prop store.
+   * Used for regex pattern matching.
+   */
+  keys(): string[] {
+    return Array.from(this.store.keys());
+  }
+
+  /**
    * Subscribe to prop store changes.
    */
   subscribe(listener: PropStoreListener): () => void {

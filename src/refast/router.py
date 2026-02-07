@@ -247,12 +247,13 @@ class RefastRouter:
         if message_type == "callback":
             callback_id = data.get("callbackId")
             callback_data = data.get("data", {})
+            event_data_raw = data.get("eventData", {})
             prop_store_data = data.get("propStore", {})
 
             callback = self.app.get_callback(callback_id)
             if callback:
-                # Set the event data on the context so callbacks can access it
-                ctx.set_event_data(callback_data)
+                # Set raw DOM event data on context (accessible via ctx.event_data)
+                ctx.set_event_data(event_data_raw)
                 
                 # Set the prop store data on the context
                 ctx.set_prop_store(prop_store_data)
@@ -351,14 +352,51 @@ class RefastRouter:
         ext_styles_html = "\n    ".join(extension_styles)
         ext_scripts_html = "\n    ".join(extension_scripts)
 
+        # --- Theme CSS variable overrides ---
+        theme_style = ""
+        if self.app.theme is not None:
+            css_vars = self.app.theme.to_css_variables()
+            if css_vars:
+                theme_style = f"<style data-refast-theme>\n{css_vars}\n</style>"
+
+        # --- Favicon ---
+        favicon_tag = ""
+        if self.app.favicon:
+            favicon_tag = f'<link rel="icon" href="{self.app.favicon}">'
+
+        # --- Extra <head> tags ---
+        head_tags_html = "\n    ".join(self.app._head_tags) if self.app._head_tags else ""
+
+        # --- Custom CSS (after extension CSS so user overrides win) ---
+        custom_css_parts: list[str] = []
+        for entry in self.app._custom_css:
+            if entry.startswith("http") or entry.startswith("/"):
+                custom_css_parts.append(f'<link rel="stylesheet" href="{entry}">')
+            else:
+                custom_css_parts.append(f"<style>{entry}</style>")
+        custom_css_html = "\n    ".join(custom_css_parts)
+
+        # --- Custom JS (after client + extension scripts so globals exist) ---
+        custom_js_parts: list[str] = []
+        for entry in self.app._custom_js:
+            if entry.startswith("http") or entry.startswith("/"):
+                custom_js_parts.append(f'<script src="{entry}"></script>')
+            else:
+                custom_js_parts.append(f"<script>{entry}</script>")
+        custom_js_html = "\n    ".join(custom_js_parts)
+
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{self.app.title}</title>
+    {favicon_tag}
     {client_css}
+    {theme_style}
     {ext_styles_html}
+    {custom_css_html}
+    {head_tags_html}
     <script>
         window.__REFAST_INITIAL_DATA__ = {component_json};
     </script>
@@ -367,5 +405,6 @@ class RefastRouter:
     <div id="refast-root"></div>
     {client_script}
     {ext_scripts_html}
+    {custom_js_html}
 </body>
 </html>"""

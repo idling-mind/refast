@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from fastapi import APIRouter
 
 from refast.router import RefastRouter
+from refast.theme.theme import Theme
 
 if TYPE_CHECKING:
     from refast.context import Context
@@ -24,8 +25,16 @@ class RefastApp:
     Example:
         ```python
         from refast import RefastApp
+        from refast.theme import rose_theme
 
-        ui = RefastApp(title="My App")
+        ui = RefastApp(
+            title="My App",
+            theme=rose_theme,
+            favicon="/static/favicon.ico",
+            custom_css=["https://fonts.googleapis.com/css2?family=Inter&display=swap"],
+            custom_js=["console.log('loaded');"],
+            head_tags=['<meta name="description" content="My Refast App">'],
+        )
 
         @ui.page("/")
         def home(ctx: Context):
@@ -37,9 +46,18 @@ class RefastApp:
 
     Args:
         title: Application title
-        theme: Theme configuration (default or custom)
+        theme: Theme configuration — a ``Theme`` instance, or ``None`` for defaults
         secret_key: Secret key for session encryption
         debug: Enable debug mode
+        favicon: URL to a favicon (e.g. ``"/static/favicon.ico"``)
+        custom_css: Additional CSS — inline snippets or URLs. URLs (starting
+            with ``http`` or ``/``) are injected as ``<link>`` tags; anything
+            else is wrapped in an inline ``<style>`` block.
+        custom_js: Additional JavaScript — inline snippets or URLs. URLs are
+            injected as ``<script src>`` tags; anything else is wrapped in
+            an inline ``<script>`` block. Placed at the end of ``<body>``.
+        head_tags: Raw HTML strings injected verbatim into ``<head>``
+            (e.g. ``<meta>``, ``<link>``, ``<style>``).
         extensions: List of Extension instances to register
         auto_discover_extensions: Whether to auto-discover extensions via entry points
     """
@@ -47,9 +65,13 @@ class RefastApp:
     def __init__(
         self,
         title: str = "Refast App",
-        theme: str | dict[str, Any] | None = None,
+        theme: Theme | None = None,
         secret_key: str | None = None,
         debug: bool = False,
+        favicon: str | None = None,
+        custom_css: str | list[str] | None = None,
+        custom_js: str | list[str] | None = None,
+        head_tags: list[str] | None = None,
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
     ):
@@ -57,6 +79,24 @@ class RefastApp:
         self.theme = theme
         self.secret_key = secret_key
         self.debug = debug
+        self.favicon = favicon
+
+        # Normalise custom_css / custom_js to lists
+        if custom_css is None:
+            self._custom_css: list[str] = []
+        elif isinstance(custom_css, str):
+            self._custom_css = [custom_css]
+        else:
+            self._custom_css = list(custom_css)
+
+        if custom_js is None:
+            self._custom_js: list[str] = []
+        elif isinstance(custom_js, str):
+            self._custom_js = [custom_js]
+        else:
+            self._custom_js = list(custom_js)
+
+        self._head_tags: list[str] = list(head_tags) if head_tags else []
 
         self._pages: dict[str, Callable] = {}
         self._callbacks: dict[str, Callable] = {}
@@ -238,4 +278,60 @@ class RefastApp:
             The Extension instance, or None if not found.
         """
         return self._extensions.get(name)
+
+    # ------------------------------------------------------------------
+    # Theming & customisation helpers
+    # ------------------------------------------------------------------
+
+    def add_css(self, css: str) -> None:
+        """
+        Add a CSS snippet or URL after construction.
+
+        URLs (starting with ``http`` or ``/``) become ``<link>`` tags;
+        everything else is wrapped in an inline ``<style>`` block.
+
+        Args:
+            css: A CSS URL or inline CSS string.
+
+        Example:
+            ```python
+            ui.add_css("https://fonts.googleapis.com/css2?family=Inter")
+            ui.add_css("body { font-family: Inter, sans-serif; }")
+            ```
+        """
+        self._custom_css.append(css)
+
+    def add_js(self, js: str) -> None:
+        """
+        Add a JavaScript snippet or URL after construction.
+
+        URLs (starting with ``http`` or ``/``) become ``<script src>`` tags;
+        everything else is wrapped in an inline ``<script>`` block.
+        Scripts are placed at the end of ``<body>``.
+
+        Args:
+            js: A JS URL or inline script string.
+
+        Example:
+            ```python
+            ui.add_js("https://cdn.example.com/lib.js")
+            ui.add_js("console.log('app ready');")
+            ```
+        """
+        self._custom_js.append(js)
+
+    def add_head_tag(self, html: str) -> None:
+        """
+        Add a raw HTML string to ``<head>``.
+
+        Args:
+            html: A raw HTML tag (``<meta>``, ``<link>``, etc.).
+
+        Example:
+            ```python
+            ui.add_head_tag('<meta name="description" content="My app">')
+            ui.add_head_tag('<link rel="preconnect" href="https://fonts.gstatic.com">')
+            ```
+        """
+        self._head_tags.append(html)
 

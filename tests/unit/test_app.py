@@ -26,8 +26,11 @@ class TestRefastApp:
 
     def test_create_with_theme(self):
         """Test RefastApp can be created with a theme."""
-        app = RefastApp(theme="dark")
-        assert app.theme == "dark"
+        from refast.theme import Theme, ThemeColors
+
+        theme = Theme(light=ThemeColors(primary="1 2% 3%"))
+        app = RefastApp(theme=theme)
+        assert app.theme is theme
 
     def test_create_with_secret_key(self):
         """Test RefastApp can be created with a secret key."""

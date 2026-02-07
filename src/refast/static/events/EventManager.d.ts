@@ -2,7 +2,7 @@ import { default as React } from 'react';
 import { UpdateMessage, ComponentTree } from '../types';
 
 interface EventManagerContextValue {
-    invokeCallback: (callbackId: string, data: Record<string, unknown>) => void;
+    invokeCallback: (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => void;
     emitEvent: (eventType: string, data: unknown) => void;
     subscribe: (channel: string) => void;
     unsubscribe: (channel: string) => void;

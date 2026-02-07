@@ -769,6 +769,7 @@ export function ThemeSwitcher({
   });
   
   const [mounted, setMounted] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   // Apply theme on mount and when theme changes
   React.useEffect(() => {
@@ -851,8 +852,6 @@ export function ThemeSwitcher({
   }
 
   // Dropdown mode
-  const [isOpen, setIsOpen] = React.useState(false);
-  
   return (
     <div className={cn('relative', className)} {...props}>
       <button

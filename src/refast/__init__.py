@@ -9,6 +9,7 @@ from refast.context import BoundJsCallback, Callback, Context, JsAction, JsCallb
 from refast.extensions import Extension
 from refast.state import State
 from refast.store import BrowserStore, JSONEncoder, LocalStore, SessionStore, Store
+from refast.theme import Theme, ThemeColors, ThemeMode
 
 __version__ = "0.1.0"
 __all__ = [
@@ -25,4 +26,7 @@ __all__ = [
     "BrowserStore",
     "JSONEncoder",
     "Extension",
+    "Theme",
+    "ThemeColors",
+    "ThemeMode",
 ]

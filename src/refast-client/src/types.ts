@@ -82,7 +82,7 @@ export type AnyCallbackRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRe
  * Update message from backend.
  */
 export interface UpdateMessage {
-  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call';
+  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call' | 'theme_update';
   operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children' | 'append_prop';
   targetId?: string;
   component?: ComponentTree;
@@ -115,6 +115,19 @@ export interface UpdateMessage {
   // Bound method call properties
   methodName?: string;
   kwargs?: Record<string, unknown>;
+  // Theme update properties
+  theme?: ThemePayload;
+}
+
+/**
+ * Theme payload sent from backend for runtime theme updates.
+ */
+export interface ThemePayload {
+  light: Record<string, string>;
+  dark: Record<string, string>;
+  fontFamily?: string | null;
+  radius?: string | null;
+  defaultMode?: 'light' | 'dark' | 'system';
 }
 
 /**
@@ -135,7 +148,10 @@ export interface EventMessage {
   type: 'callback' | 'event' | 'subscribe' | 'unsubscribe';
   callbackId?: string;
   eventType?: string;
+  /** Bound args + requested prop store values. Passed as **kwargs to the Python callback. */
   data?: Record<string, unknown>;
+  /** Raw DOM event data (value, name, checked). Accessible via ctx.event_data on the backend. */
+  eventData?: Record<string, unknown>;
   boundArgs?: Record<string, unknown>;
   /**
    * Prop store values captured from component events.

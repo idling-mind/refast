@@ -883,6 +883,76 @@ class Context(Generic[T]):
                 }
             )
 
+    async def set_theme(self, theme: Any) -> None:
+        """
+        Apply a new theme at runtime, pushing CSS variable overrides to the client.
+
+        The theme is applied immediately on all connected clients (via WebSocket).
+        The app-level ``theme`` is also updated so that future HTTP page loads
+        use the new theme.
+
+        Args:
+            theme: A ``Theme`` instance (from ``refast.theme``).
+
+        Example:
+            ```python
+            from refast.theme import rose_theme
+
+            async def switch_to_rose(ctx: Context):
+                await ctx.set_theme(rose_theme)
+            ```
+        """
+        # Update the app-level theme for future page loads
+        if self._app:
+            self._app.theme = theme
+
+        # Push the theme to the current client
+        if self._websocket:
+            await self._websocket.send_json(
+                {
+                    "type": "theme_update",
+                    "theme": theme.to_dict(),
+                }
+            )
+
+    async def broadcast_theme(self, theme: Any) -> int:
+        """
+        Broadcast a theme change to **all** connected clients.
+
+        Args:
+            theme: A ``Theme`` instance (from ``refast.theme``).
+
+        Returns:
+            Number of clients that received the update.
+
+        Example:
+            ```python
+            from refast.theme import violet_theme
+
+            async def set_global_theme(ctx: Context):
+                await ctx.broadcast_theme(violet_theme)
+            ```
+        """
+        if self._app:
+            self._app.theme = theme
+
+        if not self._app:
+            return 0
+
+        count = 0
+        payload = {
+            "type": "theme_update",
+            "theme": theme.to_dict(),
+        }
+        for other_ctx in self._app.active_contexts:
+            if other_ctx._websocket:
+                try:
+                    await other_ctx._websocket.send_json(payload)
+                    count += 1
+                except Exception:
+                    pass
+        return count
+
     async def broadcast(self, event_type: str, data: Any) -> int:
         """
         Broadcast an event to all connected clients.

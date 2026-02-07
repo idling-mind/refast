@@ -205,7 +205,7 @@ function createFormatterFunction(expression: string): (value: unknown, index?: n
  * Event manager interface for callback handling.
  */
 interface EventManagerInterface {
-  invokeCallback: (callbackId: string, data: Record<string, unknown>) => void;
+  invokeCallback: (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => void;
 }
 
 /**
@@ -286,10 +286,9 @@ function createCallbackHandler(
     }
 
     eventManager.invokeCallback(callbackId, {
-      ...boundArgs,
       ...propsData,
-      ...eventData,
-    });
+      ...boundArgs,
+    }, eventData);
   };
 
   // Apply debounce
@@ -392,11 +391,22 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
     const event = first as React.SyntheticEvent<HTMLInputElement>;
     const target = event.target as HTMLInputElement;
 
-    return {
-      value: target.value,
-      checked: target.checked,
-      name: target.name,
-    };
+    // Only extract form-field properties from actual form elements.
+    // Buttons and their children have empty/undefined value/name which
+    // would pollute callback kwargs inconsistently.
+    const tag = target.tagName?.toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') {
+      const data: Record<string, unknown> = {
+        value: target.value,
+        name: target.name,
+      };
+      if (target.type === 'checkbox' || target.type === 'radio') {
+        data.checked = target.checked;
+      }
+      return data;
+    }
+
+    return {};
   }
 
   // Plain value

@@ -1,9 +1,86 @@
 import React, { createContext, useContext, useCallback, useMemo, useRef, useEffect } from 'react';
-import { EventMessage, UpdateMessage, ComponentTree } from '../types';
+import { EventMessage, UpdateMessage, ComponentTree, ThemePayload } from '../types';
 import { persistentStateManager } from '../state/PersistentStateManager';
 
+/**
+ * CSS variable names that may be set as inline styles by a previous
+ * (buggy) version of this function. We clean them up on the first call.
+ */
+let _inlineStylesCleaned = false;
+
+/**
+ * Apply a runtime theme update using stylesheet rules (not inline styles).
+ *
+ * We write both `:root { … }` (light) and `.dark { … }` (dark) blocks into
+ * a single `<style data-refast-theme-runtime>` element appended at the end of
+ * `<head>`.  Because it appears **after** the client CSS bundle and after the
+ * server-rendered `<style data-refast-theme>` block, it wins in the cascade
+ * for every variable it declares — while leaving un-declared variables to
+ * fall through to the CSS bundle defaults.
+ *
+ * We also blank out the server-rendered `<style data-refast-theme>` so that
+ * stale overrides from the initial theme don't bleed through.
+ */
+function applyThemeUpdate(theme: ThemePayload): void {
+  const root = document.documentElement;
+
+  // --- Housekeeping: remove any inline style overrides left from an
+  //     earlier (incorrect) implementation that used root.style.setProperty.
+  if (!_inlineStylesCleaned) {
+    // Remove every custom property that was set as an inline style
+    const inlineStyle = root.style;
+    const toRemove: string[] = [];
+    for (let i = 0; i < inlineStyle.length; i++) {
+      const prop = inlineStyle[i];
+      if (prop.startsWith('--')) {
+        toRemove.push(prop);
+      }
+    }
+    toRemove.forEach((p) => inlineStyle.removeProperty(p));
+    _inlineStylesCleaned = true;
+  }
+
+  // --- Blank the server-rendered theme block so stale values don't persist.
+  const serverBlock = document.querySelector('style[data-refast-theme]');
+  if (serverBlock) {
+    (serverBlock as HTMLStyleElement).textContent = '';
+  }
+
+  // --- Build the runtime stylesheet with both :root and .dark blocks.
+  let sheet = document.querySelector('style[data-refast-theme-runtime]') as HTMLStyleElement | null;
+  if (!sheet) {
+    sheet = document.createElement('style');
+    sheet.setAttribute('data-refast-theme-runtime', '');
+    document.head.appendChild(sheet);
+  }
+
+  const lightEntries = Object.entries(theme.light);
+  const darkEntries = Object.entries(theme.dark);
+
+  // Include radius in the light block (it's mode-independent)
+  if (theme.radius) {
+    lightEntries.push(['--radius', theme.radius]);
+  }
+
+  const lightLines = lightEntries.map(([k, v]) => `  ${k}: ${v};`).join('\n');
+  const darkLines = darkEntries.map(([k, v]) => `  ${k}: ${v};`).join('\n');
+
+  let css = '';
+  if (lightLines) css += `:root {\n${lightLines}\n}\n`;
+  if (darkLines) css += `.dark {\n${darkLines}\n}`;
+
+  sheet.textContent = css;
+
+  // --- Font family (applied via body.style since it's not a CSS variable)
+  if (theme.fontFamily) {
+    document.body.style.fontFamily = theme.fontFamily;
+  } else {
+    document.body.style.removeProperty('font-family');
+  }
+}
+
 interface EventManagerContextValue {
-  invokeCallback: (callbackId: string, data: Record<string, unknown>) => void;
+  invokeCallback: (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => void;
   emitEvent: (eventType: string, data: unknown) => void;
   subscribe: (channel: string) => void;
   unsubscribe: (channel: string) => void;
@@ -141,6 +218,11 @@ export function EventManagerProvider({
         if (message.type === 'resync_store') {
           persistentStateManager.resyncStore();
         }
+
+        // Handle runtime theme updates from backend
+        if (message.type === 'theme_update' && message.theme) {
+          applyThemeUpdate(message.theme);
+        }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
@@ -151,18 +233,19 @@ export function EventManagerProvider({
   }, [websocket, onComponentUpdate]);
 
   const invokeCallback = useCallback(
-    (callbackId: string, data: Record<string, unknown>) => {
+    (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => {
       if (!websocket || websocket.readyState !== WebSocket.OPEN) {
         console.warn('WebSocket not connected');
         return;
       }
 
-      // Note: requested props are already merged into data by createCallbackHandler
-      // We no longer send the entire propStore - only explicitly requested props
+      // Send bound args + props as 'data' (becomes **kwargs on the backend)
+      // Send DOM event data separately as 'eventData' (accessible via ctx.event_data)
       const message: EventMessage = {
         type: 'callback',
         callbackId,
         data,
+        ...(eventData && Object.keys(eventData).length > 0 ? { eventData } : {}),
       };
 
       websocket.send(JSON.stringify(message));

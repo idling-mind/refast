@@ -343,7 +343,7 @@ def create_main_content(ctx, variant: str):
             Flex(
                 direction="row",
                 align="center",
-                gap="4",
+                gap=4,
                 class_name="mb-6",
                 children=[
                     SidebarTrigger(),
@@ -351,7 +351,7 @@ def create_main_content(ctx, variant: str):
                 ],
             ),
             Column(
-                gap="6",
+                gap=6,
                 children=[
                     Card(
                         children=[
@@ -366,7 +366,7 @@ def create_main_content(ctx, variant: str):
                             CardContent(
                                 children=[
                                     Column(
-                                        gap="4",
+                                        gap=4,
                                         children=[
                                             Text(
                                                 "Use Ctrl+B (or Cmd+B on Mac) to toggle the sidebar."
@@ -397,7 +397,7 @@ def create_main_content(ctx, variant: str):
                             CardContent(
                                 children=[
                                     Flex(
-                                        gap="2",
+                                        gap=2,
                                         wrap="wrap",
                                         children=[
                                             Link(
@@ -452,7 +452,7 @@ def create_main_content(ctx, variant: str):
                             CardContent(
                                 children=[
                                     Column(
-                                        gap="2",
+                                        gap=2,
                                         children=[
                                             Text(
                                                 "✅ SidebarProvider - Context for state management"
@@ -492,7 +492,7 @@ def create_main_content(ctx, variant: str):
                             CardContent(
                                 children=[
                                     Column(
-                                        gap="2",
+                                        gap=2,
                                         children=[
                                             Text(f"Variant: {variant}"),
                                             Text("Collapsible: icon"),
@@ -552,7 +552,7 @@ def floating(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -572,7 +572,7 @@ def floating(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "This variant adds visual separation between the sidebar and content."
@@ -615,7 +615,7 @@ def inset(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -635,7 +635,7 @@ def inset(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "This variant gives the sidebar a full-bleed appearance."
@@ -671,7 +671,7 @@ def right_sidebar(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 justify="end",
                                 class_name="mb-6",
                                 children=[
@@ -692,7 +692,7 @@ def right_sidebar(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "Useful for secondary navigation or contextual information."
@@ -809,7 +809,7 @@ def collapsible_menu_demo(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -829,7 +829,7 @@ def collapsible_menu_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "This example uses the Collapsible component to create expandable menu sections."
@@ -1094,7 +1094,7 @@ def dropdown_actions_demo(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -1114,7 +1114,7 @@ def dropdown_actions_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "Hover over project items to see the action button (⋮)."
@@ -1142,7 +1142,7 @@ def dropdown_actions_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "SidebarMenuButton supports two variants: 'default' and 'outline'."
@@ -1302,7 +1302,7 @@ def skeleton_demo(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -1322,7 +1322,7 @@ def skeleton_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "Use SidebarMenuSkeleton to show loading placeholders."
@@ -1367,7 +1367,7 @@ def offcanvas_demo(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     SidebarTrigger(),
@@ -1387,7 +1387,7 @@ def offcanvas_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "Press Ctrl+B (or Cmd+B) to toggle the sidebar."
@@ -1433,7 +1433,7 @@ def none_collapsible_demo(ctx):
                             Flex(
                                 direction="row",
                                 align="center",
-                                gap="4",
+                                gap=4,
                                 class_name="mb-6",
                                 children=[
                                     Heading("Non-Collapsible Sidebar", level=1),
@@ -1452,7 +1452,7 @@ def none_collapsible_demo(ctx):
                                     CardContent(
                                         children=[
                                             Column(
-                                                gap="2",
+                                                gap=2,
                                                 children=[
                                                     Text(
                                                         "When collapsible='none', the sidebar stays fully expanded."

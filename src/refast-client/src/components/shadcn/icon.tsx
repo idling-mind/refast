@@ -226,6 +226,25 @@ import {
   HelpCircle,
   LifeBuoy,
   WifiOff,
+  // Additional icons for docs & common use
+  Rocket,
+  Grid3x3,
+  MousePointerClick,
+  Route,
+  Radio,
+  Palette,
+  Component,
+  Type,
+  TextCursorInput,
+  Table,
+  BarChart3,
+  Wrench,
+  Hammer,
+  Puzzle,
+  Paintbrush,
+  HandMetal,
+  CheckSquare,
+  LayoutDashboard,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -504,6 +523,25 @@ const iconMap: Record<string, LucideIcon> = {
   'help': HelpCircle,
   'life-buoy': LifeBuoy,
   'support': LifeBuoy,
+  // Additional icons for docs & common use
+  'rocket': Rocket,
+  'grid-3x3': Grid3x3,
+  'mouse-pointer-click': MousePointerClick,
+  'route': Route,
+  'radio': Radio,
+  'palette': Palette,
+  'component': Component,
+  'type': Type,
+  'text-cursor-input': TextCursorInput,
+  'table': Table,
+  'bar-chart-3': BarChart3,
+  'wrench': Wrench,
+  'hammer': Hammer,
+  'puzzle': Puzzle,
+  'paintbrush': Paintbrush,
+  'hand-metal': HandMetal,
+  'check-square': CheckSquare,
+  'layout-dashboard': LayoutDashboard,
 };
 
 export interface IconProps {

@@ -308,6 +308,27 @@ class RefastRouter:
             # Send acknowledgment so frontend knows store is ready
             await websocket.send_json({"type": "store_ready"})
 
+        elif message_type == "navigate":
+            # Client requesting page render for a new path
+            # (e.g. browser back/forward via popstate)
+            page_path = data.get("path", "/")
+            if page_path != "/" and page_path.endswith("/"):
+                page_path = page_path.rstrip("/")
+            page_func = self.app._pages.get(page_path)
+            if page_func is None:
+                page_func = self.app._pages.get("/")  # Fallback to index
+            if page_func is not None:
+                component = page_func(ctx)
+                component_data = (
+                    component.render() if hasattr(component, "render") else {}
+                )
+                await websocket.send_json(
+                    {
+                        "type": "page_render",
+                        "component": component_data,
+                    }
+                )
+
         elif message_type == "event":
             event_type = data.get("eventType")
             handler = self.app._event_handlers.get(event_type)

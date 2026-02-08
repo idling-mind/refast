@@ -755,7 +755,15 @@ class Context(Generic[T]):
             )
 
     async def navigate(self, path: str) -> None:
-        """Navigate to a different page."""
+        """Navigate to a different page.
+
+        Sends a navigate message to update the browser URL, then renders
+        the target page and sends the component tree so the client
+        displays the new content without a full page reload.
+
+        Args:
+            path: The target page path (e.g. "/docs/getting-started").
+        """
         if self._websocket:
             await self._websocket.send_json(
                 {
@@ -763,6 +771,22 @@ class Context(Generic[T]):
                     "path": path,
                 }
             )
+            # Also render the target page and send its component tree
+            if self._app:
+                page_func = self._app._pages.get(path)
+                if page_func is None:
+                    page_func = self._app._pages.get("/")  # Fallback to index
+                if page_func is not None:
+                    component = page_func(self)
+                    component_data = (
+                        component.render() if hasattr(component, "render") else {}
+                    )
+                    await self._websocket.send_json(
+                        {
+                            "type": "page_render",
+                            "component": component_data,
+                        }
+                    )
 
     async def refresh(self, path: str | None = None) -> None:
         """

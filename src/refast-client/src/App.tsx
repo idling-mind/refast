@@ -106,6 +106,25 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     }
   }, [setComponentTree]);
 
+  // Listen for browser back/forward navigation (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(
+          JSON.stringify({
+            type: 'navigate',
+            path: window.location.pathname,
+          })
+        );
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [socket]);
+
   // Listen for refresh events
   useEffect(() => {
     const handleRefresh = () => {

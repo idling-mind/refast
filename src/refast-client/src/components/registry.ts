@@ -51,7 +51,7 @@ import {
 
 // Import new Stage 9 components - Utility
 import {
-  Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
+  Toaster, Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
   ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
@@ -168,6 +168,7 @@ componentRegistry.register('AlertDescription', AlertDescription);
 componentRegistry.register('Badge', Badge);
 componentRegistry.register('Progress', Progress);
 componentRegistry.register('Spinner', Spinner);
+componentRegistry.register('Toast', Toaster);
 componentRegistry.register('Skeleton', Skeleton);
 componentRegistry.register('ConnectionStatus', ConnectionStatus);
 

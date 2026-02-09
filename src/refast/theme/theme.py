@@ -21,13 +21,13 @@ Example:
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ThemeMode(str, Enum):
+class ThemeMode(StrEnum):
     """Available theme modes."""
 
     LIGHT = "light"

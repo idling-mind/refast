@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ def _now_utc() -> datetime:
     return datetime.now(UTC)
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Built-in event types."""
 
     CALLBACK = "callback"

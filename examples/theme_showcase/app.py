@@ -12,6 +12,7 @@ This example demonstrates:
 Run:
     uvicorn examples.theme_showcase.app:app --reload
 """
+
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
@@ -28,7 +29,6 @@ from refast.components import (
     Heading,
     Input,
     Row,
-    Select,
     Separator,
     Text,
 )
@@ -205,7 +205,6 @@ def home(ctx: Context):
                             ThemeSwitcher(mode="dropdown"),
                         ],
                     ),
-
                     # ── Current theme badge ────────────────────────
                     Row(
                         gap=2,
@@ -216,7 +215,6 @@ def home(ctx: Context):
                             Badge(current, variant="default"),
                         ],
                     ),
-
                     # ── Preset selector ────────────────────────────
                     Card(
                         class_name="mb-6",
@@ -249,7 +247,6 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-
                     # ── Custom primary colour ──────────────────────
                     Card(
                         class_name="mb-6",
@@ -275,7 +272,9 @@ def home(ctx: Context):
                                                     Input(
                                                         name="custom_primary",
                                                         placeholder="262 83% 58%",
-                                                        on_change=ctx.callback(store_as="custom_primary"),
+                                                        on_change=ctx.callback(
+                                                            store_as="custom_primary"
+                                                        ),
                                                     ),
                                                 ],
                                             ),
@@ -292,33 +291,33 @@ def home(ctx: Context):
                             ),
                         ],
                     ),
-
                     Separator(class_name="my-6"),
-
                     # ── Colour swatches ────────────────────────────
-                    Heading(text="Semantic Colour Tokens", level=2, class_name="text-2xl font-semibold mb-4"),
+                    Heading(
+                        text="Semantic Colour Tokens",
+                        level=2,
+                        class_name="text-2xl font-semibold mb-4",
+                    ),
                     Text(
                         "These swatches update live when you switch themes.",
                         class_name="text-muted-foreground mb-4",
                     ),
-
                     _color_swatches(),
-
                     Separator(class_name="my-6"),
-
                     # ── Component preview ──────────────────────────
-                    Heading(text="Component Preview", level=2, class_name="text-2xl font-semibold mb-4"),
+                    Heading(
+                        text="Component Preview", level=2, class_name="text-2xl font-semibold mb-4"
+                    ),
                     Text(
                         "Standard components styled by the active theme.",
                         class_name="text-muted-foreground mb-4",
                     ),
-
                     _component_preview(ctx),
-
                     Separator(class_name="my-6"),
-
                     # ── What's injected ────────────────────────────
-                    Heading(text="What's in the HTML", level=2, class_name="text-2xl font-semibold mb-4"),
+                    Heading(
+                        text="What's in the HTML", level=2, class_name="text-2xl font-semibold mb-4"
+                    ),
                     _injection_info(),
                 ],
             ),
@@ -419,17 +418,15 @@ def _injection_info() -> Column:
     """Describes what extra HTML was injected."""
     items = [
         "✅  Theme CSS variables — <style data-refast-theme> block in <head>",
-        "✅  Favicon — <link rel=\"icon\"> pointing to an emoji favicon",
-        '✅  Custom CSS — inline <style> with .theme-showcase-gradient and .swatch hover effect',
+        '✅  Favicon — <link rel="icon"> pointing to an emoji favicon',
+        "✅  Custom CSS — inline <style> with .theme-showcase-gradient and .swatch hover effect",
         "✅  Custom JS — console.log() runs on page load (check DevTools)",
         '✅  Head tags — <meta name="description"> and <meta name="theme-color">',
         '✅  Programmatic — <link rel="preconnect"> added via ui.add_head_tag()',
     ]
     return Column(
         gap=2,
-        children=[
-            Text(item, class_name="text-sm text-muted-foreground") for item in items
-        ],
+        children=[Text(item, class_name="text-sm text-muted-foreground") for item in items],
     )
 
 

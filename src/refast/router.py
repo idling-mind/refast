@@ -96,23 +96,17 @@ class RefastRouter:
 
         return FileResponse(file_path, media_type=content_type)
 
-    async def _extension_static_handler(
-        self, extension_name: str, filename: str
-    ) -> FileResponse:
+    async def _extension_static_handler(self, extension_name: str, filename: str) -> FileResponse:
         """Serve static files from extensions."""
         extension = self.app.get_extension(extension_name)
 
         if extension is None:
-            return HTMLResponse(
-                content=f"Extension not found: {extension_name}", status_code=404
-            )
+            return HTMLResponse(content=f"Extension not found: {extension_name}", status_code=404)
 
         file_path = extension.get_static_file_path(filename)
 
         if file_path is None:
-            return HTMLResponse(
-                content=f"File not found: {filename}", status_code=404
-            )
+            return HTMLResponse(content=f"File not found: {filename}", status_code=404)
 
         # Determine content type
         content_type = "application/octet-stream"
@@ -210,7 +204,7 @@ class RefastRouter:
             while True:
                 data = await websocket.receive_json()
                 message_type = data.get("type")
-                
+
                 # Handle store_sync immediately (it's a response to resync_store)
                 # This must happen in the main loop to avoid deadlock when
                 # a callback is waiting for sync response
@@ -254,7 +248,7 @@ class RefastRouter:
             if callback:
                 # Set raw DOM event data on context (accessible via ctx.event_data)
                 ctx.set_event_data(event_data_raw)
-                
+
                 # Set the prop store data on the context
                 ctx.set_prop_store(prop_store_data)
 
@@ -319,9 +313,7 @@ class RefastRouter:
                 page_func = self.app._pages.get("/")  # Fallback to index
             if page_func is not None:
                 component = page_func(ctx)
-                component_data = (
-                    component.render() if hasattr(component, "render") else {}
-                )
+                component_data = component.render() if hasattr(component, "render") else {}
                 await websocket.send_json(
                     {
                         "type": "page_render",
@@ -362,12 +354,10 @@ class RefastRouter:
         extension_scripts = []
         for ext in self.app._extensions.values():
             extension_styles.extend(
-                f'<link rel="stylesheet" href="{url}">'
-                for url in ext.get_style_urls()
+                f'<link rel="stylesheet" href="{url}">' for url in ext.get_style_urls()
             )
             extension_scripts.extend(
-                f'<script src="{url}"></script>'
-                for url in ext.get_script_urls()
+                f'<script src="{url}"></script>' for url in ext.get_script_urls()
             )
 
         ext_styles_html = "\n    ".join(extension_styles)

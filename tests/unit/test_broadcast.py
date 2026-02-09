@@ -245,6 +245,3 @@ class TestBroadcastManager:
         assert task1 is task2
 
         await broadcaster.stop()
-
-
-

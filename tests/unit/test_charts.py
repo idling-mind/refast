@@ -8,7 +8,6 @@ from refast.components.shadcn.charts import (
     Brush,
     CartesianGrid,
     Cell,
-    ChartConfig,
     ChartContainer,
     ComposedChart,
     ErrorBar,
@@ -20,13 +19,6 @@ from refast.components.shadcn.charts import (
     LineChart,
     Pie,
     PieChart,
-    PolarAngleAxis,
-    PolarGrid,
-    PolarRadiusAxis,
-    Radar,
-    RadarChart,
-    RadialBar,
-    RadialBarChart,
     ReferenceArea,
     ReferenceDot,
     ReferenceLine,
@@ -690,6 +682,3 @@ class TestBrush:
         assert rendered["props"]["endIndex"] == 5
         assert rendered["props"]["alwaysShowText"] is True
         assert rendered["props"]["on_change"] == cb.serialize()
-
-
-

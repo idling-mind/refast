@@ -582,4 +582,3 @@ class RadioGroup(Component):
             "props": props,
             "children": self._render_children(),
         }
-

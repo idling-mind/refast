@@ -98,5 +98,3 @@ __all__ = [
     "Label",
     "ErrorBar",
 ]
-
-

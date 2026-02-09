@@ -1775,4 +1775,3 @@ class DrawerClose(Component):
             },
             "children": self._render_children(),
         }
-

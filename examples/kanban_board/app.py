@@ -16,8 +16,6 @@ from refast import Context, RefastApp
 from refast.components import (
     Avatar,
     Badge,
-    IconButton,
-    Tooltip,
     Button,
     Card,
     CardContent,
@@ -29,6 +27,7 @@ from refast.components import (
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    IconButton,
     Input,
     Label,
     Row,
@@ -42,6 +41,7 @@ from refast.components import (
     SheetTrigger,
     Text,
     Textarea,
+    Tooltip,
 )
 
 # Create the Refast app
@@ -277,7 +277,12 @@ def render_task_card(task: dict, column: str, ctx: Context):
                             Text(
                                 task["description"],
                                 class_name="text-xs text-muted-foreground",
-                                style={"display": "-webkit-box", "WebkitLineClamp": "2", "WebkitBoxOrient": "vertical", "overflow": "hidden"},
+                                style={
+                                    "display": "-webkit-box",
+                                    "WebkitLineClamp": "2",
+                                    "WebkitBoxOrient": "vertical",
+                                    "overflow": "hidden",
+                                },
                             )
                             if task["description"]
                             else None,
@@ -315,7 +320,9 @@ def render_task_card(task: dict, column: str, ctx: Context):
     )
 
 
-def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: str, color_style: dict = None):
+def render_column(
+    title: str, column_id: str, tasks: list, ctx: Context, color: str, color_style: dict = None
+):
     """Render a kanban column."""
     return Container(
         class_name="flex-none",
@@ -337,7 +344,10 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
                                         children=[
                                             Container(
                                                 class_name=f"rounded-full {color}",
-                                                style={**{"width": "0.75rem", "height": "0.75rem"}, **(color_style or {})},
+                                                style={
+                                                    **{"width": "0.75rem", "height": "0.75rem"},
+                                                    **(color_style or {}),
+                                                },
                                             ),
                                             Text(title, class_name="font-semibold"),
                                             Badge(
@@ -393,6 +403,7 @@ def render_column(title: str, column_id: str, tasks: list, ctx: Context, color: 
 
 """Main page (kanban board) - fixed and properly defined as a ui page."""
 
+
 @ui.page("/")
 def board(ctx: Context):
     """Main kanban board page."""
@@ -438,7 +449,11 @@ def board(ctx: Context):
                                                             Tooltip(
                                                                 content="Create New Task",
                                                                 children=[
-                                                                    IconButton(icon="plus", aria_label="Create Task", variant="primary")
+                                                                    IconButton(
+                                                                        icon="plus",
+                                                                        aria_label="Create Task",
+                                                                        variant="primary",
+                                                                    )
                                                                 ],
                                                                 side="bottom",
                                                             ),
@@ -449,7 +464,9 @@ def board(ctx: Context):
                                                         children=[
                                                             SheetHeader(
                                                                 children=[
-                                                                    SheetTitle(title="Create New Task"),
+                                                                    SheetTitle(
+                                                                        title="Create New Task"
+                                                                    ),
                                                                     SheetDescription(
                                                                         description="Add a new task to your board"
                                                                     ),
@@ -467,7 +484,8 @@ def board(ctx: Context):
                                                                                 name="new_task_title",
                                                                                 placeholder="Task title",
                                                                                 value=ctx.state.get(
-                                                                                    "new_task_title", ""
+                                                                                    "new_task_title",
+                                                                                    "",
                                                                                 ),
                                                                                 on_change=ctx.callback(
                                                                                     update_input,
@@ -510,9 +528,18 @@ def board(ctx: Context):
                                                                                     key="new_task_priority",
                                                                                 ),
                                                                                 options=[
-                                                                                    {"value": "high", "label": "High"},
-                                                                                    {"value": "medium", "label": "Medium"},
-                                                                                    {"value": "low", "label": "Low"},
+                                                                                    {
+                                                                                        "value": "high",
+                                                                                        "label": "High",
+                                                                                    },
+                                                                                    {
+                                                                                        "value": "medium",
+                                                                                        "label": "Medium",
+                                                                                    },
+                                                                                    {
+                                                                                        "value": "low",
+                                                                                        "label": "Low",
+                                                                                    },
                                                                                 ],
                                                                             ),
                                                                         ],
@@ -525,7 +552,8 @@ def board(ctx: Context):
                                                                                 name="new_task_assignee",
                                                                                 placeholder="Assignee name",
                                                                                 value=ctx.state.get(
-                                                                                    "new_task_assignee", ""
+                                                                                    "new_task_assignee",
+                                                                                    "",
                                                                                 ),
                                                                                 on_change=ctx.callback(
                                                                                     update_input,
@@ -542,7 +570,8 @@ def board(ctx: Context):
                                                                                 name="new_task_due_date",
                                                                                 type="date",
                                                                                 value=ctx.state.get(
-                                                                                    "new_task_due_date", ""
+                                                                                    "new_task_due_date",
+                                                                                    "",
                                                                                 ),
                                                                                 on_change=ctx.callback(
                                                                                     update_input,
@@ -553,7 +582,9 @@ def board(ctx: Context):
                                                                     ),
                                                                     Button(
                                                                         label="Create Task",
-                                                                        on_click=ctx.callback(create_task),
+                                                                        on_click=ctx.callback(
+                                                                            create_task
+                                                                        ),
                                                                         class_name="mt-4",
                                                                     ),
                                                                 ],
@@ -572,7 +603,9 @@ def board(ctx: Context):
                                 class_name="pb-4",
                                 style={"overflowX": "auto"},
                                 children=[
-                                    render_column("To Do", "todo", tasks["todo"], ctx, "bg-secondary"),
+                                    render_column(
+                                        "To Do", "todo", tasks["todo"], ctx, "bg-secondary"
+                                    ),
                                     render_column(
                                         "In Progress",
                                         "in_progress",

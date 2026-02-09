@@ -17,6 +17,7 @@ Run with:
 """
 
 from textwrap import dedent
+
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
@@ -28,15 +29,15 @@ from refast.components import (
     CardDescription,
     CardHeader,
     CardTitle,
+    Code,
     Column,
     Container,
     Heading,
     Input,
+    Markdown,
     Row,
     Separator,
     Text,
-    Markdown,
-    Code,
 )
 
 ui = RefastApp(title="JavaScript Callbacks Demo")
@@ -148,13 +149,13 @@ async def python_set_store_counter(ctx: Context):
 async def python_read_store_value(ctx: Context):
     """
     Read localStorage value that may have been set by JavaScript.
-    
+
     Using await ctx.store.sync() refreshes the cache from the browser,
     so get() will return the latest value including JS changes.
     """
     # Sync store from browser to get JS-modified values
     await ctx.store.sync()
-    
+
     shared_counter = ctx.store.local.get("shared_counter", 0)
     await ctx.show_toast(
         f"Shared counter: {shared_counter}",
@@ -170,16 +171,16 @@ async def js_sync_store_value(ctx: Context):
     """
     # Get the value sent from JavaScript
     new_value = ctx.event_data.get("value", 0)
-    
+
     # Update Python's store cache
     ctx.store.local.set("shared_counter", new_value)
-    
+
     await ctx.show_toast(
         f"Synced from JS: {new_value}",
         variant="success",
         description="Python now has the latest value from JavaScript!",
     )
-    
+
     # Refresh to show updated value
     await ctx.refresh()
 
@@ -286,7 +287,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 2: Bound Arguments
             Card(
@@ -365,7 +366,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 3: Event Data Access
             Card(
@@ -419,7 +420,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 4: Python vs JavaScript Comparison
             Card(
@@ -498,7 +499,7 @@ def home(ctx: Context):
                             ),
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 5: ctx.call_js() from Python
             Card(
@@ -507,9 +508,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("5. ctx.call_js() - Execute JS from Python"),
-                            CardDescription(
-                                "Run JavaScript after server-side logic completes."
-                            ),
+                            CardDescription("Run JavaScript after server-side logic completes."),
                         ]
                     ),
                     CardContent(
@@ -545,7 +544,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 6: DOM Manipulation
             Card(
@@ -622,7 +621,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 7: Clipboard & Browser APIs
             Card(
@@ -702,7 +701,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Section 8: State & Store - Python vs JavaScript
             Card(
@@ -725,7 +724,10 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Text("Python State (ctx.state)", class_name="font-semibold text-lg"),
+                                            Text(
+                                                "Python State (ctx.state)",
+                                                class_name="font-semibold text-lg",
+                                            ),
                                             Text(
                                                 "State managed by Python - persists during session, syncs to frontend on refresh.",
                                                 class_name="text-sm text-muted-foreground",
@@ -736,7 +738,9 @@ def home(ctx: Context):
                                                 children=[
                                                     Button(
                                                         f"Python State: {state_counter}",
-                                                        on_click=ctx.callback(python_set_state_counter),
+                                                        on_click=ctx.callback(
+                                                            python_set_state_counter
+                                                        ),
                                                     ),
                                                     Badge("Server roundtrip", variant="secondary"),
                                                 ],
@@ -748,7 +752,10 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Text("JavaScript DOM State", class_name="font-semibold text-lg"),
+                                            Text(
+                                                "JavaScript DOM State",
+                                                class_name="font-semibold text-lg",
+                                            ),
                                             Text(
                                                 "State stored in DOM - instant updates, but NOT synced to Python.",
                                                 class_name="text-sm text-muted-foreground",
@@ -784,13 +791,16 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Text("Shared Store (localStorage)", class_name="font-semibold text-lg"),
+                                            Text(
+                                                "Shared Store (localStorage)",
+                                                class_name="font-semibold text-lg",
+                                            ),
                                             Text(
                                                 "localStorage can be read and written by BOTH Python and JavaScript!",
                                                 class_name="text-sm text-muted-foreground",
                                             ),
                                             Text(
-                                                f"Key: 'refast:local:shared_counter' — Python uses ctx.store.local, JS must use the prefixed key.",
+                                                "Key: 'refast:local:shared_counter' — Python uses ctx.store.local, JS must use the prefixed key.",
                                                 class_name="text-xs font-mono text-muted-foreground",
                                             ),
                                             Row(
@@ -799,7 +809,9 @@ def home(ctx: Context):
                                                 children=[
                                                     Button(
                                                         f"Python Set: {shared_counter}",
-                                                        on_click=ctx.callback(python_set_store_counter),
+                                                        on_click=ctx.callback(
+                                                            python_set_store_counter
+                                                        ),
                                                     ),
                                                     Button(
                                                         "JS Increment",
@@ -823,7 +835,9 @@ def home(ctx: Context):
                                                     Button(
                                                         "Read in Python",
                                                         variant="secondary",
-                                                        on_click=ctx.callback(python_read_store_value),
+                                                        on_click=ctx.callback(
+                                                            python_read_store_value
+                                                        ),
                                                     ),
                                                 ],
                                             ),
@@ -850,7 +864,9 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Text("How It Works", class_name="font-semibold text-lg"),
+                                            Text(
+                                                "How It Works", class_name="font-semibold text-lg"
+                                            ),
                                             Code(
                                                 code=dedent("""
                                                     # Python - set/get values"),
@@ -864,10 +880,9 @@ def home(ctx: Context):
                                                     // JavaScript - must use 'refast:local:' prefix
                                                     localStorage.setItem('refast:local:shared_counter', '42')
                                                     let val = localStorage.getItem('refast:local:shared_counter')
-                                                    """
-                                                ),
+                                                    """),
                                                 language="python",
-                                                inline=False
+                                                inline=False,
                                             ),
                                         ],
                                     ),
@@ -889,7 +904,7 @@ def home(ctx: Context):
 *  JS reads via: `localStorage.getItem('refast:local:key')`
 * Use `await ctx.store.sync()` to refresh cache from browser
                                                 """,
-                                                class_name="prose-sm"
+                                                class_name="prose-sm",
                                             ),
                                         ],
                                     ),
@@ -897,7 +912,7 @@ def home(ctx: Context):
                             )
                         ]
                     ),
-                ]
+                ],
             ),
             # Footer
             Separator(),

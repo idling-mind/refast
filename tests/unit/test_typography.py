@@ -188,6 +188,3 @@ $$
         md = Markdown("Content")
         rendered = md.render()
         assert rendered["children"] == []
-
-
-

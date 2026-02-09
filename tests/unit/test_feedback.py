@@ -85,10 +85,7 @@ class TestProgress:
     def test_progress_custom_styles(self):
         """Test Progress with custom styles."""
         progress = Progress(
-            value=60,
-            foreground_color="primary",
-            track_color="secondary",
-            striped="animated"
+            value=60, foreground_color="primary", track_color="secondary", striped="animated"
         )
         rendered = progress.render()
         assert rendered["props"]["foreground_color"] == "primary"
@@ -204,14 +201,8 @@ class TestConnectionStatus:
         )
         rendered = component.render()
 
-        assert (
-            rendered["props"]["js_on_disconnect"]["jsFunction"]
-            == "console.log('disconnected')"
-        )
-        assert (
-            rendered["props"]["js_on_reconnect"]["jsFunction"]
-            == "console.log('reconnected')"
-        )
+        assert rendered["props"]["js_on_disconnect"]["jsFunction"] == "console.log('disconnected')"
+        assert rendered["props"]["js_on_reconnect"]["jsFunction"] == "console.log('reconnected')"
 
     def test_connection_status_custom_position(self):
         """Test ConnectionStatus with custom position."""
@@ -264,7 +255,3 @@ class TestConnectionStatus:
         assert rendered["props"]["children_disconnected"] == []
         # Main children should be empty (we don't use _children)
         assert rendered["children"] == []
-
-
-
-

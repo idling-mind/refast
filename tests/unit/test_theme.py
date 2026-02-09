@@ -14,10 +14,10 @@ from refast.theme.presets import (
     zinc_theme,
 )
 
-
 # ---------------------------------------------------------------------------
 # ThemeColors
 # ---------------------------------------------------------------------------
+
 
 class TestThemeColors:
     """Tests for ThemeColors model."""
@@ -131,6 +131,7 @@ class TestThemeColors:
 # Theme
 # ---------------------------------------------------------------------------
 
+
 class TestTheme:
     """Tests for Theme model."""
 
@@ -231,6 +232,7 @@ class TestTheme:
 # ThemeMode
 # ---------------------------------------------------------------------------
 
+
 class TestThemeMode:
     """Tests for ThemeMode enum."""
 
@@ -246,6 +248,7 @@ class TestThemeMode:
 # ---------------------------------------------------------------------------
 # Presets
 # ---------------------------------------------------------------------------
+
 
 class TestPresets:
     """Tests for built-in theme presets."""

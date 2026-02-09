@@ -15,7 +15,6 @@ Example:
 
 from refast.theme.theme import Theme, ThemeColors
 
-
 # ---------------------------------------------------------------------------
 # Default theme – the built-in shadcn/ui blue palette (matches index.css)
 # No overrides needed since it matches the CSS bundle defaults.

@@ -110,6 +110,3 @@ class TestCenter:
         rendered = center.render()
         assert rendered["type"] == "Center"
         assert len(rendered["children"]) == 1
-
-
-

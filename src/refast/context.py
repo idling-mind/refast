@@ -346,7 +346,7 @@ class Context(Generic[T]):
         """
         callback_id = str(uuid.uuid4())
         store_only = func is None and store_as is not None
-        
+
         cb = Callback(
             id=callback_id,
             func=func,
@@ -494,7 +494,9 @@ class Context(Generic[T]):
             The target component must have the method bound to its wrapper element.
             If the method or component doesn't exist, a warning will be logged.
         """
-        return BoundJsCallback(target_id=target_id, method_name=method_name, args=args, kwargs=kwargs)
+        return BoundJsCallback(
+            target_id=target_id, method_name=method_name, args=args, kwargs=kwargs
+        )
 
     async def call_js(
         self,
@@ -726,10 +728,10 @@ class Context(Generic[T]):
             # Streaming text to a Markdown component
             async def stream_response(ctx: Context):
                 await ctx.update_props("output", {"streaming": True})
-                
+
                 async for chunk in llm_stream():
                     await ctx.append_prop("output", "content", chunk)
-                
+
                 await ctx.update_props("output", {"streaming": False})
 
             # Appending data points to a chart
@@ -778,9 +780,7 @@ class Context(Generic[T]):
                     page_func = self._app._pages.get("/")  # Fallback to index
                 if page_func is not None:
                     component = page_func(self)
-                    component_data = (
-                        component.render() if hasattr(component, "render") else {}
-                    )
+                    component_data = component.render() if hasattr(component, "render") else {}
                     await self._websocket.send_json(
                         {
                             "type": "page_render",
@@ -1056,7 +1056,7 @@ class Context(Generic[T]):
         # Wait for the response with timeout
         try:
             await asyncio.wait_for(self._store_sync_future, timeout=timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # Log warning but don't fail - use cached values
             pass
         finally:

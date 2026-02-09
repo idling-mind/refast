@@ -316,6 +316,3 @@ class TestThemeSwitcher:
         switcher = ThemeSwitcher(id="theme-toggle")
         rendered = switcher.render()
         assert rendered["id"] == "theme-toggle"
-
-
-

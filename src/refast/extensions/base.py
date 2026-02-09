@@ -2,7 +2,7 @@
 
 from abc import ABC
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
@@ -173,14 +173,10 @@ class Extension(ABC):
             else:
                 for script in self.scripts:
                     if not (self.static_path / script).exists():
-                        errors.append(
-                            f"Extension '{self.name}' script not found: {script}"
-                        )
+                        errors.append(f"Extension '{self.name}' script not found: {script}")
                 for style in self.styles:
                     if not (self.static_path / style).exists():
-                        errors.append(
-                            f"Extension '{self.name}' style not found: {style}"
-                        )
+                        errors.append(f"Extension '{self.name}' style not found: {style}")
 
         return errors
 

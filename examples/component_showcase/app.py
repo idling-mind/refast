@@ -7,6 +7,7 @@ This example demonstrates:
 - Utility: Separator, AspectRatio, ScrollArea, Collapsible, Carousel
 - New: Image, Markdown, CheckboxGroup, RadioGroup
 """
+
 from textwrap import dedent
 
 from fastapi import FastAPI
@@ -56,7 +57,6 @@ from refast.components import (
     Drawer,
     DrawerContent,
     DrawerDescription,
-    DrawerFooter,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
@@ -299,7 +299,11 @@ def home(ctx: Context):
                             Column(
                                 gap=4,
                                 children=[
-                                    Text("Open: None", id="accordion-status", class_name="text-sm mb-2"),
+                                    Text(
+                                        "Open: None",
+                                        id="accordion-status",
+                                        class_name="text-sm mb-2",
+                                    ),
                                     Accordion(
                                         default_value=None,
                                         type="single",
@@ -310,14 +314,18 @@ def home(ctx: Context):
                                                 value="item-1",
                                                 children=[
                                                     AccordionTrigger(children=["Item One"]),
-                                                    AccordionContent(children=[Text("Content for item one.")]),
+                                                    AccordionContent(
+                                                        children=[Text("Content for item one.")]
+                                                    ),
                                                 ],
                                             ),
                                             AccordionItem(
                                                 value="item-2",
                                                 children=[
                                                     AccordionTrigger(children=["Item Two"]),
-                                                    AccordionContent(children=[Text("Content for item two.")]),
+                                                    AccordionContent(
+                                                        children=[Text("Content for item two.")]
+                                                    ),
                                                 ],
                                             ),
                                         ],
@@ -461,7 +469,7 @@ def home(ctx: Context):
                                                         placeholder="Select single date",
                                                         caption_layout="dropdown",
                                                     ),
-                                                ]
+                                                ],
                                             ),
                                             DatePicker(
                                                 label="Select Date Range",
@@ -771,17 +779,21 @@ def home(ctx: Context):
                                                     DrawerHeader(
                                                         [
                                                             DrawerTitle("Move Goal"),
-                                                            DrawerDescription("Set your Daily activity Goal")
+                                                            DrawerDescription(
+                                                                "Set your Daily activity Goal"
+                                                            ),
                                                         ]
                                                     ),
                                                     Container(
                                                         [Text("Here is the drawer content")],
-                                                        class_name="mt-8"
-                                                    )
+                                                        class_name="mt-8",
+                                                    ),
                                                 ]
                                             ),
                                         ],
-                                        on_open_change=ctx.js("console.log('Drawer changed', event);")
+                                        on_open_change=ctx.js(
+                                            "console.log('Drawer changed', event);"
+                                        ),
                                     ),
                                 ],
                             ),
@@ -833,10 +845,10 @@ def home(ctx: Context):
                                                                 children=[
                                                                     Text(
                                                                         "Hidden content revealed!",
-                                                                        class_name="font-medium"
+                                                                        class_name="font-medium",
                                                                     ),
                                                                 ],
-                                                                class_name="p-8"
+                                                                class_name="p-8",
                                                             ),
                                                         ],
                                                     ),

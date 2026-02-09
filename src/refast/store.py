@@ -398,7 +398,7 @@ class Store:
             async def read_js_value(ctx: Context):
                 # JS may have set this value directly
                 await ctx.store.sync()
-                
+
                 # Now get() returns the fresh browser value
                 value = ctx.store.local.get("js_set_key")
                 print(f"Value from browser: {value}")

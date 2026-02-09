@@ -50,6 +50,3 @@ class TestSlot:
         slot = Slot(id="empty-slot")
         rendered = slot.render()
         assert rendered["children"] == []
-
-
-

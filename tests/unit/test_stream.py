@@ -249,6 +249,3 @@ class TestEventStream:
         count = await stream.broadcast({"test": "data"})
 
         assert count == 1
-
-
-

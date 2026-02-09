@@ -135,8 +135,7 @@ async def send_message(ctx: Context):
     # This ensures that one slow client doesn't block updates for others
     if ui.active_contexts:
         await asyncio.gather(
-            *(update_client(c) for c in ui.active_contexts if c != ctx),
-            return_exceptions=True
+            *(update_client(c) for c in ui.active_contexts if c != ctx), return_exceptions=True
         )
 
 

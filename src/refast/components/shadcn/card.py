@@ -211,4 +211,3 @@ class CardDescription(Component):
             },
             "children": self._render_children(),
         }
-

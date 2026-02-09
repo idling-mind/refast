@@ -305,6 +305,3 @@ class TestImage:
         img = Image(src="/photo.jpg", class_name="rounded-lg shadow-lg")
         rendered = img.render()
         assert rendered["props"]["class_name"] == "rounded-lg shadow-lg"
-
-
-

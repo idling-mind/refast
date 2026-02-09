@@ -170,6 +170,3 @@ class TestActiveContexts:
         # Access router to initialize it
         _ = app.router
         assert app.active_contexts == []
-
-
-

@@ -431,7 +431,9 @@ class Calendar(Component):
                 "max_date": self._serialize_date(self.max_date),
                 "number_of_months": self.number_of_months,
                 "on_select": self.on_select.serialize() if self.on_select else None,
-                "on_month_change": self.on_month_change.serialize() if self.on_month_change else None,
+                "on_month_change": self.on_month_change.serialize()
+                if self.on_month_change
+                else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -529,8 +531,12 @@ class DatePicker(Component):
         if isinstance(d, dict):
             # Range mode: {"from": date, "to": date}
             return {
-                "from": d.get("from").isoformat() if d.get("from") and hasattr(d.get("from"), "isoformat") else d.get("from"),
-                "to": d.get("to").isoformat() if d.get("to") and hasattr(d.get("to"), "isoformat") else d.get("to"),
+                "from": d.get("from").isoformat()
+                if d.get("from") and hasattr(d.get("from"), "isoformat")
+                else d.get("from"),
+                "to": d.get("to").isoformat()
+                if d.get("to") and hasattr(d.get("to"), "isoformat")
+                else d.get("to"),
             }
         return str(d)
 
@@ -545,8 +551,12 @@ class DatePicker(Component):
                 "format": self.format,
                 "mode": self.mode,
                 "caption_layout": self.caption_layout,
-                "min_date": self.min_date.isoformat() if hasattr(self.min_date, "isoformat") else self.min_date,
-                "max_date": self.max_date.isoformat() if hasattr(self.max_date, "isoformat") else self.max_date,
+                "min_date": self.min_date.isoformat()
+                if hasattr(self.min_date, "isoformat")
+                else self.min_date,
+                "max_date": self.max_date.isoformat()
+                if hasattr(self.max_date, "isoformat")
+                else self.max_date,
                 "number_of_months": self.number_of_months,
                 "label": self.label,
                 "description": self.description,
@@ -816,4 +826,3 @@ class InputOTPSeparator(Component):
             },
             "children": [],
         }
-

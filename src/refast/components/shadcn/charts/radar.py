@@ -195,5 +195,3 @@ class PolarRadiusAxis(Component):
                 **self.props,
             },
         }
-
-

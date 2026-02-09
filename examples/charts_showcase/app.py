@@ -58,8 +58,8 @@ from refast.components.shadcn.charts import (
 
 ui = RefastApp("Charts Showcase")
 
-def get_data():
 
+def get_data():
     data = {}
 
     # Sample Data
@@ -78,12 +78,14 @@ def get_data():
         for month in months
     ]
 
-    data["line_data"] = [
-        {"month": month, "desktop": random.randint(100, 300)} for month in months
-    ]
+    data["line_data"] = [{"month": month, "desktop": random.randint(100, 300)} for month in months]
 
     data["pie_data"] = [
-        {"browser": browser, "visitors": random.randint(50, 300), "fill": f"var(--color-{browser.lower()})"}
+        {
+            "browser": browser,
+            "visitors": random.randint(50, 300),
+            "fill": f"var(--color-{browser.lower()})",
+        }
         for browser in browsers
     ]
 
@@ -97,18 +99,30 @@ def get_data():
     ]
 
     data["radial_data"] = [
-        {"activity": f"activity {i+1}", "value": random.randint(20, 100), "fill": f"hsl(var(--chart-{(i%5)+1}))"}
+        {
+            "activity": f"activity {i + 1}",
+            "value": random.randint(20, 100),
+            "fill": f"hsl(var(--chart-{(i % 5) + 1}))",
+        }
         for i in range(5)
     ]
 
     # Scatter Chart Data
     data["scatter-series-a"] = [
-        {"x": random.randint(100, 400), "y": random.randint(100, 400), "z": random.randint(100, 400)}
+        {
+            "x": random.randint(100, 400),
+            "y": random.randint(100, 400),
+            "z": random.randint(100, 400),
+        }
         for _ in range(6)
     ]
 
     data["scatter-series-b"] = [
-        {"x": random.randint(150, 350), "y": random.randint(150, 350), "z": random.randint(100, 400)}
+        {
+            "x": random.randint(150, 350),
+            "y": random.randint(150, 350),
+            "z": random.randint(100, 400),
+        }
         for _ in range(6)
     ]
 
@@ -125,10 +139,10 @@ def get_data():
 
     # Funnel Chart Data
     data["funnel_data"] = [
-        {"name": "Visited", "value": random.randint(2500,5000), "fill": "hsl(var(--chart-1))"},
-        {"name": "Cart", "value": random.randint(1800,2500), "fill": "hsl(var(--chart-2))"},
+        {"name": "Visited", "value": random.randint(2500, 5000), "fill": "hsl(var(--chart-1))"},
+        {"name": "Cart", "value": random.randint(1800, 2500), "fill": "hsl(var(--chart-2))"},
         {"name": "Checkout", "value": random.randint(800, 1800), "fill": "hsl(var(--chart-3))"},
-        {"name": "Purchase", "value": random.randint(100,800), "fill": "hsl(var(--chart-4))"},
+        {"name": "Purchase", "value": random.randint(100, 800), "fill": "hsl(var(--chart-4))"},
     ]
 
     # Treemap Data
@@ -183,8 +197,10 @@ async def change_grid_columns(ctx: Context):
     ctx.state["grid_columns"] = ctx.event_data["value"]
     await ctx.refresh()
 
+
 async def general_callback(ctx: Context):
     print("General callback triggered:", ctx.event_data)
+
 
 async def update_chart_data(ctx: Context):
     # This function can be used to update chart data dynamically
@@ -210,6 +226,7 @@ async def update_chart_data(ctx: Context):
     await ctx.update_props("composed-chart", {"data": new_data["composed_data"]})
     await asyncio.sleep(1)
     await ctx.show_toast("Chart data updated", variant="success")
+
 
 @ui.page("/")
 def home(ctx: Context):
@@ -545,9 +562,7 @@ def _render_radial_chart_card():
                             end_angle=250,
                             children=[
                                 RadialBar(data_key="value", background=False, corner_radius=10),
-                                ChartTooltip(
-                                    cursor=False, content=ChartTooltipContent()
-                                )
+                                ChartTooltip(cursor=False, content=ChartTooltipContent()),
                             ],
                         ),
                     )

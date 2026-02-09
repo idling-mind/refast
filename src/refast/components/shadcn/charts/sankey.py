@@ -114,10 +114,12 @@ class Sankey(Component):
                 "margin": self.margin,
                 "sort": self.sort,
                 "on_click": self.on_click.serialize() if self.on_click else None,
-                "on_mouse_enter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
-                "on_mouse_leave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
+                "on_mouse_enter": (
+                    self.on_mouse_enter.serialize() if self.on_mouse_enter else None
+                ),
+                "on_mouse_leave": (
+                    self.on_mouse_leave.serialize() if self.on_mouse_leave else None
+                ),
                 **self.extra_props,
             },
         }
-
-

@@ -72,7 +72,7 @@ class Paragraph(Component):
 
 class Code(Component):
     """Code display component with optional syntax highlighting.
-    
+
     Args:
         code: The code content to display.
         language: Programming language for syntax highlighting (e.g., 'python', 'javascript').
@@ -210,4 +210,3 @@ class Markdown(Component):
             },
             "children": [],
         }
-

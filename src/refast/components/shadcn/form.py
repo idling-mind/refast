@@ -127,4 +127,3 @@ class Label(Component):
             },
             "children": [self.text],
         }
-

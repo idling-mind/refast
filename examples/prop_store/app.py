@@ -19,14 +19,11 @@ from refast.components import (
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
     Column,
     Container,
-    Heading,
     Input,
-    Label,
     Row,
     Separator,
     Text,
@@ -35,14 +32,16 @@ from refast.components import (
 ui = RefastApp(title="Prop Store Example")
 
 
-async def handle_submit(ctx: Context, input_name: str = "", input_email: str = "", message: str = ""):
+async def handle_submit(
+    ctx: Context, input_name: str = "", input_email: str = "", message: str = ""
+):
     """Handle form submission using prop values passed as arguments.
-    
-    Note: Props requested via props=["fullname", "email", "message"] are 
+
+    Note: Props requested via props=["fullname", "email", "message"] are
     passed directly as keyword arguments - no need to use ctx.prop_store!
     """
     print(f"Form submitted: fullname={input_name}, email={input_email}, message={message}")
-    
+
     # Validation
     errors = []
     if not input_name:
@@ -52,7 +51,7 @@ async def handle_submit(ctx: Context, input_name: str = "", input_email: str = "
     if not message:
         errors.append("Message is required")
     print(f"Validation errors: {errors}")
-    
+
     if errors:
         ctx.state.set("errors", errors)
         ctx.state.set("success", False)
@@ -60,12 +59,15 @@ async def handle_submit(ctx: Context, input_name: str = "", input_email: str = "
     else:
         ctx.state.set("errors", [])
         ctx.state.set("success", True)
-        ctx.state.set("submitted_data", {
-            "fullname": input_name,
-            "email": input_email,
-            "message": message,
-        })
-    
+        ctx.state.set(
+            "submitted_data",
+            {
+                "fullname": input_name,
+                "email": input_email,
+                "message": message,
+            },
+        )
+
     await ctx.replace("result-area", render_result(ctx))
 
 
@@ -74,9 +76,9 @@ def render_result(ctx: Context):
     errors = ctx.state.get("errors", [])
     success = ctx.state.get("success", False)
     submitted_data = ctx.state.get("submitted_data")
-    
+
     children = []
-    
+
     if errors:
         children.append(
             Alert(
@@ -86,49 +88,51 @@ def render_result(ctx: Context):
             )
         )
     elif success and submitted_data:
-        children.extend([
-            Alert(
-                variant="default",
-                title="Success!",
-                description="Form submitted successfully",
-            ),
-            Card(
-                class_name="mt-4",
-                children=[
-                    CardHeader(
-                        children=[
-                            CardTitle("Submitted Data"),
-                        ]
-                    ),
-                    CardContent(
-                        children=[
-                            Row(
-                                class_name="gap-2",
-                                children=[
-                                    Badge("Name:"),
-                                    Text(submitted_data.get("fullname", "")),
-                                ]
-                            ),
-                            Row(
-                                class_name="gap-2 mt-2",
-                                children=[
-                                    Badge("Email:"),
-                                    Text(submitted_data.get("email", "")),
-                                ]
-                            ),
-                            Row(
-                                class_name="gap-2 mt-2",
-                                children=[
-                                    Badge("Message:"),
-                                    Text(submitted_data.get("message", "")),
-                                ]
-                            ),
-                        ]
-                    ),
-                ]
-            ),
-        ])
-    
+        children.extend(
+            [
+                Alert(
+                    variant="default",
+                    title="Success!",
+                    description="Form submitted successfully",
+                ),
+                Card(
+                    class_name="mt-4",
+                    children=[
+                        CardHeader(
+                            children=[
+                                CardTitle("Submitted Data"),
+                            ]
+                        ),
+                        CardContent(
+                            children=[
+                                Row(
+                                    class_name="gap-2",
+                                    children=[
+                                        Badge("Name:"),
+                                        Text(submitted_data.get("fullname", "")),
+                                    ],
+                                ),
+                                Row(
+                                    class_name="gap-2 mt-2",
+                                    children=[
+                                        Badge("Email:"),
+                                        Text(submitted_data.get("email", "")),
+                                    ],
+                                ),
+                                Row(
+                                    class_name="gap-2 mt-2",
+                                    children=[
+                                        Badge("Message:"),
+                                        Text(submitted_data.get("message", "")),
+                                    ],
+                                ),
+                            ]
+                        ),
+                    ],
+                ),
+            ]
+        )
+
     return Column(
         id="result-area",
         class_name="mt-4 gap-2",
@@ -148,9 +152,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("Contact Form"),
-                            CardDescription(
-                                "Using prop_store for frontend-only state"
-                            ),
+                            CardDescription("Using prop_store for frontend-only state"),
                         ]
                     ),
                     CardContent(
@@ -166,7 +168,6 @@ def home(ctx: Context):
                                 ),
                                 class_name="mb-4",
                             ),
-                            
                             # Name field - uses store_as to capture value
                             Column(
                                 class_name="gap-2 mb-4",
@@ -180,9 +181,8 @@ def home(ctx: Context):
                                         # without a server roundtrip
                                         on_change=ctx.callback(store_as="input_name"),
                                     ),
-                                ]
+                                ],
                             ),
-                            
                             # Email field
                             Column(
                                 class_name="gap-2 mb-4",
@@ -195,9 +195,8 @@ def home(ctx: Context):
                                         placeholder="Enter your email",
                                         on_change=ctx.callback(store_as="input_email"),
                                     ),
-                                ]
+                                ],
                             ),
-                            
                             # Message field
                             Column(
                                 class_name="gap-2 mb-4",
@@ -209,28 +208,22 @@ def home(ctx: Context):
                                         placeholder="Enter your message",
                                         on_change=ctx.callback(store_as="message"),
                                     ),
-                                ]
+                                ],
                             ),
-                            
                             Separator(class_name="my-4"),
-                            
                             # Submit button - request specific props as kwargs
                             Button(
                                 "Submit",
-                                on_click=ctx.callback(
-                                    handle_submit,
-                                    props=["input_.*", "message"]
-                                ),
+                                on_click=ctx.callback(handle_submit, props=["input_.*", "message"]),
                                 class_name="w-full",
                             ),
                         ]
                     ),
                 ]
             ),
-            
             # Result area (updated after submission)
             render_result(ctx),
-        ]
+        ],
     )
 
 
@@ -240,4 +233,5 @@ app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

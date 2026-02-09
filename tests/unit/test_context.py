@@ -1,7 +1,8 @@
 """Tests for Context class and Callback."""
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from refast import RefastApp
 from refast.context import BoundJsCallback, Callback, Context, JsAction, JsCallback
@@ -282,7 +283,7 @@ class TestJsCallback:
         """Test JsCallback does not have a callbackId."""
         cb = JsCallback(code="test()")
         serialized = cb.serialize()
-        
+
         assert "callbackId" not in serialized
         assert "jsFunction" in serialized
 
@@ -386,16 +387,12 @@ class TestBoundJsCallback:
 
     def test_bound_js_callback_with_args(self):
         """Test BoundJsCallback stores arguments."""
-        cb = BoundJsCallback(
-            target_id="my-canvas", method_name="eraseMode", args=(True,)
-        )
+        cb = BoundJsCallback(target_id="my-canvas", method_name="eraseMode", args=(True,))
         assert cb.args == (True,)
 
     def test_bound_js_callback_with_kwargs(self):
         """Test BoundJsCallback stores keyword arguments."""
-        cb = BoundJsCallback(
-            target_id="my-canvas", method_name="eraseMode", kwargs={"erase": True}
-        )
+        cb = BoundJsCallback(target_id="my-canvas", method_name="eraseMode", kwargs={"erase": True})
         assert cb.kwargs == {"erase": True}
 
     def test_bound_js_callback_with_args_and_kwargs(self):
@@ -562,13 +559,15 @@ class TestContextAppendProp:
 
         await ctx.append_prop("markdown-output", "content", "new text")
 
-        ws.send_json.assert_called_once_with({
-            "type": "update",
-            "operation": "append_prop",
-            "targetId": "markdown-output",
-            "propName": "content",
-            "value": "new text",
-        })
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "append_prop",
+                "targetId": "markdown-output",
+                "propName": "content",
+                "value": "new text",
+            }
+        )
 
     @pytest.mark.asyncio
     async def test_append_prop_with_list_value(self):
@@ -578,13 +577,15 @@ class TestContextAppendProp:
 
         await ctx.append_prop("my-chart", "data", [{"x": 1, "y": 2}])
 
-        ws.send_json.assert_called_once_with({
-            "type": "update",
-            "operation": "append_prop",
-            "targetId": "my-chart",
-            "propName": "data",
-            "value": [{"x": 1, "y": 2}],
-        })
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "append_prop",
+                "targetId": "my-chart",
+                "propName": "data",
+                "value": [{"x": 1, "y": 2}],
+            }
+        )
 
     @pytest.mark.asyncio
     async def test_append_prop_with_single_item(self):
@@ -594,13 +595,15 @@ class TestContextAppendProp:
 
         await ctx.append_prop("my-chart", "data", {"x": 1, "y": 2})
 
-        ws.send_json.assert_called_once_with({
-            "type": "update",
-            "operation": "append_prop",
-            "targetId": "my-chart",
-            "propName": "data",
-            "value": {"x": 1, "y": 2},
-        })
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "append_prop",
+                "targetId": "my-chart",
+                "propName": "data",
+                "value": {"x": 1, "y": 2},
+            }
+        )
 
     @pytest.mark.asyncio
     async def test_append_prop_without_websocket(self):

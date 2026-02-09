@@ -147,6 +147,3 @@ class TestReactComponent:
         comp = OptionalComp(events={"onClick": None})
         rendered = comp.render()
         assert "onClick" not in rendered["props"]
-
-
-

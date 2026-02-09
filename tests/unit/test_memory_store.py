@@ -142,6 +142,3 @@ class TestMemorySessionStore:
 
         await store.stop_cleanup()
         assert store._cleanup_task is None
-
-
-

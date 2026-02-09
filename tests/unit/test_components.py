@@ -185,6 +185,3 @@ class TestRenderChildren:
         rendered = container.render()
         assert len(rendered["children"]) == 1
         assert rendered["children"][0]["children"] == ["Always shown"]
-
-
-

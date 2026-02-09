@@ -277,6 +277,3 @@ class TestCalendar:
         calendar = Calendar(on_select=cb)
         rendered = calendar.render()
         assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
-
-
-

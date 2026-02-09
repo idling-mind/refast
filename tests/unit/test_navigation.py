@@ -230,6 +230,3 @@ class TestCommandItem:
         item = CommandItem(value="action", label="Action", on_select=cb)
         rendered = item.render()
         assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
-
-
-

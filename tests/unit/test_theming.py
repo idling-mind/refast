@@ -4,15 +4,14 @@ Covers custom_css, custom_js, head_tags, favicon, Theme integration,
 and the add_css / add_js / add_head_tag helper methods.
 """
 
-import pytest
 
 from refast import RefastApp
 from refast.theme import Theme, ThemeColors
 
-
 # ---------------------------------------------------------------------------
 # Constructor parameter tests
 # ---------------------------------------------------------------------------
+
 
 class TestAppThemeParam:
     """Tests for the theme parameter on RefastApp."""
@@ -101,7 +100,10 @@ class TestAppHeadTags:
         assert app._head_tags == []
 
     def test_accepts_list(self):
-        tags = ['<meta name="robots" content="noindex">', '<link rel="preconnect" href="https://fonts.gstatic.com">']
+        tags = [
+            '<meta name="robots" content="noindex">',
+            '<link rel="preconnect" href="https://fonts.gstatic.com">',
+        ]
         app = RefastApp(head_tags=tags)
         assert app._head_tags == tags
 
@@ -115,6 +117,7 @@ class TestAppHeadTags:
 # ---------------------------------------------------------------------------
 # HTML shell rendering tests
 # ---------------------------------------------------------------------------
+
 
 class TestRenderHtmlShellTheming:
     """Tests that _render_html_shell correctly injects theming / customization."""
@@ -228,9 +231,7 @@ class TestRenderHtmlShellTheming:
     def test_custom_css_after_theme(self):
         """Custom CSS should appear after theme CSS for override priority."""
         theme = Theme(light=ThemeColors(primary="1 2% 3%"))
-        html = self._render(
-            RefastApp(theme=theme, custom_css="body { margin: 0; }")
-        )
+        html = self._render(RefastApp(theme=theme, custom_css="body { margin: 0; }"))
         theme_pos = html.index("data-refast-theme")
         custom_pos = html.index("body { margin: 0; }")
         assert custom_pos > theme_pos

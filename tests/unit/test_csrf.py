@@ -296,6 +296,3 @@ class TestCSRFProtectDecorator:
             await handler(request)
 
         assert exc_info.value.detail == "Custom CSRF error"
-
-
-

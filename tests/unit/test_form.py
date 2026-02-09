@@ -79,6 +79,3 @@ class TestLabel:
         label = Label(text="Name", required=True)
         rendered = label.render()
         assert rendered["props"]["required"] is True
-
-
-

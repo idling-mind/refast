@@ -897,4 +897,3 @@ class ThemeSwitcher(Component):
             },
             "children": [],
         }
-

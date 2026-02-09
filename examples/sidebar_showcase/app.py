@@ -24,11 +24,11 @@ Pages:
 - /dropdown-actions - Menu with dropdown actions
 - /skeleton - Loading state with skeletons
 """
+
 from fastapi import FastAPI
 
 from refast import RefastApp
 from refast.components import (
-    Button,
     Card,
     CardContent,
     CardDescription,
@@ -48,7 +48,6 @@ from refast.components import (
     Flex,
     Heading,
     Link,
-    Separator,
     Sidebar,
     SidebarContent,
     SidebarFooter,
@@ -148,7 +147,7 @@ def create_sidebar(
     show_rail: bool = True,
 ):
     """Create a sidebar with the given configuration.
-    
+
     Args:
         ctx: The context
         active_item: Which menu item is active
@@ -165,168 +164,165 @@ def create_sidebar(
                 SidebarMenu(
                     children=[
                         SidebarMenuItem(
-                                children=[
-                                    SidebarMenuButton(
-                                        "Acme Inc",
-                                        icon="building",
-                                        size="lg",
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                ]
-            ),
-            # Separator
-            SidebarSeparator(),
-            # Main content
-            SidebarContent(
-                children=[
-                    # Main navigation group
-                    SidebarGroup(
-                        children=[
-                            SidebarGroupLabel("Navigation"),
-                            SidebarGroupContent(
-                                children=[
-                                    SidebarMenu(
-                                        children=[
-                                            SidebarMenuItem(
-                                                children=[
-                                                    SidebarMenuButton(
-                                                        item["label"],
-                                                        icon=item["icon"],
-                                                        href=item["href"],
-                                                        is_active=(
-                                                            item["label"]
-                                                            == active_item
+                            children=[
+                                SidebarMenuButton(
+                                    "Acme Inc",
+                                    icon="building",
+                                    size="lg",
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        ),
+        # Separator
+        SidebarSeparator(),
+        # Main content
+        SidebarContent(
+            children=[
+                # Main navigation group
+                SidebarGroup(
+                    children=[
+                        SidebarGroupLabel("Navigation"),
+                        SidebarGroupContent(
+                            children=[
+                                SidebarMenu(
+                                    children=[
+                                        SidebarMenuItem(
+                                            children=[
+                                                SidebarMenuButton(
+                                                    item["label"],
+                                                    icon=item["icon"],
+                                                    href=item["href"],
+                                                    is_active=(item["label"] == active_item),
+                                                ),
+                                                *(
+                                                    [SidebarMenuBadge(item["badge"])]
+                                                    if item["badge"]
+                                                    else []
+                                                ),
+                                            ]
+                                        )
+                                        for item in MAIN_MENU
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+                # Projects group with action button
+                SidebarGroup(
+                    children=[
+                        SidebarGroupLabel("Projects"),
+                        SidebarGroupAction(
+                            icon="plus",
+                            title="Add Project",
+                            on_click=ctx.callback(handle_add_project),
+                        ),
+                        SidebarGroupContent(
+                            children=[
+                                SidebarMenu(
+                                    children=[
+                                        SidebarMenuItem(
+                                            children=[
+                                                SidebarMenuButton(
+                                                    project["label"],
+                                                    icon=project["icon"],
+                                                    href=project["href"],
+                                                ),
+                                                SidebarMenuAction(
+                                                    icon="more-vertical",
+                                                    show_on_hover=True,
+                                                ),
+                                            ]
+                                        )
+                                        for project in PROJECTS
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+                # Settings with submenu
+                SidebarGroup(
+                    children=[
+                        SidebarGroupLabel("Preferences"),
+                        SidebarGroupContent(
+                            children=[
+                                SidebarMenu(
+                                    children=[
+                                        SidebarMenuItem(
+                                            children=[
+                                                SidebarMenuButton(
+                                                    "Settings",
+                                                    icon="settings",
+                                                ),
+                                                SidebarMenuSub(
+                                                    children=[
+                                                        SidebarMenuSubItem(
+                                                            children=[
+                                                                SidebarMenuSubButton(
+                                                                    "General",
+                                                                    href="#general",
+                                                                ),
+                                                            ]
                                                         ),
-                                                    ),
-                                                    *(
-                                                        [
-                                                            SidebarMenuBadge(
-                                                                item["badge"]
-                                                            )
-                                                        ]
-                                                        if item["badge"]
-                                                        else []
-                                                    ),
-                                                ]
-                                            )
-                                            for item in MAIN_MENU
-                                        ]
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                    # Projects group with action button
-                    SidebarGroup(
-                        children=[
-                            SidebarGroupLabel("Projects"),
-                            SidebarGroupAction(icon="plus", title="Add Project", on_click=ctx.callback(handle_add_project)),
-                            SidebarGroupContent(
-                                children=[
-                                    SidebarMenu(
-                                        children=[
-                                            SidebarMenuItem(
-                                                children=[
-                                                    SidebarMenuButton(
-                                                        project["label"],
-                                                        icon=project["icon"],
-                                                        href=project["href"],
-                                                    ),
-                                                    SidebarMenuAction(
-                                                        icon="more-vertical",
-                                                        show_on_hover=True,
-                                                    ),
-                                                ]
-                                            )
-                                            for project in PROJECTS
-                                        ]
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                    # Settings with submenu
-                    SidebarGroup(
-                        children=[
-                            SidebarGroupLabel("Preferences"),
-                            SidebarGroupContent(
-                                children=[
-                                    SidebarMenu(
-                                        children=[
-                                            SidebarMenuItem(
-                                                children=[
-                                                    SidebarMenuButton(
-                                                        "Settings",
-                                                        icon="settings",
-                                                    ),
-                                                    SidebarMenuSub(
-                                                        children=[
-                                                            SidebarMenuSubItem(
-                                                                children=[
-                                                                    SidebarMenuSubButton(
-                                                                        "General",
-                                                                        href="#general",
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                            SidebarMenuSubItem(
-                                                                children=[
-                                                                    SidebarMenuSubButton(
-                                                                        "Security",
-                                                                        href="#security",
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                            SidebarMenuSubItem(
-                                                                children=[
-                                                                    SidebarMenuSubButton(
-                                                                        "Notifications",
-                                                                        href="#notifications",
-                                                                        is_active=True,
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                        ]
-                                                    ),
-                                                ]
-                                            ),
-                                        ]
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                ]
-            ),
-            # Separator
-            SidebarSeparator(),
-            # Footer
-            SidebarFooter(
-                children=[
-                    SidebarMenu(
-                        children=[
-                            SidebarMenuItem(
-                                children=[
-                                    SidebarMenuButton(
-                                        "John Doe",
-                                        icon="user",
-                                        size="lg",
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                ]
-            ),
-        ]
-    
+                                                        SidebarMenuSubItem(
+                                                            children=[
+                                                                SidebarMenuSubButton(
+                                                                    "Security",
+                                                                    href="#security",
+                                                                ),
+                                                            ]
+                                                        ),
+                                                        SidebarMenuSubItem(
+                                                            children=[
+                                                                SidebarMenuSubButton(
+                                                                    "Notifications",
+                                                                    href="#notifications",
+                                                                    is_active=True,
+                                                                ),
+                                                            ]
+                                                        ),
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        ),
+        # Separator
+        SidebarSeparator(),
+        # Footer
+        SidebarFooter(
+            children=[
+                SidebarMenu(
+                    children=[
+                        SidebarMenuItem(
+                            children=[
+                                SidebarMenuButton(
+                                    "John Doe",
+                                    icon="user",
+                                    size="lg",
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        ),
+    ]
+
     # Only add rail if collapsible (not in 'none' mode)
     if show_rail:
         sidebar_children.append(SidebarRail())
-    
+
     return Sidebar(
         side=side,
         variant=variant,
@@ -358,9 +354,7 @@ def create_main_content(ctx, variant: str):
                             CardHeader(
                                 children=[
                                     CardTitle("Welcome to the Sidebar Demo"),
-                                    CardDescription(
-                                        "This example showcases all sidebar features."
-                                    ),
+                                    CardDescription("This example showcases all sidebar features."),
                                 ]
                             ),
                             CardContent(
@@ -457,9 +451,7 @@ def create_main_content(ctx, variant: str):
                                             Text(
                                                 "✅ SidebarProvider - Context for state management"
                                             ),
-                                            Text(
-                                                "✅ Collapsible modes: offcanvas, icon, none"
-                                            ),
+                                            Text("✅ Collapsible modes: offcanvas, icon, none"),
                                             Text("✅ Variants: sidebar, floating, inset"),
                                             Text("✅ Left and right positioning"),
                                             Text("✅ Menu items with icons"),
@@ -779,7 +771,9 @@ def collapsible_menu_demo(ctx):
                                                                             children=[
                                                                                 SidebarMenuButton(
                                                                                     item["label"],
-                                                                                    href=item["href"],
+                                                                                    href=item[
+                                                                                        "href"
+                                                                                    ],
                                                                                 ),
                                                                             ]
                                                                         )
@@ -861,7 +855,7 @@ def collapsible_menu_demo(ctx):
                                             ),
                                         ]
                                     ),
-                                ]
+                                ],
                             ),
                         ],
                     ),
@@ -944,7 +938,9 @@ def dropdown_actions_demo(ctx):
                                                                                 icon="folder-open",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
-                                                                                    item=project["label"],
+                                                                                    item=project[
+                                                                                        "label"
+                                                                                    ],
                                                                                     action="Open",
                                                                                 ),
                                                                             ),
@@ -953,7 +949,9 @@ def dropdown_actions_demo(ctx):
                                                                                 icon="edit",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
-                                                                                    item=project["label"],
+                                                                                    item=project[
+                                                                                        "label"
+                                                                                    ],
                                                                                     action="Edit",
                                                                                 ),
                                                                             ),
@@ -962,7 +960,9 @@ def dropdown_actions_demo(ctx):
                                                                                 icon="link",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
-                                                                                    item=project["label"],
+                                                                                    item=project[
+                                                                                        "label"
+                                                                                    ],
                                                                                     action="Share",
                                                                                 ),
                                                                             ),
@@ -973,7 +973,9 @@ def dropdown_actions_demo(ctx):
                                                                                 class_name="text-red-500",
                                                                                 on_select=ctx.callback(
                                                                                     handle_menu_action,
-                                                                                    item=project["label"],
+                                                                                    item=project[
+                                                                                        "label"
+                                                                                    ],
                                                                                     action="Delete",
                                                                                 ),
                                                                             ),
@@ -1157,7 +1159,7 @@ def dropdown_actions_demo(ctx):
                                             ),
                                         ]
                                     ),
-                                ]
+                                ],
                             ),
                         ],
                     ),

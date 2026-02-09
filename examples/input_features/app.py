@@ -153,7 +153,7 @@ def home(ctx: Context):
                     ),
                 ],
             ),
-        ]
+        ],
     )
 
 

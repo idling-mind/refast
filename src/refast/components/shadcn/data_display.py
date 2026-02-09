@@ -698,4 +698,3 @@ class Image(Component):
             },
             "children": [],
         }
-

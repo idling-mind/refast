@@ -2346,5 +2346,3 @@ class SidebarTrigger(Component):
             },
             "children": [],
         }
-
-

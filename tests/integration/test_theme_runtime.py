@@ -1,7 +1,6 @@
 """Integration tests for runtime theme updates via WebSocket."""
 
-import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -108,7 +107,9 @@ class TestCtxSetTheme:
         ctx_bad = Context(websocket=ws_bad, app=app)
 
         with patch.object(
-            type(app), "active_contexts", new_callable=lambda: property(lambda self: [ctx_bad, ctx_good])
+            type(app),
+            "active_contexts",
+            new_callable=lambda: property(lambda self: [ctx_bad, ctx_good]),
         ):
             theme = Theme(light=ThemeColors(primary="5 5% 5%"))
             count = await ctx_good.broadcast_theme(theme)

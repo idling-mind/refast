@@ -277,5 +277,3 @@ class ChartLegendContent(Component):
                 "hideIcon": self.hide_icon,
             },
         }
-
-

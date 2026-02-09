@@ -34,7 +34,7 @@ jobs:
           uv sync
       - name: Lint with ruff
         run: |
-          ruff check refast
+          uvx ruff check refast
       - name: Test with pytest
         run: |
-          pytest tests
+          uv run pytest tests

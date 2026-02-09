@@ -417,4 +417,5 @@ __all__ = [
     "Kbd",
     "LoadingOverlay",
     "ThemeSwitcher",
+    "Toaster",
 ]

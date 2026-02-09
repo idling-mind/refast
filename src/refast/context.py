@@ -856,7 +856,11 @@ class Context(Generic[T]):
             await ctx.show_toast("Hello!")
 
             # Success toast with description
-            await ctx.show_toast("Saved!", variant="success", description="Your changes have been saved.")
+            await ctx.show_toast(
+                "Saved!",
+                variant="success",
+                description="Your changes have been saved."
+            )
 
             # Toast with action button
             await ctx.show_toast(

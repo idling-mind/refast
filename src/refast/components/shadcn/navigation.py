@@ -1960,7 +1960,8 @@ class SidebarMenuButton(Component):
 
     Args:
         label: The button text
-        icon: Optional Lucide icon name (e.g., "home", "settings") or emoji for backward compatibility
+        icon: Optional Lucide icon name (e.g., "home", "settings") or emoji for backward
+            compatibility
         is_active: Whether the button is currently active
         variant: "default" or "outline"
         size: "default", "sm", or "lg"

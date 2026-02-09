@@ -4,7 +4,6 @@ Covers custom_css, custom_js, head_tags, favicon, Theme integration,
 and the add_css / add_js / add_head_tag helper methods.
 """
 
-
 from refast import RefastApp
 from refast.theme import Theme, ThemeColors
 

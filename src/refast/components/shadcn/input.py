@@ -156,9 +156,10 @@ class Input(Component):
         if self.on_input:
             props["on_input"] = self.on_input.serialize()
 
-        # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's live-validated
-        # But if value is None, we could treat it as uncontrolled. The current __init__ defaults value to ""
-        # so it is always controlled by default. This is fine for Input.
+        # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's
+        # live-validated. But if value is None, we could treat it as uncontrolled. The current
+        # __init__ defaults value to "" so it is always controlled by default. This is fine for
+        # Input.
 
         return {
             "type": self.component_type,

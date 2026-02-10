@@ -555,7 +555,7 @@ class Context(Generic[T]):
         
         async def increment(ctx: Context, amount: int):
             ctx.state["count"] = ctx.state.get("count", 0) + amount
-            await ctx.push_update()
+            await ctx.refresh()
         ```
     """
     
@@ -617,13 +617,6 @@ class Context(Generic[T]):
         
         return cb
     
-    async def push_update(self) -> None:
-        """Push state updates to the frontend."""
-        if self._websocket:
-            await self._websocket.send_json({
-                "type": "state_update",
-                "state": self._state,
-            })
     
     async def replace(self, target_id: str, component: Any) -> None:
         """Replace a component in the frontend."""

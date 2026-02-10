@@ -409,7 +409,7 @@ async def handle_rating_change(ctx: Context):
     """Handle rating change event."""
     new_rating = ctx.event_data.get("value")
     ctx.state.set("rating", new_rating)
-    await ctx.push_update()
+    await ctx.refresh()
 
 @ui.page("/")
 def home(ctx: Context):
@@ -555,7 +555,7 @@ async def save_and_celebrate(ctx: Context):
     # Server-side logic
     await database.save(ctx.event_data)
     ctx.state.set("saved", True)
-    await ctx.push_update()
+    await ctx.refresh()
     
     # Trigger client-side JavaScript
     await ctx.call_js("confetti({ particleCount: 100 })")
@@ -673,7 +673,7 @@ async def clear_and_save_state(ctx: Context):
     
     # Update server state
     ctx.state.set("canvas_cleared", True)
-    await ctx.push_update()
+    await ctx.refresh()
 
 
 @ui.page("/")

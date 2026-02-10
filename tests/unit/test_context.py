@@ -162,13 +162,6 @@ class TestContextCallback:
 class TestContextWithoutWebSocket:
     """Tests for Context methods without WebSocket."""
 
-    @pytest.mark.asyncio
-    async def test_push_update_without_websocket(self):
-        """Test push_update does nothing without websocket."""
-        ctx = Context()
-        ctx.state["count"] = 1
-        # Should not raise
-        await ctx.push_update()
 
     @pytest.mark.asyncio
     async def test_replace_without_websocket(self):

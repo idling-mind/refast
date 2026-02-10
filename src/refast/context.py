@@ -208,7 +208,7 @@ class Context(Generic[T]):
 
         async def increment(ctx: Context, amount: int):
             ctx.state["count"] = ctx.state.get("count", 0) + amount
-            await ctx.push_update()
+            await ctx.refresh()
         ```
     """
 
@@ -527,7 +527,7 @@ class Context(Generic[T]):
             async def save_complete(ctx: Context):
                 # Save to database...
                 ctx.state.set("saved", True)
-                await ctx.push_update()
+                await ctx.refresh()
 
                 # Trigger confetti animation
                 await ctx.call_js("confetti({ particleCount: 100 })")
@@ -597,7 +597,7 @@ class Context(Generic[T]):
             async def toggle_eraser(ctx: Context):
                 is_eraser = ctx.state.get("eraser_mode", False)
                 ctx.state.set("eraser_mode", not is_eraser)
-                await ctx.push_update()
+                await ctx.refresh()
 
                 # Update the canvas mode (positional arg)
                 await ctx.call_bound_js("my-canvas", "eraseMode", not is_eraser)
@@ -622,15 +622,6 @@ class Context(Generic[T]):
                 }
             )
 
-    async def push_update(self) -> None:
-        """Push state updates to the frontend."""
-        if self._websocket:
-            await self._websocket.send_json(
-                {
-                    "type": "state_update",
-                    "state": self._state.to_dict(),
-                }
-            )
 
     async def replace(self, target_id: str, component: Any) -> None:
         """Replace a component in the frontend."""

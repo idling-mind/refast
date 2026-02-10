@@ -212,7 +212,7 @@ async def handle_register(ctx: Context):
         # Process registration...
         await ctx.toast("Registration successful!", variant="success")
     
-    await ctx.push_update()
+    await ctx.refresh()
 
 
 @ui.page("/")

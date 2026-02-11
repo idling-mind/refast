@@ -300,7 +300,9 @@ class ChainedAction:
         ```
     """
 
-    actions: list[Any]  # list of Callback | JsCallback | BoundJsCallback | StoreProp | ChainedAction
+    actions: list[
+        Any
+    ]  # list of Callback | JsCallback | BoundJsCallback | StoreProp | ChainedAction
     mode: str = "serial"  # "serial" or "parallel"
 
     def __post_init__(self) -> None:
@@ -848,7 +850,6 @@ class Context(Generic[T]):
                     "kwargs": kwargs,
                 }
             )
-
 
     async def replace(self, target_id: str, component: Any) -> None:
         """Replace a component in the frontend."""

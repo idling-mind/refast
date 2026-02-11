@@ -9,6 +9,7 @@ This example demonstrates the prop store feature which allows you to:
 Compare this to the traditional form_validation example which requires
 on_change callbacks for every input to sync state to the server.
 """
+
 import asyncio
 
 from fastapi import FastAPI
@@ -34,6 +35,7 @@ from refast.components import (
 
 ui = RefastApp(title="Prop Store Example")
 
+
 async def show_typing(ctx: Context, message: str = ""):
     """Show typing indicator when user types in the message field."""
     message = ctx.state.get("message", "")  # Get the latest message value from state
@@ -45,6 +47,7 @@ async def show_typing(ctx: Context, message: str = ""):
     await asyncio.sleep(3)  # Simulate typing delay
     await ctx.update_text("result-area", "")  # Clear typing indicator after delay
     print("Typing indicator cleared.")
+
 
 async def handle_submit(
     ctx: Context, input_name: str = "", input_email: str = "", message: str = ""
@@ -221,11 +224,15 @@ def home(ctx: Context):
                                         label="Message",
                                         name="message",
                                         placeholder="Enter your message",
-                                        on_change=ctx.chain([
-                                            ctx.store_prop("message"),
-                                            ctx.callback(show_typing, debounce=300),
-                                            ctx.js("console.log('Message changed:', event.target.value)"),
-                                        ]),
+                                        on_change=ctx.chain(
+                                            [
+                                                ctx.store_prop("message"),
+                                                ctx.callback(show_typing, debounce=300),
+                                                ctx.js(
+                                                    "console.log('Message changed:')", debounce=300
+                                                ),
+                                            ]
+                                        ),
                                     ),
                                 ],
                             ),

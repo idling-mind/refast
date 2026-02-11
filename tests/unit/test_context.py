@@ -170,7 +170,6 @@ class TestContextCallback:
 class TestContextWithoutWebSocket:
     """Tests for Context methods without WebSocket."""
 
-
     @pytest.mark.asyncio
     async def test_replace_without_websocket(self):
         """Test replace does nothing without websocket."""
@@ -944,15 +943,14 @@ class TestContextChain:
     def test_chain_serialize_format(self):
         """Test chain serialization format."""
         ctx = Context()
-        chain = ctx.chain([
-            ctx.store_prop("email"),
-            ctx.js("console.log('done')"),
-        ])
+        chain = ctx.chain(
+            [
+                ctx.store_prop("email"),
+                ctx.js("console.log('done')"),
+            ]
+        )
         serialized = chain.serialize()
 
         assert "chain" in serialized
         assert serialized["mode"] == "serial"
         assert len(serialized["chain"]) == 2
-
-
-

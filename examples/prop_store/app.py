@@ -1,13 +1,14 @@
 """Prop Store Example - Frontend-Only State for Forms.
 
-This example demonstrates the prop_store feature which allows you to:
-- Capture input values on the frontend without server roundtrips
-- Access all stored values when any callback is triggered
+This example demonstrates the prop store feature which allows you to:
+- Capture input values on the frontend without server roundtrips (store_as)
+- Request stored values as keyword arguments in callbacks (props=[...])
 - Build forms with minimal boilerplate
 
 Compare this to the traditional form_validation example which requires
 on_change callbacks for every input to sync state to the server.
 """
+import asyncio
 
 from fastapi import FastAPI
 
@@ -26,19 +27,30 @@ from refast.components import (
     Input,
     Row,
     Separator,
-    Text,
+    Text, Textarea,
 )
 
 ui = RefastApp(title="Prop Store Example")
 
+async def show_typing(ctx: Context, message: str = ""):
+    """Show typing indicator when user types in the message field."""
+    message = ctx.state.get("message", "")  # Get the latest message value from state
+    event_message = ctx.event_data.get("value", "")  # Get the current event message value
+    print(f"show_typing called with message='{message}', event_message='{event_message}'")
+    print("Message value has changed, showing typing indicator...")
+    await ctx.update_text("result-area", "Typing...")
+    ctx.state.set("message", event_message)  # Update state with the latest message value
+    await asyncio.sleep(3)  # Simulate typing delay
+    await ctx.update_text("result-area", "")  # Clear typing indicator after delay
+    print("Typing indicator cleared.")
 
 async def handle_submit(
     ctx: Context, input_name: str = "", input_email: str = "", message: str = ""
 ):
     """Handle form submission using prop values passed as arguments.
 
-    Note: Props requested via props=["fullname", "email", "message"] are
-    passed directly as keyword arguments - no need to use ctx.prop_store!
+    Note: Props requested via props=["input_.*", "message"] are
+    passed directly as keyword arguments to this function.
     """
     print(f"Form submitted: fullname={input_name}, email={input_email}, message={message}")
 
@@ -142,7 +154,7 @@ def render_result(ctx: Context):
 
 @ui.page("/")
 def home(ctx: Context):
-    """Render the contact form using prop_store for input capture."""
+    """Render the contact form using store_as for input capture."""
     return Container(
         class_name="mt-10 p-4",
         style={"maxWidth": "32rem", "marginLeft": "auto", "marginRight": "auto"},
@@ -152,7 +164,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("Contact Form"),
-                            CardDescription("Using prop_store for frontend-only state"),
+                            CardDescription("Using store_as for frontend-only state"),
                         ]
                     ),
                     CardContent(
@@ -194,6 +206,7 @@ def home(ctx: Context):
                                         type="email",
                                         placeholder="Enter your email",
                                         on_change=ctx.callback(store_as="input_email"),
+                                        debounce=500,
                                     ),
                                 ],
                             ),
@@ -201,12 +214,13 @@ def home(ctx: Context):
                             Column(
                                 class_name="gap-2 mb-4",
                                 children=[
-                                    Input(
+                                    Textarea(
                                         id="message",
                                         label="Message",
                                         name="message",
                                         placeholder="Enter your message",
-                                        on_change=ctx.callback(store_as="message"),
+                                        on_change=ctx.callback(show_typing, store_as="message"),
+                                        debounce=500,
                                     ),
                                 ],
                             ),

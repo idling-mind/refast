@@ -3,6 +3,8 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
+import { applyStoreAs } from '../../utils/propStoreUtils';
+import type { CallbackHandlerWithStoreAs } from '../../utils/propStoreUtils';
 
 // ============================================================================
 // InputWrapper - Reusable wrapper for form controls with label, description, error
@@ -154,15 +156,29 @@ export function Input({
         return;
       }
 
+      // If the handler has a storeAs directive, always write to the prop store
+      // immediately — even when debouncing — so values aren't lost.
+      const handler = onChangeRef.current as CallbackHandlerWithStoreAs;
+      if (handler.__storeAs) {
+        applyStoreAs(handler.__storeAs, {
+          value: nextValue,
+          name: name || '',
+        });
+      }
+
       if (debounce > 0) {
         if (debounceTimeout.current !== null) {
           window.clearTimeout(debounceTimeout.current);
         }
 
+        // Spread only copies own enumerable properties from the DOM element.
+        // tagName, name, type live on the prototype chain and must be
+        // copied explicitly so that extractEventData can identify this as
+        // a form element and extract its value.
         const syntheticEvent = {
           ...e,
-          target: { ...e.target, value: nextValue },
-          currentTarget: { ...e.currentTarget, value: nextValue },
+          target: { ...e.target, tagName: e.target.tagName, name: e.target.name, type: e.target.type, value: nextValue },
+          currentTarget: { ...e.currentTarget, tagName: e.currentTarget.tagName, name: e.currentTarget.name, type: e.currentTarget.type, value: nextValue },
         } as React.ChangeEvent<HTMLInputElement>;
 
         debounceTimeout.current = window.setTimeout(() => {
@@ -175,7 +191,7 @@ export function Input({
 
       onChangeRef.current(e);
     },
-    [debounce]
+    [debounce, name]
   );
 
   const inputElement = (
@@ -301,15 +317,29 @@ export function Textarea({
         return;
       }
 
+      // If the handler has a storeAs directive, always write to the prop store
+      // immediately — even when debouncing — so values aren't lost.
+      const handler = onChangeRef.current as unknown as CallbackHandlerWithStoreAs;
+      if (handler.__storeAs) {
+        applyStoreAs(handler.__storeAs, {
+          value: nextValue,
+          name: name || '',
+        });
+      }
+
       if (debounce > 0) {
         if (debounceTimeout.current !== null) {
           window.clearTimeout(debounceTimeout.current);
         }
 
+        // Spread only copies own enumerable properties from the DOM element.
+        // tagName, name live on the prototype chain and must be copied
+        // explicitly so that extractEventData can identify this as a
+        // form element and extract its value.
         const syntheticEvent = {
           ...e,
-          target: { ...e.target, value: nextValue },
-          currentTarget: { ...e.currentTarget, value: nextValue },
+          target: { ...e.target, tagName: e.target.tagName, name: e.target.name, value: nextValue },
+          currentTarget: { ...e.currentTarget, tagName: e.currentTarget.tagName, name: e.currentTarget.name, value: nextValue },
         } as React.ChangeEvent<HTMLTextAreaElement>;
 
         debounceTimeout.current = window.setTimeout(() => {
@@ -322,7 +352,7 @@ export function Textarea({
 
       onChangeRef.current(e);
     },
-    [debounce]
+    [debounce, name]
   );
 
   const textareaElement = (

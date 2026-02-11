@@ -7,9 +7,9 @@ The **Prop Store** is a frontend-only state management feature that enables effi
 When building forms in Refast, you typically need to track input values so they can be accessed when the user clicks a submit button. The traditional approach requires a callback for each input that syncs the value to `ctx.state` on every keystroke - resulting in unnecessary server roundtrips.
 
 The prop store solves this by:
-1. Storing values **on the frontend** when events occur
-2. Sending all stored values **only when a callback is invoked**
-3. Making stored values available via `ctx.prop_store` in any callback
+1. Storing values **on the frontend** when events occur (via `store_as`)
+2. Sending requested values **only when a callback is invoked** (via `props=[...]`)
+3. Delivering requested values as **keyword arguments** to your Python callback
 
 ## Basic Usage
 
@@ -39,10 +39,10 @@ def form_page(ctx: Context):
                 on_change=ctx.callback(store_as="username"),
             ),
             
-            # Submit button - all prop_store values sent with this callback
+            # Submit button - request props as keyword arguments
             Button(
                 "Submit",
-                on_click=ctx.callback(handle_submit),
+                on_click=ctx.callback(handle_submit, props=["email", "username"]),
             ),
         ]
     )
@@ -50,13 +50,11 @@ def form_page(ctx: Context):
 
 ### Accessing Stored Values
 
-In any callback, access stored values via `ctx.prop_store`:
+Stored values are delivered as **keyword arguments** to your callback when you use `props=[...]`:
 
 ```python
-async def handle_submit(ctx: Context):
-    # Access values stored via store_as
-    email = ctx.prop_store.get("email", "")
-    username = ctx.prop_store.get("username", "")
+async def handle_submit(ctx: Context, email: str = "", username: str = ""):
+    # Values from store_as arrive as keyword arguments
     
     # Validate and process
     if not email or "@" not in email:
@@ -70,7 +68,7 @@ async def handle_submit(ctx: Context):
 
 ## API Reference
 
-### `ctx.callback(func=None, *, store_as=None, **bound_args)`
+### `ctx.callback(func=None, *, store_as=None, props=None, **bound_args)`
 
 Create a callback with optional prop store functionality.
 
@@ -79,19 +77,18 @@ Create a callback with optional prop store functionality.
 - `store_as` (str | dict, optional): Store directive for capturing event data.
   - `str`: Store the event's `value` under this key
   - `dict`: Map event data keys to store keys (e.g., `{"value": "email", "name": "field"}`)
+- `props` (list[str], optional): List of prop store keys to send as keyword arguments. Supports regex patterns (e.g., `["input_.*"]`).
 - `**bound_args`: Arguments to bind to the callback
 
 **Returns:** `Callback` object
 
-### `ctx.prop_store`
+### `props` Parameter
 
-A dict-like object containing all values stored via `store_as` directives.
+The `props` parameter specifies which stored values to include as keyword arguments when the callback is invoked. Supports:
 
-**Methods:**
-- `get(key, default=None)`: Get a stored value
-- `keys()`: Get all stored keys
-- `values()`: Get all stored values
-- `items()`: Get all key-value pairs
+- **Exact keys**: `props=["email", "username"]`
+- **Regex patterns**: `props=["input_.*"]` matches all keys starting with `input_`
+- **Mixed**: `props=["email", "field_.*"]`
 
 ## Usage Patterns
 
@@ -154,13 +151,13 @@ Input(
 
 ## Comparison with ctx.state
 
-| Feature | ctx.state | ctx.prop_store |
-|---------|-----------|----------------|
+| Feature | ctx.state | Prop Store (store_as + props) |
+|---------|-----------|-------------------------------|
 | Storage location | Backend (Python) | Frontend (Browser) |
 | Server roundtrip | Every update | Only on callback invoke |
 | Persistence | Across page renders | Until page refresh |
 | Use case | App state, complex data | Form inputs, temp values |
-| Access pattern | Read/write anytime | Read in callbacks |
+| Access pattern | Read/write anytime | Keyword args in callbacks |
 
 ### When to Use Which
 
@@ -169,7 +166,7 @@ Input(
 - You need to trigger UI updates based on state changes
 - You're storing complex application state
 
-**Use `ctx.prop_store` when:**
+**Use `store_as` + `props` when:**
 - Capturing form input values
 - You don't need to react to every change
 - You want to minimize server roundtrips
@@ -187,14 +184,9 @@ from refast.components import (
 ui = RefastApp(title="Registration Form")
 
 
-async def handle_register(ctx: Context):
-    # Get all form values from prop_store
-    username = ctx.prop_store.get("username", "")
-    email = ctx.prop_store.get("email", "")
-    password = ctx.prop_store.get("password", "")
-    confirm = ctx.prop_store.get("confirm_password", "")
-    
-    # Validate
+async def handle_register(ctx: Context, username: str = "", email: str = "",
+                          password: str = "", confirm_password: str = ""):
+    # Values arrive as keyword arguments via props=[...]
     errors = []
     if len(username) < 3:
         errors.append("Username must be at least 3 characters")
@@ -202,7 +194,7 @@ async def handle_register(ctx: Context):
         errors.append("Invalid email address")
     if len(password) < 8:
         errors.append("Password must be at least 8 characters")
-    if password != confirm:
+    if password != confirm_password:
         errors.append("Passwords don't match")
     
     if errors:
@@ -279,7 +271,10 @@ def registration_form(ctx: Context):
                                     ),
                                     Button(
                                         "Register",
-                                        on_click=ctx.callback(handle_register),
+                                        on_click=ctx.callback(
+                                            handle_register,
+                                            props=["username", "email", "password", "confirm_password"],
+                                        ),
                                         class_name="w-full",
                                     ),
                                 ]
@@ -305,10 +300,15 @@ def registration_form(ctx: Context):
    Input(on_change=ctx.callback(validate, store_as="field", debounce=300))
    ```
 
-5. **Clear sensitive data after use**: The prop store persists until page refresh, so clear sensitive fields after processing if needed
+5. **Use regex patterns in props**: For forms with many fields sharing a prefix:
+   ```python
+   Button(on_click=ctx.callback(handle_submit, props=["form_.*"]))
+   ```
+
+6. **Clear sensitive data after use**: The prop store persists until page refresh, so clear sensitive fields after processing if needed
 
 ## Limitations
 
 - **Frontend-only storage**: Values are lost on page refresh (use `ctx.state` or `ctx.store` for persistence)
-- **No automatic sync**: Unlike `ctx.state`, prop_store values don't trigger re-renders
-- **Callback-scoped access**: Values are only available when a callback is invoked
+- **No automatic sync**: Prop store values don't trigger re-renders
+- **Callback-scoped access**: Values are only available as kwargs when `props=[...]` is specified

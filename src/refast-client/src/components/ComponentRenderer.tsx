@@ -4,6 +4,8 @@ import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
 import { debounce, throttle } from '../utils';
 import { propStore } from '../state/PropStore';
+import { applyStoreAs } from '../utils/propStoreUtils';
+import type { CallbackHandlerWithStoreAs } from '../utils/propStoreUtils';
 
 interface ComponentRendererProps {
   tree: ComponentTree | string;
@@ -219,26 +221,10 @@ function createCallbackHandler(
 ): (...args: unknown[]) => void {
   const { callbackId, boundArgs, debounce: debounceMs, throttle: throttleMs, storeAs, storeOnly, props } = ref;
 
-  let handler = (...args: unknown[]) => {
-    // Extract event data from args
-    const eventData = extractEventData(args);
-
-    // Handle store_as directive - store values in the prop store
-    if (storeAs) {
-      if (typeof storeAs === 'string') {
-        // Simple form: store_as="key" stores eventData.value as key
-        propStore.set(storeAs, eventData.value);
-      } else if (typeof storeAs === 'object') {
-        // Advanced form: store_as={"value": "email", "name": "field_name"}
-        // Maps event data keys to prop store keys
-        for (const [eventKey, storeKey] of Object.entries(storeAs)) {
-          if (eventKey in eventData) {
-            propStore.set(storeKey, eventData[eventKey]);
-          }
-        }
-      }
-    }
-
+  // The invoke function handles prop resolution and server callback.
+  // This is what gets debounced/throttled — NOT the store_as write.
+  let invoke = (...args: unknown[]) => {
+    const eventData = args[0] as Record<string, unknown>;
     // If store-only mode, don't invoke the callback (no server roundtrip)
     if (storeOnly) {
       return;
@@ -250,7 +236,7 @@ function createCallbackHandler(
     let propsData: Record<string, unknown> = {};
     if (props && props.length > 0) {
       const allStoreKeys = propStore.keys();
-      
+
       for (const pattern of props) {
         // Check if pattern contains regex metacharacters
         const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
@@ -291,14 +277,32 @@ function createCallbackHandler(
     }, eventData);
   };
 
-  // Apply debounce
+  // Apply debounce/throttle only to the invoke (server call), not to store_as
   if (debounceMs && debounceMs > 0) {
-    handler = debounce(handler, debounceMs);
+    invoke = debounce(invoke, debounceMs);
+  }
+  if (throttleMs && throttleMs > 0) {
+    invoke = throttle(invoke, throttleMs);
   }
 
-  // Apply throttle
-  if (throttleMs && throttleMs > 0) {
-    handler = throttle(handler, throttleMs);
+  const handler = (...args: unknown[]) => {
+    // Extract event data from args
+    const eventData = extractEventData(args);
+
+    // Handle store_as directive — write to PropStore immediately.
+    // For Input/Textarea with debounce, this is a harmless duplicate of
+    // the immediate write they already did (same correct value both times).
+    if (storeAs) {
+      applyStoreAs(storeAs, eventData);
+    }
+
+    invoke(eventData);
+  };
+
+  // Attach storeAs metadata so components with their own debounce (e.g. Input)
+  // can call propStore.set() immediately on every event, not after the debounce.
+  if (storeAs) {
+    (handler as CallbackHandlerWithStoreAs).__storeAs = storeAs;
   }
 
   return handler;

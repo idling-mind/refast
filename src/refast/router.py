@@ -242,15 +242,11 @@ class RefastRouter:
             callback_id = data.get("callbackId")
             callback_data = data.get("data", {})
             event_data_raw = data.get("eventData", {})
-            prop_store_data = data.get("propStore", {})
 
             callback = self.app.get_callback(callback_id)
             if callback:
                 # Set raw DOM event data on context (accessible via ctx.event_data)
                 ctx.set_event_data(event_data_raw)
-
-                # Set the prop store data on the context
-                ctx.set_prop_store(prop_store_data)
 
                 # Filter callback_data to only include parameters the callback accepts
                 sig = inspect.signature(callback)

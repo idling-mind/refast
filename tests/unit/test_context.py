@@ -738,35 +738,4 @@ class TestContextCallbackWithStoreAs:
         assert cb.store_as == {"value": "email", "name": "field_name"}
 
 
-class TestContextPropStore:
-    """Tests for Context.prop_store property."""
 
-    def test_prop_store_default_empty(self):
-        """Test prop_store is empty by default."""
-        ctx = Context()
-        assert ctx.prop_store == {}
-
-    def test_set_prop_store(self):
-        """Test setting prop_store data."""
-        ctx = Context()
-        ctx.set_prop_store({"email": "test@example.com", "name": "John"})
-
-        assert ctx.prop_store.get("email") == "test@example.com"
-        assert ctx.prop_store.get("name") == "John"
-
-    def test_prop_store_get_with_default(self):
-        """Test prop_store.get with default value."""
-        ctx = Context()
-        ctx.set_prop_store({"email": "test@example.com"})
-
-        assert ctx.prop_store.get("email") == "test@example.com"
-        assert ctx.prop_store.get("missing", "default") == "default"
-
-    def test_prop_store_is_dict(self):
-        """Test prop_store supports dict operations."""
-        ctx = Context()
-        ctx.set_prop_store({"a": 1, "b": 2})
-
-        assert "a" in ctx.prop_store
-        assert list(ctx.prop_store.keys()) == ["a", "b"]
-        assert list(ctx.prop_store.values()) == [1, 2]

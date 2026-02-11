@@ -144,11 +144,6 @@ export interface EventMessage {
     /** Raw DOM event data (value, name, checked). Accessible via ctx.event_data on the backend. */
     eventData?: Record<string, unknown>;
     boundArgs?: Record<string, unknown>;
-    /**
-     * Prop store values captured from component events.
-     * Sent with every callback invocation for backend access via ctx.prop_store.
-     */
-    propStore?: Record<string, unknown>;
 }
 /**
  * WebSocket connection state.

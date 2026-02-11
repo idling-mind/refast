@@ -7,8 +7,8 @@
  * 
  * Usage Pattern:
  * 1. Components use `store_as` in their callbacks to store event values
- * 2. When any callback is invoked, the entire prop store is sent with it
- * 3. Backend accesses stored values via `ctx.prop_store.get("key")`
+ * 2. When a callback with `props=[...]` is invoked, matching prop store values
+ *    are sent as keyword arguments to the Python callback
  * 
  * Example (Python):
  * ```python
@@ -19,7 +19,7 @@
  * 
  * Button(
  *     "Submit",
- *     on_click=ctx.callback(handle_submit),  # Access via ctx.prop_store.get("email")
+ *     on_click=ctx.callback(handle_submit, props=["email"]),  # email passed as kwarg
  * )
  * ```
  */
@@ -42,7 +42,8 @@ class PropStore {
    * Get a value from the prop store.
    */
   get(key: string): unknown {
-    return this.store.get(key);
+    const value = this.store.get(key);
+    return value;
   }
 
   /**

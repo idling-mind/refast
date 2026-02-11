@@ -225,7 +225,6 @@ class Context(Generic[T]):
         self._store: Store | None = None
         self._session: Session | None = None
         self._event_data: dict[str, Any] = {}
-        self._prop_store: dict[str, Any] = {}
         self._store_sync_future: asyncio.Future[None] | None = None
 
     @property
@@ -236,37 +235,6 @@ class Context(Generic[T]):
     def set_event_data(self, data: dict[str, Any]) -> None:
         """Set the event data (called by event manager)."""
         self._event_data = data
-
-    @property
-    def prop_store(self) -> dict[str, Any]:
-        """
-        Access values stored from component events via store_as.
-
-        The prop store is a frontend-only key-value store that captures
-        values from component events (like input changes) without requiring
-        server roundtrips. Values are sent to the backend only when a
-        callback is invoked.
-
-        Example:
-            ```python
-            # In page function, set up store_as for inputs
-            Input(on_change=ctx.callback(store_as="email"))
-            Input(on_change=ctx.callback(store_as="username"))
-
-            # In callback, access stored values
-            async def submit(ctx):
-                email = ctx.prop_store.get("email", "")
-                username = ctx.prop_store.get("username", "")
-            ```
-
-        Returns:
-            Dict containing all values stored via store_as directives
-        """
-        return self._prop_store
-
-    def set_prop_store(self, data: dict[str, Any]) -> None:
-        """Set the prop store data (called by event manager)."""
-        self._prop_store = data
 
     @property
     def state(self) -> State:

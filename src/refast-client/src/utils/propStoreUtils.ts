@@ -10,28 +10,20 @@
 import { propStore } from '../state/PropStore';
 
 /**
- * Type for callback handlers that carry storeAs metadata.
- * Components with their own debounce (e.g. Input) can check this
- * to call propStore.set() immediately on every event.
+ * Apply a store_prop directive to store event data in the prop store immediately.
+ * Used by the action execution engine for StoreProp actions.
+ * 
+ * @param storeProp - String key or object mapping event keys to store keys
+ * @param eventData - The extracted event data
  */
-export interface CallbackHandlerWithStoreAs {
-  (...args: unknown[]): void;
-  __storeAs?: string | Record<string, string>;
-}
-
-/**
- * Apply a store_as directive to store event data in the prop store immediately.
- * Used by ComponentRenderer for normal flow, and by Input/Textarea when
- * they have their own debounce that would otherwise delay the store write.
- */
-export function applyStoreAs(
-  storeAs: string | Record<string, string>,
+export function applyStoreProp(
+  storeProp: string | Record<string, string>,
   eventData: Record<string, unknown>
 ): void {
-  if (typeof storeAs === 'string') {
-    propStore.set(storeAs, eventData.value);
-  } else if (typeof storeAs === 'object') {
-    for (const [eventKey, storeKey] of Object.entries(storeAs)) {
+  if (typeof storeProp === 'string') {
+    propStore.set(storeProp, eventData.value);
+  } else if (typeof storeProp === 'object') {
+    for (const [eventKey, storeKey] of Object.entries(storeProp)) {
       if (eventKey in eventData) {
         propStore.set(storeKey, eventData[eventKey]);
       }

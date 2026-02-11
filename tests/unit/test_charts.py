@@ -30,7 +30,7 @@ from refast.components.shadcn.charts import (
     YAxis,
     ZAxis,
 )
-from refast.events.types import Callback
+from refast.context import Callback
 
 
 def test_chart_container_props():

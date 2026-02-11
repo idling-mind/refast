@@ -3,8 +3,6 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
-import { applyStoreAs } from '../../utils/propStoreUtils';
-import type { CallbackHandlerWithStoreAs } from '../../utils/propStoreUtils';
 
 // ============================================================================
 // InputWrapper - Reusable wrapper for form controls with label, description, error
@@ -99,6 +97,11 @@ interface InputProps {
 
 /**
  * Input component - shadcn-styled text input with label, description, and error support.
+ * 
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
+ * This is useful for reducing server calls while the user is typing.
+ * Per-action debounce/throttle (on Callback, StoreProp, etc.) is applied
+ * independently by the action execution engine in ComponentRenderer.
  */
 export function Input({
   id,
@@ -154,16 +157,6 @@ export function Input({
 
       if (!onChangeRef.current) {
         return;
-      }
-
-      // If the handler has a storeAs directive, always write to the prop store
-      // immediately — even when debouncing — so values aren't lost.
-      const handler = onChangeRef.current as CallbackHandlerWithStoreAs;
-      if (handler.__storeAs) {
-        applyStoreAs(handler.__storeAs, {
-          value: nextValue,
-          name: name || '',
-        });
       }
 
       if (debounce > 0) {
@@ -263,6 +256,8 @@ interface TextareaProps {
 
 /**
  * Textarea component - shadcn-styled textarea with label, description, and error support.
+ * 
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
  */
 export function Textarea({
   id,
@@ -315,16 +310,6 @@ export function Textarea({
 
       if (!onChangeRef.current) {
         return;
-      }
-
-      // If the handler has a storeAs directive, always write to the prop store
-      // immediately — even when debouncing — so values aren't lost.
-      const handler = onChangeRef.current as unknown as CallbackHandlerWithStoreAs;
-      if (handler.__storeAs) {
-        applyStoreAs(handler.__storeAs, {
-          value: nextValue,
-          name: name || '',
-        });
       }
 
       if (debounce > 0) {

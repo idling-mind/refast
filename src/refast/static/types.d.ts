@@ -29,17 +29,6 @@ export interface CallbackRef {
     debounce?: number;
     throttle?: number;
     /**
-     * Store directive for saving event data to the prop store.
-     * - string: Store the event's "value" under this key
-     * - object: Map event data keys to prop store keys (e.g., {"value": "email"})
-     */
-    storeAs?: string | Record<string, string>;
-    /**
-     * If true, only store the value without invoking the callback.
-     * Useful for capturing input values without server roundtrips.
-     */
-    storeOnly?: boolean;
-    /**
      * List of prop store keys to include with this callback.
      * Only these values are sent (not the entire store).
      */
@@ -51,6 +40,8 @@ export interface CallbackRef {
 export interface JsCallbackRef {
     jsFunction: string;
     boundArgs: Record<string, unknown>;
+    debounce?: number;
+    throttle?: number;
 }
 /**
  * Bound method callback reference from backend (calls a method on a component).
@@ -66,11 +57,36 @@ export interface BoundMethodRef {
  */
 export interface BoundMethodCallbackRef {
     boundMethod: BoundMethodRef;
+    debounce?: number;
+    throttle?: number;
 }
 /**
- * Combined callback type that can be either a Python callback, a JS callback, or a bound method callback.
+ * Store prop reference — saves event data in the frontend prop store.
  */
-export type AnyCallbackRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRef;
+export interface StorePropRef {
+    storeProp: string | Record<string, string>;
+    debounce?: number;
+    throttle?: number;
+}
+/**
+ * Chained action reference — composes multiple actions on a single event.
+ */
+export interface ChainedActionRef {
+    chain: AnyActionRef[];
+    mode: 'serial' | 'parallel';
+}
+/**
+ * Any single action reference (not chained).
+ */
+export type SingleActionRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRef | StorePropRef;
+/**
+ * Combined type for all possible action references, including chains.
+ */
+export type AnyActionRef = SingleActionRef | ChainedActionRef;
+/**
+ * @deprecated Use AnyActionRef instead.
+ */
+export type AnyCallbackRef = AnyActionRef;
 /**
  * Update message from backend.
  */

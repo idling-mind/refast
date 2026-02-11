@@ -1,8 +1,9 @@
 """Prop Store Example - Frontend-Only State for Forms.
 
 This example demonstrates the prop store feature which allows you to:
-- Capture input values on the frontend without server roundtrips (store_as)
+- Capture input values on the frontend without server roundtrips (ctx.store_prop)
 - Request stored values as keyword arguments in callbacks (props=[...])
+- Compose multiple actions on a single event with ctx.chain
 - Build forms with minimal boilerplate
 
 Compare this to the traditional form_validation example which requires
@@ -27,7 +28,8 @@ from refast.components import (
     Input,
     Row,
     Separator,
-    Text, Textarea,
+    Text,
+    Textarea,
 )
 
 ui = RefastApp(title="Prop Store Example")
@@ -154,7 +156,7 @@ def render_result(ctx: Context):
 
 @ui.page("/")
 def home(ctx: Context):
-    """Render the contact form using store_as for input capture."""
+    """Render the contact form using store_prop for input capture."""
     return Container(
         class_name="mt-10 p-4",
         style={"maxWidth": "32rem", "marginLeft": "auto", "marginRight": "auto"},
@@ -164,7 +166,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("Contact Form"),
-                            CardDescription("Using store_as for frontend-only state"),
+                            CardDescription("Using ctx.store_prop for frontend-only state"),
                         ]
                     ),
                     CardContent(
@@ -174,13 +176,13 @@ def home(ctx: Context):
                                 variant="default",
                                 title="How it works",
                                 message=(
-                                    "Input values are stored on the frontend via store_as. "
+                                    "Input values are stored on the frontend via ctx.store_prop. "
                                     "No server roundtrips occur until you click Submit. "
                                     "Then all values are sent with the callback."
                                 ),
                                 class_name="mb-4",
                             ),
-                            # Name field - uses store_as to capture value
+                            # Name field - uses store_prop to capture value
                             Column(
                                 class_name="gap-2 mb-4",
                                 children=[
@@ -189,9 +191,9 @@ def home(ctx: Context):
                                         label="Name",
                                         name="name",
                                         placeholder="Enter your name",
-                                        # store_as="name" captures the input value
-                                        # without a server roundtrip
-                                        on_change=ctx.callback(store_as="input_name"),
+                                        # ctx.store_prop("input_name") captures the input
+                                        # value without a server roundtrip
+                                        on_change=ctx.store_prop("input_name"),
                                     ),
                                 ],
                             ),
@@ -205,7 +207,7 @@ def home(ctx: Context):
                                         name="email",
                                         type="email",
                                         placeholder="Enter your email",
-                                        on_change=ctx.callback(store_as="input_email"),
+                                        on_change=ctx.store_prop("input_email"),
                                         debounce=500,
                                     ),
                                 ],
@@ -219,8 +221,11 @@ def home(ctx: Context):
                                         label="Message",
                                         name="message",
                                         placeholder="Enter your message",
-                                        on_change=ctx.callback(show_typing, store_as="message"),
-                                        debounce=500,
+                                        on_change=ctx.chain([
+                                            ctx.store_prop("message"),
+                                            ctx.callback(show_typing, debounce=300),
+                                            ctx.js("console.log('Message changed:', event.target.value)"),
+                                        ]),
                                     ),
                                 ],
                             ),

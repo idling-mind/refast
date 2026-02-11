@@ -5,7 +5,15 @@ from unittest.mock import AsyncMock
 import pytest
 
 from refast import RefastApp
-from refast.context import BoundJsCallback, Callback, Context, JsAction, JsCallback
+from refast.context import (
+    BoundJsCallback,
+    Callback,
+    ChainedAction,
+    Context,
+    JsAction,
+    JsCallback,
+    StoreProp,
+)
 
 
 class TestCallback:
@@ -606,136 +614,345 @@ class TestContextAppendProp:
         await ctx.append_prop("target-id", "content", "new text")
 
 
-class TestCallbackWithStoreAs:
-    """Tests for Callback with store_as feature."""
+class TestStoreProp:
+    """Tests for StoreProp dataclass."""
 
-    def test_callback_store_as_string(self):
-        """Test Callback with store_as as string."""
+    def test_store_prop_with_string_name(self):
+        """Test StoreProp with a simple string key."""
+        sp = StoreProp(name="email")
+        assert sp.name == "email"
+        assert sp.debounce == 0
+        assert sp.throttle == 0
 
-        def my_func():
+    def test_store_prop_with_dict_name(self):
+        """Test StoreProp with a dict mapping."""
+        sp = StoreProp(name={"value": "email", "name": "field"})
+        assert sp.name == {"value": "email", "name": "field"}
+
+    def test_store_prop_with_debounce(self):
+        """Test StoreProp with debounce."""
+        sp = StoreProp(name="search", debounce=300)
+        assert sp.debounce == 300
+
+    def test_store_prop_with_throttle(self):
+        """Test StoreProp with throttle."""
+        sp = StoreProp(name="scroll_pos", throttle=100)
+        assert sp.throttle == 100
+
+    def test_store_prop_serialize_string(self):
+        """Test StoreProp serialization with string name."""
+        sp = StoreProp(name="email")
+        serialized = sp.serialize()
+
+        assert serialized == {"storeProp": "email"}
+        assert "debounce" not in serialized
+        assert "throttle" not in serialized
+
+    def test_store_prop_serialize_dict(self):
+        """Test StoreProp serialization with dict mapping."""
+        sp = StoreProp(name={"value": "user_email"})
+        serialized = sp.serialize()
+
+        assert serialized == {"storeProp": {"value": "user_email"}}
+
+    def test_store_prop_serialize_with_debounce(self):
+        """Test StoreProp serialization includes debounce when set."""
+        sp = StoreProp(name="query", debounce=200)
+        serialized = sp.serialize()
+
+        assert serialized["storeProp"] == "query"
+        assert serialized["debounce"] == 200
+
+    def test_store_prop_serialize_with_throttle(self):
+        """Test StoreProp serialization includes throttle when set."""
+        sp = StoreProp(name="field", throttle=50)
+        serialized = sp.serialize()
+
+        assert serialized["storeProp"] == "field"
+        assert serialized["throttle"] == 50
+
+    def test_store_prop_serialize_omits_zero_timing(self):
+        """Test StoreProp serialization omits zero debounce/throttle."""
+        sp = StoreProp(name="field", debounce=0, throttle=0)
+        serialized = sp.serialize()
+
+        assert "debounce" not in serialized
+        assert "throttle" not in serialized
+
+
+class TestChainedAction:
+    """Tests for ChainedAction dataclass."""
+
+    def test_chained_action_with_callbacks(self):
+        """Test ChainedAction with multiple callbacks."""
+
+        def handler():
             pass
 
-        cb = Callback(id="test-id", func=my_func, store_as="email")
-        assert cb.store_as == "email"
-        assert cb.store_only is False
+        actions = [
+            StoreProp(name="email"),
+            Callback(id="cb1", func=handler),
+        ]
+        chain = ChainedAction(actions=actions)
+        assert len(chain.actions) == 2
+        assert chain.mode == "serial"
 
-    def test_callback_store_as_dict(self):
-        """Test Callback with store_as as dict mapping."""
+    def test_chained_action_parallel_mode(self):
+        """Test ChainedAction with parallel mode."""
 
-        def my_func():
+        def handler():
             pass
 
-        cb = Callback(id="test-id", func=my_func, store_as={"value": "email", "name": "field"})
-        assert cb.store_as == {"value": "email", "name": "field"}
+        chain = ChainedAction(
+            actions=[Callback(id="cb1", func=handler), Callback(id="cb2", func=handler)],
+            mode="parallel",
+        )
+        assert chain.mode == "parallel"
 
-    def test_callback_store_only(self):
-        """Test Callback in store-only mode."""
-        cb = Callback(id="test-id", func=None, store_as="email", store_only=True)
-        assert cb.store_as == "email"
-        assert cb.store_only is True
-        assert cb.func is None
+    def test_chained_action_rejects_invalid_action(self):
+        """Test ChainedAction rejects non-action types."""
+        with pytest.raises(TypeError, match="Action at index 0"):
+            ChainedAction(actions=["not_an_action"])
 
-    def test_callback_serialize_with_store_as_string(self):
-        """Test Callback serialization includes storeAs."""
+    def test_chained_action_rejects_invalid_mode(self):
+        """Test ChainedAction rejects invalid mode."""
+        with pytest.raises(ValueError, match="serial.*parallel"):
+            ChainedAction(actions=[StoreProp(name="x")], mode="invalid")
 
-        def my_func():
+    def test_chained_action_nested(self):
+        """Test ChainedAction can be nested."""
+
+        def handler():
             pass
 
-        cb = Callback(id="test-id", func=my_func, store_as="email")
+        inner = ChainedAction(
+            actions=[Callback(id="cb1", func=handler), Callback(id="cb2", func=handler)],
+            mode="parallel",
+        )
+        outer = ChainedAction(
+            actions=[StoreProp(name="x"), inner],
+            mode="serial",
+        )
+        assert len(outer.actions) == 2
+        assert isinstance(outer.actions[1], ChainedAction)
+
+    def test_chained_action_serialize(self):
+        """Test ChainedAction serialization."""
+        chain = ChainedAction(
+            actions=[
+                StoreProp(name="email"),
+                JsCallback(code="console.log('done')"),
+            ],
+            mode="serial",
+        )
+        serialized = chain.serialize()
+
+        assert "chain" in serialized
+        assert serialized["mode"] == "serial"
+        assert len(serialized["chain"]) == 2
+        assert serialized["chain"][0] == {"storeProp": "email"}
+        assert serialized["chain"][1]["jsFunction"] == "console.log('done')"
+
+    def test_chained_action_serialize_parallel(self):
+        """Test ChainedAction serialization with parallel mode."""
+
+        def handler():
+            pass
+
+        chain = ChainedAction(
+            actions=[Callback(id="cb1", func=handler)],
+            mode="parallel",
+        )
+        serialized = chain.serialize()
+        assert serialized["mode"] == "parallel"
+
+    def test_chained_action_all_action_types(self):
+        """Test ChainedAction accepts all valid action types."""
+
+        def handler():
+            pass
+
+        actions = [
+            Callback(id="cb1", func=handler),
+            JsCallback(code="alert('hi')"),
+            BoundJsCallback(target_id="canvas", method_name="clear"),
+            StoreProp(name="field"),
+        ]
+        chain = ChainedAction(actions=actions)
+        assert len(chain.actions) == 4
+
+
+class TestCallbackDebounceThrottle:
+    """Tests for debounce/throttle on Callback."""
+
+    def test_callback_default_no_debounce(self):
+        """Test Callback has 0 debounce by default."""
+
+        def handler():
+            pass
+
+        cb = Callback(id="test", func=handler)
+        assert cb.debounce == 0
+        assert cb.throttle == 0
+
+    def test_callback_with_debounce(self):
+        """Test Callback with debounce."""
+
+        def handler():
+            pass
+
+        cb = Callback(id="test", func=handler, debounce=300)
+        assert cb.debounce == 300
+
+    def test_callback_with_throttle(self):
+        """Test Callback with throttle."""
+
+        def handler():
+            pass
+
+        cb = Callback(id="test", func=handler, throttle=100)
+        assert cb.throttle == 100
+
+    def test_callback_serialize_includes_debounce(self):
+        """Test Callback serialize includes debounce when set."""
+
+        def handler():
+            pass
+
+        cb = Callback(id="test", func=handler, debounce=500)
         serialized = cb.serialize()
+        assert serialized["debounce"] == 500
+        assert "throttle" not in serialized
 
-        assert serialized["callbackId"] == "test-id"
-        assert serialized["storeAs"] == "email"
-        assert "storeOnly" not in serialized  # Not store-only
+    def test_callback_serialize_includes_throttle(self):
+        """Test Callback serialize includes throttle when set."""
 
-    def test_callback_serialize_with_store_as_dict(self):
-        """Test Callback serialization with dict store_as."""
-
-        def my_func():
+        def handler():
             pass
 
-        cb = Callback(id="test-id", func=my_func, store_as={"value": "user_email"})
+        cb = Callback(id="test", func=handler, throttle=200)
         serialized = cb.serialize()
+        assert serialized["throttle"] == 200
+        assert "debounce" not in serialized
 
-        assert serialized["storeAs"] == {"value": "user_email"}
+    def test_callback_serialize_omits_zero_timing(self):
+        """Test Callback serialize omits zero debounce/throttle."""
 
-    def test_callback_serialize_with_store_only(self):
-        """Test Callback serialization in store-only mode."""
-        cb = Callback(id="test-id", func=None, store_as="field", store_only=True)
-        serialized = cb.serialize()
-
-        assert serialized["storeAs"] == "field"
-        assert serialized["storeOnly"] is True
-
-    def test_callback_serialize_without_store_as(self):
-        """Test Callback serialization without store_as doesn't include it."""
-
-        def my_func():
+        def handler():
             pass
 
-        cb = Callback(id="test-id", func=my_func)
+        cb = Callback(id="test", func=handler, debounce=0, throttle=0)
         serialized = cb.serialize()
+        assert "debounce" not in serialized
+        assert "throttle" not in serialized
 
-        assert "storeAs" not in serialized
-        assert "storeOnly" not in serialized
+    def test_callback_no_store_as_field(self):
+        """Test Callback no longer has store_as or store_only fields."""
+
+        def handler():
+            pass
+
+        cb = Callback(id="test", func=handler)
+        assert not hasattr(cb, "store_as")
+        assert not hasattr(cb, "store_only")
 
 
-class TestContextCallbackWithStoreAs:
-    """Tests for Context.callback() with store_as parameter."""
+class TestContextStoreProp:
+    """Tests for Context.store_prop() method."""
 
-    def test_callback_with_store_as_string(self):
-        """Test ctx.callback with store_as string."""
+    def test_store_prop_creates_store_prop(self):
+        """Test store_prop returns a StoreProp."""
+        ctx = Context()
+        sp = ctx.store_prop("email")
+        assert isinstance(sp, StoreProp)
+        assert sp.name == "email"
+
+    def test_store_prop_with_dict_mapping(self):
+        """Test store_prop with dict mapping."""
+        ctx = Context()
+        sp = ctx.store_prop({"value": "email", "name": "field"})
+        assert sp.name == {"value": "email", "name": "field"}
+
+    def test_store_prop_with_debounce(self):
+        """Test store_prop with debounce."""
+        ctx = Context()
+        sp = ctx.store_prop("query", debounce=200)
+        assert sp.debounce == 200
+
+    def test_store_prop_with_throttle(self):
+        """Test store_prop with throttle."""
+        ctx = Context()
+        sp = ctx.store_prop("scroll", throttle=100)
+        assert sp.throttle == 100
+
+
+class TestContextChain:
+    """Tests for Context.chain() method."""
+
+    def test_chain_creates_chained_action(self):
+        """Test chain returns a ChainedAction."""
+        ctx = Context()
+        sp = ctx.store_prop("email")
+
+        def handler():
+            pass
+
+        cb = ctx.callback(handler)
+        chain = ctx.chain([sp, cb])
+        assert isinstance(chain, ChainedAction)
+        assert len(chain.actions) == 2
+        assert chain.mode == "serial"
+
+    def test_chain_parallel_mode(self):
+        """Test chain with parallel mode."""
         ctx = Context()
 
-        def my_handler():
+        def handler():
             pass
 
-        cb = ctx.callback(my_handler, store_as="email")
-        assert cb.store_as == "email"
-        assert cb.store_only is False
+        cb1 = ctx.callback(handler)
+        cb2 = ctx.callback(handler)
+        chain = ctx.chain([cb1, cb2], mode="parallel")
+        assert chain.mode == "parallel"
 
-    def test_callback_store_only_no_func(self):
-        """Test ctx.callback with only store_as creates store-only callback."""
+    def test_chain_rejects_invalid_action(self):
+        """Test chain rejects invalid action types."""
+        ctx = Context()
+        with pytest.raises(TypeError):
+            ctx.chain(["not_an_action"])
+
+    def test_chain_rejects_invalid_mode(self):
+        """Test chain rejects invalid mode."""
+        ctx = Context()
+        with pytest.raises(ValueError):
+            ctx.chain([ctx.store_prop("x")], mode="banana")
+
+    def test_chain_nested(self):
+        """Test chain can be nested."""
         ctx = Context()
 
-        cb = ctx.callback(store_as="username")
-        assert cb.store_as == "username"
-        assert cb.store_only is True
-        assert cb.func is None
-
-    def test_callback_store_only_not_registered_with_app(self):
-        """Test store-only callback is not registered with app."""
-        app = RefastApp()
-        ctx = Context(app=app)
-
-        cb = ctx.callback(store_as="field")
-
-        # Store-only callbacks have no function to register
-        assert app.get_callback(cb.id) is None
-
-    def test_callback_with_store_as_and_func_is_registered(self):
-        """Test callback with both store_as and func is registered."""
-        app = RefastApp()
-        ctx = Context(app=app)
-
-        def my_handler():
+        def handler():
             pass
 
-        cb = ctx.callback(my_handler, store_as="email")
+        inner = ctx.chain([ctx.callback(handler), ctx.callback(handler)], mode="parallel")
+        outer = ctx.chain([ctx.store_prop("x"), inner])
 
-        assert cb.store_as == "email"
-        assert cb.store_only is False
-        assert app.get_callback(cb.id) == my_handler
+        assert isinstance(outer, ChainedAction)
+        assert isinstance(outer.actions[1], ChainedAction)
+        assert outer.actions[1].mode == "parallel"
 
-    def test_callback_with_store_as_dict_mapping(self):
-        """Test ctx.callback with store_as dict mapping."""
+    def test_chain_serialize_format(self):
+        """Test chain serialization format."""
         ctx = Context()
+        chain = ctx.chain([
+            ctx.store_prop("email"),
+            ctx.js("console.log('done')"),
+        ])
+        serialized = chain.serialize()
 
-        def my_handler():
-            pass
-
-        cb = ctx.callback(my_handler, store_as={"value": "email", "name": "field_name"})
-        assert cb.store_as == {"value": "email", "name": "field_name"}
+        assert "chain" in serialized
+        assert serialized["mode"] == "serial"
+        assert len(serialized["chain"]) == 2
 
 
 

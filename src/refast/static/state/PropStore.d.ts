@@ -6,7 +6,7 @@
  * requiring server roundtrips for each state update.
  *
  * Usage Pattern:
- * 1. Components use `store_as` in their callbacks to store event values
+ * 1. Components use `ctx.store_prop("key")` to store event values on the frontend
  * 2. When a callback with `props=[...]` is invoked, matching prop store values
  *    are sent as keyword arguments to the Python callback
  *
@@ -14,7 +14,7 @@
  * ```python
  * Input(
  *     name="email",
- *     on_change=ctx.callback(store_as="email"),  # Store-only, no server call
+ *     on_change=ctx.store_prop("email"),  # Store-only, no server call
  * )
  *
  * Button(

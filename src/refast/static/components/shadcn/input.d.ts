@@ -46,6 +46,11 @@ interface InputProps {
 }
 /**
  * Input component - shadcn-styled text input with label, description, and error support.
+ *
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
+ * This is useful for reducing server calls while the user is typing.
+ * Per-action debounce/throttle (on Callback, StoreProp, etc.) is applied
+ * independently by the action execution engine in ComponentRenderer.
  */
 export declare function Input({ id, className, label, description, type, placeholder, value, defaultValue, disabled, required, error, name, debounce, onChange, onBlur, onFocus, onKeydown, onKeyup, onInput, 'data-refast-id': dataRefastId, }: InputProps): React.ReactElement;
 interface TextareaProps {
@@ -69,6 +74,8 @@ interface TextareaProps {
 }
 /**
  * Textarea component - shadcn-styled textarea with label, description, and error support.
+ *
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
  */
 export declare function Textarea({ id, className, label, description, required, error, placeholder, value, defaultValue, disabled, rows, name, debounce, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: TextareaProps): React.ReactElement;
 interface SelectOption {

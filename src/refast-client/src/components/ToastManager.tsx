@@ -201,7 +201,10 @@ export function ToastManager({
       toastOptions={{
         classNames: {
           toast: 'group',
-        },
+        }
+      }}
+      style={{
+        fontFamily: 'inherit'
       }}
     />
   );

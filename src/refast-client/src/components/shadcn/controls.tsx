@@ -1107,6 +1107,18 @@ export function Combobox({
     }
   }, [value]);
 
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setInternalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
+
   // Ensure internalValue is array if multiselect is true
   React.useEffect(() => {
     if (multiselect && !Array.isArray(internalValue)) {
@@ -1350,15 +1362,33 @@ export function InputOTP({
   required = false,
   error,
   maxLength = 6,
-  value = '',
+  value,
   disabled = false,
   onChange,
   onComplete,
   children,
   'data-refast-id': dataRefastId,
 }: InputOTPProps): React.ReactElement {
-  const [localValue, setLocalValue] = React.useState(value);
+  const [localValue, setLocalValue] = React.useState(value !== undefined ? value : '');
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setLocalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   const handleChange = (index: number, char: string) => {
     const newValue = localValue.split('');

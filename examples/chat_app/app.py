@@ -90,12 +90,9 @@ async def update_message_text(ctx: Context):
     ctx.state.set("message_text", value)
 
 
-async def send_message(ctx: Context, input_message=None):
+async def send_message(ctx: Context, **kwargs):
     """Send a new message."""
-    if input_message is not None:
-        ctx.state.set("message_text", input_message)
-    print("Sending message:", input_message)
-    input_message = ctx.state.get("message_text", "")
+    input_message = kwargs.get("input_message")
     if not input_message.strip():
         return
 
@@ -113,7 +110,8 @@ async def send_message(ctx: Context, input_message=None):
         MESSAGES.pop(0)
 
     # Clear input
-    ctx.state.set("message_text", "")
+    await ctx.call_js("console.log('cleared input')")
+    await ctx.update_props("message-input", {"value": ""})
 
     # Use replace() for efficient partial update - only update the messages list
     await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
@@ -263,16 +261,14 @@ def chat(ctx: Context):
                                                 id="message-input",
                                                 name="message",
                                                 placeholder="Type a message...",
-                                                value=ctx.state.get("message_text", ""),
                                                 on_change=ctx.store_prop("input_message"),
                                                 on_keydown=ctx.js(
                                                     """
-                                                    console.log("Keydown event:", event);
                                                     if (event.key === 'Enter') {
-                                                        refast.invoke(args.on_submit, { value: event.value });
+                                                        refast.invoke(args.on_submit, { input_message: event.value });
                                                     }
                                                     """,
-                                                    on_submit=ctx.callback(send_message, props=["input_message"]),
+                                                    on_submit=ctx.callback(send_message),
                                                 ),
                                             )
                                         ],
@@ -281,7 +277,7 @@ def chat(ctx: Context):
                                         "Send",
                                         id="send-btn",
                                         variant="primary",
-                                        on_click=ctx.callback(send_message),
+                                        on_click=ctx.callback(send_message, props=["input_message"]),
                                     ),
                                 ],
                             )

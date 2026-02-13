@@ -143,6 +143,27 @@ export function Input({
     }
   }, [value]);
 
+  // Listen for force-value-sync events from update_props.
+  // This handles the edge case where the prop value string hasn't changed
+  // (e.g. "" → "") but localValue has drifted due to user typing.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        lastValueRef.current = newValue;
+        setLocalValue(newValue);
+        // Cancel any pending debounced onChange so it doesn't push
+        // a stale user-typed value back via store_prop.
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+          debounceTimeout.current = null;
+        }
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
+
   React.useEffect(() => () => {
     if (debounceTimeout.current !== null) {
       window.clearTimeout(debounceTimeout.current);
@@ -296,6 +317,23 @@ export function Textarea({
     }
   }, [value]);
 
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        lastValueRef.current = newValue;
+        setLocalValue(newValue);
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+          debounceTimeout.current = null;
+        }
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
+
   React.useEffect(() => () => {
     if (debounceTimeout.current !== null) {
       window.clearTimeout(debounceTimeout.current);
@@ -432,6 +470,18 @@ export function Select({
       setLocalValue(value);
     }
   }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setLocalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLocalValue(e.target.value);
@@ -750,6 +800,18 @@ export function RadioGroup({
       setLocalValue(value);
     }
   }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setLocalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   const handleValueChange = (newValue: string) => {
     setLocalValue(newValue);

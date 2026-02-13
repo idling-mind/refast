@@ -596,7 +596,7 @@ class Combobox(Component):
     def __init__(
         self,
         options: list[dict[str, str]] | None = None,
-        value: str | list[str] = "",
+        value: str | list[str] | None = None,
         placeholder: str = "Select...",
         search_placeholder: str = "Search...",
         empty_text: str = "No results found.",
@@ -631,7 +631,9 @@ class Combobox(Component):
             "id": self.id,
             "props": {
                 "options": self.options,
-                "value": self.value,
+                **({
+                    "value": self.value
+                } if self.value is not None else {}),
                 "placeholder": self.placeholder,
                 "search_placeholder": self.search_placeholder,
                 "empty_text": self.empty_text,
@@ -670,7 +672,7 @@ class InputOTP(Component):
     def __init__(
         self,
         max_length: int = 6,
-        value: str = "",
+        value: str | None = None,
         disabled: bool = False,
         pattern: str | None = None,  # Regex pattern for each character
         label: str | None = None,
@@ -704,7 +706,9 @@ class InputOTP(Component):
             "id": self.id,
             "props": {
                 "max_length": self.max_length,
-                "value": self.value,
+                **({
+                    "value": self.value
+                } if self.value is not None else {}),
                 "disabled": self.disabled,
                 "pattern": self.pattern,
                 "label": self.label,

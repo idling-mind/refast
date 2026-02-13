@@ -91,7 +91,7 @@ class Input(Component):
         description: str | None = None,
         type: Literal["text", "email", "password", "number", "tel", "url", "search"] = "text",
         placeholder: str = "",
-        value: str = "",
+        value: str | None = None,
         required: bool = False,
         disabled: bool = False,
         readonly: bool = False,
@@ -133,7 +133,6 @@ class Input(Component):
             "description": self.description,
             "type": self.input_type,
             "placeholder": self.placeholder,
-            "value": self.value,
             "required": self.required,
             "disabled": self.disabled,
             "read_only": self.readonly,
@@ -142,6 +141,12 @@ class Input(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        # Only include value when explicitly set (not None) so the frontend
+        # Input starts as uncontrolled.  This allows update_props({"value": ""})
+        # to transition from undefined → "" and actually trigger a UI update.
+        if self.value is not None:
+            props["value"] = self.value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -155,11 +160,6 @@ class Input(Component):
             props["on_keyup"] = self.on_keyup.serialize()
         if self.on_input:
             props["on_input"] = self.on_input.serialize()
-
-        # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's
-        # live-validated. But if value is None, we could treat it as uncontrolled. The current
-        # __init__ defaults value to "" so it is always controlled by default. This is fine for
-        # Input.
 
         return {
             "type": self.component_type,
@@ -180,7 +180,7 @@ class Textarea(Component):
         label: str | None = None,
         description: str | None = None,
         placeholder: str = "",
-        value: str = "",
+        value: str | None = None,
         rows: int = 3,
         required: bool = False,
         disabled: bool = False,
@@ -210,7 +210,6 @@ class Textarea(Component):
             "label": self.label,
             "description": self.description,
             "placeholder": self.placeholder,
-            "value": self.value,
             "rows": self.rows,
             "required": self.required,
             "disabled": self.disabled,
@@ -219,6 +218,9 @@ class Textarea(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.value is not None:
+            props["value"] = self.value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -242,7 +244,7 @@ class Select(Component):
         options: list[dict[str, str]],  # [{"value": "a", "label": "Option A"}, ...]
         label: str | None = None,
         description: str | None = None,
-        value: str = "",
+        value: str | None = None,
         placeholder: str = "Select...",
         required: bool = False,
         disabled: bool = False,
@@ -270,7 +272,6 @@ class Select(Component):
             "options": self.options,
             "label": self.label,
             "description": self.description,
-            "value": self.value,
             "placeholder": self.placeholder,
             "required": self.required,
             "disabled": self.disabled,
@@ -278,6 +279,9 @@ class Select(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.value is not None:
+            props["value"] = self.value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()

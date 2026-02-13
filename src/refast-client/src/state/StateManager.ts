@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ComponentTree, UpdateMessage, StateManagerState } from '../types';
+import { propStore } from './PropStore';
 
 /**
  * Deep equality check for component props.
@@ -226,6 +227,18 @@ export function useStateManager(initialTree?: ComponentTree) {
               updateObj = { type: '', id: '', props: {}, children: message.children } as ComponentTree;
             } else if (message.operation === 'update_props' && message.props) {
               updateObj = { type: '', id: '', props: message.props, children: [] } as ComponentTree;
+
+              // Notify Input/Textarea/Select components to force-sync their
+              // local value state.  This handles the edge case where the prop
+              // value string hasn't changed (e.g. "" → "") but the local
+              // value has drifted due to user typing.
+              if ('value' in message.props && message.targetId) {
+                window.dispatchEvent(
+                  new CustomEvent('refast:force-value-sync', {
+                    detail: { targetId: message.targetId, value: message.props.value },
+                  })
+                );
+              }
             } else if (message.operation === 'append_prop' && message.propName !== undefined) {
               // For append_prop, we pass propName and value via props
               updateObj = { type: '', id: '', props: { __propName: message.propName, __value: message.value }, children: [] } as ComponentTree;
@@ -323,6 +336,39 @@ export function useStateManager(initialTree?: ComponentTree) {
 }
 
 /**
+ * When the server updates a component's value via update_props, sync the
+ * prop store so that any store_prop binding on that component's onChange
+ * reflects the server-set value.  This prevents stale values from being
+ * sent with the next callback invocation.
+ *
+ * Only applies when the component's onChange is a StorePropRef
+ * (i.e. `{ storeProp: "<key>" }`).
+ */
+function syncPropStoreForComponent(
+  tree: ComponentTree,
+  newValue: unknown,
+): void {
+  // Look for a store_prop binding on onChange (or on_change in snake_case)
+  const onChange = tree.props?.on_change ?? tree.props?.onChange;
+  if (
+    onChange &&
+    typeof onChange === 'object' &&
+    'storeProp' in (onChange as Record<string, unknown>)
+  ) {
+    const storeProp = (onChange as Record<string, unknown>).storeProp;
+    if (typeof storeProp === 'string') {
+      propStore.set(storeProp, newValue);
+    } else if (typeof storeProp === 'object' && storeProp !== null) {
+      // Dict mapping — the "value" event key maps to a store key
+      const mapping = storeProp as Record<string, string>;
+      if ('value' in mapping) {
+        propStore.set(mapping.value, newValue);
+      }
+    }
+  }
+}
+
+/**
  * Apply an update operation to a component tree.
  */
 function applyUpdate(
@@ -337,11 +383,20 @@ function applyUpdate(
       case 'replace':
         return update || tree;
 
-      case 'update_props':
+      case 'update_props': {
+        // When the server updates the value of a component that has a
+        // store_prop binding, keep the prop store in sync so that the
+        // next callback invocation sees the server-set value instead of
+        // a stale user-typed value.  This is one-way: server → store.
+        const newProps = update?.props || {};
+        if ('value' in newProps) {
+          syncPropStoreForComponent(tree, newProps.value);
+        }
         return {
           ...tree,
-          props: { ...tree.props, ...(update?.props || {}) },
+          props: { ...tree.props, ...newProps },
         };
+      }
 
       case 'update_children':
         return {

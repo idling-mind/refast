@@ -112,11 +112,22 @@ class JsCallback:
     debounce: int = 0
     throttle: int = 0
 
+    @staticmethod
+    def _serialize_bound_args(bound_args: dict[str, Any]) -> dict[str, Any]:
+        """Serialize bound args, converting Callback objects to their serialized form."""
+        result: dict[str, Any] = {}
+        for key, value in bound_args.items():
+            if hasattr(value, "serialize") and callable(value.serialize):
+                result[key] = value.serialize()
+            else:
+                result[key] = value
+        return result
+
     def serialize(self) -> dict[str, Any]:
         """Serialize for sending to frontend."""
         result: dict[str, Any] = {
             "jsFunction": self.code,
-            "boundArgs": self.bound_args,
+            "boundArgs": self._serialize_bound_args(self.bound_args),
         }
         if self.debounce > 0:
             result["debounce"] = self.debounce
@@ -501,15 +512,18 @@ class Context(Generic[T]):
         - Simple client-side logic
 
         The JavaScript code has access to:
-        - `event`: The event data object (value, checked, name, etc.)
+        - `event`: The event data object (value, checked, key, name, etc.)
         - `args`: The bound arguments passed to js()
         - `element`: The DOM element that triggered the event (if applicable)
+        - `refast`: Helper object with `invoke()` to trigger Python callbacks
 
         Args:
             code: JavaScript code to execute
             debounce: Milliseconds to debounce execution
             throttle: Milliseconds to throttle execution
-            **bound_args: Arguments available as `args` in the JS code
+            **bound_args: Arguments available as `args` in the JS code.
+                Callback objects are automatically serialized for use
+                with `refast.invoke()`.
 
         Returns:
             JsCallback object that serializes for frontend
@@ -541,6 +555,18 @@ class Context(Generic[T]):
                     ctx.js("showSpinner()"),
                     ctx.callback(handle_submit),
                 ])
+            )
+
+            # Conditionally invoke a Python callback from JS
+            Input(
+                on_keydown=ctx.js(
+                    \"\"\"
+                    if (event.key === 'Enter') {
+                        refast.invoke(args.on_submit, { value: event.value });
+                    }
+                    \"\"\",
+                    on_submit=ctx.callback(handle_submit)
+                )
             )
             ```
 
@@ -746,10 +772,13 @@ class Context(Generic[T]):
 
         The JavaScript code has access to:
         - `args`: The arguments passed to call_js()
+        - `refast`: Helper object with `invoke()` to trigger Python callbacks
 
         Args:
             code: JavaScript code to execute
-            **args: Arguments available as `args` in the JS code
+            **args: Arguments available as `args` in the JS code.
+                Callback objects are automatically serialized for use
+                with `refast.invoke()`.
 
         Example:
             ```python
@@ -776,11 +805,12 @@ class Context(Generic[T]):
             Arguments are properly serialized and safe to use.
         """
         if self._websocket:
+            serialized_args = JsCallback._serialize_bound_args(args)
             await self._websocket.send_json(
                 {
                     "type": "js_exec",
                     "code": code,
-                    "args": args,
+                    "args": serialized_args,
                 }
             )
 

@@ -186,6 +186,25 @@ async def js_sync_store_value(ctx: Context):
 
 
 # ============================================================================
+# Invoke Python Callbacks from JS (refast.invoke)
+# ============================================================================
+
+
+async def handle_enter_submit(ctx: Context, value: str = ""):
+    """Handle Enter key submission from JavaScript."""
+    if value.strip():
+        submit_count = ctx.state.get("enter_submit_count", 0) + 1
+        ctx.state.set("enter_submit_count", submit_count)
+        ctx.state.set("last_submitted", value.strip())
+        await ctx.refresh()
+        await ctx.show_toast(
+            f"Submitted: {value.strip()}",
+            variant="success",
+            description=f"Submit #{submit_count} via refast.invoke()",
+        )
+
+
+# ============================================================================
 # Page Definition
 # ============================================================================
 
@@ -703,13 +722,95 @@ def home(ctx: Context):
                     ),
                 ],
             ),
-            # Section 8: State & Store - Python vs JavaScript
+            # Section 8: Conditional Python Callbacks from JS (refast.invoke)
             Card(
                 class_name="mt-4",
                 children=[
                     CardHeader(
                         children=[
-                            CardTitle("8. State & Store: Python vs JavaScript"),
+                            CardTitle("8. Invoke Python Callbacks from JS"),
+                            CardDescription(
+                                "Use refast.invoke() inside ctx.js() to conditionally trigger "
+                                "a Python callback — no server roundtrip until you decide to fire."
+                            ),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=4,
+                                children=[
+                                    Text(
+                                        "Submit on Enter Key (no roundtrip per keystroke)",
+                                        class_name="font-semibold",
+                                    ),
+                                    Text(
+                                        "Type text and press Enter. Only Enter triggers the Python "
+                                        "callback — all other keystrokes stay client-side.",
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
+                                    Input(
+                                        id="enter-input",
+                                        name="enter_text",
+                                        placeholder="Type something and press Enter...",
+                                        on_keydown=ctx.js(
+                                            """
+                                            if (event.key === 'Enter') {
+                                                refast.invoke(args.on_submit, { value: event.value });
+                                            }
+                                            """,
+                                            on_submit=ctx.callback(handle_enter_submit),
+                                        ),
+                                    ),
+                                    Row(
+                                        gap=4,
+                                        align="center",
+                                        children=[
+                                            Text(
+                                                f"Submits: {ctx.state.get('enter_submit_count', 0)}",
+                                                class_name="text-sm font-mono",
+                                            ),
+                                            Text(
+                                                f"Last: {ctx.state.get('last_submitted', '(none)')}",
+                                                class_name="text-sm font-mono text-muted-foreground",
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    Code(
+                                        code=dedent("""\
+                                            # Python callback — only called on Enter
+                                            async def handle_enter_submit(ctx, value=""):
+                                                ctx.state.set("submitted", value)
+                                                await ctx.refresh()
+
+                                            # Hook it up — JS filters, Python processes
+                                            Input(
+                                                on_keydown=ctx.js(
+                                                    '''
+                                                    if (event.key === 'Enter') {
+                                                        refast.invoke(args.on_submit, { value: event.value });
+                                                    }
+                                                    ''',
+                                                    on_submit=ctx.callback(handle_enter_submit),
+                                                )
+                                            )"""),
+                                        language="python",
+                                        inline=False,
+                                    ),
+                                ],
+                            )
+                        ]
+                    ),
+                ],
+            ),
+            # Section 9: State & Store - Python vs JavaScript
+            Card(
+                class_name="mt-4",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("9. State & Store: Python vs JavaScript"),
                             CardDescription(
                                 "Compare updating state and localStorage from Python and JavaScript."
                             ),

@@ -5,6 +5,7 @@ import { componentRegistry } from './registry';
 import { debounce, throttle } from '../utils';
 import { propStore } from '../state/PropStore';
 import { applyStoreProp } from '../utils/propStoreUtils';
+import { refastJsHelper } from '../utils/refastJsHelper';
 
 interface ComponentRendererProps {
   tree: ComponentTree | string;
@@ -336,8 +337,8 @@ function createSingleActionExecutor(
           element = (rawArgs[0] as React.SyntheticEvent).target as HTMLElement;
         }
         // eslint-disable-next-line no-new-func
-        const fn = new Function('event', 'args', 'element', jsFunction);
-        fn(eventData, boundArgs, element);
+        const fn = new Function('event', 'args', 'element', 'refast', jsFunction);
+        fn(eventData, boundArgs, element, refastJsHelper);
       } catch (error) {
         console.error('[Refast] Error executing JavaScript callback:', error);
         console.error('[Refast] Code:', jsFunction);

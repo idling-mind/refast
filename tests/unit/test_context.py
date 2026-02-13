@@ -287,6 +287,34 @@ class TestJsCallback:
         assert "callbackId" not in serialized
         assert "jsFunction" in serialized
 
+    def test_js_callback_serialize_with_callback_bound_arg(self):
+        """Test JsCallback serializes Callback objects in bound_args."""
+        inner_cb = Callback(
+            id="test-cb-id",
+            func=lambda ctx: None,
+            bound_args={"item_id": 42},
+        )
+        cb = JsCallback(
+            code="refast.invoke(args.on_submit)",
+            bound_args={"on_submit": inner_cb, "label": "hello"},
+        )
+        serialized = cb.serialize()
+
+        # The Callback should be serialized to its dict form
+        assert serialized["boundArgs"]["label"] == "hello"
+        assert serialized["boundArgs"]["on_submit"]["callbackId"] == "test-cb-id"
+        assert serialized["boundArgs"]["on_submit"]["boundArgs"] == {"item_id": 42}
+
+    def test_js_callback_serialize_preserves_plain_args(self):
+        """Test JsCallback serialization preserves non-Callback bound args."""
+        cb = JsCallback(
+            code="test(args.x)",
+            bound_args={"x": 123, "y": "hello", "z": [1, 2, 3]},
+        )
+        serialized = cb.serialize()
+
+        assert serialized["boundArgs"] == {"x": 123, "y": "hello", "z": [1, 2, 3]}
+
 
 class TestJsAction:
     """Tests for JsAction dataclass."""
@@ -346,6 +374,44 @@ class TestContextJs:
 
         # JsCallbacks don't have an id to register
         assert not hasattr(cb, "id") or cb.code == "alert('test')"
+
+    def test_js_with_callback_bound_arg(self):
+        """Test js with a Callback object as a bound argument."""
+        app = RefastApp()
+        ctx = Context(app=app)
+
+        async def handler(ctx: Context):
+            pass
+
+        cb = ctx.js(
+            "if (event.key === 'Enter') { refast.invoke(args.on_submit); }",
+            on_submit=ctx.callback(handler),
+        )
+
+        serialized = cb.serialize()
+        assert "jsFunction" in serialized
+        # The callback should be serialized to a dict with callbackId
+        on_submit = serialized["boundArgs"]["on_submit"]
+        assert "callbackId" in on_submit
+        assert isinstance(on_submit["callbackId"], str)
+
+    def test_js_with_mixed_callback_and_plain_args(self):
+        """Test js with both Callback and plain bound args."""
+        app = RefastApp()
+        ctx = Context(app=app)
+
+        async def handler(ctx: Context):
+            pass
+
+        cb = ctx.js(
+            "if (event.key === 'Enter') { refast.invoke(args.on_submit, { value: args.placeholder }); }",
+            on_submit=ctx.callback(handler),
+            placeholder="Type here...",
+        )
+
+        serialized = cb.serialize()
+        assert serialized["boundArgs"]["placeholder"] == "Type here..."
+        assert "callbackId" in serialized["boundArgs"]["on_submit"]
 
 
 class TestContextCallJsWithoutWebSocket:

@@ -84,23 +84,26 @@ async def set_username(ctx: Context, username: str = ""):
         ctx.state.set("username", username.strip())
 
 
-async def update_message_text(ctx: Context, value: str):
+async def update_message_text(ctx: Context):
     """Update message text state."""
+    value = ctx.event_data["value"]
     ctx.state.set("message_text", value)
-    print("Updated message text:", value)
 
 
-async def send_message(ctx: Context):
+async def send_message(ctx: Context, input_message=None):
     """Send a new message."""
-    text = ctx.state.get("message_text", "")
-    if not text.strip():
+    if input_message is not None:
+        ctx.state.set("message_text", input_message)
+    print("Sending message:", input_message)
+    input_message = ctx.state.get("message_text", "")
+    if not input_message.strip():
         return
 
     username = get_username(ctx)
     message = Message(
         id=str(uuid.uuid4()),
         username=username,
-        text=text.strip(),
+        text=input_message.strip(),
     )
 
     MESSAGES.append(message)
@@ -111,8 +114,6 @@ async def send_message(ctx: Context):
 
     # Clear input
     ctx.state.set("message_text", "")
-    print(f"Sent message from {username}: {text.strip()}")
-    print(f"All messages: {[m.to_dict() for m in MESSAGES]}")
 
     # Use replace() for efficient partial update - only update the messages list
     await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
@@ -263,8 +264,16 @@ def chat(ctx: Context):
                                                 name="message",
                                                 placeholder="Type a message...",
                                                 value=ctx.state.get("message_text", ""),
-                                                on_change=ctx.callback(update_message_text),
-                                                debounce=500,
+                                                on_change=ctx.store_prop("input_message"),
+                                                on_keydown=ctx.js(
+                                                    """
+                                                    console.log("Keydown event:", event);
+                                                    if (event.key === 'Enter') {
+                                                        refast.invoke(args.on_submit, { value: event.value });
+                                                    }
+                                                    """,
+                                                    on_submit=ctx.callback(send_message, props=["input_message"]),
+                                                ),
                                             )
                                         ],
                                     ),

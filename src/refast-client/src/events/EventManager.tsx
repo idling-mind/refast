@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useCallback, useMemo, useRef, useEffect } from 'react';
 import { EventMessage, UpdateMessage, ComponentTree, ThemePayload } from '../types';
 import { persistentStateManager } from '../state/PersistentStateManager';
+import { refastJsHelper } from '../utils/refastJsHelper';
 
 /**
  * CSS variable names that may be set as inline styles by a previous
@@ -169,8 +170,8 @@ export function EventManagerProvider({
         if (message.type === 'js_exec' && message.code) {
           try {
             // eslint-disable-next-line no-new-func
-            const fn = new Function('args', message.code);
-            fn(message.args || {});
+            const fn = new Function('args', 'refast', message.code);
+            fn(message.args || {}, refastJsHelper);
           } catch (error) {
             console.error('[Refast] Error executing JavaScript from server:', error);
             console.error('[Refast] Code:', message.code);

@@ -4,14 +4,14 @@ import pytest
 
 from refast.theme import Theme, ThemeColors, ThemeMode
 from refast.theme.presets import (
-    blue_theme,
+    amber_minimal_theme,
+    amethyst_haze_theme,
+    bubblegum_theme,
+    caffine_theme,
+    catppuccin_theme,
     default_theme,
-    green_theme,
-    orange_theme,
-    rose_theme,
-    slate_theme,
-    violet_theme,
-    zinc_theme,
+    ocean_breeze_theme,
+    twitter_theme,
 )
 
 # ---------------------------------------------------------------------------
@@ -256,24 +256,24 @@ class TestPresets:
     @pytest.mark.parametrize(
         "preset",
         [
+            amber_minimal_theme,
+            amethyst_haze_theme,
+            bubblegum_theme,
+            caffine_theme,
+            catppuccin_theme,
             default_theme,
-            slate_theme,
-            zinc_theme,
-            rose_theme,
-            green_theme,
-            orange_theme,
-            blue_theme,
-            violet_theme,
+            ocean_breeze_theme,
+            twitter_theme,
         ],
         ids=[
+            "amber_minimal",
+            "amethyst_haze",
+            "bubblegum",
+            "caffine",
+            "catppuccin",
             "default",
-            "slate",
-            "zinc",
-            "rose",
-            "green",
-            "orange",
-            "blue",
-            "violet",
+            "ocean_breeze",
+            "twitter",
         ],
     )
     def test_preset_is_theme(self, preset):
@@ -286,8 +286,24 @@ class TestPresets:
 
     @pytest.mark.parametrize(
         "preset",
-        [slate_theme, zinc_theme, rose_theme, green_theme, orange_theme, violet_theme],
-        ids=["slate", "zinc", "rose", "green", "orange", "violet"],
+        [
+            amber_minimal_theme,
+            amethyst_haze_theme,
+            bubblegum_theme,
+            caffine_theme,
+            catppuccin_theme,
+            ocean_breeze_theme,
+            twitter_theme,
+        ],
+        ids=[
+            "amber_minimal",
+            "amethyst_haze",
+            "bubblegum",
+            "caffine",
+            "catppuccin",
+            "ocean_breeze",
+            "twitter",
+        ],
     )
     def test_preset_produces_css(self, preset):
         """Non-default presets should produce non-empty CSS."""
@@ -297,7 +313,7 @@ class TestPresets:
 
     def test_blue_theme_minimal_overrides(self):
         """Blue theme should override only primary & ring."""
-        css = blue_theme.to_css_variables()
+        css = amber_minimal_theme.to_css_variables()
         assert "--primary" in css
         assert "--ring" in css
 
@@ -305,7 +321,7 @@ class TestPresets:
         """Preset to_dict should be JSON-serialisable."""
         import json
 
-        for preset in [rose_theme, violet_theme, green_theme]:
+        for preset in [default_theme, amber_minimal_theme, amethyst_haze_theme]:
             d = preset.to_dict()
             s = json.dumps(d)
             assert isinstance(s, str)

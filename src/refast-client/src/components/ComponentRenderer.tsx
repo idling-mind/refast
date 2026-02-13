@@ -484,23 +484,33 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
   if (first && typeof first === 'object' && 'target' in first) {
     const event = first as React.SyntheticEvent<HTMLInputElement>;
     const target = event.target as HTMLInputElement;
+    const data: Record<string, unknown> = {};
 
     // Only extract form-field properties from actual form elements.
     // Buttons and their children have empty/undefined value/name which
     // would pollute callback kwargs inconsistently.
     const tag = target.tagName?.toLowerCase();
     if (tag === 'input' || tag === 'select' || tag === 'textarea') {
-      const data: Record<string, unknown> = {
-        value: target.value,
-        name: target.name,
-      };
+      data.value = target.value;
+      data.name = target.name;
       if (target.type === 'checkbox' || target.type === 'radio') {
         data.checked = target.checked;
       }
-      return data;
     }
 
-    return {};
+    // Extract keyboard event properties (onKeyDown, onKeyUp, onKeyPress)
+    if ('key' in event) {
+      const ke = event as unknown as React.KeyboardEvent;
+      data.key = ke.key;
+      data.code = ke.code;
+      if (ke.altKey) data.altKey = true;
+      if (ke.ctrlKey) data.ctrlKey = true;
+      if (ke.metaKey) data.metaKey = true;
+      if (ke.shiftKey) data.shiftKey = true;
+      if (ke.repeat) data.repeat = true;
+    }
+
+    return data;
   }
 
   // Plain value

@@ -631,9 +631,7 @@ class Combobox(Component):
             "id": self.id,
             "props": {
                 "options": self.options,
-                **({
-                    "value": self.value
-                } if self.value is not None else {}),
+                **({"value": self.value} if self.value is not None else {}),
                 "placeholder": self.placeholder,
                 "search_placeholder": self.search_placeholder,
                 "empty_text": self.empty_text,
@@ -706,9 +704,7 @@ class InputOTP(Component):
             "id": self.id,
             "props": {
                 "max_length": self.max_length,
-                **({
-                    "value": self.value
-                } if self.value is not None else {}),
+                **({"value": self.value} if self.value is not None else {}),
                 "disabled": self.disabled,
                 "pattern": self.pattern,
                 "label": self.label,

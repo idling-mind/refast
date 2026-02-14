@@ -4,6 +4,7 @@ import { cn } from '../../utils';
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -14,6 +15,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Card({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -25,6 +27,7 @@ export function Card({
         'rounded-lg border bg-card text-card-foreground shadow-sm',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
       {...props}
     >
@@ -36,6 +39,7 @@ export function Card({
 interface CardHeaderProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -46,6 +50,7 @@ interface CardHeaderProps {
 export function CardHeader({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: CardHeaderProps): React.ReactElement {
@@ -53,6 +58,7 @@ export function CardHeader({
     <div
       id={id}
       className={cn('flex flex-col space-y-1.5 p-6', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -63,6 +69,7 @@ export function CardHeader({
 interface CardTitleProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -73,6 +80,7 @@ interface CardTitleProps {
 export function CardTitle({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: CardTitleProps): React.ReactElement {
@@ -83,6 +91,7 @@ export function CardTitle({
         'text-2xl font-semibold leading-none tracking-tight',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -93,6 +102,7 @@ export function CardTitle({
 interface CardDescriptionProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -103,6 +113,7 @@ interface CardDescriptionProps {
 export function CardDescription({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: CardDescriptionProps): React.ReactElement {
@@ -110,6 +121,7 @@ export function CardDescription({
     <p
       id={id}
       className={cn('text-sm text-muted-foreground', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -120,6 +132,7 @@ export function CardDescription({
 interface CardContentProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -130,6 +143,7 @@ interface CardContentProps {
 export function CardContent({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: CardContentProps): React.ReactElement {
@@ -137,6 +151,7 @@ export function CardContent({
     <div
       id={id}
       className={cn('p-6 pt-0', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -147,6 +162,7 @@ export function CardContent({
 interface CardFooterProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -157,6 +173,7 @@ interface CardFooterProps {
 export function CardFooter({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: CardFooterProps): React.ReactElement {
@@ -164,6 +181,7 @@ export function CardFooter({
     <div
       id={id}
       className={cn('flex items-center p-6 pt-0', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}

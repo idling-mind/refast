@@ -31,9 +31,10 @@ class Card(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         if children:
             self._children = children
         self.title = title
@@ -71,9 +72,10 @@ class CardHeader(Component):
         children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         if children:
             self._children = children
         self.title = title
@@ -103,9 +105,10 @@ class CardContent(Component):
         children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         if children:
             self._children = children
 
@@ -131,9 +134,10 @@ class CardFooter(Component):
         children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         if children:
             self._children = children
 
@@ -160,9 +164,10 @@ class CardTitle(Component):
         children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         self.text = text
         if children:
             self._children = children
@@ -192,9 +197,10 @@ class CardDescription(Component):
         children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, style=style, **props)
         self.text = text
         if children:
             self._children = children

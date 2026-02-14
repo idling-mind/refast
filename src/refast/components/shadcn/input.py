@@ -187,6 +187,11 @@ class Textarea(Component):
         error: str | None = None,
         debounce: int = 0,
         on_change: Any = None,
+        on_blur: Any = None,
+        on_focus: Any = None,
+        on_keydown: Any = None,
+        on_keyup: Any = None,
+        on_input: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -203,6 +208,11 @@ class Textarea(Component):
         self.error = error
         self.debounce = debounce
         self.on_change = on_change
+        self.on_blur = on_blur
+        self.on_focus = on_focus
+        self.on_keydown = on_keydown
+        self.on_keyup = on_keyup
+        self.on_input = on_input
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -224,6 +234,16 @@ class Textarea(Component):
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
+        if self.on_blur:
+            props["on_blur"] = self.on_blur.serialize()
+        if self.on_focus:
+            props["on_focus"] = self.on_focus.serialize()
+        if self.on_keydown:
+            props["on_keydown"] = self.on_keydown.serialize()
+        if self.on_keyup:
+            props["on_keyup"] = self.on_keyup.serialize()
+        if self.on_input:
+            props["on_input"] = self.on_input.serialize()
 
         return {
             "type": self.component_type,

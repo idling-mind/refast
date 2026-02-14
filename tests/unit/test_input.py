@@ -192,6 +192,49 @@ class TestTextarea:
         rendered = ta.render()
         assert rendered["props"]["debounce"] == 150
 
+    def test_textarea_with_focus_events(self):
+        """Test Textarea with focus event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_blur=cb, on_focus=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_keyboard_events(self):
+        """Test Textarea with keyboard event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_keydown=cb, on_keyup=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_input_event(self):
+        """Test Textarea with onInput event callback."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_input=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_all_events(self):
+        """Test Textarea with all event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(
+            name="test",
+            on_change=cb,
+            on_blur=cb,
+            on_focus=cb,
+            on_keydown=cb,
+            on_keyup=cb,
+            on_input=cb,
+        )
+        rendered = ta.render()
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
+
 
 class TestSelect:
     """Tests for Select component."""

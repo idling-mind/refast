@@ -272,6 +272,9 @@ interface TextareaProps {
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
   onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+  onKeydown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onKeyup?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onInput?: (event: React.FormEvent<HTMLTextAreaElement>) => void;
   'data-refast-id'?: string;
 }
 
@@ -297,6 +300,9 @@ export function Textarea({
   onChange,
   onBlur,
   onFocus,
+  onKeydown,
+  onKeyup,
+  onInput,
   'data-refast-id': dataRefastId,
 }: TextareaProps): React.ReactElement {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
@@ -390,6 +396,9 @@ export function Textarea({
       onChange={handleChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onKeyDown={onKeydown}
+      onKeyUp={onKeyup}
+      onInput={onInput}
       className={cn(
         'flex min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm',
         'ring-offset-background placeholder:text-muted-foreground',

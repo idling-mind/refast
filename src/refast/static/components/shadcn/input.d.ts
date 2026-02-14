@@ -70,6 +70,9 @@ interface TextareaProps {
     onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
     onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+    onKeydown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+    onKeyup?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+    onInput?: (event: React.FormEvent<HTMLTextAreaElement>) => void;
     'data-refast-id'?: string;
 }
 /**
@@ -77,7 +80,7 @@ interface TextareaProps {
  *
  * The `debounce` prop delays calling `onChange` by the specified milliseconds.
  */
-export declare function Textarea({ id, className, label, description, required, error, placeholder, value, defaultValue, disabled, rows, name, debounce, onChange, onBlur, onFocus, 'data-refast-id': dataRefastId, }: TextareaProps): React.ReactElement;
+export declare function Textarea({ id, className, label, description, required, error, placeholder, value, defaultValue, disabled, rows, name, debounce, onChange, onBlur, onFocus, onKeydown, onKeyup, onInput, 'data-refast-id': dataRefastId, }: TextareaProps): React.ReactElement;
 interface SelectOption {
     value: string;
     label: string;

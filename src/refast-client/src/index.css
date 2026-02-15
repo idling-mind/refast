@@ -201,3 +201,34 @@ body {
 .dark .group\/calendar select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
+
+/* Auto-scroll to bottom utility class
+ * Uses flexbox column-reverse to automatically scroll to bottom when new items are added.
+ * When user scrolls up, position stays fixed. When user scrolls back to bottom, 
+ * it auto-sticks to bottom on new updates.
+ * 
+ * Usage: Add 'scroller' class to container element with overflow:auto
+ * Add content inside a nested 'scroller-content' div
+ * 
+ * Example:
+ * <div className="scroller h-[400px] overflow-auto">
+ *   <div className="scroller-content">
+ *     <div>Item 1</div>
+ *     <div>Item 2</div>
+ *   </div>
+ * </div>
+ */
+.scroller {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.scroller .scroller-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Safari iOS fix - forces proper scroll updates */
+.scroller .scroller-content > * {
+  transform: translateZ(0);
+}

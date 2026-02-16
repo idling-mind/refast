@@ -159,6 +159,7 @@ interface CodeProps {
   id?: string;
   className?: string;
   inline?: boolean;
+  showLineNumbers?: boolean;
   language?: string;
   code?: string;
   children?: React.ReactNode;
@@ -173,6 +174,7 @@ export function Code({
   id,
   className,
   inline = true,
+  showLineNumbers = false,
   language,
   code,
   children,
@@ -303,7 +305,7 @@ export function Code({
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
           }}
-          showLineNumbers={false}
+          showLineNumbers={showLineNumbers}
         >
           {codeString}
         </SyntaxHighlighter>

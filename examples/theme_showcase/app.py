@@ -1420,6 +1420,7 @@ def home(ctx: Context):
                                                     Code(
                                                         code='print("Hello from Refast!")',
                                                         inline=False,
+                                                        show_line_numbers=True,
                                                         language="python",
                                                     ),
                                                 ],

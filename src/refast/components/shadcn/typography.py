@@ -88,11 +88,13 @@ class Code(Component):
         code: str,
         language: str | None = None,
         inline: bool = True,
+        show_line_numbers: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        self.show_line_numbers = show_line_numbers
         self.code = code
         self.language = language
         self.inline = inline
@@ -104,7 +106,8 @@ class Code(Component):
             "props": {
                 "language": self.language,
                 "inline": self.inline,
-                "className": self.class_name,
+                "show_line_numbers": self.show_line_numbers,
+                "class_name": self.class_name,
                 "code": self.code,
                 **self._serialize_extra_props(),
             },

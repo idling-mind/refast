@@ -41,6 +41,7 @@ interface CodeProps {
     id?: string;
     className?: string;
     inline?: boolean;
+    showLineNumbers?: boolean;
     language?: string;
     code?: string;
     children?: React.ReactNode;
@@ -50,7 +51,7 @@ interface CodeProps {
  * Code component - typography code with syntax highlighting.
  * Automatically adapts to light/dark theme.
  */
-export declare function Code({ id, className, inline, language, code, children, 'data-refast-id': dataRefastId, }: CodeProps): React.ReactElement;
+export declare function Code({ id, className, inline, showLineNumbers, language, code, children, 'data-refast-id': dataRefastId, }: CodeProps): React.ReactElement;
 interface BlockQuoteProps {
     id?: string;
     className?: string;

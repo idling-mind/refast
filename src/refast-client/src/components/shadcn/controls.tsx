@@ -416,9 +416,21 @@ function parseDate(value: string | Date | undefined | null): Date | undefined {
 
 // Helper to parse date range from various formats
 function parseDateRange(
-  value: string | { from?: string | Date; to?: string | Date } | undefined | null
+  value:
+    | string
+    | { from?: string | Date; to?: string | Date }
+    | (string | Date)[]
+    | undefined
+    | null
 ): { from: Date | undefined; to: Date | undefined } | undefined {
   if (!value) return undefined;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return undefined;
+    return {
+      from: parseDate(value[0]),
+      to: parseDate(value[1]),
+    };
+  }
   if (typeof value === 'object' && 'from' in value) {
     return {
       from: parseDate(value.from as string | Date | undefined),
@@ -485,13 +497,24 @@ export function Calendar({
   // Parse selected value based on mode
   const parsedSelected = React.useMemo(() => {
     if (mode === 'range') {
-      return parseDateRange(selected as { from?: string | Date; to?: string | Date } | undefined);
+      return parseDateRange(
+        selected as { from?: string | Date; to?: string | Date } | (string | Date)[] | undefined
+      );
     } else if (mode === 'multiple') {
       return parseDateArray(selected as (string | Date)[] | undefined);
     } else {
       return parseDate(selected as string | Date | undefined);
     }
   }, [mode, selected]);
+
+  // Keep local selection state so Calendar works in uncontrolled mode too
+  const [localSelected, setLocalSelected] = React.useState<
+    Date | Date[] | { from?: Date; to?: Date } | undefined
+  >(parsedSelected as Date | Date[] | { from?: Date; to?: Date } | undefined);
+
+  React.useEffect(() => {
+    setLocalSelected(parsedSelected as Date | Date[] | { from?: Date; to?: Date } | undefined);
+  }, [parsedSelected]);
 
   // Parse defaultMonth
   const parsedDefaultMonth = React.useMemo(() => parseDate(defaultMonth as string | Date | undefined), [defaultMonth]);
@@ -522,9 +545,9 @@ export function Calendar({
 
   // Handle select and serialize dates back to ISO strings
   const handleSelect = React.useCallback((value: Date | Date[] | { from?: Date; to?: Date } | undefined) => {
-    if (!onSelect) return;
-    
     if (!value) {
+      setLocalSelected(undefined);
+      if (!onSelect) return;
       onSelect(undefined);
       return;
     }
@@ -532,6 +555,8 @@ export function Calendar({
     // For range mode, serialize the range object
     if (mode === 'range' && typeof value === 'object' && 'from' in value) {
       const range = value as { from?: Date; to?: Date };
+      setLocalSelected(range);
+      if (!onSelect) return;
       // Send as object with ISO strings - will be converted in callback handler
       onSelect({
         from: range.from!,
@@ -542,11 +567,15 @@ export function Calendar({
     
     // For multiple mode, serialize array
     if (mode === 'multiple' && Array.isArray(value)) {
+      setLocalSelected(value);
+      if (!onSelect) return;
       onSelect(value);
       return;
     }
     
     // For single mode
+    setLocalSelected(value as Date);
+    if (!onSelect) return;
     onSelect(value as Date);
   }, [mode, onSelect]);
 
@@ -562,23 +591,23 @@ export function Calendar({
     if (mode === 'range') {
       return {
         mode: 'range' as const,
-        selected: parsedSelected as { from: Date | undefined; to: Date | undefined } | undefined,
+        selected: localSelected as { from: Date | undefined; to: Date | undefined } | undefined,
         onSelect: handleSelect as (range: { from?: Date; to?: Date } | undefined) => void,
       };
     } else if (mode === 'multiple') {
       return {
         mode: 'multiple' as const,
-        selected: parsedSelected as Date[] | undefined,
+        selected: localSelected as Date[] | undefined,
         onSelect: handleSelect as (dates: Date[] | undefined) => void,
       };
     } else {
       return {
         mode: 'single' as const,
-        selected: parsedSelected as Date | undefined,
+        selected: localSelected as Date | undefined,
         onSelect: handleSelect as (date: Date | undefined) => void,
       };
     }
-  }, [mode, parsedSelected, handleSelect]);
+  }, [mode, localSelected, handleSelect]);
 
   return (
     <DayPicker
@@ -797,18 +826,18 @@ interface DatePickerProps {
   description?: string;
   required?: boolean;
   error?: string;
-  // For single mode: ISO string or Date; for range mode: { from?: string, to?: string }
-  value?: string | { from?: string; to?: string };
+  // For single mode: ISO string; for multiple mode: list of ISO strings; for range mode: { from?: string, to?: string }
+  value?: string | string[] | { from?: string; to?: string };
   placeholder?: string;
   disabled?: boolean;
   format?: string;
-  mode?: 'single' | 'range';
+  mode?: 'single' | 'multiple' | 'range';
   captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
   minDate?: string;
   maxDate?: string;
   numberOfMonths?: number;
   // onChange sends ISO strings back to Python
-  onChange?: (date: string | { from?: string; to?: string } | undefined) => void;
+  onChange?: (date: string | string[] | { from?: string; to?: string } | undefined) => void;
   'data-refast-id'?: string;
 }
 
@@ -831,6 +860,9 @@ export function DatePicker({
   'data-refast-id': dataRefastId,
 }: DatePickerProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
+  const pendingChangeRef = React.useRef<
+    string | string[] | { from?: string; to?: string } | undefined | null
+  >(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Parse the value based on mode
@@ -844,6 +876,12 @@ export function DatePicker({
         };
       }
       return undefined;
+    } else if (mode === 'multiple') {
+      if (!value) return [];
+      if (Array.isArray(value)) {
+        return parseDateArray(value) || [];
+      }
+      return [];
     } else {
       if (!value) return undefined;
       if (typeof value === 'string') {
@@ -861,15 +899,31 @@ export function DatePicker({
   const [selectedRange, setSelectedRange] = React.useState<{ from?: Date; to?: Date } | undefined>(
     mode === 'range' ? (parsedValue as { from?: Date; to?: Date } | undefined) : undefined
   );
+  const [selectedDates, setSelectedDates] = React.useState<Date[]>(
+    mode === 'multiple' ? (parsedValue as Date[] | undefined) || [] : []
+  );
 
   // Sync local state with prop changes
   React.useEffect(() => {
     if (mode === 'single') {
       setSelectedDate(parsedValue as Date | undefined);
-    } else {
+    } else if (mode === 'range') {
       setSelectedRange(parsedValue as { from?: Date; to?: Date } | undefined);
+    } else {
+      setSelectedDates((parsedValue as Date[] | undefined) || []);
     }
   }, [mode, parsedValue]);
+
+  // Flush deferred onChange payloads when picker closes.
+  // This keeps multiple mode open during selection interactions.
+  React.useEffect(() => {
+    if (!open && pendingChangeRef.current !== null) {
+      if (onChange) {
+        onChange(pendingChangeRef.current);
+      }
+      pendingChangeRef.current = null;
+    }
+  }, [open, onChange]);
 
   // Close on click outside
   React.useEffect(() => {
@@ -904,10 +958,16 @@ export function DatePicker({
         return selectedRange.from.toLocaleDateString();
       }
       return `${selectedRange.from.toLocaleDateString()} - ${selectedRange.to.toLocaleDateString()}`;
+    } else if (mode === 'multiple') {
+      if (!selectedDates.length) return placeholder;
+      if (selectedDates.length <= 2) {
+        return selectedDates.map((d) => d.toLocaleDateString()).join(', ');
+      }
+      return `${selectedDates[0].toLocaleDateString()}, ${selectedDates[1].toLocaleDateString()} +${selectedDates.length - 2} more`;
     } else {
       return selectedDate ? selectedDate.toLocaleDateString() : placeholder;
     }
-  }, [mode, selectedDate, selectedRange, placeholder]);
+  }, [mode, selectedDate, selectedRange, selectedDates, placeholder]);
 
   // Handle single date selection
   const handleSingleSelect = (date: Date | undefined) => {
@@ -938,7 +998,15 @@ export function DatePicker({
     }
   };
 
-  const hasValue = mode === 'range' ? !!selectedRange?.from : !!selectedDate;
+  // Handle multiple date selection
+  const handleMultipleSelect = (dates: Date[] | undefined) => {
+    const nextDates = dates || [];
+    setSelectedDates(nextDates);
+    pendingChangeRef.current = nextDates.map((d) => d.toISOString());
+  };
+
+  const hasValue =
+    mode === 'range' ? !!selectedRange?.from : mode === 'multiple' ? selectedDates.length > 0 : !!selectedDate;
 
   const datePickerElement = (
     <div ref={containerRef} className={cn('relative', className)}>
@@ -986,6 +1054,16 @@ export function DatePicker({
               minDate={minDate}
               maxDate={maxDate}
               numberOfMonths={numberOfMonths || 2}
+            />
+          ) : mode === 'multiple' ? (
+            <Calendar
+              mode="multiple"
+              captionLayout={captionLayout}
+              selected={selectedDates}
+              onSelect={(value) => handleMultipleSelect(value as Date[] | undefined)}
+              minDate={minDate}
+              maxDate={maxDate}
+              numberOfMonths={numberOfMonths}
             />
           ) : (
             <Calendar

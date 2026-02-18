@@ -231,6 +231,18 @@ class TestDatePicker:
         rendered = picker.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
+    def test_date_picker_mode_multiple(self):
+        """Test DatePicker in multiple mode."""
+        picker = DatePicker(name="test", mode="multiple")
+        rendered = picker.render()
+        assert rendered["props"]["mode"] == "multiple"
+
+    def test_date_picker_with_multiple_values(self):
+        """Test DatePicker serializes multiple selected dates."""
+        picker = DatePicker(name="test", mode="multiple", value=["2026-02-17", "2026-02-25"])
+        rendered = picker.render()
+        assert rendered["props"]["value"] == ["2026-02-17", "2026-02-25"]
+
 
 class TestCalendar:
     """Tests for Calendar component."""

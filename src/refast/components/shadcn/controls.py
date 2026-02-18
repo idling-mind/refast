@@ -445,7 +445,7 @@ class DatePicker(Component):
     """
     A date picker with input and calendar popup.
 
-    Supports both single date selection and date range selection.
+    Supports single, multiple, and range date selection.
 
     Example:
         ```python
@@ -476,7 +476,7 @@ class DatePicker(Component):
         description: Help text displayed below the label
         required: Whether the field is required (shows asterisk)
         error: Error message to display
-        mode: Selection mode - "single" or "range"
+        mode: Selection mode - "single", "multiple", or "range"
         caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
                        "dropdown-months", or "dropdown-years"
         min_date: Minimum selectable date
@@ -488,11 +488,11 @@ class DatePicker(Component):
 
     def __init__(
         self,
-        value: Any = None,  # date or {"from": date, "to": date} for range
+        value: Any = None,  # date, list[date], or {"from": date, "to": date} for range
         placeholder: str = "Pick a date",
         disabled: bool = False,
         format: str = "PPP",  # date-fns format
-        mode: Literal["single", "range"] = "single",
+        mode: Literal["single", "multiple", "range"] = "single",
         caption_layout: Literal["label", "dropdown", "dropdown-months", "dropdown-years"] = "label",
         min_date: Any = None,  # date or ISO string
         max_date: Any = None,  # date or ISO string
@@ -522,12 +522,17 @@ class DatePicker(Component):
         self.error = error
         self.on_change = on_change
 
-    def _serialize_date_value(self, d: Any) -> str | dict[str, str | None] | None:
-        """Serialize date value to ISO string or range object."""
+    def _serialize_date_value(self, d: Any) -> str | list[str] | dict[str, str | None] | None:
+        """Serialize date value to ISO string, list of ISO strings, or range object."""
         if d is None:
             return None
         if hasattr(d, "isoformat"):
             return d.isoformat()
+        if isinstance(d, list):
+            return [
+                item.isoformat() if hasattr(item, "isoformat") else str(item)
+                for item in d
+            ]
         if isinstance(d, dict):
             # Range mode: {"from": date, "to": date}
             return {

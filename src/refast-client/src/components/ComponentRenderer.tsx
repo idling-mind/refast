@@ -480,6 +480,14 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
 
   const first = args[0];
 
+  // Date object (e.g., Calendar onSelect in single mode)
+  if (first instanceof Date) {
+    return {
+      value: first.toISOString(),
+      date: first.toISOString(),
+    };
+  }
+
   // React event
   if (first && typeof first === 'object' && 'target' in first) {
     const event = first as React.SyntheticEvent<HTMLInputElement>;

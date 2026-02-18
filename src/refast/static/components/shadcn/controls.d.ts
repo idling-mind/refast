@@ -108,19 +108,19 @@ interface DatePickerProps {
     description?: string;
     required?: boolean;
     error?: string;
-    value?: string | {
+    value?: string | string[] | {
         from?: string;
         to?: string;
     };
     placeholder?: string;
     disabled?: boolean;
     format?: string;
-    mode?: 'single' | 'range';
+    mode?: 'single' | 'multiple' | 'range';
     captionLayout?: 'label' | 'dropdown' | 'dropdown-years' | 'dropdown-months';
     minDate?: string;
     maxDate?: string;
     numberOfMonths?: number;
-    onChange?: (date: string | {
+    onChange?: (date: string | string[] | {
         from?: string;
         to?: string;
     } | undefined) => void;

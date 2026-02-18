@@ -1534,7 +1534,7 @@ class SidebarHeader(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: list[Component | str] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,

@@ -12,13 +12,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-path_vars = [
-    "T:\\cae\\ett\\pygkn-uv",
-    "C:\\tools\\tools\\node-v22.14.0-win-x64",
-    "C:\\Local\\npm\\global",
-]
-os.environ["PATH"] = os.pathsep.join(path_vars + [os.environ.get("PATH", "")])
-
 
 def get_project_root() -> Path:
     """Get the project root directory."""
@@ -126,17 +119,14 @@ def copy_assets(frontend_dir: Path, static_dir: Path) -> bool:
             else:
                 item.unlink()
 
-    # Copy new assets
+    # Copy only JS and CSS bundles (skip .d.ts files, directories, etc.)
     print(f"Copying assets from {dist_dir} to {static_dir}")
 
     copied_files = []
     for item in dist_dir.iterdir():
-        dest = static_dir / item.name
-        if item.is_dir():
-            shutil.copytree(item, dest)
-        else:
-            shutil.copy2(item, dest)
-        copied_files.append(item.name)
+        if item.is_file() and item.suffix in (".js", ".css"):
+            shutil.copy2(item, static_dir / item.name)
+            copied_files.append(item.name)
 
     print(f"Copied files: {', '.join(copied_files)}")
     return True

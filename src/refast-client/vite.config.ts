@@ -1,12 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
-    dts({ insertTypesEntry: true }),
   ],
   define: {
     // Replace process.env.NODE_ENV - use 'production' for builds, preserve mode for tests

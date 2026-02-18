@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "refast"
-version = "0.0.2"
+version = "0.0.3"
 description = "Python + React UI framework for building reactive web applications"
 readme = "README.md"
 license = "MIT"
@@ -35,6 +35,42 @@ dev = [
     "pytest-cov>=4.1.0",
     "httpx>=0.25.0",
     "ruff>=0.1.0",
+]
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.build.hooks.custom]
+# Uses hatch_build.py at project root — builds the React frontend
+# and copies JS + CSS bundles into src/refast/static/
+
+[tool.hatch.build.targets.wheel]
+# Include the generated JS/CSS even though they are .gitignored
+artifacts = [
+    "src/refast/static/refast-client.js",
+    "src/refast/static/refast-client.css",
+]
+
+[tool.hatch.build.targets.sdist]
+artifacts = [
+    "src/refast/static/refast-client.js",
+    "src/refast/static/refast-client.css",
+]
+# Include the frontend source so sdist consumers can rebuild
+include = [
+    "src/",
+    "hatch_build.py",
+    "tests/",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+exclude = [
+    "src/refast/static/**/*.d.ts",
+    "src/refast/static/**/__tests__/",
+    "src/refast/static/**/test/",
+    "src/refast-client/node_modules/",
+    "src/refast-client/coverage/",
 ]
 
 [tool.pytest.ini_options]

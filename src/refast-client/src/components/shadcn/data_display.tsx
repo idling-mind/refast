@@ -333,6 +333,278 @@ export function TableCell({
   );
 }
 
+// ============================================================================
+// DataTable Component
+// ============================================================================
+
+interface DataTableColumn {
+  /** Data key used to look up values in each row. */
+  key: string;
+  /** Column header label. */
+  header: string;
+  /** Per-column sortable override. Falls back to the component-level `sortable` prop. */
+  sortable?: boolean;
+  /** CSS column width (e.g. "200px", "20%"). */
+  width?: string;
+  /** Text alignment – "left" (default), "center", or "right". */
+  align?: 'left' | 'center' | 'right';
+}
+
+interface DataTableProps {
+  id?: string;
+  className?: string;
+  columns: DataTableColumn[];
+  data: Record<string, unknown>[];
+  sortable?: boolean;
+  filterable?: boolean;
+  paginated?: boolean;
+  pageSize?: number;
+  loading?: boolean;
+  emptyMessage?: string;
+  currentPage?: number;
+  onRowClick?: (row: Record<string, unknown>) => void;
+  onSortChange?: (sort: { key: string; direction: 'asc' | 'desc' } | null) => void;
+  onFilterChange?: (filter: { value: string }) => void;
+  onPageChange?: (page: { page: number }) => void;
+  'data-refast-id'?: string;
+}
+
+/**
+ * DataTable component – high-level table with sorting, filtering, and pagination.
+ */
+export function DataTable({
+  id,
+  className,
+  columns = [],
+  data = [],
+  sortable = true,
+  filterable = true,
+  paginated = true,
+  pageSize = 10,
+  loading = false,
+  emptyMessage = 'No data available',
+  currentPage: controlledPage,
+  onRowClick,
+  onSortChange,
+  onFilterChange,
+  onPageChange,
+  'data-refast-id': dataRefastId,
+}: DataTableProps): React.ReactElement {
+  const [filterValue, setFilterValue] = React.useState('');
+  const [sortState, setSortState] = React.useState<{
+    key: string;
+    direction: 'asc' | 'desc';
+  } | null>(null);
+  const [internalPage, setInternalPage] = React.useState(1);
+
+  // Use controlled page when provided, otherwise internal state
+  const currentPage = controlledPage !== undefined ? controlledPage : internalPage;
+
+  // Client-side filter
+  const filteredData = React.useMemo(() => {
+    if (!filterValue) return data;
+    const lower = filterValue.toLowerCase();
+    return data.filter((row) =>
+      Object.values(row).some((val) => String(val ?? '').toLowerCase().includes(lower))
+    );
+  }, [data, filterValue]);
+
+  // Client-side sort
+  const sortedData = React.useMemo(() => {
+    if (!sortState) return filteredData;
+    return [...filteredData].sort((a, b) => {
+      const aVal = String(a[sortState.key] ?? '');
+      const bVal = String(b[sortState.key] ?? '');
+      const cmp = aVal.localeCompare(bVal);
+      return sortState.direction === 'asc' ? cmp : -cmp;
+    });
+  }, [filteredData, sortState]);
+
+  // Pagination
+  const totalPages = paginated ? Math.max(1, Math.ceil(sortedData.length / pageSize)) : 1;
+  const paginatedData = paginated
+    ? sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : sortedData;
+
+  const handleSort = (col: DataTableColumn) => {
+    const colSortable = col.sortable !== undefined ? col.sortable : sortable;
+    if (!colSortable) return;
+
+    let newSort: { key: string; direction: 'asc' | 'desc' } | null;
+    if (!sortState || sortState.key !== col.key) {
+      newSort = { key: col.key, direction: 'asc' };
+    } else if (sortState.direction === 'asc') {
+      newSort = { key: col.key, direction: 'desc' };
+    } else {
+      newSort = null;
+    }
+    setSortState(newSort);
+    onSortChange?.(newSort);
+  };
+
+  const handleFilter = (value: string) => {
+    setFilterValue(value);
+    if (controlledPage === undefined) setInternalPage(1);
+    onFilterChange?.({ value });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (controlledPage === undefined) setInternalPage(newPage);
+    onPageChange?.({ page: newPage });
+  };
+
+  // Build visible page numbers (up to 5 around current)
+  const visiblePages = React.useMemo(() => {
+    const pages: number[] = [];
+    const count = Math.min(totalPages, 5);
+    let start: number;
+    if (currentPage <= 3 || totalPages <= 5) {
+      start = 1;
+    } else if (currentPage >= totalPages - 2) {
+      start = totalPages - 4;
+    } else {
+      start = currentPage - 2;
+    }
+    for (let i = 0; i < count; i++) pages.push(start + i);
+    return pages;
+  }, [totalPages, currentPage]);
+
+  return (
+    <div id={id} className={cn('w-full space-y-4', className)} data-refast-id={dataRefastId}>
+      {/* Filter input */}
+      {filterable && (
+        <input
+          type="text"
+          placeholder="Filter..."
+          value={filterValue}
+          onChange={(e) => handleFilter(e.target.value)}
+          className="flex h-9 w-full max-w-sm rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+      )}
+
+      {/* Table */}
+      <div className="relative w-full overflow-auto rounded-md border">
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/60">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        )}
+        <table className="w-full caption-bottom text-sm">
+          <thead className="[&_tr]:border-b">
+            <tr className="border-b transition-colors">
+              {columns.map((col) => {
+                const colSortable = col.sortable !== undefined ? col.sortable : sortable;
+                const isActive = sortState?.key === col.key;
+                return (
+                  <th
+                    key={col.key}
+                    style={col.width ? { width: col.width } : undefined}
+                    className={cn(
+                      'h-10 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
+                      col.align === 'center' && 'text-center',
+                      col.align === 'right' && 'text-right',
+                      colSortable && 'cursor-pointer select-none hover:text-foreground'
+                    )}
+                    onClick={() => handleSort(col)}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.header}
+                      {colSortable && (
+                        <span className="text-xs opacity-60">
+                          {isActive ? (sortState?.direction === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      )}
+                    </span>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody className="[&_tr:last-child]:border-0">
+            {paginatedData.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length || 1}
+                  className="py-8 text-center text-sm text-muted-foreground"
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className={cn(
+                    'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+                    onRowClick && 'cursor-pointer'
+                  )}
+                  onClick={() => onRowClick?.(row)}
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={cn(
+                        'p-4 align-middle',
+                        col.align === 'center' && 'text-center',
+                        col.align === 'right' && 'text-right'
+                      )}
+                    >
+                      {String(row[col.key] ?? '')}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {paginated && totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Showing {(currentPage - 1) * pageSize + 1}–
+            {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length}
+          </span>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-50 hover:bg-accent"
+            >
+              Previous
+            </button>
+            {visiblePages.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => handlePageChange(p)}
+                className={cn(
+                  'inline-flex h-8 w-8 items-center justify-center rounded-md border text-sm',
+                  currentPage === p
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'hover:bg-accent'
+                )}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-50 hover:bg-accent"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface AvatarProps {
   id?: string;
   className?: string;

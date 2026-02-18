@@ -973,7 +973,9 @@ class Context(Generic[T]):
                             if isinstance(child, Component):
                                 children.append(child.render())
                             elif child is not None:
-                                children.append(str(child) if not isinstance(child, (dict, str)) else child)
+                                children.append(
+                                    str(child) if not isinstance(child, (dict, str)) else child
+                                )
                     elif isinstance(value, Component):
                         children = [value.render()]
                     elif value is not None:
@@ -982,8 +984,7 @@ class Context(Generic[T]):
                     serialized_props[key] = value.render()
                 elif isinstance(value, (list, tuple)):
                     serialized_props[key] = [
-                        item.render() if isinstance(item, Component) else item
-                        for item in value
+                        item.render() if isinstance(item, Component) else item for item in value
                     ]
                 else:
                     serialized_props[key] = value

@@ -529,10 +529,7 @@ class DatePicker(Component):
         if hasattr(d, "isoformat"):
             return d.isoformat()
         if isinstance(d, list):
-            return [
-                item.isoformat() if hasattr(item, "isoformat") else str(item)
-                for item in d
-            ]
+            return [item.isoformat() if hasattr(item, "isoformat") else str(item) for item in d]
         if isinstance(d, dict):
             # Range mode: {"from": date, "to": date}
             return {

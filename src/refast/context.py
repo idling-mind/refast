@@ -929,16 +929,76 @@ class Context(Generic[T]):
             )
 
     async def update_props(self, target_id: str, props: dict[str, Any]) -> None:
-        """Update props of an existing component."""
+        """Update props of an existing component.
+
+        Props values that are Component instances are automatically
+        serialized via their ``render()`` method.  The special key
+        ``"children"`` is supported: when present, its value replaces
+        the target component's children on the frontend.
+
+        Args:
+            target_id: ID of the target component.
+            props: Dictionary of prop names to values.  May include
+                ``"children"`` to replace children.
+
+        Example:
+            ```python
+            # Clear all children
+            await ctx.update_props("container", {"children": []})
+
+            # Replace children with new components
+            await ctx.update_props("container", {
+                "children": [Text("Hello"), Button("Click")],
+            })
+
+            # Mix children update with regular prop updates
+            await ctx.update_props("container", {
+                "class_name": "p-4",
+                "children": [Text("Updated")],
+            })
+            ```
+        """
         if self._websocket:
-            await self._websocket.send_json(
-                {
-                    "type": "update",
-                    "operation": "update_props",
-                    "targetId": target_id,
-                    "props": props,
-                }
-            )
+            from refast.components.base import Component
+
+            # Separate children from regular props
+            serialized_props = {}
+            children = None
+            for key, value in props.items():
+                if key == "children":
+                    # Serialize children list
+                    children = []
+                    if isinstance(value, (list, tuple)):
+                        for child in value:
+                            if isinstance(child, Component):
+                                children.append(child.render())
+                            elif child is not None:
+                                children.append(str(child) if not isinstance(child, (dict, str)) else child)
+                    elif isinstance(value, Component):
+                        children = [value.render()]
+                    elif value is not None:
+                        children = [str(value) if not isinstance(value, (dict, str)) else value]
+                elif isinstance(value, Component):
+                    serialized_props[key] = value.render()
+                elif isinstance(value, (list, tuple)):
+                    serialized_props[key] = [
+                        item.render() if isinstance(item, Component) else item
+                        for item in value
+                    ]
+                else:
+                    serialized_props[key] = value
+
+            message: dict[str, Any] = {
+                "type": "update",
+                "operation": "update_props",
+                "targetId": target_id,
+            }
+            if serialized_props:
+                message["props"] = serialized_props
+            if children is not None:
+                message["children"] = children
+
+            await self._websocket.send_json(message)
 
     async def update_text(self, target_id: str, text: str) -> None:
         """Update the text content of a component."""

@@ -1020,3 +1020,119 @@ class TestContextChain:
         assert "chain" in serialized
         assert serialized["mode"] == "serial"
         assert len(serialized["chain"]) == 2
+
+
+class TestContextUpdatePropsChildren:
+    """Tests for Context.update_props() with children support."""
+
+    @pytest.mark.asyncio
+    async def test_update_props_with_empty_children(self):
+        """Test update_props can clear children with an empty list."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.update_props("container-1", {"children": []})
+
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "update_props",
+                "targetId": "container-1",
+                "children": [],
+            }
+        )
+
+    @pytest.mark.asyncio
+    async def test_update_props_with_component_children(self):
+        """Test update_props serializes Component children."""
+        from refast.components.base import Container
+
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        child = Container(id="child-1", class_name="p-2")
+        await ctx.update_props("parent", {"children": [child]})
+
+        call_args = ws.send_json.call_args[0][0]
+        assert call_args["type"] == "update"
+        assert call_args["operation"] == "update_props"
+        assert call_args["targetId"] == "parent"
+        assert "props" not in call_args
+        assert len(call_args["children"]) == 1
+        assert call_args["children"][0]["type"] == "Container"
+        assert call_args["children"][0]["id"] == "child-1"
+
+    @pytest.mark.asyncio
+    async def test_update_props_with_string_children(self):
+        """Test update_props with string children."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.update_props("text-1", {"children": ["Hello", "World"]})
+
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "update_props",
+                "targetId": "text-1",
+                "children": ["Hello", "World"],
+            }
+        )
+
+    @pytest.mark.asyncio
+    async def test_update_props_children_with_regular_props(self):
+        """Test update_props can mix children with regular props."""
+        from refast.components.base import Container
+
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        child = Container(id="new-child")
+        await ctx.update_props("parent", {
+            "class_name": "p-4 bg-white",
+            "children": [child],
+        })
+
+        call_args = ws.send_json.call_args[0][0]
+        assert call_args["props"] == {"class_name": "p-4 bg-white"}
+        assert len(call_args["children"]) == 1
+        assert call_args["children"][0]["type"] == "Container"
+
+    @pytest.mark.asyncio
+    async def test_update_props_regular_props_only(self):
+        """Test update_props without children works as before."""
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        await ctx.update_props("btn-1", {"label": "New Label", "disabled": True})
+
+        ws.send_json.assert_called_once_with(
+            {
+                "type": "update",
+                "operation": "update_props",
+                "targetId": "btn-1",
+                "props": {"label": "New Label", "disabled": True},
+            }
+        )
+
+    @pytest.mark.asyncio
+    async def test_update_props_serializes_component_in_prop_value(self):
+        """Test update_props serializes Component objects in regular prop values."""
+        from refast.components.base import Container
+
+        ws = AsyncMock()
+        ctx = Context(websocket=ws)
+
+        comp = Container(id="icon-comp")
+        await ctx.update_props("btn-1", {"icon": comp})
+
+        call_args = ws.send_json.call_args[0][0]
+        assert call_args["props"]["icon"]["type"] == "Container"
+        assert call_args["props"]["icon"]["id"] == "icon-comp"
+
+    @pytest.mark.asyncio
+    async def test_update_props_without_websocket_with_children(self):
+        """Test update_props with children does nothing without websocket."""
+        ctx = Context()
+        # Should not raise
+        await ctx.update_props("target-id", {"children": []})

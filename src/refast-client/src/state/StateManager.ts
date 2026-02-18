@@ -225,14 +225,16 @@ export function useStateManager(initialTree?: ComponentTree) {
             // For update_children and update_props, the data comes in separate fields
             if (message.operation === 'update_children' && message.children) {
               updateObj = { type: '', id: '', props: {}, children: message.children } as ComponentTree;
-            } else if (message.operation === 'update_props' && message.props) {
-              updateObj = { type: '', id: '', props: message.props, children: [] } as ComponentTree;
+            } else if (message.operation === 'update_props' && (message.props || message.children)) {
+              updateObj = { type: '', id: '', props: message.props || {}, children: message.children || [] } as ComponentTree;
+              // Flag whether children were explicitly provided in the message
+              (updateObj as any).__hasChildren = 'children' in message;
 
               // Notify Input/Textarea/Select components to force-sync their
               // local value state.  This handles the edge case where the prop
               // value string hasn't changed (e.g. "" → "") but the local
               // value has drifted due to user typing.
-              if ('value' in message.props && message.targetId) {
+              if (message.props && 'value' in message.props && message.targetId) {
                 window.dispatchEvent(
                   new CustomEvent('refast:force-value-sync', {
                     detail: { targetId: message.targetId, value: message.props.value },
@@ -392,10 +394,15 @@ function applyUpdate(
         if ('value' in newProps) {
           syncPropStoreForComponent(tree, newProps.value);
         }
-        return {
+        const result: ComponentTree = {
           ...tree,
           props: { ...tree.props, ...newProps },
         };
+        // If the update explicitly includes children, replace them
+        if ((update as any)?.__hasChildren) {
+          result.children = update?.children || [];
+        }
+        return result;
       }
 
       case 'update_children':

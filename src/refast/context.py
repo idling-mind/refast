@@ -1130,6 +1130,30 @@ class Context(Generic[T]):
                     }
                 )
 
+    @staticmethod
+    def _normalize_toast_button(button: dict) -> dict:
+        """
+        Normalize an action/cancel button dict for show_toast.
+
+        The ``callback`` key accepts any callback object returned by
+        ``ctx.callback()``, ``ctx.js()``, ``ctx.chain()``, etc.
+        It is serialized in-place so the frontend receives the full
+        action-ref structure (``callbackId``, ``jsFunction``, ``chain``, …).
+
+        Example::
+
+            {"label": "Undo", "callback": ctx.callback(undo_fn)}
+            {"label": "Run JS", "callback": ctx.js("alert('hi')")}
+            {"label": "Multi", "callback": ctx.chain([ctx.store_prop("x"), ctx.callback(fn)])}
+        """
+        result = dict(button)
+        if "callback" in result:
+            cb = result["callback"]
+            if hasattr(cb, "serialize"):
+                result["callback"] = cb.serialize()
+            # If it's already a plain dict, leave it as-is
+        return result
+
     async def show_toast(
         self,
         message: str,
@@ -1157,8 +1181,10 @@ class Context(Generic[T]):
             dismissible: Whether the toast can be dismissed by clicking (default: True)
             close_button: Whether to show a close button
             invert: Whether to invert the colors
-            action: Action button config - {"label": str, "callback_id": str}
-            cancel: Cancel button config - {"label": str, "callback_id": str}
+            action: Action button config: ``{"label": str, "callback": ctx.callback(fn)}``.
+                Accepts any callback type — ``ctx.callback()``, ``ctx.js()``,
+                ``ctx.chain()``, etc.
+            cancel: Cancel button config.  Same form as ``action``.
             toast_id: Custom ID for the toast (useful for updating/dismissing)
 
         Example:
@@ -1175,7 +1201,13 @@ class Context(Generic[T]):
             # Toast with action button
             await ctx.show_toast(
                 "File deleted",
-                action={"label": "Undo", "callback_id": "undo_delete"}
+                action={"label": "Undo", "callback": ctx.callback(undo_fn)}
+            )
+
+            # Toast with a JS callback action
+            await ctx.show_toast(
+                "Copied!",
+                action={"label": "Open", "callback": ctx.js("window.open('/dest')")}
             )
 
             # Loading toast
@@ -1202,9 +1234,9 @@ class Context(Generic[T]):
             if close_button is not None:
                 payload["close_button"] = close_button
             if action is not None:
-                payload["action"] = action
+                payload["action"] = self._normalize_toast_button(action)
             if cancel is not None:
-                payload["cancel"] = cancel
+                payload["cancel"] = self._normalize_toast_button(cancel)
             if toast_id is not None:
                 payload["id"] = toast_id
 

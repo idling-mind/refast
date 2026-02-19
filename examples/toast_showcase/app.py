@@ -137,7 +137,7 @@ async def show_toast_with_action(ctx: Context):
     await ctx.show_toast(
         "Item deleted",
         description="The item has been moved to trash",
-        action={"label": "Undo", "callback_id": "undo_delete"},
+        action={"label": "Undo", "callback": ctx.callback(undo_delete)},
         duration=5000,
     )
 
@@ -153,7 +153,7 @@ async def show_toast_with_cancel(ctx: Context):
         "Sending email...",
         variant="loading",
         description="Your message is being sent",
-        cancel={"label": "Cancel", "callback_id": "cancel_send"},
+        cancel={"label": "Cancel", "callback": ctx.callback(cancel_send)},
         duration=10000,
     )
 
@@ -169,8 +169,8 @@ async def show_toast_with_both_buttons(ctx: Context):
         "Confirm changes?",
         variant="info",
         description="You have unsaved changes that will be lost",
-        action={"label": "Save", "callback_id": "save_changes"},
-        cancel={"label": "Discard", "callback_id": "discard_changes"},
+        action={"label": "Save", "callback": ctx.callback(save_changes)},
+        cancel={"label": "Discard", "callback": ctx.callback(discard_changes)},
         duration=10000,
     )
 
@@ -291,17 +291,6 @@ async def show_multi_step_toast(ctx: Context):
         )
         if i < len(steps) - 1:
             await asyncio.sleep(1.5)
-
-
-# ============================================================================
-# Register Callbacks
-# ============================================================================
-
-# # Register action callbacks
-ui.register_callback("undo_delete", undo_delete)
-ui.register_callback("cancel_send", cancel_send)
-ui.register_callback("save_changes", save_changes)
-ui.register_callback("discard_changes", discard_changes)
 
 
 # ============================================================================

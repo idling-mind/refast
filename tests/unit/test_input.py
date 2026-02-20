@@ -44,11 +44,7 @@ class TestInput:
 
     def test_input_with_label_and_description(self):
         """Test Input with both label and description."""
-        inp = Input(
-            name="email",
-            label="Email Address",
-            description="Enter your email address"
-        )
+        inp = Input(name="email", label="Email Address", description="Enter your email address")
         rendered = inp.render()
         assert rendered["props"]["label"] == "Email Address"
         assert rendered["props"]["description"] == "Enter your email address"
@@ -92,11 +88,7 @@ class TestInput:
 
     def test_input_with_error_and_description(self):
         """Test Input with both error and description (error takes precedence)."""
-        inp = Input(
-            name="email",
-            description="Enter your email",
-            error="Invalid email address"
-        )
+        inp = Input(name="email", description="Enter your email", error="Invalid email address")
         rendered = inp.render()
         assert rendered["props"]["description"] == "Enter your email"
         assert rendered["props"]["error"] == "Invalid email address"
@@ -113,11 +105,7 @@ class TestInput:
     def test_input_with_keyboard_events(self):
         """Test Input with keyboard event callbacks."""
         cb = MockCallback()
-        inp = Input(
-            name="test",
-            on_keydown=cb,
-            on_keyup=cb
-        )
+        inp = Input(name="test", on_keydown=cb, on_keyup=cb)
         rendered = inp.render()
         assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
         assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
@@ -139,7 +127,7 @@ class TestInput:
             on_focus=cb,
             on_keydown=cb,
             on_keyup=cb,
-            on_input=cb
+            on_input=cb,
         )
         rendered = inp.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
@@ -169,7 +157,7 @@ class TestInput:
             error="",
             debounce=300,
             on_change=cb,
-            on_keydown=cb
+            on_keydown=cb,
         )
         rendered = inp.render()
         assert rendered["props"]["name"] == "email"
@@ -203,6 +191,49 @@ class TestTextarea:
         ta = Textarea(name="bio", debounce=150)
         rendered = ta.render()
         assert rendered["props"]["debounce"] == 150
+
+    def test_textarea_with_focus_events(self):
+        """Test Textarea with focus event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_blur=cb, on_focus=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_keyboard_events(self):
+        """Test Textarea with keyboard event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_keydown=cb, on_keyup=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_input_event(self):
+        """Test Textarea with onInput event callback."""
+        cb = MockCallback()
+        ta = Textarea(name="test", on_input=cb)
+        rendered = ta.render()
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
+
+    def test_textarea_with_all_events(self):
+        """Test Textarea with all event callbacks."""
+        cb = MockCallback()
+        ta = Textarea(
+            name="test",
+            on_change=cb,
+            on_blur=cb,
+            on_focus=cb,
+            on_keydown=cb,
+            on_keyup=cb,
+            on_input=cb,
+        )
+        rendered = ta.render()
+        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_blur"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_focus"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keydown"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_keyup"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["on_input"] == {"callbackId": "cb-123"}
 
 
 class TestSelect:
@@ -418,6 +449,3 @@ class TestRadioGroup:
         rg = RadioGroup(name="test", on_change=cb)
         rendered = rg.render()
         assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
-
-
-

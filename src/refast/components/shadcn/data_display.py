@@ -211,7 +211,134 @@ class TableCell(Component):
 
 
 class DataTable(Component):
-    """Data table with sorting, filtering, and pagination."""
+    """
+    High-level data table with built-in sorting, filtering, and pagination.
+
+    Renders a complete table from column definitions and row data, handling all
+    UI concerns (sort indicators, filter input, pagination controls) internally.
+    For full layout control — custom cell rendering, row selection, or complex
+    filters — use the lower-level :class:`Table`, :class:`TableHeader`,
+    :class:`TableBody`, :class:`TableRow`, :class:`TableHead`, and
+    :class:`TableCell` components instead.
+
+    **Column definition format:**
+
+    Each entry in ``columns`` is a ``dict`` with the following keys:
+
+    +---------------+--------+----------+--------------------------------------------------+
+    | Key           | Type   | Required | Description                                      |
+    +===============+========+==========+==================================================+
+    | ``key``       | str    | ✓        | Field name used to look up values in each row.   |
+    +---------------+--------+----------+--------------------------------------------------+
+    | ``header``    | str    | ✓        | Column header label.                             |
+    +---------------+--------+----------+--------------------------------------------------+
+    | ``sortable``  | bool   |          | Per-column sortable override. Falls back to the  |
+    |               |        |          | component-level ``sortable`` flag if omitted.    |
+    +---------------+--------+----------+--------------------------------------------------+
+    | ``width``     | str    |          | CSS width (e.g. ``"200px"``, ``"20%"``).         |
+    +---------------+--------+----------+--------------------------------------------------+
+    | ``align``     | str    |          | ``"left"`` (default), ``"center"``, ``"right"``. |
+    +---------------+--------+----------+--------------------------------------------------+
+
+    Example:
+        ```python
+        from refast import Context, RefastApp
+        from refast.components import Container, DataTable
+
+        ui = RefastApp(title="Users")
+
+
+        async def on_row_click(ctx: Context):
+            row = ctx.event_data          # full row dict
+            await ctx.show_toast(f"Clicked: {row['name']}")
+
+
+        async def on_sort(ctx: Context):
+            # event_data: {"key": "name", "direction": "asc"} or None
+            ctx.state.set("sort", ctx.event_data)
+            await ctx.refresh()
+
+
+        async def on_page(ctx: Context):
+            # event_data: {"page": 2}
+            ctx.state.set("page", ctx.event_data.get("page", 1))
+            await ctx.refresh()
+
+
+        @ui.page("/")
+        def home(ctx: Context):
+            return Container(
+                children=[
+                    DataTable(
+                        columns=[
+                            {"key": "id",     "header": "#", "width": "60px", "align": "right"},
+                            {"key": "name",   "header": "Name",   "sortable": True},
+                            {"key": "email",  "header": "Email",  "sortable": True},
+                            {"key": "role",   "header": "Role",   "align": "center"},
+                            {"key": "status", "header": "Status", "sortable": True},
+                        ],
+                        data=[
+                            {
+                                "id": 1, "name": "Alice",
+                                "email": "alice@example.com",
+                                "role": "Admin", "status": "active",
+                            },
+                            {
+                                "id": 2, "name": "Bob",
+                                "email": "bob@example.com",
+                                "role": "Editor", "status": "inactive",
+                            },
+                            {
+                                "id": 3, "name": "Carol",
+                                "email": "carol@example.com",
+                                "role": "Viewer", "status": "pending",
+                            },
+                        ],
+                        sortable=True,
+                        filterable=True,
+                        paginated=True,
+                        page_size=10,
+                        on_row_click=ctx.callback(on_row_click),
+                        on_sort_change=ctx.callback(on_sort),
+                        on_page_change=ctx.callback(on_page),
+                        empty_message="No users found.",
+                    )
+                ]
+            )
+        ```
+
+    Args:
+        columns: List of column definition dicts. Each dict must contain ``key``
+            (data field name) and ``header`` (display text). Optional keys:
+            ``sortable`` (bool), ``width`` (CSS string), and ``align``
+            (``"left"`` | ``"center"`` | ``"right"``).
+        data: List of row dicts. Each dict should contain at least all keys
+            referenced by ``columns``.
+        sortable: Enable clicking column headers to sort. Individual columns can
+            override this via their own ``sortable`` key. Defaults to ``True``.
+        filterable: Show a text filter input above the table. Filters across
+            all column values client-side. Defaults to ``True``.
+        paginated: Show pagination controls below the table. Defaults to ``True``.
+        page_size: Number of rows per page when ``paginated=True``. Defaults to ``10``.
+        loading: Display a loading overlay on top of the table while data is
+            being fetched. Defaults to ``False``.
+        empty_message: Text shown when ``data`` is empty or no rows match the
+            active filter. Defaults to ``"No data available"``.
+        current_page: Controlled current page (1-based). When set, the component
+            uses this value instead of managing page state internally. Pair with
+            ``on_page_change`` for server-side pagination.
+        on_row_click: Callback fired when a row is clicked. ``ctx.event_data``
+            contains all key-value pairs of the clicked row.
+        on_sort_change: Callback fired when sort state changes. ``ctx.event_data``
+            is ``{"key": "<column_key>", "direction": "asc"|"desc"}`` or ``None``
+            when sorting is cleared.
+        on_filter_change: Callback fired when the filter input changes.
+            ``ctx.event_data`` is ``{"value": "<filter_string>"}``.
+        on_page_change: Callback fired when the active page changes.
+            ``ctx.event_data`` is ``{"page": <page_number>}``.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "DataTable"
 
@@ -223,7 +350,13 @@ class DataTable(Component):
         filterable: bool = True,
         paginated: bool = True,
         page_size: int = 10,
+        loading: bool = False,
+        empty_message: str = "No data available",
+        current_page: int | None = None,
         on_row_click: Any = None,
+        on_sort_change: Any = None,
+        on_filter_change: Any = None,
+        on_page_change: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -235,22 +368,38 @@ class DataTable(Component):
         self.filterable = filterable
         self.paginated = paginated
         self.page_size = page_size
+        self.loading = loading
+        self.empty_message = empty_message
+        self.current_page = current_page
         self.on_row_click = on_row_click
+        self.on_sort_change = on_sort_change
+        self.on_filter_change = on_filter_change
+        self.on_page_change = on_page_change
 
     def render(self) -> dict[str, Any]:
-        props = {
+        props: dict[str, Any] = {
             "columns": self.columns,
             "data": self.data,
             "sortable": self.sortable,
             "filterable": self.filterable,
             "paginated": self.paginated,
             "page_size": self.page_size,
+            "loading": self.loading,
+            "empty_message": self.empty_message,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
 
+        if self.current_page is not None:
+            props["current_page"] = self.current_page
         if self.on_row_click:
             props["on_row_click"] = self.on_row_click.serialize()
+        if self.on_sort_change:
+            props["on_sort_change"] = self.on_sort_change.serialize()
+        if self.on_filter_change:
+            props["on_filter_change"] = self.on_filter_change.serialize()
+        if self.on_page_change:
+            props["on_page_change"] = self.on_page_change.serialize()
 
         return {
             "type": self.component_type,
@@ -698,4 +847,3 @@ class Image(Component):
             },
             "children": [],
         }
-

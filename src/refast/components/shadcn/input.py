@@ -91,7 +91,7 @@ class Input(Component):
         description: str | None = None,
         type: Literal["text", "email", "password", "number", "tel", "url", "search"] = "text",
         placeholder: str = "",
-        value: str = "",
+        value: str | None = None,
         required: bool = False,
         disabled: bool = False,
         readonly: bool = False,
@@ -133,7 +133,6 @@ class Input(Component):
             "description": self.description,
             "type": self.input_type,
             "placeholder": self.placeholder,
-            "value": self.value,
             "required": self.required,
             "disabled": self.disabled,
             "read_only": self.readonly,
@@ -142,6 +141,12 @@ class Input(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        # Only include value when explicitly set (not None) so the frontend
+        # Input starts as uncontrolled.  This allows update_props({"value": ""})
+        # to transition from undefined → "" and actually trigger a UI update.
+        if self.value is not None:
+            props["value"] = self.value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -155,10 +160,6 @@ class Input(Component):
             props["on_keyup"] = self.on_keyup.serialize()
         if self.on_input:
             props["on_input"] = self.on_input.serialize()
-
-        # Input usually doesn't need uncontrolled/controlled dichotomy as much unless it's live-validated
-        # But if value is None, we could treat it as uncontrolled. The current __init__ defaults value to ""
-        # so it is always controlled by default. This is fine for Input.
 
         return {
             "type": self.component_type,
@@ -179,13 +180,18 @@ class Textarea(Component):
         label: str | None = None,
         description: str | None = None,
         placeholder: str = "",
-        value: str = "",
+        value: str | None = None,
         rows: int = 3,
         required: bool = False,
         disabled: bool = False,
         error: str | None = None,
         debounce: int = 0,
         on_change: Any = None,
+        on_blur: Any = None,
+        on_focus: Any = None,
+        on_keydown: Any = None,
+        on_keyup: Any = None,
+        on_input: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -202,6 +208,11 @@ class Textarea(Component):
         self.error = error
         self.debounce = debounce
         self.on_change = on_change
+        self.on_blur = on_blur
+        self.on_focus = on_focus
+        self.on_keydown = on_keydown
+        self.on_keyup = on_keyup
+        self.on_input = on_input
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -209,7 +220,6 @@ class Textarea(Component):
             "label": self.label,
             "description": self.description,
             "placeholder": self.placeholder,
-            "value": self.value,
             "rows": self.rows,
             "required": self.required,
             "disabled": self.disabled,
@@ -219,8 +229,21 @@ class Textarea(Component):
             **self._serialize_extra_props(),
         }
 
+        if self.value is not None:
+            props["value"] = self.value
+
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
+        if self.on_blur:
+            props["on_blur"] = self.on_blur.serialize()
+        if self.on_focus:
+            props["on_focus"] = self.on_focus.serialize()
+        if self.on_keydown:
+            props["on_keydown"] = self.on_keydown.serialize()
+        if self.on_keyup:
+            props["on_keyup"] = self.on_keyup.serialize()
+        if self.on_input:
+            props["on_input"] = self.on_input.serialize()
 
         return {
             "type": self.component_type,
@@ -241,7 +264,7 @@ class Select(Component):
         options: list[dict[str, str]],  # [{"value": "a", "label": "Option A"}, ...]
         label: str | None = None,
         description: str | None = None,
-        value: str = "",
+        value: str | None = None,
         placeholder: str = "Select...",
         required: bool = False,
         disabled: bool = False,
@@ -269,7 +292,6 @@ class Select(Component):
             "options": self.options,
             "label": self.label,
             "description": self.description,
-            "value": self.value,
             "placeholder": self.placeholder,
             "required": self.required,
             "disabled": self.disabled,
@@ -277,6 +299,9 @@ class Select(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.value is not None:
+            props["value"] = self.value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -582,4 +607,3 @@ class RadioGroup(Component):
             "props": props,
             "children": self._render_children(),
         }
-

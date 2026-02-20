@@ -274,7 +274,7 @@ class LocalStore(BrowserStore):
         async def save_theme(ctx: Context, theme: str):
             # Save theme - persists even after browser restart
             ctx.store.local.set("theme", theme)
-            await ctx.push_update()
+            await ctx.refresh()
         ```
     """
 
@@ -309,7 +309,7 @@ class SessionStore(BrowserStore):
             # Save step - persists until tab is closed
             step = ctx.store.session.get("wizard_step", 1)
             ctx.store.session.set("wizard_step", step + 1)
-            await ctx.push_update()
+            await ctx.refresh()
         ```
     """
 
@@ -398,7 +398,7 @@ class Store:
             async def read_js_value(ctx: Context):
                 # JS may have set this value directly
                 await ctx.store.sync()
-                
+
                 # Now get() returns the fresh browser value
                 value = ctx.store.local.get("js_set_key")
                 print(f"Value from browser: {value}")

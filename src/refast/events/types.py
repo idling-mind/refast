@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ def _now_utc() -> datetime:
     return datetime.now(UTC)
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Built-in event types."""
 
     CALLBACK = "callback"
@@ -99,42 +99,3 @@ class CallbackEvent(Event):
 
 # Type alias for event handlers
 EventHandler = Callable[["Context", Event], Awaitable[Any]]
-
-
-@dataclass
-class Callback:
-    """
-    Represents a callback that can be triggered from the frontend.
-
-    Example:
-        ```python
-        cb = ctx.callback(handle_click, item_id=123)
-        Button("Click", on_click=cb)
-        ```
-
-    Attributes:
-        id: Unique identifier for the callback
-        func: The Python function to call
-        bound_args: Arguments bound at callback creation time
-        debounce: Milliseconds to debounce calls
-        throttle: Milliseconds to throttle calls
-    """
-
-    id: str
-    func: Callable[..., Any]
-    bound_args: dict[str, Any] = field(default_factory=dict)
-    debounce: int = 0  # Milliseconds to debounce
-    throttle: int = 0  # Milliseconds to throttle
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        return {
-            "callbackId": self.id,
-            "boundArgs": self.bound_args,
-            "debounce": self.debounce,
-            "throttle": self.throttle,
-        }
-
-    def __repr__(self) -> str:
-        """Return string representation."""
-        return f"Callback(id={self.id!r}, func={self.func.__name__!r})"

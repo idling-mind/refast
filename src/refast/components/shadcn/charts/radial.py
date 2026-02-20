@@ -121,5 +121,3 @@ class RadialBar(Component):
                 **self.props,
             },
         }
-
-

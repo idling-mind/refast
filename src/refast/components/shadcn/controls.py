@@ -431,7 +431,9 @@ class Calendar(Component):
                 "max_date": self._serialize_date(self.max_date),
                 "number_of_months": self.number_of_months,
                 "on_select": self.on_select.serialize() if self.on_select else None,
-                "on_month_change": self.on_month_change.serialize() if self.on_month_change else None,
+                "on_month_change": self.on_month_change.serialize()
+                if self.on_month_change
+                else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -443,7 +445,7 @@ class DatePicker(Component):
     """
     A date picker with input and calendar popup.
 
-    Supports both single date selection and date range selection.
+    Supports single, multiple, and range date selection.
 
     Example:
         ```python
@@ -474,7 +476,7 @@ class DatePicker(Component):
         description: Help text displayed below the label
         required: Whether the field is required (shows asterisk)
         error: Error message to display
-        mode: Selection mode - "single" or "range"
+        mode: Selection mode - "single", "multiple", or "range"
         caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
                        "dropdown-months", or "dropdown-years"
         min_date: Minimum selectable date
@@ -486,11 +488,11 @@ class DatePicker(Component):
 
     def __init__(
         self,
-        value: Any = None,  # date or {"from": date, "to": date} for range
+        value: Any = None,  # date, list[date], or {"from": date, "to": date} for range
         placeholder: str = "Pick a date",
         disabled: bool = False,
         format: str = "PPP",  # date-fns format
-        mode: Literal["single", "range"] = "single",
+        mode: Literal["single", "multiple", "range"] = "single",
         caption_layout: Literal["label", "dropdown", "dropdown-months", "dropdown-years"] = "label",
         min_date: Any = None,  # date or ISO string
         max_date: Any = None,  # date or ISO string
@@ -520,17 +522,23 @@ class DatePicker(Component):
         self.error = error
         self.on_change = on_change
 
-    def _serialize_date_value(self, d: Any) -> str | dict[str, str | None] | None:
-        """Serialize date value to ISO string or range object."""
+    def _serialize_date_value(self, d: Any) -> str | list[str] | dict[str, str | None] | None:
+        """Serialize date value to ISO string, list of ISO strings, or range object."""
         if d is None:
             return None
         if hasattr(d, "isoformat"):
             return d.isoformat()
+        if isinstance(d, list):
+            return [item.isoformat() if hasattr(item, "isoformat") else str(item) for item in d]
         if isinstance(d, dict):
             # Range mode: {"from": date, "to": date}
             return {
-                "from": d.get("from").isoformat() if d.get("from") and hasattr(d.get("from"), "isoformat") else d.get("from"),
-                "to": d.get("to").isoformat() if d.get("to") and hasattr(d.get("to"), "isoformat") else d.get("to"),
+                "from": d.get("from").isoformat()
+                if d.get("from") and hasattr(d.get("from"), "isoformat")
+                else d.get("from"),
+                "to": d.get("to").isoformat()
+                if d.get("to") and hasattr(d.get("to"), "isoformat")
+                else d.get("to"),
             }
         return str(d)
 
@@ -545,8 +553,12 @@ class DatePicker(Component):
                 "format": self.format,
                 "mode": self.mode,
                 "caption_layout": self.caption_layout,
-                "min_date": self.min_date.isoformat() if hasattr(self.min_date, "isoformat") else self.min_date,
-                "max_date": self.max_date.isoformat() if hasattr(self.max_date, "isoformat") else self.max_date,
+                "min_date": self.min_date.isoformat()
+                if hasattr(self.min_date, "isoformat")
+                else self.min_date,
+                "max_date": self.max_date.isoformat()
+                if hasattr(self.max_date, "isoformat")
+                else self.max_date,
                 "number_of_months": self.number_of_months,
                 "label": self.label,
                 "description": self.description,
@@ -586,7 +598,7 @@ class Combobox(Component):
     def __init__(
         self,
         options: list[dict[str, str]] | None = None,
-        value: str | list[str] = "",
+        value: str | list[str] | None = None,
         placeholder: str = "Select...",
         search_placeholder: str = "Search...",
         empty_text: str = "No results found.",
@@ -621,7 +633,7 @@ class Combobox(Component):
             "id": self.id,
             "props": {
                 "options": self.options,
-                "value": self.value,
+                **({"value": self.value} if self.value is not None else {}),
                 "placeholder": self.placeholder,
                 "search_placeholder": self.search_placeholder,
                 "empty_text": self.empty_text,
@@ -660,7 +672,7 @@ class InputOTP(Component):
     def __init__(
         self,
         max_length: int = 6,
-        value: str = "",
+        value: str | None = None,
         disabled: bool = False,
         pattern: str | None = None,  # Regex pattern for each character
         label: str | None = None,
@@ -694,7 +706,7 @@ class InputOTP(Component):
             "id": self.id,
             "props": {
                 "max_length": self.max_length,
-                "value": self.value,
+                **({"value": self.value} if self.value is not None else {}),
                 "disabled": self.disabled,
                 "pattern": self.pattern,
                 "label": self.label,
@@ -816,4 +828,3 @@ class InputOTPSeparator(Component):
             },
             "children": [],
         }
-

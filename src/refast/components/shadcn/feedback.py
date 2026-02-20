@@ -250,9 +250,7 @@ class ConnectionStatus(Component):
         self.js_on_reconnect = js_on_reconnect
         self.debounce_ms = debounce_ms
 
-    def _render_child_list(
-        self, children: list[Component | str]
-    ) -> list[dict[str, Any] | str]:
+    def _render_child_list(self, children: list[Component | str]) -> list[dict[str, Any] | str]:
         """Render a list of children to dicts."""
         result = []
         for child in children:

@@ -11,12 +11,9 @@ describe('ComponentRegistry', () => {
   it('has layout components registered', () => {
     expect(componentRegistry.has('Row')).toBe(true);
     expect(componentRegistry.has('Column')).toBe(true);
-    expect(componentRegistry.has('Stack')).toBe(true);
     expect(componentRegistry.has('Grid')).toBe(true);
     expect(componentRegistry.has('Flex')).toBe(true);
     expect(componentRegistry.has('Center')).toBe(true);
-    expect(componentRegistry.has('Spacer')).toBe(true);
-    expect(componentRegistry.has('Divider')).toBe(true);
   });
 
   it('has button components registered', () => {

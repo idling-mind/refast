@@ -236,6 +236,3 @@ class TestSession:
         """Test session update time."""
         session = Session()
         assert isinstance(session.updated_at, datetime)
-
-
-

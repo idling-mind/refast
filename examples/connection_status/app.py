@@ -142,7 +142,7 @@ def home(ctx: Context):
                                             "See the reconnection toast notification.",
                                         ],
                                         ordered=True,
-                                    )
+                                    ),
                                 ]
                             ),
                         ]
@@ -236,9 +236,7 @@ def home(ctx: Context):
                                                         class_name="items-center",
                                                         gap=2,
                                                         children=[
-                                                            Badge(
-                                                                "Python", variant="default"
-                                                            ),
+                                                            Badge("Python", variant="default"),
                                                             Text(
                                                                 "on_disconnect, on_reconnect",
                                                                 class_name="text-sm",
@@ -271,9 +269,7 @@ def home(ctx: Context):
                                     CardHeader(
                                         children=[
                                             CardTitle("Positioning"),
-                                            CardDescription(
-                                                "Choose where the indicator appears"
-                                            ),
+                                            CardDescription("Choose where the indicator appears"),
                                         ]
                                     ),
                                     CardContent(
@@ -289,9 +285,7 @@ def home(ctx: Context):
                                                     Badge("top-left", variant="outline"),
                                                     Badge("top-right", variant="outline"),
                                                     Badge("bottom-left", variant="outline"),
-                                                    Badge(
-                                                        "bottom-right", variant="default"
-                                                    ),
+                                                    Badge("bottom-right", variant="default"),
                                                     Badge("inline", variant="outline"),
                                                 ],
                                             ),
@@ -405,8 +399,8 @@ def home(ctx: Context):
             variant="destructive"
         )
     ]
-)"""
-                                    )
+)""",
+                                    ),
                                 ]
                             ),
                         ]

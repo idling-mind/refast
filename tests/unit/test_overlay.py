@@ -12,13 +12,13 @@ from refast.components.shadcn.overlay import (
     DialogTitle,
     DialogTrigger,
     Drawer,
-    DrawerTrigger,
+    DrawerClose,
     DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
     DrawerDescription,
     DrawerFooter,
-    DrawerClose,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
     HoverCard,
     Popover,
     Sheet,
@@ -258,6 +258,3 @@ class TestPopover:
         popover = Popover(on_open_change=cb)
         rendered = popover.render()
         assert rendered["props"]["on_open_change"] == {"callbackId": "cb-123"}
-
-
-

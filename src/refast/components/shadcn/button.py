@@ -149,4 +149,3 @@ class IconButton(Component):
             "props": props,
             "children": [],
         }
-

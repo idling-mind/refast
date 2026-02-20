@@ -153,6 +153,3 @@ class TestCardFooter:
         rendered = footer.render()
         assert rendered["type"] == "CardFooter"
         assert len(rendered["children"]) == 1
-
-
-

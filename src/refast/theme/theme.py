@@ -21,13 +21,13 @@ Example:
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ThemeMode(str, Enum):
+class ThemeMode(StrEnum):
     """Available theme modes."""
 
     LIGHT = "light"
@@ -106,11 +106,7 @@ class ThemeColors(BaseModel):
             if value is None:
                 continue
             # Use the alias (with dashes) if available, otherwise convert underscores
-            css_name = (
-                field_info.alias
-                if field_info.alias
-                else field_name.replace("_", "-")
-            )
+            css_name = field_info.alias if field_info.alias else field_name.replace("_", "-")
             result[f"--{css_name}"] = value
         return result
 

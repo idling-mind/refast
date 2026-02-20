@@ -137,7 +137,7 @@ async def show_toast_with_action(ctx: Context):
     await ctx.show_toast(
         "Item deleted",
         description="The item has been moved to trash",
-        action={"label": "Undo", "callback_id": "undo_delete"},
+        action={"label": "Undo", "callback": ctx.callback(undo_delete)},
         duration=5000,
     )
 
@@ -153,7 +153,7 @@ async def show_toast_with_cancel(ctx: Context):
         "Sending email...",
         variant="loading",
         description="Your message is being sent",
-        cancel={"label": "Cancel", "callback_id": "cancel_send"},
+        cancel={"label": "Cancel", "callback": ctx.callback(cancel_send)},
         duration=10000,
     )
 
@@ -169,8 +169,8 @@ async def show_toast_with_both_buttons(ctx: Context):
         "Confirm changes?",
         variant="info",
         description="You have unsaved changes that will be lost",
-        action={"label": "Save", "callback_id": "save_changes"},
-        cancel={"label": "Discard", "callback_id": "discard_changes"},
+        action={"label": "Save", "callback": ctx.callback(save_changes)},
+        cancel={"label": "Discard", "callback": ctx.callback(discard_changes)},
         duration=10000,
     )
 
@@ -294,17 +294,6 @@ async def show_multi_step_toast(ctx: Context):
 
 
 # ============================================================================
-# Register Callbacks
-# ============================================================================
-
-# # Register action callbacks
-ui.register_callback("undo_delete", undo_delete)
-ui.register_callback("cancel_send", cancel_send)
-ui.register_callback("save_changes", save_changes)
-ui.register_callback("discard_changes", discard_changes)
-
-
-# ============================================================================
 # Page Layout
 # ============================================================================
 
@@ -401,9 +390,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("With Description"),
-                                    CardDescription(
-                                        "Toasts can have additional descriptive text"
-                                    ),
+                                    CardDescription("Toasts can have additional descriptive text"),
                                 ]
                             ),
                             CardContent(
@@ -413,17 +400,13 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 "Success with Description",
-                                                on_click=ctx.callback(
-                                                    show_toast_with_description
-                                                ),
+                                                on_click=ctx.callback(show_toast_with_description),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
                                             Button(
                                                 "Error with Description",
-                                                on_click=ctx.callback(
-                                                    show_error_with_description
-                                                ),
+                                                on_click=ctx.callback(show_error_with_description),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
@@ -439,9 +422,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("Duration Options"),
-                                    CardDescription(
-                                        "Control how long toasts stay visible"
-                                    ),
+                                    CardDescription("Control how long toasts stay visible"),
                                 ]
                             ),
                             CardContent(
@@ -463,9 +444,7 @@ def home(ctx: Context):
                                             ),
                                             Button(
                                                 "Persistent (until dismissed)",
-                                                on_click=ctx.callback(
-                                                    show_persistent_toast
-                                                ),
+                                                on_click=ctx.callback(show_persistent_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
@@ -481,9 +460,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("Action Buttons"),
-                                    CardDescription(
-                                        "Add interactive buttons to toasts"
-                                    ),
+                                    CardDescription("Add interactive buttons to toasts"),
                                 ]
                             ),
                             CardContent(
@@ -493,25 +470,19 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 "With Undo Action",
-                                                on_click=ctx.callback(
-                                                    show_toast_with_action
-                                                ),
+                                                on_click=ctx.callback(show_toast_with_action),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
                                             Button(
                                                 "With Cancel Button",
-                                                on_click=ctx.callback(
-                                                    show_toast_with_cancel
-                                                ),
+                                                on_click=ctx.callback(show_toast_with_cancel),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
                                             Button(
                                                 "With Both Buttons",
-                                                on_click=ctx.callback(
-                                                    show_toast_with_both_buttons
-                                                ),
+                                                on_click=ctx.callback(show_toast_with_both_buttons),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
@@ -527,9 +498,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("Position Options"),
-                                    CardDescription(
-                                        "Show toasts in different screen positions"
-                                    ),
+                                    CardDescription("Show toasts in different screen positions"),
                                 ]
                             ),
                             CardContent(
@@ -540,49 +509,37 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 "Top Left",
-                                                on_click=ctx.callback(
-                                                    show_toast_top_left
-                                                ),
+                                                on_click=ctx.callback(show_toast_top_left),
                                                 variant="outline",
                                                 size="sm",
                                             ),
                                             Button(
                                                 "Top Center",
-                                                on_click=ctx.callback(
-                                                    show_toast_top_center
-                                                ),
+                                                on_click=ctx.callback(show_toast_top_center),
                                                 variant="outline",
                                                 size="sm",
                                             ),
                                             Button(
                                                 "Top Right",
-                                                on_click=ctx.callback(
-                                                    show_toast_top_right
-                                                ),
+                                                on_click=ctx.callback(show_toast_top_right),
                                                 variant="outline",
                                                 size="sm",
                                             ),
                                             Button(
                                                 "Bottom Left",
-                                                on_click=ctx.callback(
-                                                    show_toast_bottom_left
-                                                ),
+                                                on_click=ctx.callback(show_toast_bottom_left),
                                                 variant="outline",
                                                 size="sm",
                                             ),
                                             Button(
                                                 "Bottom Center",
-                                                on_click=ctx.callback(
-                                                    show_toast_bottom_center
-                                                ),
+                                                on_click=ctx.callback(show_toast_bottom_center),
                                                 variant="outline",
                                                 size="sm",
                                             ),
                                             Button(
                                                 "Bottom Right",
-                                                on_click=ctx.callback(
-                                                    show_toast_bottom_right
-                                                ),
+                                                on_click=ctx.callback(show_toast_bottom_right),
                                                 variant="outline",
                                                 size="sm",
                                             ),
@@ -598,9 +555,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("Style Options"),
-                                    CardDescription(
-                                        "Customize toast appearance and behavior"
-                                    ),
+                                    CardDescription("Customize toast appearance and behavior"),
                                 ]
                             ),
                             CardContent(
@@ -610,17 +565,13 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 "Inverted Colors",
-                                                on_click=ctx.callback(
-                                                    show_inverted_toast
-                                                ),
+                                                on_click=ctx.callback(show_inverted_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
                                             Button(
                                                 "Non-Dismissible",
-                                                on_click=ctx.callback(
-                                                    show_non_dismissible_toast
-                                                ),
+                                                on_click=ctx.callback(show_non_dismissible_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
@@ -636,9 +587,7 @@ def home(ctx: Context):
                             CardHeader(
                                 children=[
                                     CardTitle("Updating Toasts"),
-                                    CardDescription(
-                                        "Update existing toasts with new content"
-                                    ),
+                                    CardDescription("Update existing toasts with new content"),
                                 ]
                             ),
                             CardContent(
@@ -648,17 +597,13 @@ def home(ctx: Context):
                                         children=[
                                             Button(
                                                 "Upload Progress",
-                                                on_click=ctx.callback(
-                                                    show_updating_toast
-                                                ),
+                                                on_click=ctx.callback(show_updating_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),
                                             Button(
                                                 "Multi-Step Process",
-                                                on_click=ctx.callback(
-                                                    show_multi_step_toast
-                                                ),
+                                                on_click=ctx.callback(show_multi_step_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),

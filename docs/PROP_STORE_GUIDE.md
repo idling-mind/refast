@@ -7,15 +7,15 @@ The **Prop Store** is a frontend-only state management feature that enables effi
 When building forms in Refast, you typically need to track input values so they can be accessed when the user clicks a submit button. The traditional approach requires a callback for each input that syncs the value to `ctx.state` on every keystroke - resulting in unnecessary server roundtrips.
 
 The prop store solves this by:
-1. Storing values **on the frontend** when events occur
-2. Sending all stored values **only when a callback is invoked**
-3. Making stored values available via `ctx.prop_store` in any callback
+1. Storing values **on the frontend** when events occur (via `ctx.store_prop()`)
+2. Sending requested values **only when a callback is invoked** (via `props=[...]`)
+3. Delivering requested values as **keyword arguments** to your Python callback
 
 ## Basic Usage
 
 ### Storing Values
 
-Use the `store_as` parameter in `ctx.callback()` to capture event values:
+Use `ctx.store_prop()` to capture event values on the frontend:
 
 ```python
 from refast import Context, RefastApp
@@ -30,19 +30,19 @@ def form_page(ctx: Context):
             # Store the input value as "email" (no server call on change)
             Input(
                 placeholder="Enter email",
-                on_change=ctx.callback(store_as="email"),
+                on_change=ctx.store_prop("email"),
             ),
             
             # Store another input as "username"
             Input(
                 placeholder="Enter username", 
-                on_change=ctx.callback(store_as="username"),
+                on_change=ctx.store_prop("username"),
             ),
             
-            # Submit button - all prop_store values sent with this callback
+            # Submit button - request props as keyword arguments
             Button(
                 "Submit",
-                on_click=ctx.callback(handle_submit),
+                on_click=ctx.callback(handle_submit, props=["email", "username"]),
             ),
         ]
     )
@@ -50,13 +50,11 @@ def form_page(ctx: Context):
 
 ### Accessing Stored Values
 
-In any callback, access stored values via `ctx.prop_store`:
+Stored values are delivered as **keyword arguments** to your callback when you use `props=[...]`:
 
 ```python
-async def handle_submit(ctx: Context):
-    # Access values stored via store_as
-    email = ctx.prop_store.get("email", "")
-    username = ctx.prop_store.get("username", "")
+async def handle_submit(ctx: Context, email: str = "", username: str = ""):
+    # Values from store_prop arrive as keyword arguments
     
     # Validate and process
     if not email or "@" not in email:
@@ -70,28 +68,49 @@ async def handle_submit(ctx: Context):
 
 ## API Reference
 
-### `ctx.callback(func=None, *, store_as=None, **bound_args)`
+### `ctx.store_prop(name, *, debounce=0, throttle=0)`
 
-Create a callback with optional prop store functionality.
+Create a store action that saves event data in the frontend prop store.
 
 **Parameters:**
-- `func` (Callable, optional): The Python function to call. If omitted with `store_as`, creates a store-only callback.
-- `store_as` (str | dict, optional): Store directive for capturing event data.
+- `name` (str | dict): Store directive for capturing event data.
   - `str`: Store the event's `value` under this key
   - `dict`: Map event data keys to store keys (e.g., `{"value": "email", "name": "field"}`)
+- `debounce` (int, optional): Milliseconds to debounce the store write
+- `throttle` (int, optional): Milliseconds to throttle the store write
+
+**Returns:** `StoreProp` action
+
+### `ctx.chain(actions, *, mode="serial")`
+
+Compose multiple actions to fire on a single event.
+
+**Parameters:**
+- `actions` (list): List of actions (Callback, JsCallback, BoundJsCallback, StoreProp, or ChainedAction)
+- `mode` (str): `"serial"` (default) or `"parallel"`
+
+**Returns:** `ChainedAction` object
+
+### `ctx.callback(func, *, props=None, debounce=0, throttle=0, **bound_args)`
+
+Create a callback that can be triggered from the frontend.
+
+**Parameters:**
+- `func` (Callable): The Python function to call.
+- `props` (list[str], optional): List of prop store keys to send as keyword arguments. Supports regex patterns (e.g., `["input_.*"]`).
+- `debounce` (int, optional): Milliseconds to debounce the server call
+- `throttle` (int, optional): Milliseconds to throttle the server call
 - `**bound_args`: Arguments to bind to the callback
 
 **Returns:** `Callback` object
 
-### `ctx.prop_store`
+### `props` Parameter
 
-A dict-like object containing all values stored via `store_as` directives.
+The `props` parameter specifies which stored values to include as keyword arguments when the callback is invoked. Supports:
 
-**Methods:**
-- `get(key, default=None)`: Get a stored value
-- `keys()`: Get all stored keys
-- `values()`: Get all stored values
-- `items()`: Get all key-value pairs
+- **Exact keys**: `props=["email", "username"]`
+- **Regex patterns**: `props=["input_.*"]` matches all keys starting with `input_`
+- **Mixed**: `props=["email", "field_.*"]`
 
 ## Usage Patterns
 
@@ -101,24 +120,23 @@ When you only need to capture a value without any immediate processing:
 
 ```python
 # No server roundtrip - value stored on frontend only
-Input(on_change=ctx.callback(store_as="field_name"))
+Input(on_change=ctx.store_prop("field_name"))
 ```
 
-### Store and Process
+### Store and Process with ctx.chain
 
 When you need to both store the value AND run validation/processing:
 
 ```python
 async def validate_and_store(ctx: Context, value: str):
-    # This runs on every change (with debounce recommended)
     if len(value) < 3:
         await ctx.toast("Too short", variant="warning")
 
 Input(
-    on_change=ctx.callback(
-        validate_and_store,
-        store_as="username",  # Also stores as "username"
-    )
+    on_change=ctx.chain([
+        ctx.store_prop("username"),
+        ctx.callback(validate_and_store),
+    ])
 )
 ```
 
@@ -130,37 +148,36 @@ Map specific event data fields to different store keys:
 # Store event.value as "order_amount" and event.name as "field_id"
 Input(
     name="amount",
-    on_change=ctx.callback(
-        store_as={"value": "order_amount", "name": "field_id"}
-    )
+    on_change=ctx.store_prop({"value": "order_amount", "name": "field_id"})
 )
 ```
 
 ### Combining with Debounce
 
-For real-time validation without excessive calls:
+For real-time validation without excessive calls, use per-action debounce in a chain:
 
 ```python
 from refast.components import Input
 
 Input(
-    on_change=ctx.callback(
-        validate_email,
-        store_as="email",
-        debounce=300,  # Wait 300ms after typing stops
-    )
+    on_change=ctx.chain([
+        ctx.store_prop("email"),
+        ctx.callback(validate_email, props=["email"], debounce=300),
+    ])
 )
 ```
 
+The store_prop fires immediately (so the prop store always has the latest value), while the callback is debounced to 300ms.
+
 ## Comparison with ctx.state
 
-| Feature | ctx.state | ctx.prop_store |
-|---------|-----------|----------------|
+| Feature | ctx.state | Prop Store (ctx.store_prop + props) |
+|---------|-----------|-------------------------------|
 | Storage location | Backend (Python) | Frontend (Browser) |
 | Server roundtrip | Every update | Only on callback invoke |
 | Persistence | Across page renders | Until page refresh |
 | Use case | App state, complex data | Form inputs, temp values |
-| Access pattern | Read/write anytime | Read in callbacks |
+| Access pattern | Read/write anytime | Keyword args in callbacks |
 
 ### When to Use Which
 
@@ -169,7 +186,7 @@ Input(
 - You need to trigger UI updates based on state changes
 - You're storing complex application state
 
-**Use `ctx.prop_store` when:**
+**Use `ctx.store_prop` + `props` when:**
 - Capturing form input values
 - You don't need to react to every change
 - You want to minimize server roundtrips
@@ -187,14 +204,9 @@ from refast.components import (
 ui = RefastApp(title="Registration Form")
 
 
-async def handle_register(ctx: Context):
-    # Get all form values from prop_store
-    username = ctx.prop_store.get("username", "")
-    email = ctx.prop_store.get("email", "")
-    password = ctx.prop_store.get("password", "")
-    confirm = ctx.prop_store.get("confirm_password", "")
-    
-    # Validate
+async def handle_register(ctx: Context, username: str = "", email: str = "",
+                          password: str = "", confirm_password: str = ""):
+    # Values arrive as keyword arguments via props=[...]
     errors = []
     if len(username) < 3:
         errors.append("Username must be at least 3 characters")
@@ -202,7 +214,7 @@ async def handle_register(ctx: Context):
         errors.append("Invalid email address")
     if len(password) < 8:
         errors.append("Password must be at least 8 characters")
-    if password != confirm:
+    if password != confirm_password:
         errors.append("Passwords don't match")
     
     if errors:
@@ -212,7 +224,7 @@ async def handle_register(ctx: Context):
         # Process registration...
         await ctx.toast("Registration successful!", variant="success")
     
-    await ctx.push_update()
+    await ctx.refresh()
 
 
 @ui.page("/")
@@ -230,7 +242,7 @@ def registration_form(ctx: Context):
                             *[Alert(variant="destructive", description=e) 
                               for e in errors],
                             
-                            # Form fields - all use store_as
+                            # Form fields - all use ctx.store_prop
                             Column(
                                 class_name="gap-4",
                                 children=[
@@ -240,7 +252,7 @@ def registration_form(ctx: Context):
                                             Label("Username"),
                                             Input(
                                                 placeholder="Choose a username",
-                                                on_change=ctx.callback(store_as="username"),
+                                                on_change=ctx.store_prop("username"),
                                             ),
                                         ]
                                     ),
@@ -251,7 +263,7 @@ def registration_form(ctx: Context):
                                             Input(
                                                 type="email",
                                                 placeholder="your@email.com",
-                                                on_change=ctx.callback(store_as="email"),
+                                                on_change=ctx.store_prop("email"),
                                             ),
                                         ]
                                     ),
@@ -262,7 +274,7 @@ def registration_form(ctx: Context):
                                             Input(
                                                 type="password",
                                                 placeholder="••••••••",
-                                                on_change=ctx.callback(store_as="password"),
+                                                on_change=ctx.store_prop("password"),
                                             ),
                                         ]
                                     ),
@@ -273,13 +285,16 @@ def registration_form(ctx: Context):
                                             Input(
                                                 type="password",
                                                 placeholder="••••••••",
-                                                on_change=ctx.callback(store_as="confirm_password"),
+                                                on_change=ctx.store_prop("confirm_password"),
                                             ),
                                         ]
                                     ),
                                     Button(
                                         "Register",
-                                        on_click=ctx.callback(handle_register),
+                                        on_click=ctx.callback(
+                                            handle_register,
+                                            props=["username", "email", "password", "confirm_password"],
+                                        ),
                                         class_name="w-full",
                                     ),
                                 ]
@@ -300,15 +315,23 @@ def registration_form(ctx: Context):
 
 3. **Validate on submit**: Don't validate every keystroke unless needed - validate in the submit callback
 
-4. **Combine with debounce for real-time validation**: If you need to show validation as the user types:
+4. **Combine store_prop with debounced callback for real-time validation**:
    ```python
-   Input(on_change=ctx.callback(validate, store_as="field", debounce=300))
+   Input(on_change=ctx.chain([
+       ctx.store_prop("field"),
+       ctx.callback(validate, props=["field"], debounce=300),
+   ]))
    ```
 
-5. **Clear sensitive data after use**: The prop store persists until page refresh, so clear sensitive fields after processing if needed
+5. **Use regex patterns in props**: For forms with many fields sharing a prefix:
+   ```python
+   Button(on_click=ctx.callback(handle_submit, props=["form_.*"]))
+   ```
+
+6. **Clear sensitive data after use**: The prop store persists until page refresh, so clear sensitive fields after processing if needed
 
 ## Limitations
 
 - **Frontend-only storage**: Values are lost on page refresh (use `ctx.state` or `ctx.store` for persistence)
-- **No automatic sync**: Unlike `ctx.state`, prop_store values don't trigger re-renders
-- **Callback-scoped access**: Values are only available when a callback is invoked
+- **No automatic sync**: Prop store values don't trigger re-renders
+- **Callback-scoped access**: Values are only available as kwargs when `props=[...]` is specified

@@ -1,9 +1,16 @@
 import React, { useMemo } from 'react';
-import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef } from '../types';
+import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, StorePropRef, ChainedActionRef, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
-import { debounce, throttle } from '../utils';
-import { propStore } from '../state/PropStore';
+import {
+  EventManagerInterface,
+  isCallbackRef,
+  isJsCallbackRef,
+  isBoundMethodCallbackRef,
+  isStorePropRef,
+  isChainedActionRef,
+  createSingleActionExecutor,
+} from '../utils/actionExecutor';
 
 interface ComponentRendererProps {
   tree: ComponentTree | string;
@@ -48,6 +55,10 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
         result[camelKey] = createJsCallbackHandler(value);
       } else if (isBoundMethodCallbackRef(value)) {
         result[camelKey] = createBoundMethodCallbackHandler(value);
+      } else if (isStorePropRef(value)) {
+        result[camelKey] = createStorePropHandler(value);
+      } else if (isChainedActionRef(value)) {
+        result[camelKey] = createChainedActionHandler(value, eventManager);
       } else if (isFormatterString(key, value)) {
         // Convert formatter strings to functions (e.g., tickFormatter)
         result[camelKey] = createFormatterFunction(value as string);
@@ -108,42 +119,6 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
 ComponentRenderer.displayName = 'ComponentRenderer';
 
 /**
- * Check if a value is a callback reference (Python callback).
- */
-function isCallbackRef(value: unknown): value is CallbackRef {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'callbackId' in value
-  );
-}
-
-/**
- * Check if a value is a JavaScript callback reference (client-side execution).
- */
-function isJsCallbackRef(value: unknown): value is JsCallbackRef {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'jsFunction' in value
-  );
-}
-
-/**
- * Check if a value is a bound method callback reference (calls a method on a component).
- */
-function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCallbackRef {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'boundMethod' in value &&
-    typeof (value as BoundMethodCallbackRef).boundMethod === 'object' &&
-    'targetId' in (value as BoundMethodCallbackRef).boundMethod &&
-    'methodName' in (value as BoundMethodCallbackRef).boundMethod
-  );
-}
-
-/**
  * Check if a prop key/value pair is a formatter string that needs conversion.
  * Checks for both camelCase and snake_case versions.
  */
@@ -202,180 +177,68 @@ function createFormatterFunction(expression: string): (value: unknown, index?: n
 }
 
 /**
- * Event manager interface for callback handling.
+ * Create the top-level event handler for any action ref.
+ * This is the function that React event props (onClick, onChange, etc.) call.
  */
-interface EventManagerInterface {
-  invokeCallback: (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => void;
+function createActionHandler(
+  ref: AnyActionRef,
+  eventManager: EventManagerInterface,
+): (...args: unknown[]) => void {
+  const executor = createSingleActionExecutor(ref, eventManager);
+
+  return (...args: unknown[]) => {
+    const eventData = extractEventData(args);
+    // Fire-and-forget — we don't await because React event handlers are sync
+    executor(eventData, args);
+  };
 }
 
 /**
- * Create a handler function for a callback reference.
- * Handles store_as directives for prop store and optional store-only mode.
- * When `props` is specified, only those prop store values are sent.
+ * Create a handler function for a callback reference (Python callback).
  */
 function createCallbackHandler(
   ref: CallbackRef,
-  eventManager: EventManagerInterface
+  eventManager: EventManagerInterface,
 ): (...args: unknown[]) => void {
-  const { callbackId, boundArgs, debounce: debounceMs, throttle: throttleMs, storeAs, storeOnly, props } = ref;
-
-  let handler = (...args: unknown[]) => {
-    // Extract event data from args
-    const eventData = extractEventData(args);
-
-    // Handle store_as directive - store values in the prop store
-    if (storeAs) {
-      if (typeof storeAs === 'string') {
-        // Simple form: store_as="key" stores eventData.value as key
-        propStore.set(storeAs, eventData.value);
-      } else if (typeof storeAs === 'object') {
-        // Advanced form: store_as={"value": "email", "name": "field_name"}
-        // Maps event data keys to prop store keys
-        for (const [eventKey, storeKey] of Object.entries(storeAs)) {
-          if (eventKey in eventData) {
-            propStore.set(storeKey, eventData[eventKey]);
-          }
-        }
-      }
-    }
-
-    // If store-only mode, don't invoke the callback (no server roundtrip)
-    if (storeOnly) {
-      return;
-    }
-
-    // Build the data to send with the callback
-    // If props is specified, include only those prop store values
-    // Props can be exact keys or regex patterns (e.g., "input_[0-9]+")
-    let propsData: Record<string, unknown> = {};
-    if (props && props.length > 0) {
-      const allStoreKeys = propStore.keys();
-      
-      for (const pattern of props) {
-        // Check if pattern contains regex metacharacters
-        const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
-        
-        if (isRegex) {
-          // Treat as regex pattern - match against all store keys
-          try {
-            const regex = new RegExp(`^${pattern}$`);
-            for (const key of allStoreKeys) {
-              if (regex.test(key)) {
-                const value = propStore.get(key);
-                if (value !== undefined) {
-                  propsData[key] = value;
-                }
-              }
-            }
-          } catch (e) {
-            // Invalid regex, treat as literal key
-            console.warn(`[Refast] Invalid regex pattern in props: ${pattern}`);
-            const value = propStore.get(pattern);
-            if (value !== undefined) {
-              propsData[pattern] = value;
-            }
-          }
-        } else {
-          // Exact key match
-          const value = propStore.get(pattern);
-          if (value !== undefined) {
-            propsData[pattern] = value;
-          }
-        }
-      }
-    }
-
-    eventManager.invokeCallback(callbackId, {
-      ...propsData,
-      ...boundArgs,
-    }, eventData);
-  };
-
-  // Apply debounce
-  if (debounceMs && debounceMs > 0) {
-    handler = debounce(handler, debounceMs);
-  }
-
-  // Apply throttle
-  if (throttleMs && throttleMs > 0) {
-    handler = throttle(handler, throttleMs);
-  }
-
-  return handler;
+  return createActionHandler(ref, eventManager);
 }
 
 /**
  * Create a handler function for a JavaScript callback reference.
- * Executes the JavaScript code directly in the browser without server roundtrip.
  */
 function createJsCallbackHandler(
-  ref: JsCallbackRef
+  ref: JsCallbackRef,
 ): (...args: unknown[]) => void {
-  const { jsFunction, boundArgs } = ref;
-
-  return (...args: unknown[]) => {
-    try {
-      // Extract event data from args
-      const eventData = extractEventData(args);
-      
-      // Get the element that triggered the event (if available)
-      let element: HTMLElement | null = null;
-      if (args[0] && typeof args[0] === 'object' && 'target' in args[0]) {
-        const event = args[0] as React.SyntheticEvent;
-        element = event.target as HTMLElement;
-      }
-
-      // Create a function that has access to event, args, and element
-      // eslint-disable-next-line no-new-func
-      const fn = new Function('event', 'args', 'element', jsFunction);
-      fn(eventData, boundArgs, element);
-    } catch (error) {
-      console.error('[Refast] Error executing JavaScript callback:', error);
-      console.error('[Refast] Code:', jsFunction);
-    }
-  };
+  // JsCallback doesn't need eventManager; pass a dummy
+  return createActionHandler(ref, { invokeCallback: () => {} });
 }
 
 /**
  * Create a handler function for a bound method callback reference.
- * Calls a specific method on a component identified by its ID.
  */
 function createBoundMethodCallbackHandler(
-  ref: BoundMethodCallbackRef
+  ref: BoundMethodCallbackRef,
 ): (...args: unknown[]) => void {
-  const { boundMethod } = ref;
-  const { targetId, methodName, args: positionalArgs = [], kwargs = {} } = boundMethod;
+  return createActionHandler(ref, { invokeCallback: () => {} });
+}
 
-  return () => {
-    try {
-      const element = document.getElementById(targetId);
-      if (element) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const method = (element as any)[methodName];
-        if (typeof method === 'function') {
-          // Combine positional args and kwargs
-          // If there are kwargs, pass them as the last argument (as an object)
-          const hasKwargs = Object.keys(kwargs).length > 0;
-          const allArgs = hasKwargs ? [...positionalArgs, kwargs] : positionalArgs;
-          
-          if (allArgs.length === 0) {
-            method.call(element);
-          } else if (allArgs.length === 1) {
-            method.call(element, allArgs[0]);
-          } else {
-            method.apply(element, allArgs);
-          }
-        } else {
-          console.warn(`[Refast] Method '${methodName}' not found on element '${targetId}'`);
-        }
-      } else {
-        console.warn(`[Refast] Element with id '${targetId}' not found`);
-      }
-    } catch (error) {
-      console.error('[Refast] Error calling bound method:', error);
-      console.error('[Refast] Target:', targetId, 'Method:', methodName);
-    }
-  };
+/**
+ * Create a handler function for a store prop reference.
+ */
+function createStorePropHandler(
+  ref: StorePropRef,
+): (...args: unknown[]) => void {
+  return createActionHandler(ref, { invokeCallback: () => {} });
+}
+
+/**
+ * Create a handler function for a chained action reference.
+ */
+function createChainedActionHandler(
+  ref: ChainedActionRef,
+  eventManager: EventManagerInterface,
+): (...args: unknown[]) => void {
+  return createActionHandler(ref, eventManager);
 }
 
 /**
@@ -386,27 +249,45 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
 
   const first = args[0];
 
+  // Date object (e.g., Calendar onSelect in single mode)
+  if (first instanceof Date) {
+    return {
+      value: first.toISOString(),
+      date: first.toISOString(),
+    };
+  }
+
   // React event
   if (first && typeof first === 'object' && 'target' in first) {
     const event = first as React.SyntheticEvent<HTMLInputElement>;
     const target = event.target as HTMLInputElement;
+    const data: Record<string, unknown> = {};
 
     // Only extract form-field properties from actual form elements.
     // Buttons and their children have empty/undefined value/name which
     // would pollute callback kwargs inconsistently.
     const tag = target.tagName?.toLowerCase();
     if (tag === 'input' || tag === 'select' || tag === 'textarea') {
-      const data: Record<string, unknown> = {
-        value: target.value,
-        name: target.name,
-      };
+      data.value = target.value;
+      data.name = target.name;
       if (target.type === 'checkbox' || target.type === 'radio') {
         data.checked = target.checked;
       }
-      return data;
     }
 
-    return {};
+    // Extract keyboard event properties (onKeyDown, onKeyUp, onKeyPress)
+    if ('key' in event) {
+      const ke = event as unknown as React.KeyboardEvent;
+      data.key = ke.key;
+      data.code = ke.code;
+      if (ke.altKey) data.altKey = true;
+      if (ke.ctrlKey) data.ctrlKey = true;
+      if (ke.metaKey) data.metaKey = true;
+      if (ke.shiftKey) data.shiftKey = true;
+      if (ke.repeat) data.repeat = true;
+    }
+
+    return data;
   }
 
   // Plain value

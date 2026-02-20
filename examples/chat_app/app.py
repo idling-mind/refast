@@ -84,23 +84,23 @@ async def set_username(ctx: Context, username: str = ""):
         ctx.state.set("username", username.strip())
 
 
-async def update_message_text(ctx: Context, value: str):
+async def update_message_text(ctx: Context):
     """Update message text state."""
+    value = ctx.event_data["value"]
     ctx.state.set("message_text", value)
-    print("Updated message text:", value)
 
 
-async def send_message(ctx: Context):
+async def send_message(ctx: Context, **kwargs):
     """Send a new message."""
-    text = ctx.state.get("message_text", "")
-    if not text.strip():
+    input_message = kwargs.get("input_message")
+    if not input_message.strip():
         return
 
     username = get_username(ctx)
     message = Message(
         id=str(uuid.uuid4()),
         username=username,
-        text=text.strip(),
+        text=input_message.strip(),
     )
 
     MESSAGES.append(message)
@@ -110,9 +110,8 @@ async def send_message(ctx: Context):
         MESSAGES.pop(0)
 
     # Clear input
-    ctx.state.set("message_text", "")
-    print(f"Sent message from {username}: {text.strip()}")
-    print(f"All messages: {[m.to_dict() for m in MESSAGES]}")
+    await ctx.call_js("console.log('cleared input')")
+    await ctx.update_props("message-input", {"value": ""})
 
     # Use replace() for efficient partial update - only update the messages list
     await ctx.replace("messages-list", render_messages_list(MESSAGES, username))
@@ -135,8 +134,7 @@ async def send_message(ctx: Context):
     # This ensures that one slow client doesn't block updates for others
     if ui.active_contexts:
         await asyncio.gather(
-            *(update_client(c) for c in ui.active_contexts if c != ctx),
-            return_exceptions=True
+            *(update_client(c) for c in ui.active_contexts if c != ctx), return_exceptions=True
         )
 
 
@@ -263,9 +261,15 @@ def chat(ctx: Context):
                                                 id="message-input",
                                                 name="message",
                                                 placeholder="Type a message...",
-                                                value=ctx.state.get("message_text", ""),
-                                                on_change=ctx.callback(update_message_text),
-                                                debounce=500,
+                                                on_change=ctx.store_prop("input_message"),
+                                                on_keydown=ctx.js(
+                                                    """
+                                                    if (event.key === 'Enter') {
+                                                        refast.invoke(args.on_submit, { input_message: event.value });
+                                                    }
+                                                    """,
+                                                    on_submit=ctx.callback(send_message),
+                                                ),
                                             )
                                         ],
                                     ),
@@ -273,7 +277,7 @@ def chat(ctx: Context):
                                         "Send",
                                         id="send-btn",
                                         variant="primary",
-                                        on_click=ctx.callback(send_message),
+                                        on_click=ctx.callback(send_message, props=["input_message"]),
                                     ),
                                 ],
                             )

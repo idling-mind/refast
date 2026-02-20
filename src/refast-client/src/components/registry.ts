@@ -13,7 +13,7 @@ import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
 import { ConnectionStatus } from './shadcn/ConnectionStatus';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar, Image, Tooltip, Tabs, TabItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './shadcn/data_display';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, DataTable, Avatar, Image, Tooltip, Tabs, TabItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './shadcn/data_display';
 
 // Import new Stage 9 components - Controls
 import { Switch, Slider, Toggle, ToggleGroup, ToggleGroupItem, DatePicker, Calendar, Combobox, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from './shadcn/controls';
@@ -51,7 +51,7 @@ import {
 
 // Import new Stage 9 components - Utility
 import {
-  Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
+  Toaster, Separator, AspectRatio, ScrollArea, Collapsible, CollapsibleTrigger, CollapsibleContent,
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
   ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
@@ -168,6 +168,7 @@ componentRegistry.register('AlertDescription', AlertDescription);
 componentRegistry.register('Badge', Badge);
 componentRegistry.register('Progress', Progress);
 componentRegistry.register('Spinner', Spinner);
+componentRegistry.register('Toast', Toaster);
 componentRegistry.register('Skeleton', Skeleton);
 componentRegistry.register('ConnectionStatus', ConnectionStatus);
 
@@ -178,6 +179,7 @@ componentRegistry.register('TableBody', TableBody);
 componentRegistry.register('TableRow', TableRow);
 componentRegistry.register('TableHead', TableHead);
 componentRegistry.register('TableCell', TableCell);
+componentRegistry.register('DataTable', DataTable);
 componentRegistry.register('Avatar', Avatar);
 componentRegistry.register('Image', Image);
 componentRegistry.register('Tooltip', Tooltip);

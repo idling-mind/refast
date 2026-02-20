@@ -1,6 +1,6 @@
 # Prop Store Example
 
-This example demonstrates the **prop_store** feature for efficient form handling.
+This example demonstrates the **prop store** feature for efficient form handling.
 
 ## What is Prop Store?
 
@@ -25,11 +25,14 @@ Input(
 ```python
 # Values are stored on the frontend - no server calls until submit
 Input(
-    on_change=ctx.callback(store_as="email")  # Frontend-only!
+    on_change=ctx.store_prop("email"),  # Frontend-only!
 )
 
-async def handle_submit(ctx: Context):
-    email = ctx.prop_store.get("email")  # Access all stored values
+async def handle_submit(ctx: Context, email: str = ""):
+    # 'email' arrives as a keyword argument via props=["email"]
+    ...
+
+Button("Submit", on_click=ctx.callback(handle_submit, props=["email"]))
 ```
 
 ## Key Benefits
@@ -37,7 +40,7 @@ async def handle_submit(ctx: Context):
 1. **Fewer Server Roundtrips**: Input values are captured on the frontend
 2. **Less Boilerplate**: No need for individual state update handlers per field
 3. **Better Performance**: No network latency on every keystroke
-4. **Simple API**: Just use `store_as="key"` in your callbacks
+4. **Simple API**: Just use `ctx.store_prop("key")` + `props=["key"]`
 
 ## Running the Example
 
@@ -50,10 +53,10 @@ Then open http://127.0.0.1:8000 in your browser.
 
 ## How It Works
 
-1. Input components use `on_change=ctx.callback(store_as="key")` to capture values
+1. Input components use `on_change=ctx.store_prop("key")` to capture values
 2. When the user types, values are stored in the frontend prop store (no server call)
-3. When the Submit button is clicked, all prop store values are sent with the callback
-4. The callback accesses values via `ctx.prop_store.get("key")`
+3. When the Submit button is clicked, values listed in `props=[...]` are sent as keyword arguments
+4. The callback receives them as regular Python keyword arguments
 
 ## Advanced Usage
 
@@ -62,20 +65,30 @@ Then open http://127.0.0.1:8000 in your browser.
 ```python
 # Map event data keys to different store keys
 Input(
-    on_change=ctx.callback(store_as={"value": "user_email", "name": "field_name"})
+    on_change=ctx.store_prop({"value": "user_email", "name": "field_name"})
 )
 ```
 
 ### Store and Call Function
 
 ```python
-# Store value AND call a validation function
+# Store value AND call a validation function using ctx.chain
 async def validate_email(ctx: Context, value: str):
     # Called on every change, value also stored as "email"
     if "@" not in value:
         await ctx.toast("Invalid email format", variant="warning")
 
 Input(
-    on_change=ctx.callback(validate_email, store_as="email")
+    on_change=ctx.chain([
+        ctx.store_prop("email"),
+        ctx.callback(validate_email),
+    ])
 )
+```
+
+### Regex Pattern Matching in props
+
+```python
+# Match all keys starting with "input_"
+Button(on_click=ctx.callback(handle_submit, props=["input_.*"]))
 ```

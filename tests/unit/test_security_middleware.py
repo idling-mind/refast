@@ -340,6 +340,3 @@ class TestSecurityMiddlewareConfiguration:
 
         # Should use custom cookie name
         assert "my_csrf" in response.cookies
-
-
-

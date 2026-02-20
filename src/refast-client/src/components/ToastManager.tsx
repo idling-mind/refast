@@ -1,5 +1,8 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Toaster, toast, type ExternalToast } from 'sonner';
+import { AnyActionRef } from '../types';
+import { useEventManager } from '../events/EventManager';
+import { createSingleActionExecutor } from '../utils/actionExecutor';
 
 interface ToastEventDetail {
   message: string;
@@ -10,8 +13,8 @@ interface ToastEventDetail {
   dismissible?: boolean;
   close_button?: boolean;
   invert?: boolean;
-  action?: { label: string; callback_id: string };
-  cancel?: { label: string; callback_id: string };
+  action?: { label: string; callback: AnyActionRef };
+  cancel?: { label: string; callback: AnyActionRef };
   id?: string;
 }
 
@@ -60,6 +63,9 @@ export function ToastManager({
   hotkey = ['altKey', 'KeyT'],
   invert = false,
 }: ToastManagerProps): React.ReactElement {
+  const eventManager = useEventManager();
+
+  // Detect current theme from document element
   // Detect current theme from document element
   // This syncs with ThemeSwitcher which adds 'dark' or 'light' class to <html>
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
@@ -88,18 +94,6 @@ export function ToastManager({
     });
 
     return () => observer.disconnect();
-  }, []);
-
-  // Create action/cancel button handlers
-  const createActionHandler = useCallback((callbackId: string) => {
-    return () => {
-      // Dispatch a callback event to be handled by EventManager
-      window.dispatchEvent(
-        new CustomEvent('refast:callback', {
-          detail: { callbackId, data: {} },
-        })
-      );
-    };
   }, []);
 
   // Listen for refast:toast events
@@ -132,17 +126,19 @@ export function ToastManager({
 
       // Add action button if specified
       if (action) {
+        const executor = createSingleActionExecutor(action.callback, eventManager);
         options.action = {
           label: action.label,
-          onClick: createActionHandler(action.callback_id),
+          onClick: () => { executor({}, []); },
         };
       }
 
       // Add cancel button if specified
       if (cancel) {
+        const executor = createSingleActionExecutor(cancel.callback, eventManager);
         options.cancel = {
           label: cancel.label,
-          onClick: createActionHandler(cancel.callback_id),
+          onClick: () => { executor({}, []); },
         };
       }
 
@@ -181,7 +177,7 @@ export function ToastManager({
     return () => {
       window.removeEventListener('refast:toast', handleToastEvent as EventListener);
     };
-  }, [createActionHandler]);
+  }, [eventManager]);
 
   return (
     <Toaster
@@ -201,7 +197,10 @@ export function ToastManager({
       toastOptions={{
         classNames: {
           toast: 'group',
-        },
+        }
+      }}
+      style={{
+        fontFamily: 'inherit'
       }}
     />
   );

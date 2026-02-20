@@ -346,6 +346,3 @@ class TestSanitizeDecorator:
 
         assert my_handler.__name__ == "my_handler"
         assert "Handler docstring" in my_handler.__doc__
-
-
-

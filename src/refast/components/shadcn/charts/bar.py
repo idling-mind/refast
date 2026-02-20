@@ -3,7 +3,7 @@
 from typing import Any, Literal
 
 from refast.components.base import Component
-from refast.events.types import Callback
+from refast.context import Callback
 
 
 class BarChart(Component):
@@ -100,8 +100,12 @@ class BarChart(Component):
                 "reverseStackOrder": self.reverse_stack_order,
                 "maxBarSize": self.max_bar_size,
                 "on_click": self.on_click.serialize() if self.on_click else None,
-                "on_mouse_enter": (self.on_mouse_enter.serialize() if self.on_mouse_enter else None),
-                "on_mouse_leave": (self.on_mouse_leave.serialize() if self.on_mouse_leave else None),
+                "on_mouse_enter": (
+                    self.on_mouse_enter.serialize() if self.on_mouse_enter else None
+                ),
+                "on_mouse_leave": (
+                    self.on_mouse_leave.serialize() if self.on_mouse_leave else None
+                ),
                 "on_mouse_move": (self.on_mouse_move.serialize() if self.on_mouse_move else None),
             },
             "children": [c.render() for c in self.children],
@@ -215,5 +219,3 @@ class Bar(Component):
                 **self.extra_props,
             },
         }
-
-

@@ -86,7 +86,7 @@ class TestCode:
         """Test Code with class_name prop renders as className."""
         code = Code("code", class_name="my-class")
         rendered = code.render()
-        assert rendered["props"]["className"] == "my-class"
+        assert rendered["props"]["class_name"] == "my-class"
 
 
 class TestLink:
@@ -188,6 +188,3 @@ $$
         md = Markdown("Content")
         rendered = md.render()
         assert rendered["children"] == []
-
-
-

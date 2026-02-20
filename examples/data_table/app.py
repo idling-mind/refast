@@ -15,6 +15,14 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
+    Avatar,
+    Badge,
+    Button,
+    Card,
+    CardContent,
+    Checkbox,
+    Column,
+    Container,
     Dialog,
     DialogAction,
     DialogCancel,
@@ -24,14 +32,6 @@ from refast.components import (
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Avatar,
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    Checkbox,
-    Column,
-    Container,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -310,9 +310,7 @@ def home(ctx: Context):
                                                             ),
                                                             DialogFooter(
                                                                 children=[
-                                                                    DialogCancel(
-                                                                        label="Cancel"
-                                                                    ),
+                                                                    DialogCancel(label="Cancel"),
                                                                     DialogAction(
                                                                         label="Delete",
                                                                         on_click=ctx.callback(

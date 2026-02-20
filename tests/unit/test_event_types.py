@@ -2,8 +2,8 @@
 
 from datetime import datetime
 
+from refast.context import Callback
 from refast.events.types import (
-    Callback,
     CallbackEvent,
     Event,
     EventType,
@@ -168,7 +168,6 @@ class TestCallback:
         cb = Callback(id="cb-1", func=handler, debounce=300)
         serialized = cb.serialize()
         assert serialized["debounce"] == 300
-        assert serialized["throttle"] == 0
 
     def test_callback_with_throttle(self):
         """Test callback with throttle."""
@@ -189,6 +188,3 @@ class TestCallback:
         cb = Callback(id="cb-1", func=my_handler)
         assert "cb-1" in repr(cb)
         assert "my_handler" in repr(cb)
-
-
-

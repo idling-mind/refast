@@ -224,4 +224,3 @@ class Center(Component):
             },
             "children": self._render_children(),
         }
-

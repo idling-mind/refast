@@ -5,7 +5,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from refast.components.base import Component
-from refast.events.types import Callback
+from refast.context import Callback
 
 
 class ChartConfig(BaseModel):
@@ -277,5 +277,3 @@ class ChartLegendContent(Component):
                 "hideIcon": self.hide_icon,
             },
         }
-
-

@@ -363,6 +363,3 @@ class TestRateLimitFunction:
             await handler(request)
 
         assert exc_info.value.status_code == 429
-
-
-

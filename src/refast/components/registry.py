@@ -133,6 +133,7 @@ class ReactComponent(Component):
     def _camel_to_snake(name: str) -> str:
         """Convert camelCase to snake_case."""
         import re
+
         # Insert underscore before uppercase letters and lowercase them
-        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+        s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()

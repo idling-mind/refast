@@ -97,6 +97,11 @@ interface InputProps {
 
 /**
  * Input component - shadcn-styled text input with label, description, and error support.
+ * 
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
+ * This is useful for reducing server calls while the user is typing.
+ * Per-action debounce/throttle (on Callback, StoreProp, etc.) is applied
+ * independently by the action execution engine in ComponentRenderer.
  */
 export function Input({
   id,
@@ -138,6 +143,27 @@ export function Input({
     }
   }, [value]);
 
+  // Listen for force-value-sync events from update_props.
+  // This handles the edge case where the prop value string hasn't changed
+  // (e.g. "" → "") but localValue has drifted due to user typing.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        lastValueRef.current = newValue;
+        setLocalValue(newValue);
+        // Cancel any pending debounced onChange so it doesn't push
+        // a stale user-typed value back via store_prop.
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+          debounceTimeout.current = null;
+        }
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
+
   React.useEffect(() => () => {
     if (debounceTimeout.current !== null) {
       window.clearTimeout(debounceTimeout.current);
@@ -159,10 +185,14 @@ export function Input({
           window.clearTimeout(debounceTimeout.current);
         }
 
+        // Spread only copies own enumerable properties from the DOM element.
+        // tagName, name, type live on the prototype chain and must be
+        // copied explicitly so that extractEventData can identify this as
+        // a form element and extract its value.
         const syntheticEvent = {
           ...e,
-          target: { ...e.target, value: nextValue },
-          currentTarget: { ...e.currentTarget, value: nextValue },
+          target: { ...e.target, tagName: e.target.tagName, name: e.target.name, type: e.target.type, value: nextValue },
+          currentTarget: { ...e.currentTarget, tagName: e.currentTarget.tagName, name: e.currentTarget.name, type: e.currentTarget.type, value: nextValue },
         } as React.ChangeEvent<HTMLInputElement>;
 
         debounceTimeout.current = window.setTimeout(() => {
@@ -175,7 +205,7 @@ export function Input({
 
       onChangeRef.current(e);
     },
-    [debounce]
+    [debounce, name]
   );
 
   const inputElement = (
@@ -242,11 +272,16 @@ interface TextareaProps {
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
   onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+  onKeydown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onKeyup?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onInput?: (event: React.FormEvent<HTMLTextAreaElement>) => void;
   'data-refast-id'?: string;
 }
 
 /**
  * Textarea component - shadcn-styled textarea with label, description, and error support.
+ * 
+ * The `debounce` prop delays calling `onChange` by the specified milliseconds.
  */
 export function Textarea({
   id,
@@ -265,6 +300,9 @@ export function Textarea({
   onChange,
   onBlur,
   onFocus,
+  onKeydown,
+  onKeyup,
+  onInput,
   'data-refast-id': dataRefastId,
 }: TextareaProps): React.ReactElement {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
@@ -284,6 +322,23 @@ export function Textarea({
       }
     }
   }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        lastValueRef.current = newValue;
+        setLocalValue(newValue);
+        if (debounceTimeout.current !== null) {
+          window.clearTimeout(debounceTimeout.current);
+          debounceTimeout.current = null;
+        }
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   React.useEffect(() => () => {
     if (debounceTimeout.current !== null) {
@@ -306,10 +361,14 @@ export function Textarea({
           window.clearTimeout(debounceTimeout.current);
         }
 
+        // Spread only copies own enumerable properties from the DOM element.
+        // tagName, name live on the prototype chain and must be copied
+        // explicitly so that extractEventData can identify this as a
+        // form element and extract its value.
         const syntheticEvent = {
           ...e,
-          target: { ...e.target, value: nextValue },
-          currentTarget: { ...e.currentTarget, value: nextValue },
+          target: { ...e.target, tagName: e.target.tagName, name: e.target.name, value: nextValue },
+          currentTarget: { ...e.currentTarget, tagName: e.currentTarget.tagName, name: e.currentTarget.name, value: nextValue },
         } as React.ChangeEvent<HTMLTextAreaElement>;
 
         debounceTimeout.current = window.setTimeout(() => {
@@ -322,7 +381,7 @@ export function Textarea({
 
       onChangeRef.current(e);
     },
-    [debounce]
+    [debounce, name]
   );
 
   const textareaElement = (
@@ -337,6 +396,9 @@ export function Textarea({
       onChange={handleChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onKeyDown={onKeydown}
+      onKeyUp={onKeyup}
+      onInput={onInput}
       className={cn(
         'flex min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm',
         'ring-offset-background placeholder:text-muted-foreground',
@@ -417,6 +479,18 @@ export function Select({
       setLocalValue(value);
     }
   }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setLocalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLocalValue(e.target.value);
@@ -735,6 +809,18 @@ export function RadioGroup({
       setLocalValue(value);
     }
   }, [value]);
+
+  // Listen for force-value-sync events from update_props.
+  React.useEffect(() => {
+    const handleForceSync = (e: Event) => {
+      const { targetId, value: newValue } = (e as CustomEvent).detail;
+      if (targetId === id && newValue !== undefined) {
+        setLocalValue(newValue);
+      }
+    };
+    window.addEventListener('refast:force-value-sync', handleForceSync);
+    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+  }, [id]);
 
   const handleValueChange = (newValue: string) => {
     setLocalValue(newValue);

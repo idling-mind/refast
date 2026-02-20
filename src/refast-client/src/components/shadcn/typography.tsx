@@ -55,8 +55,8 @@ export function Heading({
   'data-refast-id': dataRefastId,
 }: HeadingProps): React.ReactElement {
   const sizeClasses = {
-    1: 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
-    2: 'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0',
+    1: 'scroll-m-20 text-4xl font-bold tracking-tight',
+    2: 'scroll-m-20 text-3xl font-semibold tracking-tight',
     3: 'scroll-m-20 text-2xl font-semibold tracking-tight',
     4: 'scroll-m-20 text-xl font-semibold tracking-tight',
     5: 'scroll-m-20 text-lg font-semibold tracking-tight',
@@ -159,6 +159,7 @@ interface CodeProps {
   id?: string;
   className?: string;
   inline?: boolean;
+  showLineNumbers?: boolean;
   language?: string;
   code?: string;
   children?: React.ReactNode;
@@ -173,6 +174,7 @@ export function Code({
   id,
   className,
   inline = true,
+  showLineNumbers = false,
   language,
   code,
   children,
@@ -303,7 +305,7 @@ export function Code({
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
           }}
-          showLineNumbers={false}
+          showLineNumbers={showLineNumbers}
         >
           {codeString}
         </SyntaxHighlighter>

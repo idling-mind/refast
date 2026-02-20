@@ -7,9 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from refast import RefastApp
-from refast.extensions import Extension
 from refast.components.base import Component
-
+from refast.extensions import Extension
 
 # =============================================================================
 # Test Fixtures
@@ -361,9 +360,9 @@ class TestRouterExtensionIntegration:
 
     def test_extension_assets_in_html(self):
         """Extension assets should be included in HTML."""
-        from refast.router import RefastRouter
-        from refast.context import Context
         from refast.components import Container
+        from refast.context import Context
+        from refast.router import RefastRouter
 
         app = RefastApp(auto_discover_extensions=False)
         ext = SampleExtension()
@@ -379,14 +378,14 @@ class TestRouterExtensionIntegration:
         html = router._render_html_shell(component, ctx)
 
         # Check extension assets are included
-        assert '/static/ext/test-extension/test.js' in html
-        assert '/static/ext/test-extension/test.css' in html
+        assert "/static/ext/test-extension/test.js" in html
+        assert "/static/ext/test-extension/test.css" in html
 
     def test_extension_assets_order(self):
         """Extension assets should come after core assets."""
-        from refast.router import RefastRouter
-        from refast.context import Context
         from refast.components import Container
+        from refast.context import Context
+        from refast.router import RefastRouter
 
         app = RefastApp(auto_discover_extensions=False)
         ext = SampleExtension()
@@ -432,9 +431,7 @@ class TestExtensionStaticRouting:
             router = RefastRouter(app)
 
             # Call the handler
-            response = await router._extension_static_handler(
-                "test-extension", "test.js"
-            )
+            response = await router._extension_static_handler("test-extension", "test.js")
 
             assert response.status_code == 200
 
@@ -446,9 +443,7 @@ class TestExtensionStaticRouting:
         app = RefastApp(auto_discover_extensions=False)
         router = RefastRouter(app)
 
-        response = await router._extension_static_handler(
-            "unknown-extension", "test.js"
-        )
+        response = await router._extension_static_handler("unknown-extension", "test.js")
 
         assert response.status_code == 404
 
@@ -466,11 +461,6 @@ class TestExtensionStaticRouting:
 
             router = RefastRouter(app)
 
-            response = await router._extension_static_handler(
-                "test-extension", "nonexistent.js"
-            )
+            response = await router._extension_static_handler("test-extension", "nonexistent.js")
 
             assert response.status_code == 404
-
-
-

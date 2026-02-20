@@ -102,7 +102,7 @@ class RefastApp:
         self._callbacks: dict[str, Callable] = {}
         self._event_handlers: dict[str, Callable] = {}
         self._router: RefastRouter | None = None
-        self._extensions: dict[str, "Extension"] = {}
+        self._extensions: dict[str, Extension] = {}
 
         # Auto-discover extensions via entry points
         if auto_discover_extensions:
@@ -209,14 +209,10 @@ class RefastApp:
         from refast.extensions import Extension
 
         if not isinstance(extension, Extension):
-            raise TypeError(
-                f"Expected Extension instance, got {type(extension).__name__}"
-            )
+            raise TypeError(f"Expected Extension instance, got {type(extension).__name__}")
 
         if extension.name in self._extensions:
-            raise ValueError(
-                f"Extension '{extension.name}' is already registered"
-            )
+            raise ValueError(f"Extension '{extension.name}' is already registered")
 
         # Validate extension configuration
         errors = extension.validate()
@@ -263,9 +259,7 @@ class RefastApp:
                 self.register_extension(extension)
                 logger.debug(f"Auto-discovered extension: {ep.name}")
             except Exception as e:
-                logger.warning(
-                    f"Failed to load extension '{ep.name}': {e}"
-                )
+                logger.warning(f"Failed to load extension '{ep.name}': {e}")
 
     def get_extension(self, name: str) -> "Extension | None":
         """
@@ -334,4 +328,3 @@ class RefastApp:
             ```
         """
         self._head_tags.append(html)
-

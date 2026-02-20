@@ -206,10 +206,12 @@ from refast.components.shadcn import (
     ToggleGroup,
     ToggleGroupItem,
     Tooltip,
+    charts,
 )
 from refast.components.slot import Slot
 
 __all__ = [
+    "charts",
     # Base
     "Component",
     "Container",

@@ -34,7 +34,6 @@ CONTENT = r"""
 - **Grid** — CSS Grid with configurable columns and gap
 - **Center** — Centers its children both horizontally and vertically
 - **Box** — Generic container
-- **Stack** — Vertical stack with gap
 - **Separator** — Horizontal or vertical divider line
 - **AspectRatio** — Maintains a specific aspect ratio
 - **ScrollArea** / **ScrollBar** — Custom scrollable area

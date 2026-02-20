@@ -1,6 +1,7 @@
 """
 Utilities to convert shadcn-style registry JSON into Refast Theme objects.
 """
+
 from __future__ import annotations
 
 import json
@@ -21,6 +22,7 @@ def _normalize_key(key: str) -> str:
 
 def _as_theme_colors(mapping: dict[str, Any]) -> ThemeColors:
     """Convert a mapping (CSS vars section) into a ThemeColors instance."""
+
     def _convert_value(v: Any) -> Any:
         if isinstance(v, str):
             m = re.match(r"^oklch\(\s*([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s*\)$", v)
@@ -31,7 +33,7 @@ def _as_theme_colors(mapping: dict[str, Any]) -> ThemeColors:
                 return _oklch_to_hsl_str(l, c, h)
         return v
 
-    normalized = { _normalize_key(k): _convert_value(v) for k, v in mapping.items() }
+    normalized = {_normalize_key(k): _convert_value(v) for k, v in mapping.items()}
     return ThemeColors(**normalized)
 
 
@@ -44,7 +46,7 @@ def _oklch_to_hsl_str(l: float, c: float, h_deg: float) -> str:
     """
     r, g, b = _oklch_to_srgb(l, c, h_deg)
     h, s, light = _rgb_to_hsl(r, g, b)
-    return f"{round(h,4)} {round(s*100,4)}% {round(light*100,4)}%"
+    return f"{round(h, 4)} {round(s * 100, 4)}% {round(light * 100, 4)}%"
 
 
 def _oklch_to_srgb(L: float, C: float, h_deg: float) -> tuple[float, float, float]:
@@ -60,9 +62,9 @@ def _oklch_to_srgb(L: float, C: float, h_deg: float) -> tuple[float, float, floa
     m_ = L - 0.1055613458 * a - 0.0638541728 * b
     s_ = L - 0.0894841775 * a - 1.2914855480 * b
 
-    l = l_ ** 3
-    m = m_ ** 3
-    s = s_ ** 3
+    l = l_**3
+    m = m_**3
+    s = s_**3
 
     r = (+4.0767416621 * l) + (-3.3077115913 * m) + (0.2309699292 * s)
     g = (-1.2684380046 * l) + (2.6097574011 * m) + (-0.3413193965 * s)

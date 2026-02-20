@@ -464,22 +464,22 @@ interface MarkdownProps {
   id?: string;
   className?: string;
   content: string;
-  allowLatex?: boolean;
   allowHtml?: boolean;
   'data-refast-id'?: string;
 }
 
 /**
- * Markdown component - renders Markdown content with optional LaTeX support.
+ * Markdown component - renders Markdown content.
  * Uses react-markdown with remark-gfm for GitHub Flavored Markdown.
- * When allowLatex is true, supports inline math with $...$ and display math with $$...$$.
  * Automatically adapts code block styling to light/dark theme.
+ *
+ * Note: LaTeX/math rendering has been removed from the client bundle.
+ * For math support, render LaTeX server-side in Python and pass as HTML.
  */
 export function Markdown({
   id,
   className,
   content,
-  allowLatex = true,
   allowHtml = false,
   'data-refast-id': dataRefastId,
 }: MarkdownProps): React.ReactElement {
@@ -487,11 +487,7 @@ export function Markdown({
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [ReactMarkdown, setReactMarkdown] = React.useState<React.ComponentType<any> | null>(null);
-  const [plugins, setPlugins] = React.useState<{
-    remarkGfm?: unknown;
-    remarkMath?: unknown;
-    rehypeKatex?: unknown;
-  }>({});
+  const [remarkGfm, setRemarkGfm] = React.useState<unknown>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [SyntaxHighlighter, setSyntaxHighlighter] = React.useState<React.ComponentType<any> | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -510,19 +506,7 @@ export function Markdown({
         ]);
         
         setReactMarkdown(() => reactMarkdownModule.default as React.ComponentType<any>);
-        
-        const newPlugins: typeof plugins = {
-          remarkGfm: remarkGfmModule.default,
-        };
-
-        if (allowLatex) {
-          const [remarkMathModule, rehypeKatexModule] = await Promise.all([
-            import('remark-math'),
-            import('rehype-katex'),
-          ]);
-          newPlugins.remarkMath = remarkMathModule.default;
-          newPlugins.rehypeKatex = rehypeKatexModule.default;
-        }
+        setRemarkGfm(() => remarkGfmModule.default);
 
         // Load syntax highlighter with PrismLight for smaller bundle
         try {
@@ -576,15 +560,13 @@ export function Markdown({
         } catch (err) {
           console.error('Failed to load syntax highlighter:', err);
         }
-
-        setPlugins(newPlugins);
       } catch (error) {
         console.error('Failed to load markdown libraries:', error);
       }
     };
 
     loadMarkdown();
-  }, [allowLatex]);
+  }, []);
 
   if (!ReactMarkdown) {
     // Loading state or fallback to raw content
@@ -600,16 +582,9 @@ export function Markdown({
   }
 
   const remarkPlugins: unknown[] = [];
-  const rehypePlugins: unknown[] = [];
 
-  if (plugins.remarkGfm) {
-    remarkPlugins.push(plugins.remarkGfm);
-  }
-  if (allowLatex && plugins.remarkMath) {
-    remarkPlugins.push(plugins.remarkMath);
-  }
-  if (allowLatex && plugins.rehypeKatex) {
-    rehypePlugins.push(plugins.rehypeKatex);
+  if (remarkGfm) {
+    remarkPlugins.push(remarkGfm);
   }
 
   // Custom components for styling
@@ -750,7 +725,6 @@ export function Markdown({
     >
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
-        rehypePlugins={rehypePlugins}
         components={allowHtml ? undefined : components}
       >
         {content}

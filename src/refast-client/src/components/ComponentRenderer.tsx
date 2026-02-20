@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense } from 'react';
 import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, StorePropRef, ChainedActionRef, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
@@ -11,6 +11,19 @@ import {
   isChainedActionRef,
   createSingleActionExecutor,
 } from '../utils/actionExecutor';
+
+/**
+ * Default loading fallback for lazy-loaded components.
+ * Shows a subtle shimmer animation that minimises layout shift.
+ */
+function LazyFallback() {
+  return (
+    <div
+      className="animate-pulse rounded bg-muted/40"
+      style={{ minHeight: 24, minWidth: 48 }}
+    />
+  );
+}
 
 interface ComponentRendererProps {
   tree: ComponentTree | string;
@@ -96,11 +109,21 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { parentStyle, ...componentProps } = processedProps;
 
+  // Determine if the component is lazy (needs Suspense boundary)
+  const needsSuspense = componentRegistry.isLazy(type);
+
   const componentElement = (
     <Component {...componentProps} {...rest} data-refast-id={id} ref={ref}>
       {renderedChildren}
     </Component>
   );
+
+  // Wrap in Suspense if this component was lazily resolved
+  const wrappedElement = needsSuspense ? (
+    <Suspense fallback={<LazyFallback />}>
+      {componentElement}
+    </Suspense>
+  ) : componentElement;
 
   if (parentStyle) {
     return (
@@ -109,12 +132,12 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
         className="refast-component-wrapper"
         data-wrapper-for={id}
       >
-        {componentElement}
+        {wrappedElement}
       </div>
     );
   }
 
-  return componentElement;
+  return wrappedElement;
 });
 ComponentRenderer.displayName = 'ComponentRenderer';
 

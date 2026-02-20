@@ -1088,10 +1088,13 @@ class TestContextUpdatePropsChildren:
         ctx = Context(websocket=ws)
 
         child = Container(id="new-child")
-        await ctx.update_props("parent", {
-            "class_name": "p-4 bg-white",
-            "children": [child],
-        })
+        await ctx.update_props(
+            "parent",
+            {
+                "class_name": "p-4 bg-white",
+                "children": [child],
+            },
+        )
 
         call_args = ws.send_json.call_args[0][0]
         assert call_args["props"] == {"class_name": "p-4 bg-white"}

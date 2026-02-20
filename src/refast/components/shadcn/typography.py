@@ -153,11 +153,10 @@ class Link(Component):
 
 class Markdown(Component):
     """
-    Markdown component with optional LaTeX math support.
+    Markdown component with GitHub Flavored Markdown (GFM) support.
 
-    Renders Markdown content with GitHub Flavored Markdown (GFM) features.
-    When allow_latex is True, supports inline math with $...$ and display
-    math with $$...$$.
+    Renders Markdown content with GFM features including tables,
+    strikethrough, task lists, and syntax-highlighted code blocks.
 
     Example:
         ```python
@@ -167,20 +166,17 @@ class Markdown(Component):
 
             This is **bold** and *italic* text.
 
-            Math: $E = mc^2$
-
-            Display math:
-            $$
-            \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
-            $$
+            ```python
+            print("Hello!")
+            ```
             \"\"\",
-            allow_latex=True,
         )
         ```
 
     Args:
         content: The Markdown content to render.
-        allow_latex: Whether to enable LaTeX math rendering (default True).
+        allow_latex: Deprecated — LaTeX is now rendered server-side. Kept
+            for backward compatibility; this parameter is ignored.
         allow_html: Whether to allow raw HTML in markdown (default False for security).
     """
 

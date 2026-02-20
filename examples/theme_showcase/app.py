@@ -227,9 +227,15 @@ ui = RefastApp(
 )
 
 # Add more assets programmatically. Required by some of the themes showcased below.
-ui.add_head_tag('<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">')
-ui.add_head_tag('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">')
-ui.add_head_tag('<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">')
+ui.add_head_tag(
+    '<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">'
+)
+ui.add_head_tag(
+    '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">'
+)
+ui.add_head_tag(
+    '<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">'
+)
 
 
 # ── Callbacks ────────────────────────────────────────────────────────────
@@ -726,7 +732,9 @@ def home(ctx: Context):
                                                 children=PieChart(
                                                     children=[
                                                         ChartTooltip(
-                                                            content=ChartTooltipContent(hideLabel=True)
+                                                            content=ChartTooltipContent(
+                                                                hideLabel=True
+                                                            )
                                                         ),
                                                         Pie(
                                                             data=pie_data,
@@ -740,631 +748,420 @@ def home(ctx: Context):
                                     ),
                                 ],
                             ),
-                    # Accordion
-                    Card(
-                        class_name="col-span-1",
-                        children=[
-                            CardHeader(
+                            # Accordion
+                            Card(
+                                class_name="col-span-1",
                                 children=[
-                                    CardTitle("Accordion"),
-                                    CardDescription("Collapsible content sections"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Column(
-                                        gap=4,
+                                    CardHeader(
                                         children=[
-                                            Text(
-                                                "Open: None",
-                                                id="accordion-status",
-                                                class_name="text-sm mb-2",
-                                            ),
-                                            Accordion(
-                                                default_value=None,
-                                                type="single",
-                                                collapsible=True,
-                                                on_value_change=ctx.callback(on_accordion_change),
-                                                children=[
-                                                    AccordionItem(
-                                                        value="item-1",
-                                                        children=[
-                                                            AccordionTrigger(children=["Section One"]),
-                                                            AccordionContent(
-                                                                children=[
-                                                                    Text(
-                                                                        "Content for the first section goes here."
-                                                                    )
-                                                                ]
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    AccordionItem(
-                                                        value="item-2",
-                                                        children=[
-                                                            AccordionTrigger(children=["Section Two"]),
-                                                            AccordionContent(
-                                                                children=[
-                                                                    Text(
-                                                                        "Content for the second section goes here."
-                                                                    )
-                                                                ]
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    AccordionItem(
-                                                        value="item-3",
-                                                        children=[
-                                                            AccordionTrigger(
-                                                                children=["Section Three"]
-                                                            ),
-                                                            AccordionContent(
-                                                                children=[
-                                                                    Text(
-                                                                        "Content for the third section goes here."
-                                                                    )
-                                                                ]
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
+                                            CardTitle("Accordion"),
+                                            CardDescription("Collapsible content sections"),
+                                        ]
                                     ),
-                                ]
-                            ),
-                        ],
-                    ),
-                    # Breadcrumb
-                    Card(
-                        class_name="col-span-1",
-                        children=[
-                            CardHeader(
-                                children=[
-                                    CardTitle("Breadcrumb"),
-                                    CardDescription("Navigation breadcrumbs"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Breadcrumb(
+                                    CardContent(
                                         children=[
-                                            BreadcrumbList(
-                                                children=[
-                                                    BreadcrumbItem(
-                                                        children=[
-                                                            BreadcrumbLink(label="Home", href="/")
-                                                        ]
-                                                    ),
-                                                    BreadcrumbSeparator(),
-                                                    BreadcrumbItem(
-                                                        children=[
-                                                            BreadcrumbLink(
-                                                                label="Theme", href="/theme"
-                                                            )
-                                                        ]
-                                                    ),
-                                                    BreadcrumbSeparator(),
-                                                    BreadcrumbItem(
-                                                        children=[BreadcrumbPage(label="Showcase")]
-                                                    ),
-                                                ]
-                                            )
-                                        ],
-                                    ),
-                                ]
-                            ),
-                        ],
-                    ),
-                    # Tabs
-                    Card(
-                        class_name="col-span-1",
-                        children=[
-                            CardHeader(
-                                children=[
-                                    CardTitle("Tabs"),
-                                    CardDescription("Tabbed content sections"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Tabs(
-                                        default_value="tab1",
-                                        children=[
-                                            TabItem(value="tab1", label="Overview"),
-                                            TabItem(value="tab2", label="Features"),
-                                            TabItem(value="tab3", label="Settings"),
-                                        ],
-                                    ),
-                                ]
-                            ),
-                        ],
-                    ),
-                    # Form Controls
-                    Card(
-                        class_name="col-span-1 lg:col-span-2 xl:col-span-3",
-                        children=[
-                            CardHeader(
-                                children=[
-                                    CardTitle("Form Controls"),
-                                    CardDescription("Interactive input elements"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Column(
-                                        gap=6,
-                                        children=[
-                                            # Switch
-                                            Row(
-                                                justify="between",
-                                                align="center",
-                                                children=[
-                                                    Column(
-                                                        gap=1,
-                                                        children=[
-                                                            Label("Email Notifications"),
-                                                            Text(
-                                                                "Receive emails about your account",
-                                                                class_name="text-sm text-muted-foreground",
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    Row(
-                                                        gap=2,
-                                                        align="center",
-                                                        children=[
-                                                            Text(
-                                                                "ON" if notifications else "OFF",
-                                                                id="switch-status",
-                                                                class_name="text-sm",
-                                                            ),
-                                                            Switch(
-                                                                default_checked=notifications,
-                                                                on_change=ctx.callback(
-                                                                    on_switch_change
-                                                                ),
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Text Inputs
                                             Column(
                                                 gap=4,
                                                 children=[
-                                                    Input(
-                                                        name="name",
-                                                        label="Name",
-                                                        description="Your full name",
-                                                        placeholder="John Doe",
-                                                        type="text",
+                                                    Text(
+                                                        "Open: None",
+                                                        id="accordion-status",
+                                                        class_name="text-sm mb-2",
                                                     ),
-                                                    Input(
-                                                        name="email",
-                                                        label="Email",
-                                                        description="Your email address",
-                                                        placeholder="john@example.com",
-                                                        type="email",
-                                                    ),
-                                                    InputWrapper(
-                                                        label="Date of Birth",
-                                                        description="Select your birth date",
-                                                        children=[
-                                                            DatePicker(
-                                                                placeholder="Pick a date",
-                                                                caption_layout="dropdown",
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    Textarea(
-                                                        name="message",
-                                                        label="Message",
-                                                        description="Enter your message",
-                                                        placeholder="Type something...",
-                                                        rows=3,
-                                                    ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Slider
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Row(
-                                                        justify="between",
-                                                        children=[
-                                                            Label("Volume"),
-                                                            Text(
-                                                                f"{volume}%",
-                                                                id="slider-value",
-                                                                class_name="text-sm",
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    Slider(
-                                                        default_value=[volume],
-                                                        max=100,
-                                                        step=1,
-                                                        on_value_change=ctx.callback(on_slider_change),
-                                                    ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Toggle Group
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Label("Text Formatting"),
-                                                    Row(
-                                                        gap=4,
-                                                        justify="center",
-                                                        children=[
-                                                            ToggleGroup(
-                                                                type="multiple",
-                                                                default_value={"bold": True},
-                                                                children=[
-                                                                    ToggleGroupItem(
-                                                                        name="bold", label="B"
-                                                                    ),
-                                                                    ToggleGroupItem(
-                                                                        name="italic", label="I"
-                                                                    ),
-                                                                    ToggleGroupItem(
-                                                                        name="underline", label="U"
-                                                                    ),
-                                                                ],
-                                                                on_value_change=ctx.callback(
-                                                                    on_toggle_change
-                                                                ),
-                                                            ),
-                                                            ToggleGroup(
-                                                                type="multiple",
-                                                                children=[
-                                                                    ToggleGroupItem(
-                                                                        name="back",
-                                                                        icon="chevron-left",
-                                                                    ),
-                                                                    ToggleGroupItem(
-                                                                        name="home", icon="home"
-                                                                    ),
-                                                                    ToggleGroupItem(
-                                                                        name="forward",
-                                                                        icon="chevron-right",
-                                                                    ),
-                                                                ],
-                                                                on_value_change=ctx.callback(
-                                                                    on_toggle_change
-                                                                ),
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Combobox
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Combobox(
-                                                        label="Select a framework",
-                                                        description="Single select combobox",
-                                                        placeholder="Choose...",
-                                                        options=[
-                                                            {"value": "react", "label": "React"},
-                                                            {"value": "vue", "label": "Vue"},
-                                                            {"value": "angular", "label": "Angular"},
-                                                            {"value": "svelte", "label": "Svelte"},
-                                                        ],
-                                                        on_select=ctx.callback(dropdown_select),
-                                                    ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # CheckboxGroup and RadioGroup
-                                            Row(
-                                                gap=8,
-                                                wrap=True,
-                                                children=[
-                                                    Column(
-                                                        gap=2,
-                                                        children=[
-                                                            CheckboxGroup(
-                                                                name="toppings",
-                                                                label="Pizza Toppings",
-                                                                options=[
-                                                                    {
-                                                                        "value": "cheese",
-                                                                        "label": "Extra Cheese",
-                                                                    },
-                                                                    {
-                                                                        "value": "pepperoni",
-                                                                        "label": "Pepperoni",
-                                                                    },
-                                                                    {
-                                                                        "value": "mushrooms",
-                                                                        "label": "Mushrooms",
-                                                                    },
-                                                                ],
-                                                                value=["cheese"],
-                                                                orientation="vertical",
-                                                                on_change=ctx.callback(
-                                                                    on_checkbox_group_change
-                                                                ),
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    Column(
-                                                        gap=2,
-                                                        children=[
-                                                            RadioGroup(
-                                                                name="size",
-                                                                label="Pizza Size",
-                                                                options=[
-                                                                    {
-                                                                        "value": "small",
-                                                                        "label": 'Small (10")',
-                                                                    },
-                                                                    {
-                                                                        "value": "medium",
-                                                                        "label": 'Medium (12")',
-                                                                    },
-                                                                    {
-                                                                        "value": "large",
-                                                                        "label": 'Large (14")',
-                                                                    },
-                                                                ],
-                                                                value="medium",
-                                                                orientation="vertical",
-                                                                on_change=ctx.callback(
-                                                                    on_radio_group_change
-                                                                ),
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                ]
-                            ),
-                        ],
-                    ),
-                    # Overlays
-                    Card(
-                        class_name="col-span-1 lg:col-span-2",
-                        children=[
-                            CardHeader(
-                                children=[
-                                    CardTitle("Overlays & Popups"),
-                                    CardDescription("Dialogs, sheets, and popovers"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Row(
-                                        gap=4,
-                                        wrap=True,
-                                        children=[
-                                            Dialog(
-                                                children=[
-                                                    DialogTrigger(
-                                                        as_child=True,
-                                                        children=Button(
-                                                            label="Delete Item",
-                                                            variant="destructive",
+                                                    Accordion(
+                                                        default_value=None,
+                                                        type="single",
+                                                        collapsible=True,
+                                                        on_value_change=ctx.callback(
+                                                            on_accordion_change
                                                         ),
-                                                    ),
-                                                    DialogContent(
                                                         children=[
-                                                            DialogHeader(
+                                                            AccordionItem(
+                                                                value="item-1",
                                                                 children=[
-                                                                    DialogTitle(
-                                                                        title="Are you sure?"
+                                                                    AccordionTrigger(
+                                                                        children=["Section One"]
                                                                     ),
-                                                                    DialogDescription(
-                                                                        description="This action cannot be undone."
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                            DialogFooter(
-                                                                children=[
-                                                                    DialogCancel(label="Cancel"),
-                                                                    DialogAction(
-                                                                        label="Delete",
-                                                                        on_click=ctx.callback(
-                                                                            on_confirm_delete
-                                                                        ),
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                        ]
-                                                    ),
-                                                ]
-                                            ),
-                                            Sheet(
-                                                children=[
-                                                    SheetTrigger(
-                                                        as_child=True,
-                                                        children=Button(
-                                                            label="Settings", variant="outline"
-                                                        ),
-                                                    ),
-                                                    SheetContent(
-                                                        side="right",
-                                                        children=[
-                                                            SheetHeader(
-                                                                children=[
-                                                                    SheetTitle(title="Settings"),
-                                                                    SheetDescription(
-                                                                        description="Configure preferences"
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                            Column(
-                                                                gap=4,
-                                                                class_name="py-4",
-                                                                children=[
-                                                                    Input(
-                                                                        placeholder="Name",
-                                                                        name="name",
-                                                                    ),
-                                                                    Button(
-                                                                        label="Save",
-                                                                        on_click=ctx.callback(
-                                                                            on_sheet_save
-                                                                        ),
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ]
-                                            ),
-                                            Popover(
-                                                children=[
-                                                    PopoverTrigger(
-                                                        as_child=True,
-                                                        children=Button(
-                                                            label="Quick Actions",
-                                                            variant="secondary",
-                                                        ),
-                                                    ),
-                                                    PopoverContent(
-                                                        children=[
-                                                            Column(
-                                                                gap=2,
-                                                                children=[
-                                                                    Text(
-                                                                        "Quick Actions",
-                                                                        class_name="font-semibold",
-                                                                    ),
-                                                                    Separator(),
-                                                                    Button(
-                                                                        label="Edit",
-                                                                        variant="ghost",
-                                                                        size="sm",
-                                                                    ),
-                                                                    Button(
-                                                                        label="Share",
-                                                                        variant="ghost",
-                                                                        size="sm",
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ]
-                                            ),
-                                            HoverCard(
-                                                children=[
-                                                    HoverCardTrigger(
-                                                        children=Text(
-                                                            "@refast",
-                                                            class_name="text-primary cursor-pointer underline",
-                                                        )
-                                                    ),
-                                                    HoverCardContent(
-                                                        children=[
-                                                            Row(
-                                                                gap=4,
-                                                                children=[
-                                                                    Avatar(
-                                                                        src="https://github.com/shadcn.png",
-                                                                        alt="@refast",
-                                                                    ),
-                                                                    Column(
-                                                                        gap=1,
+                                                                    AccordionContent(
                                                                         children=[
                                                                             Text(
-                                                                                "Refast",
-                                                                                class_name="font-semibold",
-                                                                            ),
+                                                                                "Content for the first section goes here."
+                                                                            )
+                                                                        ]
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            AccordionItem(
+                                                                value="item-2",
+                                                                children=[
+                                                                    AccordionTrigger(
+                                                                        children=["Section Two"]
+                                                                    ),
+                                                                    AccordionContent(
+                                                                        children=[
                                                                             Text(
-                                                                                "Python + React",
-                                                                                class_name="text-sm text-muted-foreground",
-                                                                            ),
-                                                                        ],
+                                                                                "Content for the second section goes here."
+                                                                            )
+                                                                        ]
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            AccordionItem(
+                                                                value="item-3",
+                                                                children=[
+                                                                    AccordionTrigger(
+                                                                        children=["Section Three"]
+                                                                    ),
+                                                                    AccordionContent(
+                                                                        children=[
+                                                                            Text(
+                                                                                "Content for the third section goes here."
+                                                                            )
+                                                                        ]
                                                                     ),
                                                                 ],
                                                             ),
                                                         ],
                                                     ),
-                                                ]
+                                                ],
                                             ),
-                                            Drawer(
+                                        ]
+                                    ),
+                                ],
+                            ),
+                            # Breadcrumb
+                            Card(
+                                class_name="col-span-1",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Breadcrumb"),
+                                            CardDescription("Navigation breadcrumbs"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Breadcrumb(
                                                 children=[
-                                                    DrawerTrigger(Button("Drawer")),
-                                                    DrawerContent(
-                                                        [
-                                                            DrawerHeader(
-                                                                [
-                                                                    DrawerTitle("Drawer Title"),
-                                                                    DrawerDescription(
-                                                                        "Drawer content goes here"
-                                                                    ),
+                                                    BreadcrumbList(
+                                                        children=[
+                                                            BreadcrumbItem(
+                                                                children=[
+                                                                    BreadcrumbLink(
+                                                                        label="Home", href="/"
+                                                                    )
                                                                 ]
                                                             ),
-                                                            Container(
-                                                                [Text("Drawer body content")],
-                                                                class_name="p-4",
+                                                            BreadcrumbSeparator(),
+                                                            BreadcrumbItem(
+                                                                children=[
+                                                                    BreadcrumbLink(
+                                                                        label="Theme", href="/theme"
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            BreadcrumbSeparator(),
+                                                            BreadcrumbItem(
+                                                                children=[
+                                                                    BreadcrumbPage(label="Showcase")
+                                                                ]
                                                             ),
                                                         ]
-                                                    ),
-                                                ]
+                                                    )
+                                                ],
                                             ),
-                                        ],
+                                        ]
                                     ),
-                                ]
+                                ],
                             ),
-                        ],
-                    ),
-                    # Utility Components
-                    Card(
-                        class_name="col-span-1",
-                        children=[
-                            CardHeader(
+                            # Tabs
+                            Card(
+                                class_name="col-span-1",
                                 children=[
-                                    CardTitle("Utility Components"),
-                                    CardDescription("Layout and utility elements"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Column(
-                                        gap=6,
+                                    CardHeader(
                                         children=[
-                                            # Collapsible
-                                            Collapsible(
+                                            CardTitle("Tabs"),
+                                            CardDescription("Tabbed content sections"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Tabs(
+                                                default_value="tab1",
                                                 children=[
+                                                    TabItem(value="tab1", label="Overview"),
+                                                    TabItem(value="tab2", label="Features"),
+                                                    TabItem(value="tab3", label="Settings"),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                            ),
+                            # Form Controls
+                            Card(
+                                class_name="col-span-1 lg:col-span-2 xl:col-span-3",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Form Controls"),
+                                            CardDescription("Interactive input elements"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Column(
+                                                gap=6,
+                                                children=[
+                                                    # Switch
                                                     Row(
                                                         justify="between",
                                                         align="center",
                                                         children=[
-                                                            Text(
-                                                                "Advanced Options",
-                                                                class_name="font-medium",
+                                                            Column(
+                                                                gap=1,
+                                                                children=[
+                                                                    Label("Email Notifications"),
+                                                                    Text(
+                                                                        "Receive emails about your account",
+                                                                        class_name="text-sm text-muted-foreground",
+                                                                    ),
+                                                                ],
                                                             ),
-                                                            CollapsibleTrigger(
-                                                                children=Button(
-                                                                    label="Toggle",
-                                                                    variant="ghost",
-                                                                    size="sm",
-                                                                )
+                                                            Row(
+                                                                gap=2,
+                                                                align="center",
+                                                                children=[
+                                                                    Text(
+                                                                        "ON"
+                                                                        if notifications
+                                                                        else "OFF",
+                                                                        id="switch-status",
+                                                                        class_name="text-sm",
+                                                                    ),
+                                                                    Switch(
+                                                                        default_checked=notifications,
+                                                                        on_change=ctx.callback(
+                                                                            on_switch_change
+                                                                        ),
+                                                                    ),
+                                                                ],
                                                             ),
                                                         ],
                                                     ),
-                                                    CollapsibleContent(
+                                                    Separator(),
+                                                    # Text Inputs
+                                                    Column(
+                                                        gap=4,
                                                         children=[
-                                                            Card(
-                                                                class_name="mt-2",
+                                                            Input(
+                                                                name="name",
+                                                                label="Name",
+                                                                description="Your full name",
+                                                                placeholder="John Doe",
+                                                                type="text",
+                                                            ),
+                                                            Input(
+                                                                name="email",
+                                                                label="Email",
+                                                                description="Your email address",
+                                                                placeholder="john@example.com",
+                                                                type="email",
+                                                            ),
+                                                            InputWrapper(
+                                                                label="Date of Birth",
+                                                                description="Select your birth date",
                                                                 children=[
-                                                                    CardContent(
+                                                                    DatePicker(
+                                                                        placeholder="Pick a date",
+                                                                        caption_layout="dropdown",
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            Textarea(
+                                                                name="message",
+                                                                label="Message",
+                                                                description="Enter your message",
+                                                                placeholder="Type something...",
+                                                                rows=3,
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # Slider
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Row(
+                                                                justify="between",
+                                                                children=[
+                                                                    Label("Volume"),
+                                                                    Text(
+                                                                        f"{volume}%",
+                                                                        id="slider-value",
+                                                                        class_name="text-sm",
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            Slider(
+                                                                default_value=[volume],
+                                                                max=100,
+                                                                step=1,
+                                                                on_value_change=ctx.callback(
+                                                                    on_slider_change
+                                                                ),
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # Toggle Group
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Label("Text Formatting"),
+                                                            Row(
+                                                                gap=4,
+                                                                justify="center",
+                                                                children=[
+                                                                    ToggleGroup(
+                                                                        type="multiple",
+                                                                        default_value={
+                                                                            "bold": True
+                                                                        },
                                                                         children=[
-                                                                            Text("Hidden content!"),
+                                                                            ToggleGroupItem(
+                                                                                name="bold",
+                                                                                label="B",
+                                                                            ),
+                                                                            ToggleGroupItem(
+                                                                                name="italic",
+                                                                                label="I",
+                                                                            ),
+                                                                            ToggleGroupItem(
+                                                                                name="underline",
+                                                                                label="U",
+                                                                            ),
                                                                         ],
-                                                                        class_name="p-4",
+                                                                        on_value_change=ctx.callback(
+                                                                            on_toggle_change
+                                                                        ),
+                                                                    ),
+                                                                    ToggleGroup(
+                                                                        type="multiple",
+                                                                        children=[
+                                                                            ToggleGroupItem(
+                                                                                name="back",
+                                                                                icon="chevron-left",
+                                                                            ),
+                                                                            ToggleGroupItem(
+                                                                                name="home",
+                                                                                icon="home",
+                                                                            ),
+                                                                            ToggleGroupItem(
+                                                                                name="forward",
+                                                                                icon="chevron-right",
+                                                                            ),
+                                                                        ],
+                                                                        on_value_change=ctx.callback(
+                                                                            on_toggle_change
+                                                                        ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # Combobox
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Combobox(
+                                                                label="Select a framework",
+                                                                description="Single select combobox",
+                                                                placeholder="Choose...",
+                                                                options=[
+                                                                    {
+                                                                        "value": "react",
+                                                                        "label": "React",
+                                                                    },
+                                                                    {
+                                                                        "value": "vue",
+                                                                        "label": "Vue",
+                                                                    },
+                                                                    {
+                                                                        "value": "angular",
+                                                                        "label": "Angular",
+                                                                    },
+                                                                    {
+                                                                        "value": "svelte",
+                                                                        "label": "Svelte",
+                                                                    },
+                                                                ],
+                                                                on_select=ctx.callback(
+                                                                    dropdown_select
+                                                                ),
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # CheckboxGroup and RadioGroup
+                                                    Row(
+                                                        gap=8,
+                                                        wrap=True,
+                                                        children=[
+                                                            Column(
+                                                                gap=2,
+                                                                children=[
+                                                                    CheckboxGroup(
+                                                                        name="toppings",
+                                                                        label="Pizza Toppings",
+                                                                        options=[
+                                                                            {
+                                                                                "value": "cheese",
+                                                                                "label": "Extra Cheese",
+                                                                            },
+                                                                            {
+                                                                                "value": "pepperoni",
+                                                                                "label": "Pepperoni",
+                                                                            },
+                                                                            {
+                                                                                "value": "mushrooms",
+                                                                                "label": "Mushrooms",
+                                                                            },
+                                                                        ],
+                                                                        value=["cheese"],
+                                                                        orientation="vertical",
+                                                                        on_change=ctx.callback(
+                                                                            on_checkbox_group_change
+                                                                        ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            Column(
+                                                                gap=2,
+                                                                children=[
+                                                                    RadioGroup(
+                                                                        name="size",
+                                                                        label="Pizza Size",
+                                                                        options=[
+                                                                            {
+                                                                                "value": "small",
+                                                                                "label": 'Small (10")',
+                                                                            },
+                                                                            {
+                                                                                "value": "medium",
+                                                                                "label": 'Medium (12")',
+                                                                            },
+                                                                            {
+                                                                                "value": "large",
+                                                                                "label": 'Large (14")',
+                                                                            },
+                                                                        ],
+                                                                        value="medium",
+                                                                        orientation="vertical",
+                                                                        on_change=ctx.callback(
+                                                                            on_radio_group_change
+                                                                        ),
                                                                     ),
                                                                 ],
                                                             ),
@@ -1372,121 +1169,384 @@ def home(ctx: Context):
                                                     ),
                                                 ],
                                             ),
-                                            Separator(),
-                                            # Scroll Area
-                                            Column(
-                                                gap=2,
+                                        ]
+                                    ),
+                                ],
+                            ),
+                            # Overlays
+                            Card(
+                                class_name="col-span-1 lg:col-span-2",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Overlays & Popups"),
+                                            CardDescription("Dialogs, sheets, and popovers"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Row(
+                                                gap=4,
+                                                wrap=True,
                                                 children=[
-                                                    Label("Scroll Area"),
-                                                    ScrollArea(
-                                                        class_name="rounded-md border p-4",
-                                                        style={"height": "150px", "width": "100%"},
+                                                    Dialog(
                                                         children=[
-                                                            Column(
-                                                                gap=2,
+                                                            DialogTrigger(
+                                                                as_child=True,
+                                                                children=Button(
+                                                                    label="Delete Item",
+                                                                    variant="destructive",
+                                                                ),
+                                                            ),
+                                                            DialogContent(
                                                                 children=[
-                                                                    Text(f"Item {i}")
-                                                                    for i in range(1, 15)
+                                                                    DialogHeader(
+                                                                        children=[
+                                                                            DialogTitle(
+                                                                                title="Are you sure?"
+                                                                            ),
+                                                                            DialogDescription(
+                                                                                description="This action cannot be undone."
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                    DialogFooter(
+                                                                        children=[
+                                                                            DialogCancel(
+                                                                                label="Cancel"
+                                                                            ),
+                                                                            DialogAction(
+                                                                                label="Delete",
+                                                                                on_click=ctx.callback(
+                                                                                    on_confirm_delete
+                                                                                ),
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    Sheet(
+                                                        children=[
+                                                            SheetTrigger(
+                                                                as_child=True,
+                                                                children=Button(
+                                                                    label="Settings",
+                                                                    variant="outline",
+                                                                ),
+                                                            ),
+                                                            SheetContent(
+                                                                side="right",
+                                                                children=[
+                                                                    SheetHeader(
+                                                                        children=[
+                                                                            SheetTitle(
+                                                                                title="Settings"
+                                                                            ),
+                                                                            SheetDescription(
+                                                                                description="Configure preferences"
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                    Column(
+                                                                        gap=4,
+                                                                        class_name="py-4",
+                                                                        children=[
+                                                                            Input(
+                                                                                placeholder="Name",
+                                                                                name="name",
+                                                                            ),
+                                                                            Button(
+                                                                                label="Save",
+                                                                                on_click=ctx.callback(
+                                                                                    on_sheet_save
+                                                                                ),
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    Popover(
+                                                        children=[
+                                                            PopoverTrigger(
+                                                                as_child=True,
+                                                                children=Button(
+                                                                    label="Quick Actions",
+                                                                    variant="secondary",
+                                                                ),
+                                                            ),
+                                                            PopoverContent(
+                                                                children=[
+                                                                    Column(
+                                                                        gap=2,
+                                                                        children=[
+                                                                            Text(
+                                                                                "Quick Actions",
+                                                                                class_name="font-semibold",
+                                                                            ),
+                                                                            Separator(),
+                                                                            Button(
+                                                                                label="Edit",
+                                                                                variant="ghost",
+                                                                                size="sm",
+                                                                            ),
+                                                                            Button(
+                                                                                label="Share",
+                                                                                variant="ghost",
+                                                                                size="sm",
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    HoverCard(
+                                                        children=[
+                                                            HoverCardTrigger(
+                                                                children=Text(
+                                                                    "@refast",
+                                                                    class_name="text-primary cursor-pointer underline",
+                                                                )
+                                                            ),
+                                                            HoverCardContent(
+                                                                children=[
+                                                                    Row(
+                                                                        gap=4,
+                                                                        children=[
+                                                                            Avatar(
+                                                                                src="https://github.com/shadcn.png",
+                                                                                alt="@refast",
+                                                                            ),
+                                                                            Column(
+                                                                                gap=1,
+                                                                                children=[
+                                                                                    Text(
+                                                                                        "Refast",
+                                                                                        class_name="font-semibold",
+                                                                                    ),
+                                                                                    Text(
+                                                                                        "Python + React",
+                                                                                        class_name="text-sm text-muted-foreground",
+                                                                                    ),
+                                                                                ],
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    Drawer(
+                                                        children=[
+                                                            DrawerTrigger(Button("Drawer")),
+                                                            DrawerContent(
+                                                                [
+                                                                    DrawerHeader(
+                                                                        [
+                                                                            DrawerTitle(
+                                                                                "Drawer Title"
+                                                                            ),
+                                                                            DrawerDescription(
+                                                                                "Drawer content goes here"
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                    Container(
+                                                                        [
+                                                                            Text(
+                                                                                "Drawer body content"
+                                                                            )
+                                                                        ],
+                                                                        class_name="p-4",
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                            ),
+                            # Utility Components
+                            Card(
+                                class_name="col-span-1",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Utility Components"),
+                                            CardDescription("Layout and utility elements"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            Column(
+                                                gap=6,
+                                                children=[
+                                                    # Collapsible
+                                                    Collapsible(
+                                                        children=[
+                                                            Row(
+                                                                justify="between",
+                                                                align="center",
+                                                                children=[
+                                                                    Text(
+                                                                        "Advanced Options",
+                                                                        class_name="font-medium",
+                                                                    ),
+                                                                    CollapsibleTrigger(
+                                                                        children=Button(
+                                                                            label="Toggle",
+                                                                            variant="ghost",
+                                                                            size="sm",
+                                                                        )
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            CollapsibleContent(
+                                                                children=[
+                                                                    Card(
+                                                                        class_name="mt-2",
+                                                                        children=[
+                                                                            CardContent(
+                                                                                children=[
+                                                                                    Text(
+                                                                                        "Hidden content!"
+                                                                                    ),
+                                                                                ],
+                                                                                class_name="p-4",
+                                                                            ),
+                                                                        ],
+                                                                    ),
                                                                 ],
                                                             ),
                                                         ],
                                                     ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Aspect Ratio
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Label("Aspect Ratio (16:9)"),
-                                                    AspectRatio(
-                                                        ratio=16 / 9,
-                                                        class_name="bg-muted rounded-md",
+                                                    Separator(),
+                                                    # Scroll Area
+                                                    Column(
+                                                        gap=2,
                                                         children=[
-                                                            Container(
-                                                                class_name="flex items-center justify-center h-full",
-                                                                children=[Text("16:9 Content")],
+                                                            Label("Scroll Area"),
+                                                            ScrollArea(
+                                                                class_name="rounded-md border p-4",
+                                                                style={
+                                                                    "height": "150px",
+                                                                    "width": "100%",
+                                                                },
+                                                                children=[
+                                                                    Column(
+                                                                        gap=2,
+                                                                        children=[
+                                                                            Text(f"Item {i}")
+                                                                            for i in range(1, 15)
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # Aspect Ratio
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Label("Aspect Ratio (16:9)"),
+                                                            AspectRatio(
+                                                                ratio=16 / 9,
+                                                                class_name="bg-muted rounded-md",
+                                                                children=[
+                                                                    Container(
+                                                                        class_name="flex items-center justify-center h-full",
+                                                                        children=[
+                                                                            Text("16:9 Content")
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Separator(),
+                                                    # Code
+                                                    Column(
+                                                        gap=2,
+                                                        children=[
+                                                            Label("Code Component"),
+                                                            Code(
+                                                                code='print("Hello from Refast!")',
+                                                                inline=False,
+                                                                show_line_numbers=True,
+                                                                language="python",
                                                             ),
                                                         ],
                                                     ),
                                                 ],
                                             ),
-                                            Separator(),
-                                            # Code
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Label("Code Component"),
-                                                    Code(
-                                                        code='print("Hello from Refast!")',
-                                                        inline=False,
-                                                        show_line_numbers=True,
-                                                        language="python",
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
+                                        ]
                                     ),
-                                ]
+                                ],
                             ),
-                        ],
-                    ),
-                    # Image and Markdown
-                    Card(
-                        class_name="col-span-1 lg:col-span-2",
-                        children=[
-                            CardHeader(
+                            # Image and Markdown
+                            Card(
+                                class_name="col-span-1 lg:col-span-2",
                                 children=[
-                                    CardTitle("Media Components"),
-                                    CardDescription("Images and formatted text"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Column(
-                                        gap=6,
+                                    CardHeader(
                                         children=[
-                                            # Images
+                                            CardTitle("Media Components"),
+                                            CardDescription("Images and formatted text"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
                                             Column(
-                                                gap=2,
+                                                gap=6,
                                                 children=[
-                                                    Label("Images"),
-                                                    Row(
-                                                        gap=4,
-                                                        wrap=True,
-                                                        justify="center",
+                                                    # Images
+                                                    Column(
+                                                        gap=2,
                                                         children=[
-                                                            Image(
-                                                                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150&fit=crop",
-                                                                alt="Mountain",
-                                                                width=200,
-                                                                height=150,
-                                                                object_fit="cover",
-                                                                class_name="rounded-md",
-                                                            ),
-                                                            Image(
-                                                                src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=150&fit=crop",
-                                                                alt="Nature",
-                                                                width=200,
-                                                                height=150,
-                                                                object_fit="cover",
-                                                                class_name="rounded-md",
+                                                            Label("Images"),
+                                                            Row(
+                                                                gap=4,
+                                                                wrap=True,
+                                                                justify="center",
+                                                                children=[
+                                                                    Image(
+                                                                        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150&fit=crop",
+                                                                        alt="Mountain",
+                                                                        width=200,
+                                                                        height=150,
+                                                                        object_fit="cover",
+                                                                        class_name="rounded-md",
+                                                                    ),
+                                                                    Image(
+                                                                        src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=150&fit=crop",
+                                                                        alt="Nature",
+                                                                        width=200,
+                                                                        height=150,
+                                                                        object_fit="cover",
+                                                                        class_name="rounded-md",
+                                                                    ),
+                                                                ],
                                                             ),
                                                         ],
                                                     ),
-                                                ],
-                                            ),
-                                            Separator(),
-                                            # Markdown
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Label("Markdown"),
-                                                    Card(
-                                                        class_name="p-4",
+                                                    Separator(),
+                                                    # Markdown
+                                                    Column(
+                                                        gap=2,
                                                         children=[
-                                                            Markdown(
-                                                                content="""## Theme Showcase
+                                                            Label("Markdown"),
+                                                            Card(
+                                                                class_name="p-4",
+                                                                children=[
+                                                                    Markdown(
+                                                                        content="""## Theme Showcase
 
 This is **Markdown** with *full* formatting:
 
@@ -1499,75 +1559,75 @@ from refast import RefastApp
 app = RefastApp()
 ```
 """,
-                                                                allow_latex=True,
-                                                                class_name="prose-sm",
+                                                                        allow_latex=True,
+                                                                        class_name="prose-sm",
+                                                                    ),
+                                                                ],
                                                             ),
                                                         ],
                                                     ),
                                                 ],
                                             ),
-                                        ],
+                                        ]
                                     ),
-                                ]
+                                ],
                             ),
-                        ],
-                    ),
-                    # Pagination
-                    Card(
-                        class_name="col-span-1",
-                        children=[
-                            CardHeader(
+                            # Pagination
+                            Card(
+                                class_name="col-span-1",
                                 children=[
-                                    CardTitle("Pagination"),
-                                    CardDescription("Page navigation controls"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    Row(
-                                        justify="center",
-                                        children=[render_pagination(ctx, current_page)],
-                                    ),
-                                ]
-                            ),
-                        ],
-                    ),
-                    # Resizable Panels
-                    Card(
-                        class_name="col-span-1 lg:col-span-2",
-                        children=[
-                            CardHeader(
-                                children=[
-                                    CardTitle("Resizable Panels"),
-                                    CardDescription("Adjustable layout panels"),
-                                ]
-                            ),
-                            CardContent(
-                                children=[
-                                    ResizablePanelGroup(
-                                        direction="horizontal",
+                                    CardHeader(
                                         children=[
-                                            ResizablePanel(
-                                                min_size=20,
-                                                default_size=50,
-                                                children=[Text("Panel 1")],
-                                                class_name="bg-muted/50 p-4 rounded-l-lg",
-                                            ),
-                                            ResizableHandle(with_handle=True),
-                                            ResizablePanel(
-                                                min_size=20,
-                                                default_size=50,
-                                                children=[Text("Panel 2")],
-                                                class_name="bg-muted/50 p-4 rounded-r-lg",
-                                            ),
-                                        ],
-                                        class_name="border rounded-lg",
-                                        style={"height": "200px", "width": "100%"},
+                                            CardTitle("Pagination"),
+                                            CardDescription("Page navigation controls"),
+                                        ]
                                     ),
-                                ]
+                                    CardContent(
+                                        children=[
+                                            Row(
+                                                justify="center",
+                                                children=[render_pagination(ctx, current_page)],
+                                            ),
+                                        ]
+                                    ),
+                                ],
                             ),
-                        ],
-                    ),
+                            # Resizable Panels
+                            Card(
+                                class_name="col-span-1 lg:col-span-2",
+                                children=[
+                                    CardHeader(
+                                        children=[
+                                            CardTitle("Resizable Panels"),
+                                            CardDescription("Adjustable layout panels"),
+                                        ]
+                                    ),
+                                    CardContent(
+                                        children=[
+                                            ResizablePanelGroup(
+                                                direction="horizontal",
+                                                children=[
+                                                    ResizablePanel(
+                                                        min_size=20,
+                                                        default_size=50,
+                                                        children=[Text("Panel 1")],
+                                                        class_name="bg-muted/50 p-4 rounded-l-lg",
+                                                    ),
+                                                    ResizableHandle(with_handle=True),
+                                                    ResizablePanel(
+                                                        min_size=20,
+                                                        default_size=50,
+                                                        children=[Text("Panel 2")],
+                                                        class_name="bg-muted/50 p-4 rounded-r-lg",
+                                                    ),
+                                                ],
+                                                class_name="border rounded-lg",
+                                                style={"height": "200px", "width": "100%"},
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                            ),
                         ],
                     ),
                     Separator(class_name="my-6"),

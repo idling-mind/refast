@@ -119,14 +119,20 @@ def copy_assets(frontend_dir: Path, static_dir: Path) -> bool:
             else:
                 item.unlink()
 
-    # Copy only JS and CSS bundles (skip .d.ts files, directories, etc.)
+    # Copy JS, CSS bundles, manifest, and compressed files
     print(f"Copying assets from {dist_dir} to {static_dir}")
 
     copied_files = []
     for item in dist_dir.iterdir():
-        if item.is_file() and item.suffix in (".js", ".css"):
+        if item.is_file() and item.suffix in (".js", ".css", ".gz", ".br"):
             shutil.copy2(item, static_dir / item.name)
             copied_files.append(item.name)
+
+    # Copy .vite/manifest.json → static/manifest.json
+    manifest_src = dist_dir / ".vite" / "manifest.json"
+    if manifest_src.is_file():
+        shutil.copy2(manifest_src, static_dir / "manifest.json")
+        copied_files.append("manifest.json")
 
     print(f"Copied files: {', '.join(copied_files)}")
     return True

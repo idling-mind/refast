@@ -12,6 +12,7 @@ import { RefastApp } from './App';
 // Components
 export { ComponentRenderer } from './components/ComponentRenderer';
 export { componentRegistry } from './components/registry';
+export type { FeatureChunk, LazyChunkLoader, ComponentType } from './components/registry';
 import { componentRegistry } from './components/registry';
 
 // Base components
@@ -194,3 +195,7 @@ window.RefastClient = {
 // This allows extensions to use `external: ['react', 'react-dom']` in their build
 window.React = React;
 window.ReactDOM = ReactDOM;
+
+// Dispatch a custom event so extension scripts (loaded after the core ESM
+// module) know that RefastClient is ready.
+window.dispatchEvent(new CustomEvent('refast:ready'));

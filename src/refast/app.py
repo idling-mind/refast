@@ -58,6 +58,13 @@ class RefastApp:
             an inline ``<script>`` block. Placed at the end of ``<body>``.
         head_tags: Raw HTML strings injected verbatim into ``<head>``
             (e.g. ``<meta>``, ``<link>``, ``<style>``).
+        features: Which lazy-loaded feature chunks to include.
+            Supported values: ``"charts"``, ``"markdown"``, ``"icons"``,
+            ``"navigation"``, ``"overlay"``, ``"controls"``.
+            Default ``None`` means **all** feature chunks are loaded.
+            Pass an explicit list (e.g. ``["charts", "icons"]``) to
+            include only those chunks — unlisted chunks are never
+            downloaded by the browser.
         extensions: List of Extension instances to register
         auto_discover_extensions: Whether to auto-discover extensions via entry points
     """
@@ -72,6 +79,7 @@ class RefastApp:
         custom_css: str | list[str] | None = None,
         custom_js: str | list[str] | None = None,
         head_tags: list[str] | None = None,
+        features: list[str] | None = None,
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
     ):
@@ -80,6 +88,7 @@ class RefastApp:
         self.secret_key = secret_key
         self.debug = debug
         self.favicon = favicon
+        self.features = features
 
         # Normalise custom_css / custom_js to lists
         if custom_css is None:

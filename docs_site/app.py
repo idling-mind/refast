@@ -47,13 +47,13 @@ from refast.components import (
     Tooltip,
 )
 from refast.components.shadcn import ThemeSwitcher
-from refast.theme import slate_theme
+from refast.theme import default_theme
 
 # ── App instance ─────────────────────────────────────────────────────────
 
 ui = RefastApp(
     title="Refast Docs",
-    theme=slate_theme,
+    theme=default_theme,
     favicon="📖",
 )
 
@@ -200,15 +200,15 @@ def _build_sidebar(ctx: Context, current_path: str):
                         children=[
                             SidebarMenuItem(
                                 children=[
-                                    ThemeSwitcher(),
-                                ],
-                            ),
-                            SidebarMenuItem(
-                                children=[
-                                    SidebarMenuButton(
-                                        "v0.1.0",
-                                        icon="tag",
-                                        size="sm",
+                                    Row(
+                                        [
+                                            SidebarMenuButton(
+                                                "v0.1.0",
+                                                icon="tag",
+                                                size="sm",
+                                            ),
+                                            ThemeSwitcher(),
+                                        ]
                                     ),
                                 ],
                             ),
@@ -275,7 +275,7 @@ def _build_topbar(ctx: Context, current_path: str):
             breadcrumb_items.append(BreadcrumbItem(children=[BreadcrumbPage(label)]))
 
     return Container(
-        class_name="border-b px-4 py-3",
+        class_name="border-b px-4 py-3 sticky top-0 bg-background z-10",
         children=[
             Flex(
                 direction="row",
@@ -338,14 +338,14 @@ def _build_footer(ctx: Context, current_path: str):
 
 # ── Import all page modules ─────────────────────────────────────────────
 
-from docs_site.pages import home  # noqa: E402
-from docs_site.pages.getting_started import (  # noqa: E402
+from .pages import home  # noqa: E402
+from .pages.getting_started import (  # noqa: E402
     architecture,
     examples_gallery,
     installation,
     quick_tour,
 )
-from docs_site.pages.concepts import (  # noqa: E402
+from .pages.concepts import (  # noqa: E402
     background,
     callbacks,
     components as concepts_components,
@@ -358,7 +358,7 @@ from docs_site.pages.concepts import (  # noqa: E402
     toasts,
     updates,
 )
-from docs_site.pages.components import (  # noqa: E402
+from .pages.components import (  # noqa: E402
     buttons,
     cards,
     charts,
@@ -370,7 +370,7 @@ from docs_site.pages.components import (  # noqa: E402
     typography,
     utility,
 )
-from docs_site.pages.advanced import (  # noqa: E402
+from .pages.advanced import (  # noqa: E402
     component_dev,
     extension_dev,
     security,
@@ -549,4 +549,4 @@ app.include_router(ui.router)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("docs_site.app:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)

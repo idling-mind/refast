@@ -71,13 +71,13 @@ class FrontendBuildHook(BuildHookInterface):
         return True
 
     def _assets_exist(self) -> bool:
-        """Return True if the compiled JS + CSS already exist in static/."""
+        """Return True if the compiled entry JS + CSS already exist in static/."""
         js = self._static_dir / "refast-client.js"
         css = self._static_dir / "refast-client.css"
         return js.is_file() and css.is_file()
 
     def _copy_assets(self) -> None:
-        """Copy only the runtime assets (JS + CSS) from dist/ → static/."""
+        """Copy runtime assets (JS, CSS, manifest) from dist/ → static/."""
         self._static_dir.mkdir(parents=True, exist_ok=True)
 
         # Remove old generated assets (keep __init__.py and __pycache__)
@@ -90,11 +90,23 @@ class FrontendBuildHook(BuildHookInterface):
             else:
                 item.unlink()
 
-        # Copy only the files we actually need – JS and CSS bundles.
-        # (skip .d.ts declaration files, __tests__ dirs, etc.)
+        # Copy JS, CSS bundles and the Vite manifest.
+        # With ESM code-splitting there are multiple chunk files.
         copied: list[str] = []
         for item in self._dist_dir.iterdir():
             if item.suffix in (".js", ".css"):
+                shutil.copy2(item, self._static_dir / item.name)
+                copied.append(item.name)
+
+        # Copy .vite/manifest.json → static/manifest.json
+        manifest_src = self._dist_dir / ".vite" / "manifest.json"
+        if manifest_src.is_file():
+            shutil.copy2(manifest_src, self._static_dir / "manifest.json")
+            copied.append("manifest.json")
+
+        # Also copy any pre-compressed variants (.gz, .br)
+        for item in self._dist_dir.iterdir():
+            if item.suffix in (".gz", ".br"):
                 shutil.copy2(item, self._static_dir / item.name)
                 copied.append(item.name)
 
@@ -149,10 +161,10 @@ class FrontendBuildHook(BuildHookInterface):
 
         # Mark the generated files as artifacts so hatchling includes them
         # even though they are .gitignored.
-        build_data["artifacts"].extend([
-            "src/refast/static/refast-client.js",
-            "src/refast/static/refast-client.css",
-        ])
+        # With ESM code-splitting there may be multiple chunk files.
+        for item in self._static_dir.iterdir():
+            if item.suffix in (".js", ".css", ".json", ".gz", ".br") and item.name != "__init__.py":
+                build_data["artifacts"].append(f"src/refast/static/{item.name}")
 
     def clean(self, versions: list[str]) -> None:  # noqa: ARG002
         """Remove generated assets from static/."""

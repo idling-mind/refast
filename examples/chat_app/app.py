@@ -277,7 +277,9 @@ def chat(ctx: Context):
                                         "Send",
                                         id="send-btn",
                                         variant="primary",
-                                        on_click=ctx.callback(send_message, props=["input_message"]),
+                                        on_click=ctx.callback(
+                                            send_message, props=["input_message"]
+                                        ),
                                     ),
                                 ],
                             )

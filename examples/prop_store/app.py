@@ -229,7 +229,8 @@ def home(ctx: Context):
                                                 ctx.store_prop("message"),
                                                 ctx.callback(show_typing, debounce=300),
                                                 ctx.js(
-                                                    "console.log('Message changed:', event.value)", debounce=300
+                                                    "console.log('Message changed:', event.value)",
+                                                    debounce=300,
                                                 ),
                                             ]
                                         ),

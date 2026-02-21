@@ -196,7 +196,7 @@ async def handle_enter_submit(ctx: Context, value: str = ""):
         submit_count = ctx.state.get("enter_submit_count", 0) + 1
         ctx.state.set("enter_submit_count", submit_count)
         ctx.state.set("last_submitted", value.strip())
-        await ctx.refresh()
+        await ctx.refresh(target_id="enter-counter")
         await ctx.show_toast(
             f"Submitted: {value.strip()}",
             variant="success",
@@ -763,6 +763,7 @@ def home(ctx: Context):
                                         ),
                                     ),
                                     Row(
+                                        id="enter-counter",
                                         gap=4,
                                         align="center",
                                         children=[
@@ -778,6 +779,7 @@ def home(ctx: Context):
                                     ),
                                     Separator(),
                                     Code(
+                                        id="invoke-code",
                                         code=dedent("""\
                                             # Python callback — only called on Enter
                                             async def handle_enter_submit(ctx, value=""):

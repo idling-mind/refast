@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Switch(Component):
@@ -246,7 +246,7 @@ class ToggleGroup(Component):
         variant: Literal["default", "outline"] = "default",
         size: Literal["sm", "default", "lg"] = "default",
         on_value_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -259,8 +259,7 @@ class ToggleGroup(Component):
         self.variant = variant
         self.size = size
         self.on_value_change = on_value_change
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def _convert_dict_to_list(self, val: dict[str, bool] | Any) -> list[str] | Any:
         if isinstance(val, dict):
@@ -681,7 +680,7 @@ class InputOTP(Component):
         error: str | None = None,
         on_change: Any = None,
         on_complete: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -697,8 +696,7 @@ class InputOTP(Component):
         self.error = error
         self.on_change = on_change
         self.on_complete = on_complete
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -742,14 +740,13 @@ class InputOTPGroup(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

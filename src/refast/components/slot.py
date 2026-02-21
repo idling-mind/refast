@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Slot(Component):
@@ -30,15 +30,14 @@ class Slot(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         fallback: Component | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.fallback = fallback
 
     def render(self) -> dict[str, Any]:

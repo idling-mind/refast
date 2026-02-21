@@ -28,7 +28,7 @@ class FunnelChart(Component):
 
     def __init__(
         self,
-        *children: Component,
+        *children: Component | str | None,
         margin: dict[str, int] | None = None,
         on_click: Callback | None = None,
         on_mouse_enter: Callback | None = None,
@@ -42,12 +42,8 @@ class FunnelChart(Component):
         self.on_mouse_enter = on_mouse_enter
         self.on_mouse_leave = on_mouse_leave
 
-        self.children = list(children)
-        if kw_children:
-            if isinstance(kw_children, list):
-                self.children.extend(kw_children)
-            else:
-                self.children.append(kw_children)
+        self.add_children(list(children))
+        self.add_children(kw_children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -63,7 +59,7 @@ class FunnelChart(Component):
                     self.on_mouse_leave.serialize() if self.on_mouse_leave else None
                 ),
             },
-            "children": [c.render() for c in self.children],
+            "children": self._render_children(),
         }
 
 

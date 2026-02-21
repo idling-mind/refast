@@ -5,12 +5,15 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Self
+from typing import Any, Self, Union
 
 logger = logging.getLogger(__name__)
 
 # Enable prop validation in development mode
 _VALIDATE_PROPS = os.environ.get("REFAST_VALIDATE_PROPS", "").lower() in ("1", "true", "yes")
+
+# Type alias for children
+ChildrenType = Union[list[Union["Component", str, None]], "Component", str, None]
 
 
 def _has_camel_case(key: str) -> bool:
@@ -82,16 +85,22 @@ class Component(ABC):
         self.style = style or {}
         self.parent_style = parent_style or {}
         self.extra_props = props
-        self._children: list[Component | str] = []
+        self._children: list[Component | str | None] = []
 
-    def add_child(self, child: "Component | str") -> Self:
+    def add_child(self, child: Union["Component", str, None]) -> Self:
         """Add a child component."""
         self._children.append(child)
         return self
 
-    def add_children(self, children: list["Component | str"]) -> Self:
-        """Add multiple children."""
-        self._children.extend(children)
+    def add_children(self, children: ChildrenType) -> Self:
+        """Add multiple children or a single child."""
+        if children is None:
+            return self
+
+        if isinstance(children, list):
+            self._children.extend(children)
+        else:
+            self._children.append(children)
         return self
 
     def _render_children(self) -> list[dict[str, Any] | str]:
@@ -176,15 +185,14 @@ class Container(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, style=style, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -250,10 +258,9 @@ class Fragment(Component):
 
     component_type: str = "Fragment"
 
-    def __init__(self, children: list["Component | str"] | None = None):
+    def __init__(self, children: ChildrenType = None):
         super().__init__()
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

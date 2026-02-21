@@ -1124,16 +1124,16 @@ class Context(Generic[T]):
             if page_func is not None:
                 # Re-render the page with current state
                 component = page_func(self)
-                
+
                 if target_id:
                     # Partial refresh: Find and update only the target component
                     # Lazy import to avoid circular dependencies
                     from refast.utils.component import find_component_in_tree
-                    
+
                     # Ensure component is valid before traversing
-                    if hasattr(component, "render"): 
+                    if hasattr(component, "render"):
                         target_component = find_component_in_tree(component, target_id)
-                        
+
                         if target_component:
                             component_data = target_component.render()
                             await self._websocket.send_json(

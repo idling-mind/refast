@@ -118,7 +118,8 @@ async def on_switch_change(ctx: Context):
 
 async def on_slider_change(ctx: Context):
     """Handle slider change."""
-    value = ctx.event_data.get("0", 50)
+    print(ctx.event_data)
+    value = ctx.event_data[0] if isinstance(ctx.event_data, list) else ctx.event_data
     ctx.state.set("volume", value)
     await ctx.update_text("slider-value", f"{value}%")
 
@@ -145,7 +146,7 @@ async def on_accordion_change(ctx: Context):
 
 async def on_checkbox_group_change(ctx: Context):
     """Handle checkbox group selection change."""
-    selected = list(ctx.event_data.values())
+    selected = ctx.event_data if isinstance(ctx.event_data, list) else []
     ctx.state.set("selected_toppings", selected)
     if selected:
         await ctx.show_toast(f"Selected toppings: {', '.join(selected)}", variant="info")
@@ -155,7 +156,7 @@ async def on_checkbox_group_change(ctx: Context):
 
 async def on_radio_group_change(ctx: Context):
     """Handle radio group selection change."""
-    selected = ctx.event_data.get("value", "")
+    selected = ctx.event_data if isinstance(ctx.event_data, str) else ""
     ctx.state.set("selected_size", selected)
     await ctx.show_toast(f"Selected size: {selected}", variant="info")
 

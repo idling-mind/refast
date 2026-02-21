@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Row(Component):
@@ -24,7 +24,7 @@ class Row(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         justify: Literal["start", "end", "center", "between", "around", "evenly"] = "start",
         align: Literal["start", "end", "center", "stretch", "baseline"] = "start",
         gap: int | str = 2,
@@ -34,8 +34,7 @@ class Row(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.justify = justify
         self.align = align
         self.gap = gap
@@ -74,7 +73,7 @@ class Column(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         justify: Literal["start", "end", "center", "between", "around", "evenly"] = "start",
         align: Literal["start", "end", "center", "stretch", "baseline"] = "stretch",
         gap: int | str = 2,
@@ -84,8 +83,7 @@ class Column(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.justify = justify
         self.align = align
         self.gap = gap
@@ -125,7 +123,7 @@ class Grid(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         columns: int | str = 1,
         rows: int | str | None = None,
         gap: int | str = 4,
@@ -134,8 +132,7 @@ class Grid(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.columns = columns
         self.rows = rows
         self.gap = gap
@@ -162,7 +159,7 @@ class Flex(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         direction: Literal["row", "column", "row-reverse", "column-reverse"] = "row",
         justify: str = "start",
         align: str = "stretch",
@@ -173,8 +170,7 @@ class Flex(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.direction = direction
         self.justify = justify
         self.align = align

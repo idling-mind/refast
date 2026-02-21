@@ -36,7 +36,7 @@ class ScatterChart(Component):
 
     def __init__(
         self,
-        *children: Component,
+        *children: Component | str | None,
         data: list[dict[str, Any]] | None = None,
         margin: dict[str, int] | None = None,
         layout: Literal["horizontal", "vertical"] = "horizontal",
@@ -60,12 +60,8 @@ class ScatterChart(Component):
         self.on_mouse_leave = on_mouse_leave
         self.on_mouse_move = on_mouse_move
 
-        self.children = list(children)
-        if kw_children:
-            if isinstance(kw_children, list):
-                self.children.extend(kw_children)
-            else:
-                self.children.append(kw_children)
+        self.add_children(list(children))
+        self.add_children(kw_children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -86,7 +82,7 @@ class ScatterChart(Component):
                 ),
                 "on_mouse_move": (self.on_mouse_move.serialize() if self.on_mouse_move else None),
             },
-            "children": [c.render() for c in self.children],
+            "children": self._render_children(),
         }
 
 

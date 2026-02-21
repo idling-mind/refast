@@ -129,11 +129,9 @@ async def create_task(ctx: Context):
     await ctx.refresh()
 
 
-async def move_task(ctx: Context):
+async def move_task(ctx: Context, task_id: str, target_column: str):
     """Move task to a different column."""
     print(f"Moving task... Event data: {ctx.event_data}")
-    task_id = ctx.event_data.get("task_id")
-    target_column = ctx.event_data.get("target_column")
     print(f"Moving task {task_id} to column {target_column}")
 
     tasks = get_tasks(ctx)
@@ -158,10 +156,9 @@ async def move_task(ctx: Context):
         await ctx.refresh()
 
 
-async def delete_task(ctx: Context):
+async def delete_task(ctx: Context, task_id: str):
     """Delete a task."""
     print(f"Deleting task... Event data: {ctx.event_data}")
-    task_id = ctx.event_data.get("task_id")
     print(f"Deleting task {task_id}")
     tasks = get_tasks(ctx)
 

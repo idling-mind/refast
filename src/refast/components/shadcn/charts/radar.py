@@ -22,7 +22,7 @@ class RadarChart(Component):
 
     def __init__(
         self,
-        *children: Component,
+        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         cx: str | int = "50%",
@@ -44,12 +44,8 @@ class RadarChart(Component):
         self.start_angle = start_angle
         self.end_angle = end_angle
 
-        self.children = list(children)
-        if kw_children:
-            if isinstance(kw_children, list):
-                self.children.extend(kw_children)
-            else:
-                self.children.append(kw_children)
+        self.add_children(list(children))
+        self.add_children(kw_children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -65,7 +61,7 @@ class RadarChart(Component):
                 "start_angle": self.start_angle,
                 "end_angle": self.end_angle,
             },
-            "children": [c.render() for c in self.children],
+            "children": self._render_children(),
         }
 
 

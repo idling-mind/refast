@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Form(Component):
@@ -28,15 +28,14 @@ class Form(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         on_submit: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.on_submit = on_submit
 
     def render(self) -> dict[str, Any]:
@@ -63,7 +62,7 @@ class FormField(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         label: str | None = None,
         error: str | None = None,
         hint: str | None = None,
@@ -73,8 +72,7 @@ class FormField(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.label = label
         self.error = error
         self.hint = hint

@@ -1,9 +1,9 @@
 """Component utility functions."""
-from typing import Optional
+
 from refast.components.base import Component
 
 
-def find_component_in_tree(root: Component, target_id: str) -> Optional[Component]:
+def find_component_in_tree(root: Component, target_id: str) -> Component | None:
     """
     Recursively find a component with the given ID in the component tree.
 

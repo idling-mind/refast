@@ -379,15 +379,15 @@ class Context(Generic[T]):
         self._state: State = State()
         self._store: Store | None = None
         self._session: Session | None = None
-        self._event_data: dict[str, Any] = {}
+        self._event_data: dict[str, Any] | list[Any] | Any = {}
         self._store_sync_future: asyncio.Future[None] | None = None
 
     @property
-    def event_data(self) -> dict[str, Any]:
+    def event_data(self) -> dict[str, Any] | list[Any] | Any:
         """Access the event data from a callback invocation."""
         return self._event_data
 
-    def set_event_data(self, data: dict[str, Any]) -> None:
+    def set_event_data(self, data: dict[str, Any] | list[Any] | Any) -> None:
         """Set the event data (called by event manager)."""
         self._event_data = data
 
@@ -1098,7 +1098,7 @@ class Context(Generic[T]):
                         }
                     )
 
-    async def refresh(self, path: str | None = None) -> None:
+    async def refresh(self, path: str | None = None, target_id: str | None = None) -> None:
         """
         Refresh the current page by re-rendering it.
 
@@ -1107,6 +1107,10 @@ class Context(Generic[T]):
 
         Args:
             path: Optional path to refresh. If not provided, uses "/" as default.
+            target_id: Optional ID of a specific component to refresh. If provided,
+                       only that component and its children will be updated on the client.
+                       This is useful for avoiding full page re-renders and preventing
+                       focus loss in unrelated inputs.
         """
         if self._websocket and self._app:
             # Default to root path if not specified
@@ -1120,15 +1124,41 @@ class Context(Generic[T]):
             if page_func is not None:
                 # Re-render the page with current state
                 component = page_func(self)
-                component_data = component.render() if hasattr(component, "render") else {}
+                
+                if target_id:
+                    # Partial refresh: Find and update only the target component
+                    # Lazy import to avoid circular dependencies
+                    from refast.utils.component import find_component_in_tree
+                    
+                    # Ensure component is valid before traversing
+                    if hasattr(component, "render"): 
+                        target_component = find_component_in_tree(component, target_id)
+                        
+                        if target_component:
+                            component_data = target_component.render()
+                            await self._websocket.send_json(
+                                {
+                                    # Use 'replace' operation to safely swap the component
+                                    "type": "update",
+                                    "targetId": target_id,
+                                    "operation": "replace",
+                                    "component": component_data,
+                                }
+                            )
+                        else:
+                            # Target not found in the fresh render
+                            pass
+                else:
+                    # Full page refresh (default behavior)
+                    component_data = component.render() if hasattr(component, "render") else {}
 
-                # Send the rendered component tree via WebSocket
-                await self._websocket.send_json(
-                    {
-                        "type": "refresh",
-                        "component": component_data,
-                    }
-                )
+                    # Send the rendered component tree via WebSocket
+                    await self._websocket.send_json(
+                        {
+                            "type": "refresh",
+                            "component": component_data,
+                        }
+                    )
 
     @staticmethod
     def _normalize_toast_button(button: dict) -> dict:

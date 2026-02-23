@@ -24,11 +24,13 @@ class Heading(Component):
         level: Literal[1, 2, 3, 4, 5, 6] = 1,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.text = text
         self.level = level
+        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {
@@ -37,6 +39,7 @@ class Heading(Component):
             "props": {
                 "level": self.level,
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],
@@ -53,10 +56,12 @@ class Paragraph(Component):
         text: str,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.text = text
+        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {
@@ -64,6 +69,7 @@ class Paragraph(Component):
             "id": self.id,
             "props": {
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],
@@ -79,6 +85,7 @@ class Code(Component):
         inline: If True (default), renders as inline code. If False, renders as a code block.
         id: Optional component ID.
         class_name: Optional CSS class name.
+        style: Optional inline styles as a dictionary.
     """
 
     component_type: str = "Code"
@@ -91,12 +98,14 @@ class Code(Component):
         show_line_numbers: bool = False,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.show_line_numbers = show_line_numbers
         self.code = code
         self.language = language
+        self.style = style
         self.inline = inline
 
     def render(self) -> dict[str, Any]:
@@ -109,6 +118,7 @@ class Code(Component):
                 "show_line_numbers": self.show_line_numbers,
                 "class_name": self.class_name,
                 "code": self.code,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [],
@@ -128,12 +138,14 @@ class Link(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.text = text
         self.href = href
         self.target = target
+        self.style = style
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
@@ -145,6 +157,7 @@ class Link(Component):
                 "target": self.target,
                 "on_click": self.on_click.serialize() if self.on_click else None,
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],
@@ -189,12 +202,14 @@ class Markdown(Component):
         allow_html: bool = False,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.content = content
         self.allow_latex = allow_latex
         self.allow_html = allow_html
+        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {
@@ -205,6 +220,7 @@ class Markdown(Component):
                 "allow_latex": self.allow_latex,
                 "allow_html": self.allow_html,
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [],

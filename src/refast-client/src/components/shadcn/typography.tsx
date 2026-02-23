@@ -39,6 +39,7 @@ function useTheme(): 'light' | 'dark' {
 interface HeadingProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -52,6 +53,7 @@ export function Heading({
   className,
   level = 1,
   children,
+  style,
   'data-refast-id': dataRefastId,
 }: HeadingProps): React.ReactElement {
   const sizeClasses = {
@@ -69,6 +71,7 @@ export function Heading({
     <Tag
       id={id}
       className={cn(sizeClasses[level], className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -79,6 +82,7 @@ export function Heading({
 interface ParagraphProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   lead?: boolean;
   muted?: boolean;
   children?: React.ReactNode;
@@ -94,6 +98,7 @@ export function Paragraph({
   lead = false,
   muted = false,
   children,
+  style,
   'data-refast-id': dataRefastId,
 }: ParagraphProps): React.ReactElement {
   return (
@@ -106,6 +111,7 @@ export function Paragraph({
         !lead && !muted && '[&:not(:first-child)]:mt-6',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -121,6 +127,7 @@ interface LinkProps {
   external?: boolean;
   onClick?: () => void;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
   'data-refast-id'?: string;
 }
 
@@ -135,6 +142,7 @@ export function Link({
   external = false,
   onClick,
   children,
+  style,
   'data-refast-id': dataRefastId,
 }: LinkProps): React.ReactElement {
   return (
@@ -148,6 +156,7 @@ export function Link({
         'font-medium text-primary px-2 hover:bg-accent',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -163,6 +172,7 @@ interface CodeProps {
   language?: string;
   code?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
   'data-refast-id'?: string;
 }
 
@@ -178,6 +188,7 @@ export function Code({
   language,
   code,
   children,
+  style,
   'data-refast-id': dataRefastId,
 }: CodeProps): React.ReactElement {
   const theme = useTheme();
@@ -280,6 +291,7 @@ export function Code({
           'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
           className
         )}
+        style={style}
         data-refast-id={dataRefastId}
         data-language={language}
       >
@@ -294,6 +306,7 @@ export function Code({
       <div
         id={id}
         className={cn('mb-4 mt-6 overflow-x-auto rounded-lg border', className)}
+        style={style}
         data-refast-id={dataRefastId}
         data-language={language}
       >
@@ -324,6 +337,7 @@ export function Code({
       )}
       data-refast-id={dataRefastId}
       data-language={language}
+      style={style}
     >
       <code className="relative rounded bg-transparent px-4 py-[0.2rem] font-mono text-sm text-inherit">
         {codeString}
@@ -404,6 +418,7 @@ export function List({
 interface ListItemProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -414,11 +429,12 @@ interface ListItemProps {
 export function ListItem({
   id,
   className,
+  style,
   children,
   'data-refast-id': dataRefastId,
 }: ListItemProps): React.ReactElement {
   return (
-    <li id={id} className={cn('', className)} data-refast-id={dataRefastId}>
+    <li id={id} className={cn('', className)} data-refast-id={dataRefastId} style={style}>
       {children}
     </li>
   );
@@ -430,6 +446,7 @@ interface LabelProps {
   htmlFor?: string;
   required?: boolean;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
   'data-refast-id'?: string;
 }
 
@@ -442,6 +459,7 @@ export function Label({
   htmlFor,
   required = false,
   children,
+  style,
   'data-refast-id': dataRefastId,
 }: LabelProps): React.ReactElement {
   return (
@@ -452,6 +470,7 @@ export function Label({
         'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -488,6 +507,7 @@ export function Markdown({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [ReactMarkdown, setReactMarkdown] = React.useState<React.ComponentType<any> | null>(null);
   const [remarkGfm, setRemarkGfm] = React.useState<unknown>(null);
+  const [rehypeRaw, setRehypeRaw] = React.useState<unknown>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [SyntaxHighlighter, setSyntaxHighlighter] = React.useState<React.ComponentType<any> | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -500,13 +520,15 @@ export function Markdown({
     // Dynamically import markdown libraries
     const loadMarkdown = async () => {
       try {
-        const [reactMarkdownModule, remarkGfmModule] = await Promise.all([
+        const [reactMarkdownModule, remarkGfmModule, rehypeRawModule] = await Promise.all([
           import('react-markdown'),
           import('remark-gfm'),
+          import('rehype-raw'),
         ]);
         
         setReactMarkdown(() => reactMarkdownModule.default as React.ComponentType<any>);
         setRemarkGfm(() => remarkGfmModule.default);
+        setRehypeRaw(() => rehypeRawModule.default);
 
         // Load syntax highlighter with PrismLight for smaller bundle
         try {
@@ -725,7 +747,9 @@ export function Markdown({
     >
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
-        components={allowHtml ? undefined : components}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rehypePlugins={allowHtml && rehypeRaw ? [rehypeRaw as any] : undefined}
+        components={components}
       >
         {content}
       </ReactMarkdown>

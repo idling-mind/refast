@@ -33,73 +33,170 @@ def render(ctx):
 # ---------------------------------------------------------------------------
 
 CONTENT = r"""
-> **TODO**: This page needs full content. See `AGENT_INSTRUCTIONS.md` in this folder.
-
 ## Build a Todo App in 5 Minutes
 
-This walkthrough builds a simple todo app from scratch, covering the core Refast patterns:
-pages, components, callbacks, state management, and targeted DOM updates.
+Let's build a functional Todo application. We'll cover **creating an app**, **state management**, **handling user input**, and **updating the UI**.
+
+> **Live Demo**: Check out the [working Todo App](/docs/todo-live) running right inside these docs!
 
 ### Step 1: Create the App
 
+First, we need the basic scaffolding. Create a file named `todo_app.py`:
+
 ```python
+from uuid import uuid4
 from fastapi import FastAPI
 from refast import RefastApp, Context
-from refast.components import (
-    Button, Card, CardContent, CardHeader, CardTitle,
-    Checkbox, Column, Container, Flex, Heading, Input, Row, Text,
-)
+from refast import components as rc
 
-ui = RefastApp(title="Todo App")
 app = FastAPI()
+ui = RefastApp(title="Getting Started - ToDo App")
+
+# We'll define our page handler here next...
+
 app.include_router(ui.router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-### Step 2: Define the Page
+### Step 2: Define State & Page
+
+We need a way to store our todos. We'll use `ctx.state`, which persists data for the active user connection.
+
+```python
+@ui.page("/")
+def home(ctx: Context):
+    # Initialize or retrieve existing todos
+    todos = ctx.state.get("todos", [])
+    
+    return rc.Container(
+        class_name="p-8 max-w-md mx-auto mt-10 border rounded-lg shadow-sm",
+        children=[
+            rc.Heading("ToDo App Example", level=1, class_name="mb-4"),
+            # We will add the UI components here next...
+        ],
+    )
+```
+
+### Step 3: Build the UI
+
+Now let's assemble the components in the `home` function. We'll reference two callback functions (`add_todo` and `mark_todo`) that we haven't defined yet—don't worry, we'll implement those in the next steps!
 
 ```python
 @ui.page("/")
 def home(ctx: Context):
     todos = ctx.state.get("todos", [])
-    # ... render UI
+    
+    return rc.Container(
+        class_name="p-8 max-w-md mx-auto mt-10 border rounded-lg shadow-sm",
+        children=[
+            rc.Heading("ToDo App Example", level=1, class_name="mb-4"),
+            
+            # Input Row
+            rc.Row(
+                children=[
+                    rc.Input(
+                        name="new_todo",
+                        placeholder="Enter a new todo",
+                        id="new-todo-input",
+                        class_name="flex-1 mr-2",
+                        # Bind the input value to a prop named "new_todo"
+                        on_change=ctx.store_prop("new_todo", debounce=300),
+                    ),
+                    rc.Button(
+                        "Add",
+                        variant="primary",
+                        # Pass the "new_todo" prop to the callback
+                        on_click=ctx.callback(add_todo, props=["new_todo"]),
+                    ),
+                ]
+            ),
+            
+            # Todo List
+            rc.Column(
+                id="todo-list",
+                gap=2,
+                class_name="mt-6",
+                children=[
+                    rc.Row(
+                        gap=2,
+                        align="center",
+                        children=[
+                            rc.Checkbox(
+                                checked=todo["completed"],
+                                on_change=ctx.callback(mark_todo, todo_id=todo["id"]),
+                            ),
+                            rc.Text(
+                                todo["text"],
+                                style={"textDecoration": "line-through"}
+                                if todo["completed"]
+                                else {},
+                            ),
+                        ],
+                    )
+                    for i, todo in enumerate(todos)
+                ],
+            ),
+        ],
+    )
 ```
 
-### Step 3: Add Callbacks
+### Step 4: Add Todo Logic
+
+Now let's create the `add_todo` callback function to handle adding new items.
 
 ```python
-async def add_todo(ctx: Context):
-    text = ctx.prop_store.get("new_todo", "")
-    if text.strip():
-        todos = ctx.state.get("todos", [])
-        todos.append({"text": text, "done": False})
-        ctx.state.set("todos", todos)
-        await ctx.refresh()
+async def add_todo(ctx: Context, new_todo: str):
+    todos = ctx.state.get("todos", [])
+    
+    if new_todo:
+        unique_id = str(uuid4())
+        todos.append({"id": unique_id, "text": new_todo, "completed": False})
+        ctx.state["todos"] = todos
+        
+        # Refresh just the list part of the page
+        await ctx.refresh(target_id="todo-list")
+        await ctx.show_toast(f'Added todo: "{new_todo}"', variant="success")
+    else:
+        await ctx.show_toast("Please enter a todo item.", variant="error")
 ```
 
-### Step 4: Wire Up the UI
+### Step 5: Toggle Completion Logic
+
+Finally, implement the `mark_todo` function to mark items as done.
 
 ```python
-Input(
-    placeholder="What needs to be done?",
-    on_change=ctx.callback(add_todo),
-    store_as="new_todo",
-)
-Button("Add", on_click=ctx.callback(add_todo))
+async def mark_todo(ctx: Context, todo_id: str):
+    todos = ctx.state.get("todos", [])
+    for todo in todos:
+        if todo["id"] == todo_id:
+            todo["completed"] = not todo["completed"]
+            break
+    ctx.state["todos"] = todos
+    await ctx.refresh(target_id="todo-list")
 ```
 
-### Step 5: Run
+### Step 6: Run It
+
+Run the app using Python directly or via `uvicorn`:
 
 ```bash
-uvicorn app:app --reload
+python todo_app.py
+# or
+uvicorn todo_app:app --reload
 ```
 
-> See `examples/todo_app/app.py` for the complete working example.
+Visit [http://localhost:8000](http://localhost:8000) to inspect your new Todo app!
 
-## What You Learned
+## Summary
 
-- **`@ui.page("/")`** registers a page handler
-- **`ctx.state`** holds per-connection server-side state
-- **`ctx.callback(fn)`** creates a callback that triggers a Python function on user interaction
-- **`store_as="key"`** stores input values client-side, accessible via `ctx.prop_store`
-- **`await ctx.refresh()`** re-renders the page with the current state
+In this quick tour, you learned:
+
+- **`@ui.page`**: To route requests to UI handlers.
+- **`ctx.store_prop`**: To bind input values to props accessible in callbacks.
+- **`ctx.callback`**: To trigger Python functions from UI events, passing props like `new_todo`.
+- **`ctx.refresh(target_id=...)`**: To re-render specific parts of the page for better performance.
+- **`ctx.show_toast`**: To display notifications.
 """

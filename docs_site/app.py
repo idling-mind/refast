@@ -6,8 +6,10 @@ Run:
     cd <project_root>
     uvicorn docs_site.app:app --reload
 """
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -19,6 +21,7 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
+    Column,
     Container,
     Flex,
     Heading,
@@ -49,12 +52,57 @@ from refast.components import (
 from refast.components.shadcn import ThemeSwitcher
 from refast.theme import default_theme
 
+from .pages import home  # noqa: E402
+from .pages.advanced import (  # noqa: E402
+    component_dev,
+    extension_dev,
+    security,
+    sessions,
+    styling,
+)
+from .pages.components import (  # noqa: E402
+    buttons,
+    cards,
+    charts,
+    data_display,
+    feedback,
+    inputs,
+    layout,
+    navigation,
+    typography,
+    utility,
+)
+from .pages.concepts import (  # noqa: E402
+    background,
+    callbacks,
+    js_interop,
+    routing,
+    state,
+    store,
+    streaming,
+    theming,
+    toasts,
+    updates,
+)
+from .pages.concepts import (
+    components as concepts_components,
+)
+from .pages.getting_started import (  # noqa: E402
+    architecture,
+    examples_gallery,
+    installation,
+    quick_tour,
+    todo_app_live,
+)
+
 # ── App instance ─────────────────────────────────────────────────────────
 
 ui = RefastApp(
     title="Refast Docs",
     theme=default_theme,
     favicon="📖",
+    custom_css="/styles/main.css",
+    custom_js="https://cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"
 )
 
 # ── Navigation structure ─────────────────────────────────────────────────
@@ -69,6 +117,7 @@ NAV_SECTIONS = [
             ("Installation", "/docs/getting-started", "download"),
             ("Architecture", "/docs/architecture", "layers"),
             ("Quick Tour", "/docs/quick-tour", "zap"),
+            ("Live Todo Demo", "/docs/todo-live", "check-circle"),
             ("Examples Gallery", "/docs/examples", "grid-3x3"),
         ],
     },
@@ -144,14 +193,20 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
         content: The page content component tree.
         current_path: Current page route for active-state highlighting.
     """
+    # Use path-specific ID for content container to force scroll reset on navigation
+    safe_path = current_path.replace("/", "-").strip("-") or "home"
+    content_id = f"docs-content-{safe_path}"
+
     return SidebarProvider(
+        id="docs-sidebar-provider",
         children=[
             _build_sidebar(ctx, current_path),
             SidebarInset(
+                id="docs-sidebar-inset",
                 children=[
                     _build_topbar(ctx, current_path),
                     Container(
-                        id="docs-content",
+                        id=content_id,
                         class_name="flex-1 overflow-auto",
                         children=[content],
                     ),
@@ -165,14 +220,17 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
 def _build_sidebar(ctx: Context, current_path: str):
     """Build the sidebar with all navigation sections."""
     return Sidebar(
+        id="docs-sidebar",
         collapsible="icon",
         children=[
             # Header — brand
             SidebarHeader(
+                id="docs-sidebar-header",
                 children=[
                     SidebarMenu(
                         children=[
                             SidebarMenuItem(
+                                id="docs-brand-item",
                                 children=[
                                     SidebarMenuButton(
                                         "Refast Docs",
@@ -190,15 +248,18 @@ def _build_sidebar(ctx: Context, current_path: str):
             SidebarSeparator(),
             # Navigation sections
             SidebarContent(
+                id="docs-sidebar-content",
                 children=[_build_nav_group(ctx, section, current_path) for section in NAV_SECTIONS],
             ),
             SidebarSeparator(),
             # Footer — version + theme
             SidebarFooter(
+                id="docs-sidebar-footer",
                 children=[
                     SidebarMenu(
                         children=[
                             SidebarMenuItem(
+                                id="docs-footer-item",
                                 children=[
                                     Row(
                                         [
@@ -207,7 +268,6 @@ def _build_sidebar(ctx: Context, current_path: str):
                                                 icon="tag",
                                                 size="sm",
                                             ),
-                                            ThemeSwitcher(),
                                         ]
                                     ),
                                 ],
@@ -223,7 +283,9 @@ def _build_sidebar(ctx: Context, current_path: str):
 
 def _build_nav_group(ctx: Context, section: dict, current_path: str):
     """Build a single navigation group in the sidebar."""
+    section_id = section["label"].lower().replace(" ", "-")
     return SidebarGroup(
+        id=f"nav-group-{section_id}",
         children=[
             SidebarGroupLabel(section["label"]),
             SidebarGroupContent(
@@ -231,6 +293,7 @@ def _build_nav_group(ctx: Context, section: dict, current_path: str):
                     SidebarMenu(
                         children=[
                             SidebarMenuItem(
+                                id=f"nav-item-{route.strip('/').replace('/', '-')}",
                                 children=[
                                     Tooltip(
                                         children=[
@@ -275,16 +338,23 @@ def _build_topbar(ctx: Context, current_path: str):
             breadcrumb_items.append(BreadcrumbItem(children=[BreadcrumbPage(label)]))
 
     return Container(
+        id="docs-topbar",
         class_name="border-b px-4 py-3 sticky top-0 bg-background z-10",
         children=[
-            Flex(
-                direction="row",
+            Row(
                 align="center",
-                gap=4,
+                justify="between",
                 children=[
-                    SidebarTrigger(),
-                    Separator(orientation="vertical", class_name="h-6"),
-                    Breadcrumb(children=[BreadcrumbList(children=breadcrumb_items)]),
+                    Row(
+                        [
+                            SidebarTrigger(),
+                            Separator(orientation="vertical", class_name="h-6"),
+                            Breadcrumb(children=[BreadcrumbList(children=breadcrumb_items)]),
+                        ],
+                        align="center",
+                        gap=4,
+                    ),
+                    ThemeSwitcher(),
                 ],
             ),
         ],
@@ -325,6 +395,7 @@ def _build_footer(ctx: Context, current_path: str):
             )
 
     return Container(
+        id="docs-page-footer",
         class_name="border-t px-6 py-4 mt-8",
         children=[
             Flex(
@@ -334,49 +405,6 @@ def _build_footer(ctx: Context, current_path: str):
             ),
         ],
     )
-
-
-# ── Import all page modules ─────────────────────────────────────────────
-
-from .pages import home  # noqa: E402
-from .pages.getting_started import (  # noqa: E402
-    architecture,
-    examples_gallery,
-    installation,
-    quick_tour,
-)
-from .pages.concepts import (  # noqa: E402
-    background,
-    callbacks,
-    components as concepts_components,
-    js_interop,
-    routing,
-    state,
-    store,
-    streaming,
-    theming,
-    toasts,
-    updates,
-)
-from .pages.components import (  # noqa: E402
-    buttons,
-    cards,
-    charts,
-    data_display,
-    feedback,
-    inputs,
-    layout,
-    navigation,
-    typography,
-    utility,
-)
-from .pages.advanced import (  # noqa: E402
-    component_dev,
-    extension_dev,
-    security,
-    sessions,
-    styling,
-)
 
 
 # ── Register all pages ───────────────────────────────────────────────────
@@ -401,6 +429,11 @@ def page_architecture(ctx: Context):
 @ui.page("/docs/quick-tour")
 def page_quick_tour(ctx: Context):
     return quick_tour.render(ctx)
+
+
+@ui.page("/docs/todo-live")
+def page_todo_live(ctx: Context):
+    return todo_app_live.render(ctx)
 
 
 @ui.page("/docs/examples")
@@ -544,6 +577,7 @@ def page_advanced_styling(ctx: Context):
 # ── FastAPI app ──────────────────────────────────────────────────────────
 
 app = FastAPI(title="Refast Documentation")
+app.mount("/styles", StaticFiles(directory=Path(__file__).parent / "styles"), name="styles")  # serve custom CSS and JS
 app.include_router(ui.router)
 
 if __name__ == "__main__":

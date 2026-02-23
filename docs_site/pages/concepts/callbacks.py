@@ -59,9 +59,12 @@ Button("Select", on_click=ctx.callback(select_item, item_id="abc123"))
 | `on_click` | Element is clicked |
 | `on_change` | Input value changes |
 | `on_submit` | Form is submitted |
-| `on_checked_change` | Checkbox/switch state changes |
-| `on_value_change` | Select/slider value changes |
+| `on_value_change` | Slider value changes |
+| `on_value_commit` | Slider value committed |
+| `on_pressed_change` | Toggle state changes |
 | `on_open_change` | Dialog/sheet/popover opens or closes |
+| `on_select` | Calendar date selected / Select value changes |
+| `...` | Other events |
 
 ## The Callback Flow
 
@@ -71,15 +74,17 @@ Button("Select", on_click=ctx.callback(select_item, item_id="abc123"))
 4. Your Python function runs with the `Context` — it can update state, push DOM updates, etc.
 5. Any updates are sent back to the frontend via the same WebSocket
 
-## store_as — Client-Side Input State
+## store_prop — Instant Frontend State
 
-For forms, you can avoid a server roundtrip on every keystroke:
+For forms, you can avoid a server roundtrip on every keystroke by
+storing input values directly in the frontend using `ctx.store_prop`:
 
 ```python
-Input(placeholder="Name", store_as="user_name")
+Input(placeholder="Name", on_change=ctx.store_prop("user_name"))
+Button("Submit", on_click=ctx.callback(submit, props=["user_name"]))
 
-async def submit(ctx: Context):
-    name = ctx.prop_store.get("user_name", "")
+async def submit(ctx: Context, user_name: str=""):
+    await ctx.show_toast(f"Hello, {user_name}!", variant="success")
 ```
 
 ## Next Steps

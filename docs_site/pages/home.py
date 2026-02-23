@@ -37,7 +37,14 @@ def render(ctx):
                 class_name="text-center py-12",
                 children=[
                     Row([Badge(["v0.1.0"], variant="secondary")], justify="center"),
-                    Heading("Refast", level=1, class_name="text-5xl font-bold"),
+                    Text(
+                        "Refast",
+                        style={
+                            "fontSize": "5rem",
+                            "fontWeight": "bold",
+                        },
+                        class_name="logo-font",
+                    ),
                     Text(
                         "Build reactive web apps with Python. Powered by FastAPI and React.",
                         class_name="text-xl text-muted-foreground max-w-2xl mx-auto",

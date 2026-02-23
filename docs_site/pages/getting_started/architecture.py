@@ -33,73 +33,82 @@ def render(ctx):
 # ---------------------------------------------------------------------------
 
 CONTENT = r"""
-> **TODO**: This page needs full content. See `AGENT_INSTRUCTIONS.md` in this folder.
-
 ## Overview
 
-Refast follows a **server-driven UI** architecture where the Python backend is the single
-source of truth for the application state and UI structure.
+Refast is built on a **Server-Driven UI** architecture. The Python backend is the single source of truth for the application state, business logic, and UI structure. The React frontend acts as a thin renderer.
 
-## The Pipeline
+## High-Level Architecture
 
-```
-Python (Server)          WebSocket           React (Browser)
-┌──────────────┐        ┌─────────┐        ┌──────────────┐
-│  Page Handler │──JSON──│   WS    │──JSON──│  Component   │
-│  returns      │        │ Channel │        │  Renderer    │
-│  Component    │        └─────────┘        │  (React)     │
-│  Tree         │                           └──────────────┘
-└──────────────┘                                   │
-       ▲                                           │
-       │              Events/Callbacks              │
-       └────────────────────────────────────────────┘
+```mermaid
+graph TD
+    User((User)) <--> |HTTP/WS| FastAPI[FastAPI App]
+    subgraph Server [Refast Backend]
+        FastAPI --> RefastApp
+        RefastApp --> Router
+        RefastApp --> Context
+        Context --> State[State Management]
+        Context --> Components[Component Tree]
+    end
+    subgraph Client [Browser]
+        React[React Client]
+        DOM[DOM]
+        React --> |Events| Context
+        Context --> |Updates| React
+        React --> DOM
+    end
 ```
 
 ## Request Lifecycle
 
-### Initial Page Load (HTTP GET)
+### 1. Initial Page Load (HTTP GET)
 
-1. Browser requests `GET /`
-2. Refast calls the registered page handler → returns a component tree
-3. The tree is serialized to JSON
-4. An HTML shell is returned containing:
-   - CSS variables for the theme
-   - The React client bundle (`refast-client.js` + `refast-client.css`)
-   - The serialized component tree as embedded JSON
-5. React boots, renders the component tree, and opens a WebSocket
+When a user visits a Refast application:
 
-### WebSocket Connection
+1. The browser sends a `GET /` request.
+2. FastAPI routes the request to Refast's page handler.
+3. The handler executes in Python and returns a tree of component objects (e.g., `Container`, `Button`).
+4. Refast serializes this component tree to JSON.
+5. An HTML shell is returned, which includes:
+   - The serialized initial state and component tree.
+   - The React client bundle (`/static/refast-client.js`).
+   - Theme CSS variables.
+6. The browser loads the HTML, executes the React bundle, and hydrates the view.
 
-Once the WebSocket is established:
-- **Callbacks** → User interactions (clicks, input changes) send events via WebSocket
-- **Updates** → Python handlers can push DOM updates back (replace, append, remove, etc.)
-- **State** → Per-connection state persists across interactions
-- **Store Sync** → Browser localStorage/sessionStorage can be read/written from Python
+### 2. WebSocket Connection
 
-### SPA Navigation
+Immediately after hydration, the React client establishes a **WebSocket connection** back to the server. This persistent connection enables:
 
-When `ctx.navigate(path)` is called:
-1. Frontend fetches `GET /path?format=json` (component tree only, no HTML shell)
-2. React swaps the component tree in place
-3. WebSocket stays connected — state persists
+- **Real-time Updates**: The server can push UI changes to the client at any time.
+- **Event Handling**: User interactions (clicks, input changes) are sent as events to the server.
+- **State Synchronization**: Client-side state (like form inputs) can be synced to the server.
+
+### 3. SPA Navigation
+
+Refast behaves like a Single Page Application (SPA). When `ctx.navigate("/about")` is called:
+
+1. The client fetches the new page's component tree via a lightweight JSON request (not full HTML).
+2. The React client swaps the current component tree with the new one.
+3. The browser URL is updated without a full page reload.
+4. State is preserved or reset based on configuration.
 
 ## Key Components
 
 | Component | Role |
-|-----------|------|
-| `RefastApp` | Framework instance — registers pages, events, callbacks |
-| `Context` | Per-request handle — state, store, callbacks, DOM updates |
-| `State` | Server-side per-connection dictionary |
-| `Store` | Client-side browser storage (local/session) accessible from Python |
-| `Component` | Base class for all UI elements |
-| `EventManager` | Routes events between frontend and backend |
-| `BroadcastManager` | Pushes updates to multiple connected clients |
+| :--- | :--- |
+| **`RefastApp`** | The central application instance. Manages configuration, routes, and extensions. |
+| **`Context`** | Passed to every handler. Provides access to `state`, `store`, `navigate`, and more. |
+| **`Component`** | Base class for all UI elements. Includes `Container`, `Button`, `Text`, etc. |
+| **`State`** | Server-side storage for transient data during a user session. |
+| **`Store`** | Interface for persistent storage (cookies, local storage, session storage). |
+| **`EventManager`** | Internal system that routes client events to Python callbacks. |
 
 ## Static Assets
 
-Refast serves its React client from a built-in static directory:
+Refast serves its client assets automatically:
 
-- `/static/refast-client.js` — IIFE bundle (React + all components)
-- `/static/refast-client.css` — Compiled Tailwind CSS
-- `/static/ext/{name}/{file}` — Extension static files
+- `/static/refast-client.js`: The bundled React runtime and component library.
+- `/static/refast-client.css`: Compiled Tailwind CSS styles.
+- `/static/favicon.ico`: Default favicon (customizable).
+
+Extensions can also serve their own static files under `/static/ext/{name}/`.
 """

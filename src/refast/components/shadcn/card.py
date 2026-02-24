@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Card(Component):
@@ -25,7 +25,7 @@ class Card(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         title: str | None = None,
         description: str | None = None,
         on_click: Any = None,
@@ -69,7 +69,7 @@ class CardHeader(Component):
         self,
         title: str | None = None,
         description: str | None = None,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -102,7 +102,7 @@ class CardContent(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -131,7 +131,7 @@ class CardFooter(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -161,7 +161,7 @@ class CardTitle(Component):
     def __init__(
         self,
         text: str = "",
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -194,7 +194,7 @@ class CardDescription(Component):
     def __init__(
         self,
         text: str = "",
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,

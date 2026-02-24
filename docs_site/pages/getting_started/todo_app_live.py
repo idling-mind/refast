@@ -65,7 +65,7 @@ def render(ctx: Context):
     
     # The actual app content
     app_content = rc.Container(
-        class_name="p-8 border rounded-lg shadow-sm bg-card",
+        class_name="p-8 border rounded-lg shadow-sm bg-card w-full",
         children=[
             rc.Heading("ToDo List", level=2, class_name="mb-4"),
             rc.Row(
@@ -74,7 +74,7 @@ def render(ctx: Context):
                         name="new_todo",
                         placeholder="Enter a new todo",
                         id="new-todo-input",
-                        class_name="flex-1 mr-2",
+                        class_name="mr-2 w-full",
                         on_change=ctx.save_prop("new_todo", debounce=300),
                     ),
                     rc.Button(
@@ -82,7 +82,7 @@ def render(ctx: Context):
                         variant="primary",
                         on_click=ctx.callback(add_todo, props=["new_todo"]),
                     ),
-                ]
+                ],
             ),
             render_todo_list(ctx),
         ],

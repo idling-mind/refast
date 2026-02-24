@@ -48,6 +48,8 @@ def form_page(ctx: Context):
     )
 ```
 
+> **Note:** If you omit the `name` prop on form controls, `event.name` will be `None`/undefined. Include `name` whenever you rely on it for prop-store mappings or HTML form submissions.
+
 ### Accessing Stored Values
 
 Stored values are delivered as **keyword arguments** to your callback when you use `props=[...]`:

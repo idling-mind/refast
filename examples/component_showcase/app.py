@@ -417,7 +417,6 @@ def home(ctx: Context):
                                         [
                                             Label("Inputs"),
                                             Input(
-                                                name="name",
                                                 label="Name",
                                                 description="Your full name",
                                                 required=True,
@@ -425,35 +424,30 @@ def home(ctx: Context):
                                                 type="text",
                                             ),
                                             Input(
-                                                name="email",
                                                 label="Email",
                                                 description="Your email address",
                                                 placeholder="Your email here...",
                                                 type="email",
                                             ),
                                             Input(
-                                                name="password",
                                                 label="Password",
                                                 description="Choose a strong password",
                                                 placeholder="Your password here...",
                                                 type="password",
                                             ),
                                             Input(
-                                                name="website",
                                                 label="Website",
                                                 description="Your website URL",
                                                 placeholder="Your website here...",
                                                 type="url",
                                             ),
                                             Input(
-                                                name="phone",
                                                 label="Phone",
                                                 description="Your phone number",
                                                 placeholder="Your phone here...",
                                                 type="tel",
                                             ),
                                             Input(
-                                                name="number",
                                                 label="Number",
                                                 description="Enter a numeric value",
                                                 placeholder="Your number here...",
@@ -677,10 +671,8 @@ def home(ctx: Context):
                                                         gap=4,
                                                         class_name="py-4",
                                                         children=[
-                                                            Input(placeholder="Name", name="name"),
-                                                            Input(
-                                                                placeholder="Email", name="email"
-                                                            ),
+                                                            Input(placeholder="Name"),
+                                                            Input(placeholder="Email"),
                                                             Button(
                                                                 label="Save Changes",
                                                                 on_click=ctx.callback(

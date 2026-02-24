@@ -96,22 +96,6 @@ Open [http://localhost:8000](http://localhost:8000) in your browser. You should 
 4. **Components**: Functions like `Container`, `Heading`, and `Text` return Python objects representing UI elements. These are serialized to JSON and rendered by React on the client.
 5. **`app.include_router(ui.router)`**: Refast integrates seamlessly into any FastAPI application by exposing a standard APIRouter.
 
-## Project Structure
-
-For larger applications, we recommend structuring your project like this:
-
-```text
-my_app/
-├── app.py             # Main entry point
-├── components/        # Reusable UI components
-│   ├── __init__.py
-│   └── layout.py
-├── pages/             # Page handlers
-│   ├── __init__.py
-│   ├── home.py
-│   └── settings.py
-└── theme.py           # Custom theme configuration
-```
 
 ## Next Steps
 

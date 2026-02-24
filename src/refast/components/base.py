@@ -85,11 +85,20 @@ class Component(ABC):
         self.style = style or {}
         self.parent_style = parent_style or {}
         self.extra_props = props
-        self._children: list[Component | str | None] = []
+        self._children: ChildrenType = []
 
     def add_child(self, child: Union["Component", str, None]) -> Self:
         """Add a child component."""
-        self._children.append(child)
+        if not isinstance(child, (Component, str)) and child is not None:
+            raise ValueError(f"Child must be a Component, string, or None, got {type(child)}")
+        if child is None:
+            return self
+        if isinstance(self._children, list):
+            self._children.append(child)
+        elif isinstance(self._children, Component):
+            self._children = [self._children, child]
+        elif self._children is None:
+            self._children = [child]
         return self
 
     def add_children(self, children: ChildrenType) -> Self:
@@ -97,15 +106,21 @@ class Component(ABC):
         if children is None:
             return self
 
-        if isinstance(children, list):
+        if isinstance(children, list) and isinstance(self._children, list):
             self._children.extend(children)
-        else:
-            self._children.append(children)
+        elif isinstance(children, list) and isinstance(self._children, Component):
+            self._children = [self._children] + children
+        elif isinstance(children, list) and self._children is None:
+            self._children = children
         return self
 
     def _render_children(self) -> list[dict[str, Any] | str]:
         """Render all children to dicts, filtering out None values."""
         result = []
+        if isinstance(self._children, (str, Component)):
+            self._children = [self._children]
+        elif self._children is None:
+            self._children = []
         for child in self._children:
             if child is None:
                 continue

@@ -2,7 +2,7 @@
 
 from typing import Any, Literal, Union
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.components.shadcn.icon import Icon
 
 
@@ -26,7 +26,7 @@ class Breadcrumb(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -54,7 +54,7 @@ class BreadcrumbList(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -82,7 +82,7 @@ class BreadcrumbItem(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", str, None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -177,7 +177,7 @@ class BreadcrumbSeparator(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", str, None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -250,7 +250,7 @@ class NavigationMenu(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         id: str | None = None,
         class_name: str = "",
@@ -281,7 +281,7 @@ class NavigationMenuList(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -309,17 +309,14 @@ class NavigationMenuItem(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+            self._children = children
 
     def render(self) -> dict[str, Any]:
         return {
@@ -367,17 +364,14 @@ class NavigationMenuContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+            self._children = children
 
     def render(self) -> dict[str, Any]:
         return {
@@ -457,7 +451,7 @@ class Pagination(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -485,7 +479,7 @@ class PaginationContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -513,17 +507,14 @@ class PaginationItem(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+            self._children = children
 
     def render(self) -> dict[str, Any]:
         return {
@@ -698,7 +689,7 @@ class Menubar(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -728,7 +719,7 @@ class MenubarMenu(Component):
         self,
         trigger: "Component | None" = None,
         content: "Component | None" = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -785,7 +776,7 @@ class MenubarContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         align: Literal["start", "center", "end"] = "start",
         side_offset: int = 5,
         id: str | None = None,
@@ -926,7 +917,7 @@ class MenubarRadioGroup(Component):
         self,
         value: str = "",
         on_value_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -992,7 +983,7 @@ class MenubarSub(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1047,7 +1038,7 @@ class MenubarSubContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1097,7 +1088,7 @@ class Command(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1163,7 +1154,7 @@ class CommandList(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1219,7 +1210,7 @@ class CommandGroup(Component):
     def __init__(
         self,
         heading: str = "",
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1367,7 +1358,7 @@ class SidebarProvider(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         default_open: bool = True,
         id: str | None = None,
         class_name: str = "",
@@ -1435,7 +1426,7 @@ class Sidebar(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         side: Literal["left", "right"] = "left",
         variant: Literal["sidebar", "floating", "inset"] = "sidebar",
         collapsible: Literal["offcanvas", "icon", "none"] = "offcanvas",
@@ -1492,7 +1483,7 @@ class SidebarInset(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1534,7 +1525,7 @@ class SidebarHeader(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1577,7 +1568,7 @@ class SidebarContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1627,7 +1618,7 @@ class SidebarFooter(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1700,7 +1691,7 @@ class SidebarGroup(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1784,7 +1775,7 @@ class SidebarGroupAction(Component):
         icon: str | None = None,
         title: str | None = None,
         on_click: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1833,7 +1824,7 @@ class SidebarGroupContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1873,7 +1864,7 @@ class SidebarMenu(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1912,7 +1903,7 @@ class SidebarMenuItem(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -2040,7 +2031,7 @@ class SidebarMenuAction(Component):
         icon: str | None = None,
         show_on_hover: bool = False,
         on_click: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -2138,7 +2129,7 @@ class SidebarMenuSub(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -2166,7 +2157,7 @@ class SidebarMenuSubItem(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,

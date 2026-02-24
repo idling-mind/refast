@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Alert(Component):
@@ -28,7 +28,7 @@ class Alert(Component):
         variant: Literal["default", "success", "warning", "destructive", "info"] = "default",
         dismissible: bool = False,
         on_dismiss: Any = None,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -226,8 +226,8 @@ class ConnectionStatus(Component):
 
     def __init__(
         self,
-        children_connected: list[Component | str] | None = None,
-        children_disconnected: list[Component | str] | None = None,
+        children_connected: ChildrenType = None,
+        children_disconnected: ChildrenType = None,
         position: Literal[
             "top-left", "top-right", "bottom-left", "bottom-right", "inline"
         ] = "bottom-right",
@@ -250,9 +250,13 @@ class ConnectionStatus(Component):
         self.js_on_reconnect = js_on_reconnect
         self.debounce_ms = debounce_ms
 
-    def _render_child_list(self, children: list[Component | str]) -> list[dict[str, Any] | str]:
+    def _render_child_list(self, children: ChildrenType) -> list[dict[str, Any] | str]:
         """Render a list of children to dicts."""
         result = []
+        if children is None:
+            return result
+        if isinstance(children, (str, Component)):
+            children = [children]
         for child in children:
             if isinstance(child, Component):
                 result.append(child.render())

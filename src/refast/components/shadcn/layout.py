@@ -201,7 +201,7 @@ class Center(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,

@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class InputWrapper(Component):
@@ -34,7 +34,7 @@ class InputWrapper(Component):
         description: str | None = None,
         required: bool = False,
         error: str | None = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -416,7 +416,7 @@ class CheckboxGroup(Component):
     def __init__(
         self,
         name: str | None = None,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         label: str | None = None,
         description: str | None = None,
         value: list[str] | None = None,
@@ -568,7 +568,7 @@ class RadioGroup(Component):
     def __init__(
         self,
         name: str | None = None,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         label: str | None = None,
         description: str | None = None,
         value: str | None = None,

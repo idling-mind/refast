@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Table(Component):
@@ -34,7 +34,7 @@ class Table(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         caption: str | None = None,
         striped: bool = False,
         hoverable: bool = False,
@@ -71,7 +71,7 @@ class TableHeader(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -99,7 +99,7 @@ class TableBody(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -127,7 +127,7 @@ class TableRow(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -155,7 +155,7 @@ class TableHead(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -183,7 +183,7 @@ class TableCell(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         col_span: int | None = None,
         row_span: int | None = None,
         id: str | None = None,
@@ -416,7 +416,7 @@ class List(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         ordered: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -447,7 +447,7 @@ class Badge(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         variant: Literal[
             "default", "primary", "secondary", "destructive", "outline", "success", "warning"
         ] = "default",
@@ -518,7 +518,7 @@ class Tooltip(Component):
     def __init__(
         self,
         content: str,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         side: Literal["top", "right", "bottom", "left"] = "top",
         side_offset: int | None = None,
         id: str | None = None,
@@ -554,7 +554,7 @@ class Tabs(Component):
 
     def __init__(
         self,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         default_value: str | None = None,
         value: str | None = None,
         on_value_change: Any = None,
@@ -595,7 +595,7 @@ class TabItem(Component):
         self,
         value: str,
         label: str,
-        children: list[Component | str] | None = None,
+        children: ChildrenType = None,
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -657,7 +657,7 @@ class Accordion(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         type: Literal["single", "multiple"] = "single",
         collapsible: bool = True,
         default_value: str | list[str] | None = None,
@@ -700,7 +700,7 @@ class AccordionItem(Component):
     def __init__(
         self,
         value: str,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -730,7 +730,7 @@ class AccordionTrigger(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -758,7 +758,7 @@ class AccordionContent(Component):
 
     def __init__(
         self,
-        children: list["Component | str"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,

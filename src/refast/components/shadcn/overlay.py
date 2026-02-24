@@ -2,7 +2,7 @@
 
 from typing import Any, Literal, Union
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Dialog(Component):
@@ -38,7 +38,7 @@ class Dialog(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -77,7 +77,7 @@ class DialogTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -111,7 +111,7 @@ class DialogContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -142,7 +142,7 @@ class DialogHeader(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -173,7 +173,7 @@ class DialogFooter(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -349,7 +349,7 @@ class Sheet(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -388,7 +388,7 @@ class SheetTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -422,7 +422,7 @@ class SheetClose(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -456,7 +456,7 @@ class SheetContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         side: Literal["top", "right", "bottom", "left"] = "right",
         id: str | None = None,
         class_name: str = "",
@@ -490,7 +490,7 @@ class SheetHeader(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -521,7 +521,7 @@ class SheetFooter(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -624,7 +624,7 @@ class Popover(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -663,7 +663,7 @@ class PopoverTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -697,7 +697,7 @@ class PopoverContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         side: Literal["top", "right", "bottom", "left"] = "bottom",
         side_offset: int = 4,
         align: Literal["start", "center", "end"] = "center",
@@ -756,7 +756,7 @@ class HoverCard(Component):
         on_open_change: Any = None,
         open_delay: int = 700,
         close_delay: int = 300,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -799,7 +799,7 @@ class HoverCardTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -833,7 +833,7 @@ class HoverCardContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         side: Literal["top", "right", "bottom", "left"] = "bottom",
         side_offset: int = 4,
         align: Literal["start", "center", "end"] = "center",
@@ -892,7 +892,7 @@ class DropdownMenu(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -931,7 +931,7 @@ class DropdownMenuTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -965,7 +965,7 @@ class DropdownMenuContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         side: Literal["top", "right", "bottom", "left"] = "bottom",
         side_offset: int = 4,
         align: Literal["start", "center", "end"] = "start",
@@ -1142,7 +1142,7 @@ class DropdownMenuRadioGroup(Component):
         self,
         value: str = "",
         on_value_change: Any = None,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1208,7 +1208,7 @@ class DropdownMenuSub(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1269,7 +1269,7 @@ class DropdownMenuSubContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1314,7 +1314,7 @@ class ContextMenu(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1342,7 +1342,7 @@ class ContextMenuTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1373,7 +1373,7 @@ class ContextMenuContent(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1530,7 +1530,7 @@ class Drawer(Component):
         open: bool | None = None,
         on_open_change: Any = None,
         should_scale_background: bool = True,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1569,7 +1569,7 @@ class DrawerTrigger(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
@@ -1603,7 +1603,7 @@ class DrawerContent(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1634,7 +1634,7 @@ class DrawerHeader(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1665,7 +1665,7 @@ class DrawerFooter(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -1750,7 +1750,7 @@ class DrawerClose(Component):
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",

@@ -103,6 +103,8 @@ def home(ctx: Context):
                         id="new-todo-input",
                         class_name="flex-1 mr-2",
                         # Bind the input value to a prop named "new_todo"
+                        # This is stored in a global prop store that can be accessed
+                        # in other callbacks like the on_click callback of the Add button.
                         on_change=ctx.save_prop("new_todo", debounce=300),
                     ),
                     rc.Button(
@@ -120,7 +122,7 @@ def home(ctx: Context):
                 gap=2,
                 class_name="mt-6",
                 children=[
-                    rc.Row(
+                    rc.Row( # Each todo item is a row with a checkbox and text
                         gap=2,
                         align="center",
                         children=[
@@ -130,6 +132,7 @@ def home(ctx: Context):
                             ),
                             rc.Text(
                                 todo["text"],
+                                # If the todo is completed, apply a line-through style
                                 style={"textDecoration": "line-through"}
                                 if todo["completed"]
                                 else {},
@@ -172,6 +175,7 @@ async def mark_todo(ctx: Context, todo_id: str):
     todos = ctx.state.get("todos", [])
     for todo in todos:
         if todo["id"] == todo_id:
+            # Toggle the completed status
             todo["completed"] = not todo["completed"]
             break
     ctx.state["todos"] = todos

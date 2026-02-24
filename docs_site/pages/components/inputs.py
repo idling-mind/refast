@@ -46,21 +46,21 @@ CONTENT = r"""
 
 ```python
 Input(
+    name="full_name",  # optional; omit to skip HTML name attribute
     placeholder="Enter your name",
     value="",
     type="text",
     on_change=ctx.callback(handle_change),
-    store_as="user_name",
 )
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `name` | `str \| None` | `None` | HTML name attribute used in `event.name`; omit to skip |
 | `placeholder` | `str` | `""` | Placeholder text |
 | `value` | `str` | `""` | Current value |
 | `type` | `"text" \| "email" \| "password" \| "number" \| ...` | `"text"` | Input type |
 | `on_change` | `Callback \| None` | `None` | Change handler |
-| `store_as` | `str \| None` | `None` | Client-side prop store key |
 | `disabled` | `bool` | `False` | Disabled state |
 
 ---

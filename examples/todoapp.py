@@ -41,7 +41,6 @@ def home(ctx: Context):
             rc.Row(
                 children=[
                     rc.Input(
-                        name="new_todo",
                         placeholder="Enter a new todo",
                         id="new-todo-input",
                         class_name="flex-1 mr-2",

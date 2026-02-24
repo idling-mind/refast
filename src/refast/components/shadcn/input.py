@@ -86,7 +86,7 @@ class Input(Component):
 
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         label: str | None = None,
         description: str | None = None,
         type: Literal["text", "email", "password", "number", "tel", "url", "search"] = "text",
@@ -128,7 +128,6 @@ class Input(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "label": self.label,
             "description": self.description,
             "type": self.input_type,
@@ -141,6 +140,9 @@ class Input(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         # Only include value when explicitly set (not None) so the frontend
         # Input starts as uncontrolled.  This allows update_props({"value": ""})
@@ -176,7 +178,7 @@ class Textarea(Component):
 
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         label: str | None = None,
         description: str | None = None,
         placeholder: str = "",
@@ -216,7 +218,6 @@ class Textarea(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "label": self.label,
             "description": self.description,
             "placeholder": self.placeholder,
@@ -228,6 +229,9 @@ class Textarea(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         if self.value is not None:
             props["value"] = self.value
@@ -260,8 +264,8 @@ class Select(Component):
 
     def __init__(
         self,
-        name: str,
         options: list[dict[str, str]],  # [{"value": "a", "label": "Option A"}, ...]
+        name: str | None = None,
         label: str | None = None,
         description: str | None = None,
         value: str | None = None,
@@ -288,7 +292,6 @@ class Select(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "options": self.options,
             "label": self.label,
             "description": self.description,
@@ -299,6 +302,9 @@ class Select(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         if self.value is not None:
             props["value"] = self.value
@@ -409,7 +415,7 @@ class CheckboxGroup(Component):
 
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         children: list[Component | str] | None = None,
         label: str | None = None,
         description: str | None = None,
@@ -438,7 +444,6 @@ class CheckboxGroup(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "label": self.label,
             "description": self.description,
             "value": self.value,
@@ -449,6 +454,9 @@ class CheckboxGroup(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -468,8 +476,8 @@ class Radio(Component):
 
     def __init__(
         self,
-        name: str,
         value: str,
+        name: str | None = None,
         label: str | None = None,
         description: str | None = None,
         checked: bool = False,
@@ -494,7 +502,6 @@ class Radio(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "value": self.value,
             "label": self.label,
             "description": self.description,
@@ -505,6 +512,9 @@ class Radio(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -557,7 +567,7 @@ class RadioGroup(Component):
 
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         children: list[Component | str] | None = None,
         label: str | None = None,
         description: str | None = None,
@@ -586,7 +596,6 @@ class RadioGroup(Component):
 
     def render(self) -> dict[str, Any]:
         props = {
-            "name": self.name,
             "label": self.label,
             "description": self.description,
             "value": self.value,
@@ -597,6 +606,9 @@ class RadioGroup(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+
+        if self.name is not None:
+            props["name"] = self.name
 
         if self.on_change:
             props["on_value_change"] = self.on_change.serialize()

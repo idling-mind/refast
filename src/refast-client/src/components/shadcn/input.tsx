@@ -84,7 +84,7 @@ interface InputProps {
   disabled?: boolean;
   required?: boolean;
   error?: string;
-  name?: string;
+  name?: string | null;
   debounce?: number;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
@@ -216,7 +216,7 @@ export function Input({
       value={localValue}
       disabled={disabled}
       required={required}
-      name={name}
+      name={name || undefined}
       onChange={handleChange}
       onBlur={onBlur}
       onFocus={onFocus}
@@ -267,7 +267,7 @@ interface TextareaProps {
   defaultValue?: string;
   disabled?: boolean;
   rows?: number;
-  name?: string;
+  name?: string | null;
   debounce?: number;
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
@@ -392,7 +392,7 @@ export function Textarea({
       disabled={disabled}
       required={required}
       rows={rows}
-      name={name}
+      name={name || undefined}
       onChange={handleChange}
       onBlur={onBlur}
       onFocus={onFocus}
@@ -445,7 +445,7 @@ interface SelectProps {
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
-  name?: string;
+  name?: string | null;
   options?: SelectOption[];
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   children?: React.ReactNode;
@@ -505,7 +505,7 @@ export function Select({
       value={localValue}
       disabled={disabled}
       required={required}
-      name={name}
+      name={name || undefined}
       onChange={handleChange}
       className={cn(
         'flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm',
@@ -581,7 +581,7 @@ interface CheckboxProps {
   checked?: boolean;
   defaultChecked?: boolean;
   disabled?: boolean;
-  name?: string;
+  name?: string | null;
   value?: string;
   onCheckedChange?: (checked: boolean) => void;
   'data-refast-id'?: string;
@@ -628,7 +628,7 @@ export function Checkbox({
     <div className="flex items-center space-x-2">
       <CheckboxPrimitive.Root
         id={checkboxId}
-        name={name}
+        name={name || undefined}
         value={value}
         checked={localChecked}
         defaultChecked={defaultChecked}
@@ -681,7 +681,7 @@ interface RadioProps {
   checked?: boolean;
   defaultChecked?: boolean;
   disabled?: boolean;
-  name?: string;
+  name?: string | null;
   value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
@@ -732,7 +732,7 @@ export function Radio({
           type="radio"
           checked={localChecked}
           disabled={disabled}
-          name={name}
+          name={name || undefined}
           value={value}
           onChange={handleChange}
           className={cn(
@@ -764,7 +764,7 @@ export function Radio({
 interface RadioGroupProps {
   id?: string;
   className?: string;
-  name?: string;
+  name?: string | null;
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
@@ -883,7 +883,7 @@ export function RadioGroup({
         value={localValue}
         defaultValue={defaultValue}
         disabled={disabled}
-        name={name}
+        name={name || undefined}
         onValueChange={handleValueChange}
         orientation={orientation}
         id={rootId}
@@ -898,7 +898,7 @@ export function RadioGroup({
 interface CheckboxGroupProps {
   id?: string;
   className?: string;
-  name?: string;
+  name?: string | null;
   value?: string[];
   defaultValue?: string[];
   disabled?: boolean;
@@ -974,7 +974,7 @@ export function CheckboxGroup({
           <div key={option.value} className="flex items-center space-x-2">
             <CheckboxPrimitive.Root
               id={checkboxId}
-              name={name}
+              name={name || undefined}
               value={option.value}
               checked={isChecked}
               disabled={isDisabled}

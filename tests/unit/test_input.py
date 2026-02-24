@@ -30,6 +30,12 @@ class TestInput:
         assert rendered["props"]["type"] == "email"
         assert rendered["props"]["placeholder"] == "Enter email"
 
+    def test_input_without_name(self):
+        """Input should allow omitting name and not serialize it."""
+        inp = Input()
+        rendered = inp.render()
+        assert "name" not in rendered["props"]
+
     def test_input_with_label(self):
         """Test Input with label."""
         inp = Input(name="name", label="Full Name")
@@ -179,6 +185,12 @@ class TestTextarea:
         assert rendered["props"]["name"] == "bio"
         assert rendered["props"]["rows"] == 5
 
+    def test_textarea_without_name(self):
+        """Textarea should allow omitting name."""
+        ta = Textarea(placeholder="Tell us about yourself")
+        rendered = ta.render()
+        assert "name" not in rendered["props"]
+
     def test_textarea_with_callback(self):
         """Test Textarea with on_change callback."""
         cb = MockCallback()
@@ -252,6 +264,13 @@ class TestSelect:
         assert rendered["props"]["options"] == options
         assert rendered["props"]["placeholder"] == "Choose..."
 
+    def test_select_without_name(self):
+        """Select should allow omitting name."""
+        options = [{"value": "a", "label": "A"}]
+        sel = Select(options=options)
+        rendered = sel.render()
+        assert "name" not in rendered["props"]
+
     def test_select_with_value(self):
         """Test Select with selected value."""
         options = [{"value": "a", "label": "A"}]
@@ -304,6 +323,12 @@ class TestRadio:
         assert rendered["props"]["value"] == "small"
         assert rendered["props"]["label"] == "Small"
 
+    def test_radio_without_name(self):
+        """Radio should allow omitting name while still rendering value."""
+        radio = Radio(value="large", label="Large")
+        rendered = radio.render()
+        assert "name" not in rendered["props"]
+
     def test_radio_checked(self):
         """Test Radio checked state."""
         radio = Radio(name="size", value="large", checked=True)
@@ -333,6 +358,12 @@ class TestCheckboxGroup:
         assert rendered["type"] == "CheckboxGroup"
         assert rendered["props"]["name"] == "fruits"
         assert len(rendered["children"]) == 3
+
+    def test_checkbox_group_without_name(self):
+        """CheckboxGroup should allow omitting name."""
+        cbg = CheckboxGroup(children=[Checkbox(value="a", label="A")])
+        rendered = cbg.render()
+        assert "name" not in rendered["props"]
 
     def test_checkbox_group_with_label(self):
         """Test CheckboxGroup with label."""
@@ -400,6 +431,12 @@ class TestRadioGroup:
         assert rendered["type"] == "RadioGroup"
         assert rendered["props"]["name"] == "gender"
         assert len(rendered["children"]) == 3
+
+    def test_radio_group_without_name(self):
+        """RadioGroup should allow omitting name."""
+        rg = RadioGroup(children=[Radio(value="a", label="Option A")])
+        rendered = rg.render()
+        assert "name" not in rendered["props"]
 
     def test_radio_group_with_label(self):
         """Test RadioGroup with label."""

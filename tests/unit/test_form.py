@@ -21,6 +21,13 @@ class TestForm:
         assert rendered["type"] == "Form"
         assert len(rendered["children"]) == 1
 
+    def test_form_accepts_input_without_name(self):
+        """Form should render children even if an input omits name."""
+        form = Form(children=[Input()])
+        rendered = form.render()
+        assert rendered["type"] == "Form"
+        assert len(rendered["children"]) == 1
+
     def test_form_with_callback(self):
         """Test Form with on_submit callback."""
         cb = MockCallback()

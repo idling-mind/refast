@@ -1,6 +1,6 @@
 """Components — /docs/concepts/components."""
 
-from refast.components import Container, Heading, Markdown, Separator
+from refast.components import Badge, Container, Heading, Markdown, Separator, Text
 
 PAGE_TITLE = "Components"
 PAGE_ROUTE = "/docs/concepts/components"
@@ -10,26 +10,90 @@ def render(ctx):
     """Render the components concept page."""
     from docs_site.app import docs_layout
 
+    live_demo = Container(
+        id="components-live-demo",
+        class_name="mt-8 rounded-lg border p-4",
+        children=[
+            Heading("Live demo: component tree", level=3, class_name="text-lg font-semibold"),
+            Text(
+                "This block is rendered with real components to show how nesting works.",
+                class_name="text-sm text-muted-foreground",
+            ),
+            Container(
+                class_name="mt-4 rounded-md border border-dashed p-4",
+                children=[
+                    Heading("Root Container", level=4, class_name="text-base font-semibold"),
+                    Container(
+                        class_name="space-y-2 rounded-md bg-muted/50 p-3",
+                        children=[
+                            Heading("Heading child", level=5),
+                            Text("Text child inside the same container."),
+                            Badge("Badge child", variant="secondary"),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    live_demo_code = r"""
+## Live demo
+
+The following component tree is rendered by the code snippet below.
+
+```python
+Container(
+    id="components-live-demo",
+    class_name="mt-8 rounded-lg border p-4",
+    children=[
+        Heading("Live demo: component tree", level=3, class_name="text-lg font-semibold"),
+        Text(
+            "This block is rendered with real components to show how nesting works.",
+            class_name="text-sm text-muted-foreground",
+        ),
+        Container(
+            class_name="mt-4 rounded-md border border-dashed p-4",
+            children=[
+                Heading("Root Container", level=4, class_name="text-base font-semibold"),
+                Container(
+                    class_name="space-y-2 rounded-md bg-muted/50 p-3",
+                    children=[
+                        Heading("Heading child", level=5),
+                        Text("Text child inside the same container."),
+                        Badge("Badge child", variant="secondary"),
+                    ],
+                ),
+            ],
+        ),
+    ],
+)
+```
+"""
+
+
     content = Container(
         class_name="max-w-4xl mx-auto p-6",
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
             Markdown(content=CONTENT),
+            Separator(class_name="my-6"),
+            Markdown(content=live_demo_code),
+            live_demo,
+            Markdown(content=NEXT_STEPS, class_name="mt-8"),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
 
 
 CONTENT = r"""
-> **TODO**: This page needs full content. See `AGENT_INSTRUCTIONS.md` in this folder.
-
 ## Overview
 
-Everything in Refast's UI is a **component**. Components are Python objects that describe
-what should be rendered in the browser. They form a tree — just like HTML elements do.
+Everything you see in a Refast UI is a **component**. Components are plain Python
+objects that describe what should be rendered in the browser. They form a tree —
+exactly like HTML nodes — and serialize to JSON that the React client renders.
 
-## The Component Tree
+## Basic usage
 
 A page handler returns a root component. That component has children, which have their
 own children, forming a tree:
@@ -43,42 +107,67 @@ Container(
 )
 ```
 
-This gets serialized to JSON and sent to the React frontend, which renders it.
+This tree is serialized and sent to the frontend for rendering.
 
-## Base Components
+## Render model
 
-| Component | Purpose |
-|-----------|---------|
-| `Container` | A `<div>` wrapper — the most common layout element |
-| `Text` | A `<span>` for inline text |
-| `Fragment` | Groups children without adding a DOM wrapper |
-
-## Common Props
-
-Every component accepts:
-
-- **`id`** — Unique identifier for targeted updates (`ctx.replace()`, etc.)
-- **`class_name`** — Tailwind CSS classes for styling
-- **`children`** — List of child components
-- **`style`** — Dict of CSS properties (for dynamic values only)
-
-## Rendering
-
-Components have a `render()` method that produces a JSON-serializable dict:
+Every component implements `render()` and returns a dict with `type`, `id`, `props`,
+and `children`. Python `snake_case` props are converted to `camelCase` in the
+frontend transport so React receives the right shape.
 
 ```python
-{
-    "type": "Container",
-    "id": "my-container",
-    "props": {"className": "p-4"},
-    "children": [...]
-}
+container = Container(class_name="p-4", children=[Text("Hi")])
+container.render()
+# => {
+#     "type": "Container",
+#     "id": "auto-generated-uuid",
+#     "props": {"class_name": "p-4", "style": {}},
+#     "children": [
+#         {"type": "Text", "id": "...", "props": {"class_name": "", "style": {}}, "children": ["Hi"]}
+#     ]
+# }
 ```
 
-> **Note**: Python `snake_case` props are automatically converted to `camelCase` for the frontend.
+## Base components
 
-## Next Steps
+| Component | Purpose | When to use |
+|-----------|---------|-------------|
+| `Container` | `<div>`-like wrapper that can hold children and utility classes | Any layout block, panels, cards |
+| `Text` | Inline text node | Body copy, labels, helper text |
+| `Fragment` | Groups children without adding a DOM element | When you need siblings without an extra wrapper |
+| `Slot` | Placeholder that lets children flow through composed components | When building reusable component shells |
 
-- [Callbacks & Events](/docs/concepts/callbacks) — Making components interactive
-- [Component Reference](/docs/components/layout) — Full API for each component
+## Common props
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `id` | `str` | Auto-generated if omitted; set explicitly for targeted updates (`ctx.replace`, `ctx.update_props`, etc.) |
+| `class_name` | `str` | Tailwind classes for styling; preferred over `style` |
+| `children` | list, component, or string | Nested component tree; `None` values are ignored |
+| `style` | `dict[str, Any]` | For dynamic inline values only (e.g., computed heights); keep static styles in `class_name` |
+| `**props` | any | Extra props are forwarded and serialized; keep them `snake_case` so the client can convert to `camelCase` |
+
+## Patterns & best practices
+
+- Give components stable `id` values when you plan to target them with updates.
+- Keep `render()` pure: compute data before constructing components; do not mutate state there.
+- Use `class_name` for styling; reserve `style` for computed values that Tailwind cannot express.
+- Pass props in `snake_case`; in development you can set `REFAST_VALIDATE_PROPS=1` to log camelCase mistakes.
+- Prefer composing small components instead of large monoliths so targeted updates stay cheap.
+
+## Important notes
+
+- Auto-generated IDs change when a component instance is recreated; set explicit IDs when a stable DOM target is required.
+- Children must be components or strings; passing raw dicts will raise validation errors.
+- The registry lookup is case-sensitive; `component_type` must match the registered name exactly.
+
+- [Component Reference](/docs/components/layout) — Detailed props for each UI element
+"""
+
+NEXT_STEPS = r"""
+## Next steps
+
+- [Callbacks & Events](/docs/concepts/callbacks) — Wire components to interactions
+- [State Management](/docs/concepts/state) — Keep data across callbacks
+- [DOM Updates](/docs/concepts/updates) — Targeted replacements, appends, and prop updates
 """

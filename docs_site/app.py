@@ -102,7 +102,6 @@ ui = RefastApp(
     theme=default_theme,
     favicon="📖",
     custom_css="/styles/main.css",
-    custom_js="https://cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"
 )
 
 # ── Navigation structure ─────────────────────────────────────────────────

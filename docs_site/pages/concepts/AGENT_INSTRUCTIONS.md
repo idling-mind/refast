@@ -39,19 +39,35 @@ live interactive demos using real Refast components.
 
 ### 2. `callbacks.py` — Callbacks & Events (`/docs/concepts/callbacks`)
 
-**Read:** `src/refast/context.py` (callback/js methods), `src/refast/events/types.py`
+**Read:** `src/refast/context.py` (callback/js methods, save_prop, chain), `src/refast/events/types.py`
 
 **Cover:**
 - `ctx.callback(func)` — creating a callback
 - Bound arguments: `ctx.callback(func, item_id="abc")`
 - Event props: `on_click`, `on_change`, `on_submit`, `on_checked_change`, `on_value_change`, `on_open_change`
 - The callback lifecycle: user action → WebSocket → Python → response
-- `store_as` parameter — client-side form state without roundtrips
-- `ctx.prop_store` — accessing stored values in callbacks
-- Debounce/throttle (if supported)
+- `save_prop` parameter — client-side form state without roundtrips. Reference prop in another callback.
+- `js`, `bound_js` as callbacks
+- Methods of ctx object like 
+  - `show_toast`
+  - `refresh`
+  - `replace` 
+  - `append` 
+  - `prepend` 
+  - `remove` 
+  - `update_text`
+  - `update_props`
+  - `append_props`
+  - `navigate`
+  - `set_theme`
+  - `push_event`
+  - `broadcast`
+  - `broadcase_theme`
+- Events related to state and store will be handled separately.
+- Debounce/throttle
 - Error handling in callbacks
 
-**Live demo:** A button that shows a toast, an input with `store_as` that displays the stored value
+**Live demo:** A button that shows a toast, an input with `save_prop` that displays the stored value
 
 ---
 

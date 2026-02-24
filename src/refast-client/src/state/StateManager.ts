@@ -339,30 +339,30 @@ export function useStateManager(initialTree?: ComponentTree) {
 
 /**
  * When the server updates a component's value via update_props, sync the
- * prop store so that any store_prop binding on that component's onChange
+ * prop store so that any save_prop binding on that component's onChange
  * reflects the server-set value.  This prevents stale values from being
  * sent with the next callback invocation.
  *
- * Only applies when the component's onChange is a StorePropRef
- * (i.e. `{ storeProp: "<key>" }`).
+ * Only applies when the component's onChange is a SavePropRef
+ * (i.e. `{ saveProp: "<key>" }`).
  */
 function syncPropStoreForComponent(
   tree: ComponentTree,
   newValue: unknown,
 ): void {
-  // Look for a store_prop binding on onChange (or on_change in snake_case)
+  // Look for a save_prop binding on onChange (or on_change in snake_case)
   const onChange = tree.props?.on_change ?? tree.props?.onChange;
   if (
     onChange &&
     typeof onChange === 'object' &&
-    'storeProp' in (onChange as Record<string, unknown>)
+    'saveProp' in (onChange as Record<string, unknown>)
   ) {
-    const storeProp = (onChange as Record<string, unknown>).storeProp;
-    if (typeof storeProp === 'string') {
-      propStore.set(storeProp, newValue);
-    } else if (typeof storeProp === 'object' && storeProp !== null) {
+    const saveProp = (onChange as Record<string, unknown>).saveProp;
+    if (typeof saveProp === 'string') {
+      propStore.set(saveProp, newValue);
+    } else if (typeof saveProp === 'object' && saveProp !== null) {
       // Dict mapping — the "value" event key maps to a store key
-      const mapping = storeProp as Record<string, string>;
+      const mapping = saveProp as Record<string, string>;
       if ('value' in mapping) {
         propStore.set(mapping.value, newValue);
       }
@@ -387,7 +387,7 @@ function applyUpdate(
 
       case 'update_props': {
         // When the server updates the value of a component that has a
-        // store_prop binding, keep the prop store in sync so that the
+        // save_prop binding, keep the prop store in sync so that the
         // next callback invocation sees the server-set value instead of
         // a stale user-typed value.  This is one-way: server → store.
         const newProps = update?.props || {};

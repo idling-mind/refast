@@ -69,8 +69,8 @@ export interface BoundMethodCallbackRef {
 /**
  * Store prop reference — saves event data in the frontend prop store.
  */
-export interface StorePropRef {
-  storeProp: string | Record<string, string>;
+export interface SavePropRef {
+  saveProp: string | Record<string, string>;
   debounce?: number;
   throttle?: number;
 }
@@ -86,7 +86,7 @@ export interface ChainedActionRef {
 /**
  * Any single action reference (not chained).
  */
-export type SingleActionRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRef | StorePropRef;
+export type SingleActionRef = CallbackRef | JsCallbackRef | BoundMethodCallbackRef | SavePropRef;
 
 /**
  * Combined type for all possible action references, including chains.

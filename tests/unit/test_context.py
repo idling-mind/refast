@@ -12,7 +12,7 @@ from refast.context import (
     Context,
     JsAction,
     JsCallback,
-    StoreProp,
+    SaveProp,
 )
 
 
@@ -679,66 +679,66 @@ class TestContextAppendProp:
         await ctx.append_prop("target-id", "content", "new text")
 
 
-class TestStoreProp:
-    """Tests for StoreProp dataclass."""
+class TestSaveProp:
+    """Tests for SaveProp dataclass."""
 
-    def test_store_prop_with_string_name(self):
-        """Test StoreProp with a simple string key."""
-        sp = StoreProp(name="email")
+    def test_save_prop_with_string_name(self):
+        """Test SaveProp with a simple string key."""
+        sp = SaveProp(name="email")
         assert sp.name == "email"
         assert sp.debounce == 0
         assert sp.throttle == 0
 
-    def test_store_prop_with_dict_name(self):
-        """Test StoreProp with a dict mapping."""
-        sp = StoreProp(name={"value": "email", "name": "field"})
+    def test_save_prop_with_dict_name(self):
+        """Test SaveProp with a dict mapping."""
+        sp = SaveProp(name={"value": "email", "name": "field"})
         assert sp.name == {"value": "email", "name": "field"}
 
-    def test_store_prop_with_debounce(self):
-        """Test StoreProp with debounce."""
-        sp = StoreProp(name="search", debounce=300)
+    def test_save_prop_with_debounce(self):
+        """Test SaveProp with debounce."""
+        sp = SaveProp(name="search", debounce=300)
         assert sp.debounce == 300
 
-    def test_store_prop_with_throttle(self):
-        """Test StoreProp with throttle."""
-        sp = StoreProp(name="scroll_pos", throttle=100)
+    def test_save_prop_with_throttle(self):
+        """Test SaveProp with throttle."""
+        sp = SaveProp(name="scroll_pos", throttle=100)
         assert sp.throttle == 100
 
-    def test_store_prop_serialize_string(self):
-        """Test StoreProp serialization with string name."""
-        sp = StoreProp(name="email")
+    def test_save_prop_serialize_string(self):
+        """Test SaveProp serialization with string name."""
+        sp = SaveProp(name="email")
         serialized = sp.serialize()
 
-        assert serialized == {"storeProp": "email"}
+        assert serialized == {"saveProp": "email"}
         assert "debounce" not in serialized
         assert "throttle" not in serialized
 
-    def test_store_prop_serialize_dict(self):
-        """Test StoreProp serialization with dict mapping."""
-        sp = StoreProp(name={"value": "user_email"})
+    def test_save_prop_serialize_dict(self):
+        """Test SaveProp serialization with dict mapping."""
+        sp = SaveProp(name={"value": "user_email"})
         serialized = sp.serialize()
 
-        assert serialized == {"storeProp": {"value": "user_email"}}
+        assert serialized == {"saveProp": {"value": "user_email"}}
 
-    def test_store_prop_serialize_with_debounce(self):
-        """Test StoreProp serialization includes debounce when set."""
-        sp = StoreProp(name="query", debounce=200)
+    def test_save_prop_serialize_with_debounce(self):
+        """Test SaveProp serialization includes debounce when set."""
+        sp = SaveProp(name="query", debounce=200)
         serialized = sp.serialize()
 
-        assert serialized["storeProp"] == "query"
+        assert serialized["saveProp"] == "query"
         assert serialized["debounce"] == 200
 
-    def test_store_prop_serialize_with_throttle(self):
-        """Test StoreProp serialization includes throttle when set."""
-        sp = StoreProp(name="field", throttle=50)
+    def test_save_prop_serialize_with_throttle(self):
+        """Test SaveProp serialization includes throttle when set."""
+        sp = SaveProp(name="field", throttle=50)
         serialized = sp.serialize()
 
-        assert serialized["storeProp"] == "field"
+        assert serialized["saveProp"] == "field"
         assert serialized["throttle"] == 50
 
-    def test_store_prop_serialize_omits_zero_timing(self):
-        """Test StoreProp serialization omits zero debounce/throttle."""
-        sp = StoreProp(name="field", debounce=0, throttle=0)
+    def test_save_prop_serialize_omits_zero_timing(self):
+        """Test SaveProp serialization omits zero debounce/throttle."""
+        sp = SaveProp(name="field", debounce=0, throttle=0)
         serialized = sp.serialize()
 
         assert "debounce" not in serialized
@@ -755,7 +755,7 @@ class TestChainedAction:
             pass
 
         actions = [
-            StoreProp(name="email"),
+            SaveProp(name="email"),
             Callback(id="cb1", func=handler),
         ]
         chain = ChainedAction(actions=actions)
@@ -782,7 +782,7 @@ class TestChainedAction:
     def test_chained_action_rejects_invalid_mode(self):
         """Test ChainedAction rejects invalid mode."""
         with pytest.raises(ValueError, match="serial.*parallel"):
-            ChainedAction(actions=[StoreProp(name="x")], mode="invalid")
+            ChainedAction(actions=[SaveProp(name="x")], mode="invalid")
 
     def test_chained_action_nested(self):
         """Test ChainedAction can be nested."""
@@ -795,7 +795,7 @@ class TestChainedAction:
             mode="parallel",
         )
         outer = ChainedAction(
-            actions=[StoreProp(name="x"), inner],
+            actions=[SaveProp(name="x"), inner],
             mode="serial",
         )
         assert len(outer.actions) == 2
@@ -805,7 +805,7 @@ class TestChainedAction:
         """Test ChainedAction serialization."""
         chain = ChainedAction(
             actions=[
-                StoreProp(name="email"),
+                SaveProp(name="email"),
                 JsCallback(code="console.log('done')"),
             ],
             mode="serial",
@@ -815,7 +815,7 @@ class TestChainedAction:
         assert "chain" in serialized
         assert serialized["mode"] == "serial"
         assert len(serialized["chain"]) == 2
-        assert serialized["chain"][0] == {"storeProp": "email"}
+        assert serialized["chain"][0] == {"saveProp": "email"}
         assert serialized["chain"][1]["jsFunction"] == "console.log('done')"
 
     def test_chained_action_serialize_parallel(self):
@@ -841,7 +841,7 @@ class TestChainedAction:
             Callback(id="cb1", func=handler),
             JsCallback(code="alert('hi')"),
             BoundJsCallback(target_id="canvas", method_name="clear"),
-            StoreProp(name="field"),
+            SaveProp(name="field"),
         ]
         chain = ChainedAction(actions=actions)
         assert len(chain.actions) == 4
@@ -922,32 +922,32 @@ class TestCallbackDebounceThrottle:
         assert not hasattr(cb, "store_only")
 
 
-class TestContextStoreProp:
-    """Tests for Context.store_prop() method."""
+class TestContextSaveProp:
+    """Tests for Context.save_prop() method."""
 
-    def test_store_prop_creates_store_prop(self):
-        """Test store_prop returns a StoreProp."""
+    def test_save_prop_creates_save_prop(self):
+        """Test save_prop returns a SaveProp."""
         ctx = Context()
-        sp = ctx.store_prop("email")
-        assert isinstance(sp, StoreProp)
+        sp = ctx.save_prop("email")
+        assert isinstance(sp, SaveProp)
         assert sp.name == "email"
 
-    def test_store_prop_with_dict_mapping(self):
-        """Test store_prop with dict mapping."""
+    def test_save_prop_with_dict_mapping(self):
+        """Test save_prop with dict mapping."""
         ctx = Context()
-        sp = ctx.store_prop({"value": "email", "name": "field"})
+        sp = ctx.save_prop({"value": "email", "name": "field"})
         assert sp.name == {"value": "email", "name": "field"}
 
-    def test_store_prop_with_debounce(self):
-        """Test store_prop with debounce."""
+    def test_save_prop_with_debounce(self):
+        """Test save_prop with debounce."""
         ctx = Context()
-        sp = ctx.store_prop("query", debounce=200)
+        sp = ctx.save_prop("query", debounce=200)
         assert sp.debounce == 200
 
-    def test_store_prop_with_throttle(self):
-        """Test store_prop with throttle."""
+    def test_save_prop_with_throttle(self):
+        """Test save_prop with throttle."""
         ctx = Context()
-        sp = ctx.store_prop("scroll", throttle=100)
+        sp = ctx.save_prop("scroll", throttle=100)
         assert sp.throttle == 100
 
 
@@ -957,7 +957,7 @@ class TestContextChain:
     def test_chain_creates_chained_action(self):
         """Test chain returns a ChainedAction."""
         ctx = Context()
-        sp = ctx.store_prop("email")
+        sp = ctx.save_prop("email")
 
         def handler():
             pass
@@ -990,7 +990,7 @@ class TestContextChain:
         """Test chain rejects invalid mode."""
         ctx = Context()
         with pytest.raises(ValueError):
-            ctx.chain([ctx.store_prop("x")], mode="banana")
+            ctx.chain([ctx.save_prop("x")], mode="banana")
 
     def test_chain_nested(self):
         """Test chain can be nested."""
@@ -1000,7 +1000,7 @@ class TestContextChain:
             pass
 
         inner = ctx.chain([ctx.callback(handler), ctx.callback(handler)], mode="parallel")
-        outer = ctx.chain([ctx.store_prop("x"), inner])
+        outer = ctx.chain([ctx.save_prop("x"), inner])
 
         assert isinstance(outer, ChainedAction)
         assert isinstance(outer.actions[1], ChainedAction)
@@ -1011,7 +1011,7 @@ class TestContextChain:
         ctx = Context()
         chain = ctx.chain(
             [
-                ctx.store_prop("email"),
+                ctx.save_prop("email"),
                 ctx.js("console.log('done')"),
             ]
         )

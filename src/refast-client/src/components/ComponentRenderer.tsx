@@ -1,5 +1,5 @@
 import React, { useMemo, Suspense } from 'react';
-import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, StorePropRef, ChainedActionRef, AnyActionRef } from '../types';
+import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, SavePropRef, ChainedActionRef, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
 import {
@@ -7,7 +7,7 @@ import {
   isCallbackRef,
   isJsCallbackRef,
   isBoundMethodCallbackRef,
-  isStorePropRef,
+  isSavePropRef,
   isChainedActionRef,
   createSingleActionExecutor,
 } from '../utils/actionExecutor';
@@ -68,8 +68,8 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
         result[camelKey] = createJsCallbackHandler(value);
       } else if (isBoundMethodCallbackRef(value)) {
         result[camelKey] = createBoundMethodCallbackHandler(value);
-      } else if (isStorePropRef(value)) {
-        result[camelKey] = createStorePropHandler(value);
+      } else if (isSavePropRef(value)) {
+        result[camelKey] = createSavePropHandler(value);
       } else if (isChainedActionRef(value)) {
         result[camelKey] = createChainedActionHandler(value, eventManager);
       } else if (isFormatterString(key, value)) {
@@ -248,8 +248,8 @@ function createBoundMethodCallbackHandler(
 /**
  * Create a handler function for a store prop reference.
  */
-function createStorePropHandler(
-  ref: StorePropRef,
+function createSavePropHandler(
+  ref: SavePropRef,
 ): (...args: unknown[]) => void {
   return createActionHandler(ref, { invokeCallback: () => {} });
 }

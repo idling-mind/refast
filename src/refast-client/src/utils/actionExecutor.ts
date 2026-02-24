@@ -10,12 +10,12 @@ import {
   CallbackRef,
   JsCallbackRef,
   BoundMethodCallbackRef,
-  StorePropRef,
+  SavePropRef,
   ChainedActionRef,
 } from '../types';
 import { debounce, throttle } from '../utils';
 import { propStore } from '../state/PropStore';
-import { applyStoreProp } from './propStoreUtils';
+import { applySaveProp } from './propStoreUtils';
 import { refastJsHelper } from './refastJsHelper';
 
 // ---------------------------------------------------------------------------
@@ -53,8 +53,8 @@ export function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCa
   );
 }
 
-export function isStorePropRef(value: unknown): value is StorePropRef {
-  return typeof value === 'object' && value !== null && 'storeProp' in value;
+export function isSavePropRef(value: unknown): value is SavePropRef {
+  return typeof value === 'object' && value !== null && 'saveProp' in value;
 }
 
 export function isChainedActionRef(value: unknown): value is ChainedActionRef {
@@ -143,10 +143,10 @@ export function createSingleActionExecutor(
     return createChainedActionExecutor(ref, eventManager);
   }
 
-  if (isStorePropRef(ref)) {
-    const { storeProp, debounce: d, throttle: t } = ref;
+  if (isSavePropRef(ref)) {
+    const { saveProp, debounce: d, throttle: t } = ref;
     let exec = (eventData: Record<string, unknown>) => {
-      applyStoreProp(storeProp, eventData);
+      applySaveProp(saveProp, eventData);
     };
     exec = applyTimingControls(exec, d, t) as typeof exec;
     return async (eventData) => {

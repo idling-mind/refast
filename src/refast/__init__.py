@@ -12,7 +12,7 @@ from refast.context import (
     Context,
     JsAction,
     JsCallback,
-    StoreProp,
+    SaveProp,
 )
 from refast.extensions import Extension
 from refast.state import State
@@ -27,7 +27,7 @@ __all__ = [
     "JsCallback",
     "JsAction",
     "BoundJsCallback",
-    "StoreProp",
+    "SaveProp",
     "ChainedAction",
     "State",
     "Store",

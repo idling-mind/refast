@@ -100,7 +100,7 @@ interface InputProps {
  * 
  * The `debounce` prop delays calling `onChange` by the specified milliseconds.
  * This is useful for reducing server calls while the user is typing.
- * Per-action debounce/throttle (on Callback, StoreProp, etc.) is applied
+ * Per-action debounce/throttle (on Callback, SaveProp, etc.) is applied
  * independently by the action execution engine in ComponentRenderer.
  */
 export function Input({
@@ -153,7 +153,7 @@ export function Input({
         lastValueRef.current = newValue;
         setLocalValue(newValue);
         // Cancel any pending debounced onChange so it doesn't push
-        // a stale user-typed value back via store_prop.
+        // a stale user-typed value back via save_prop.
         if (debounceTimeout.current !== null) {
           window.clearTimeout(debounceTimeout.current);
           debounceTimeout.current = null;

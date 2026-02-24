@@ -526,7 +526,7 @@ def home(ctx: Context):
                                                     Input(
                                                         name="custom_primary",
                                                         placeholder="262 83% 58%",
-                                                        on_change=ctx.store_prop("custom_primary"),
+                                                        on_change=ctx.save_prop("custom_primary"),
                                                     ),
                                                 ],
                                             ),

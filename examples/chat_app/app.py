@@ -261,7 +261,7 @@ def chat(ctx: Context):
                                                 id="message-input",
                                                 name="message",
                                                 placeholder="Type a message...",
-                                                on_change=ctx.store_prop("input_message"),
+                                                on_change=ctx.save_prop("input_message"),
                                                 on_keydown=ctx.js(
                                                     """
                                                     if (event.key === 'Enter') {

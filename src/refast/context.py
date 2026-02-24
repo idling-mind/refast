@@ -32,9 +32,9 @@ class Callback:
 
     Example:
         ```python
-        # Use with ctx.store_prop to capture input and send on submit
-        Input(on_change=ctx.store_prop("email"))
-        Input(on_change=ctx.store_prop("name"))
+        # Use with ctx.save_prop to capture input and send on submit
+        Input(on_change=ctx.save_prop("email"))
+        Input(on_change=ctx.save_prop("name"))
 
         # Request specific props - they come as kwargs
         Button(on_click=ctx.callback(submit, props=["email", "name"]))
@@ -213,7 +213,7 @@ class BoundJsCallback:
 
 
 @dataclass
-class StoreProp:
+class SaveProp:
     """
     Stores event data in the frontend prop store without a server roundtrip.
 
@@ -232,15 +232,15 @@ class StoreProp:
     Example:
         ```python
         # Store input value as "email" in prop store
-        Input(on_change=ctx.store_prop("email"))
+        Input(on_change=ctx.save_prop("email"))
 
         # Map multiple event fields to store keys
-        Input(on_change=ctx.store_prop({"value": "email", "name": "field"}))
+        Input(on_change=ctx.save_prop({"value": "email", "name": "field"}))
 
         # Combine with a callback using ctx.chain
         Input(
             on_change=ctx.chain([
-                ctx.store_prop("email"),
+                ctx.save_prop("email"),
                 ctx.callback(validate_email, props=["email"]),
             ])
         )
@@ -254,7 +254,7 @@ class StoreProp:
     def serialize(self) -> dict[str, Any]:
         """Serialize for sending to frontend."""
         result: dict[str, Any] = {
-            "storeProp": self.name,
+            "saveProp": self.name,
         }
         if self.debounce > 0:
             result["debounce"] = self.debounce
@@ -273,7 +273,7 @@ class ChainedAction:
 
     Args:
         actions: List of actions to execute. Each must be a Callback,
-            JsCallback, BoundJsCallback, StoreProp, or another ChainedAction.
+            JsCallback, BoundJsCallback, SaveProp, or another ChainedAction.
         mode: Execution mode — "serial" (default) or "parallel".
             - "serial": Each action completes before the next starts.
             - "parallel": All actions fire simultaneously.
@@ -283,7 +283,7 @@ class ChainedAction:
         # Store value AND call a server function
         Input(
             on_change=ctx.chain([
-                ctx.store_prop("search"),
+                ctx.save_prop("search"),
                 ctx.callback(do_search, props=["search"], debounce=300),
             ])
         )
@@ -313,18 +313,18 @@ class ChainedAction:
 
     actions: list[
         Any
-    ]  # list of Callback | JsCallback | BoundJsCallback | StoreProp | ChainedAction
+    ]  # list of Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
     mode: str = "serial"  # "serial" or "parallel"
 
     def __post_init__(self) -> None:
         """Validate actions and mode."""
-        valid_types = (Callback, JsCallback, BoundJsCallback, StoreProp, ChainedAction)
+        valid_types = (Callback, JsCallback, BoundJsCallback, SaveProp, ChainedAction)
         for i, action in enumerate(self.actions):
             if not isinstance(action, valid_types):
                 raise TypeError(
                     f"Action at index {i} is {type(action).__name__}, "
                     f"expected one of: Callback, JsCallback, BoundJsCallback, "
-                    f"StoreProp, ChainedAction"
+                    f"SaveProp, ChainedAction"
                 )
         if self.mode not in ("serial", "parallel"):
             raise ValueError(f"mode must be 'serial' or 'parallel', got {self.mode!r}")
@@ -338,7 +338,7 @@ class ChainedAction:
 
 
 # Union type for all action types that can be used in event handlers
-ActionType = Callback | JsCallback | BoundJsCallback | StoreProp | ChainedAction
+ActionType = Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
 
 
 class Context(Generic[T]):
@@ -468,7 +468,7 @@ class Context(Generic[T]):
             # With debounce (ms)
             Input(
                 on_change=ctx.chain([
-                    ctx.store_prop("search"),
+                    ctx.save_prop("search"),
                     ctx.callback(do_search, props=["search"], debounce=300),
                 ])
             )
@@ -640,15 +640,15 @@ class Context(Generic[T]):
             throttle=throttle,
         )
 
-    def store_prop(
+    def save_prop(
         self,
         name: str | dict[str, str],
         *,
         debounce: int = 0,
         throttle: int = 0,
-    ) -> StoreProp:
+    ) -> SaveProp:
         """
-        Create a store_prop action that saves event data in the frontend prop store.
+        Create a save_prop action that saves event data in the frontend prop store.
 
         This captures event values on the frontend without a server roundtrip.
         Stored values can later be sent to the server via ``ctx.callback(fn, props=[...])``.
@@ -662,26 +662,26 @@ class Context(Generic[T]):
             throttle: Milliseconds to throttle the store write
 
         Returns:
-            StoreProp action that serializes for frontend
+            SaveProp action that serializes for frontend
 
         Example:
             ```python
             # Store input value as "email" (no server call)
-            Input(on_change=ctx.store_prop("email"))
+            Input(on_change=ctx.save_prop("email"))
 
             # Map multiple event data keys
-            Input(on_change=ctx.store_prop({"value": "email", "name": "field"}))
+            Input(on_change=ctx.save_prop({"value": "email", "name": "field"}))
 
             # Combine with callback in a chain
             Input(
                 on_change=ctx.chain([
-                    ctx.store_prop("query"),
+                    ctx.save_prop("query"),
                     ctx.callback(search, props=["query"], debounce=300),
                 ])
             )
             ```
         """
-        return StoreProp(name=name, debounce=debounce, throttle=throttle)
+        return SaveProp(name=name, debounce=debounce, throttle=throttle)
 
     def chain(
         self,
@@ -697,7 +697,7 @@ class Context(Generic[T]):
 
         Args:
             actions: List of actions. Each must be a Callback, JsCallback,
-                BoundJsCallback, StoreProp, or another ChainedAction.
+                BoundJsCallback, SaveProp, or another ChainedAction.
             mode: Execution mode:
                 - "serial" (default): Each action completes before the next.
                 - "parallel": All actions fire simultaneously.
@@ -714,7 +714,7 @@ class Context(Generic[T]):
             # Store value and call server
             Input(
                 on_change=ctx.chain([
-                    ctx.store_prop("search"),
+                    ctx.save_prop("search"),
                     ctx.callback(do_search, props=["search"], debounce=300),
                 ])
             )
@@ -1174,7 +1174,7 @@ class Context(Generic[T]):
 
             {"label": "Undo", "callback": ctx.callback(undo_fn)}
             {"label": "Run JS", "callback": ctx.js("alert('hi')")}
-            {"label": "Multi", "callback": ctx.chain([ctx.store_prop("x"), ctx.callback(fn)])}
+            {"label": "Multi", "callback": ctx.chain([ctx.save_prop("x"), ctx.callback(fn)])}
         """
         result = dict(button)
         if "callback" in result:

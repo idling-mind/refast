@@ -45,7 +45,7 @@ def home(ctx: Context):
                         placeholder="Enter a new todo",
                         id="new-todo-input",
                         class_name="flex-1 mr-2",
-                        on_change=ctx.store_prop("new_todo", debounce=300),
+                        on_change=ctx.save_prop("new_todo", debounce=300),
                     ),
                     rc.Button(
                         "Add",

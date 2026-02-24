@@ -103,7 +103,7 @@ def home(ctx: Context):
                         id="new-todo-input",
                         class_name="flex-1 mr-2",
                         # Bind the input value to a prop named "new_todo"
-                        on_change=ctx.store_prop("new_todo", debounce=300),
+                        on_change=ctx.save_prop("new_todo", debounce=300),
                     ),
                     rc.Button(
                         "Add",
@@ -195,7 +195,7 @@ Visit [http://localhost:8000](http://localhost:8000) to inspect your new Todo ap
 In this quick tour, you learned:
 
 - **`@ui.page`**: To route requests to UI handlers.
-- **`ctx.store_prop`**: To bind input values to props accessible in callbacks.
+- **`ctx.save_prop`**: To bind input values to props accessible in callbacks.
 - **`ctx.callback`**: To trigger Python functions from UI events, passing props like `new_todo`.
 - **`ctx.refresh(target_id=...)`**: To re-render specific parts of the page for better performance.
 - **`ctx.show_toast`**: To display notifications.

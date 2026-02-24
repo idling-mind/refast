@@ -1,7 +1,7 @@
 """Prop Store Example - Frontend-Only State for Forms.
 
 This example demonstrates the prop store feature which allows you to:
-- Capture input values on the frontend without server roundtrips (ctx.store_prop)
+- Capture input values on the frontend without server roundtrips (ctx.save_prop)
 - Request stored values as keyword arguments in callbacks (props=[...])
 - Compose multiple actions on a single event with ctx.chain
 - Build forms with minimal boilerplate
@@ -159,7 +159,7 @@ def render_result(ctx: Context):
 
 @ui.page("/")
 def home(ctx: Context):
-    """Render the contact form using store_prop for input capture."""
+    """Render the contact form using save_prop for input capture."""
     return Container(
         class_name="mt-10 p-4",
         style={"maxWidth": "32rem", "marginLeft": "auto", "marginRight": "auto"},
@@ -169,7 +169,7 @@ def home(ctx: Context):
                     CardHeader(
                         children=[
                             CardTitle("Contact Form"),
-                            CardDescription("Using ctx.store_prop for frontend-only state"),
+                            CardDescription("Using ctx.save_prop for frontend-only state"),
                         ]
                     ),
                     CardContent(
@@ -179,13 +179,13 @@ def home(ctx: Context):
                                 variant="default",
                                 title="How it works",
                                 message=(
-                                    "Input values are stored on the frontend via ctx.store_prop. "
+                                    "Input values are stored on the frontend via ctx.save_prop. "
                                     "No server roundtrips occur until you click Submit. "
                                     "Then all values are sent with the callback."
                                 ),
                                 class_name="mb-4",
                             ),
-                            # Name field - uses store_prop to capture value
+                            # Name field - uses save_prop to capture value
                             Column(
                                 class_name="gap-2 mb-4",
                                 children=[
@@ -194,9 +194,9 @@ def home(ctx: Context):
                                         label="Name",
                                         name="name",
                                         placeholder="Enter your name",
-                                        # ctx.store_prop("input_name") captures the input
+                                        # ctx.save_prop("input_name") captures the input
                                         # value without a server roundtrip
-                                        on_change=ctx.store_prop("input_name"),
+                                        on_change=ctx.save_prop("input_name"),
                                     ),
                                 ],
                             ),
@@ -210,7 +210,7 @@ def home(ctx: Context):
                                         name="email",
                                         type="email",
                                         placeholder="Enter your email",
-                                        on_change=ctx.store_prop("input_email"),
+                                        on_change=ctx.save_prop("input_email"),
                                         debounce=500,
                                     ),
                                 ],
@@ -226,7 +226,7 @@ def home(ctx: Context):
                                         placeholder="Enter your message",
                                         on_change=ctx.chain(
                                             [
-                                                ctx.store_prop("message"),
+                                                ctx.save_prop("message"),
                                                 ctx.callback(show_typing, debounce=300),
                                                 ctx.js(
                                                     "console.log('Message changed:', event.value)",

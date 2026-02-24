@@ -74,13 +74,13 @@ Button("Select", on_click=ctx.callback(select_item, item_id="abc123"))
 4. Your Python function runs with the `Context` — it can update state, push DOM updates, etc.
 5. Any updates are sent back to the frontend via the same WebSocket
 
-## store_prop — Instant Frontend State
+## save_prop — Instant Frontend State
 
 For forms, you can avoid a server roundtrip on every keystroke by
-storing input values directly in the frontend using `ctx.store_prop`:
+storing input values directly in the frontend using `ctx.save_prop`:
 
 ```python
-Input(placeholder="Name", on_change=ctx.store_prop("user_name"))
+Input(placeholder="Name", on_change=ctx.save_prop("user_name"))
 Button("Submit", on_click=ctx.callback(submit, props=["user_name"]))
 
 async def submit(ctx: Context, user_name: str=""):

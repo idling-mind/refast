@@ -34,6 +34,7 @@ export default {
     { pattern: /^font-(normal|medium|semibold|bold)$/ }, // Limit weights
     { pattern: /^text-(left|center|right|justify)$/ },
     { pattern: /^whitespace-(nowrap|pre|normal)$/ },
+    { pattern: /^space-(x|y)?-(0|1|2|3|4|5|6|8)$/, variants: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] }, // Limited Letter & Line Spacing
     
     // Visual & Theming
     // STRICT: Only specific rounded sizes and sides

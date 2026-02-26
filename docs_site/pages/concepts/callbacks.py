@@ -159,7 +159,7 @@ def render(ctx):
 
     basic_demo = Container(
         id="callbacks-basic-demo",
-        class_name="rounded-lg border p-4 space-y-3",
+        class_name="space-y-3",
         children=[
             Heading("Live demo: basic callback", level=3, class_name="text-lg font-semibold"),
             Text(
@@ -172,9 +172,11 @@ def render(ctx):
 
     bound_args_demo = Container(
         id="callbacks-bound-args",
-        class_name="rounded-lg border p-4 space-y-3 bg-muted/10",
+        class_name="space-y-3",
         children=[
-            Heading("Live demo: ctx.callback bound args", level=3, class_name="text-lg font-semibold"),
+            Heading(
+                "Live demo: ctx.callback bound args", level=3, class_name="text-lg font-semibold"
+            ),
             Text(
                 "Each button sends its flavor as a bound argument without reading client props.",
                 class_name="text-sm text-muted-foreground block",
@@ -183,8 +185,16 @@ def render(ctx):
                 class_name="flex flex-wrap gap-2",
                 children=[
                     Button("Vanilla", on_click=ctx.callback(demo_bound_arg, flavor="vanilla")),
-                    Button("Mocha", on_click=ctx.callback(demo_bound_arg, flavor="mocha"), variant="secondary"),
-                    Button("Chai", on_click=ctx.callback(demo_bound_arg, flavor="chai"), variant="outline"),
+                    Button(
+                        "Mocha",
+                        on_click=ctx.callback(demo_bound_arg, flavor="mocha"),
+                        variant="secondary",
+                    ),
+                    Button(
+                        "Chai",
+                        on_click=ctx.callback(demo_bound_arg, flavor="chai"),
+                        variant="outline",
+                    ),
                 ],
             ),
         ],
@@ -192,7 +202,7 @@ def render(ctx):
 
     prop_store_demo = Container(
         id="callbacks-props-demo",
-        class_name="rounded-lg border p-4 space-y-3",
+        class_name="space-y-4",
         children=[
             Heading("Live demo: save_prop + props", level=3, class_name="text-lg font-semibold"),
             Text(
@@ -219,13 +229,17 @@ def render(ctx):
                     ),
                 ],
             ),
-            Text("Waiting for submission...", id="callbacks-props-status", class_name="text-sm text-muted-foreground"),
+            Text(
+                "Waiting for submission...",
+                id="callbacks-props-status",
+                class_name="text-sm text-muted-foreground",
+            ),
         ],
     )
 
     js_enter_demo = Container(
         id="callbacks-js-enter",
-        class_name="rounded-lg border p-4 space-y-3 bg-muted/10",
+        class_name="space-y-3",
         children=[
             Heading("Live demo: ctx.js (press Enter)", level=3, class_name="text-lg font-semibold"),
             Text(
@@ -251,15 +265,21 @@ def render(ctx):
                     """
                 ),
             ),
-            Text("Waiting for Enter...", id="js-enter-status", class_name="text-sm text-muted-foreground"),
+            Text(
+                "Waiting for Enter...",
+                id="js-enter-status",
+                class_name="text-sm text-muted-foreground",
+            ),
         ],
     )
 
     js_invoke_demo = Container(
         id="callbacks-js-invoke",
-        class_name="rounded-lg border p-4 space-y-3",
+        class_name="space-y-3",
         children=[
-            Heading("Live demo: ctx.js + refast.invoke", level=3, class_name="text-lg font-semibold"),
+            Heading(
+                "Live demo: ctx.js + refast.invoke", level=3, class_name="text-lg font-semibold"
+            ),
             Text(
                 "JavaScript filters events and only calls Python on Enter using refast.invoke().",
                 class_name="text-sm text-muted-foreground",
@@ -286,11 +306,11 @@ def render(ctx):
 
     chain_demo = Container(
         id="callbacks-chain",
-        class_name="rounded-lg border p-4 space-y-4 bg-muted/10",
+        class_name="space-y-4",
         children=[
             Heading("Live demo: ctx.chain", level=3, class_name="text-lg font-semibold"),
             Text(
-                "Serial runs actions one-by-one; parallel fires them together. Watch the log for order.",
+                "Serial runs actions one-by-one; parallel fires them together.",
                 class_name="text-sm text-muted-foreground",
             ),
             Container(
@@ -313,8 +333,12 @@ def render(ctx):
                                 ctx.callback(clear_chain_log),
                                 ctx.chain(
                                     [
-                                        ctx.callback(chain_record, message="Parallel A (fast)", delay=0.05),
-                                        ctx.callback(chain_record, message="Parallel B (slower)", delay=0.25),
+                                        ctx.callback(
+                                            chain_record, message="Parallel A (fast)", delay=0.05
+                                        ),
+                                        ctx.callback(
+                                            chain_record, message="Parallel B (slower)", delay=0.25
+                                        ),
                                     ],
                                     mode="parallel",
                                 ),
@@ -328,7 +352,10 @@ def render(ctx):
                 id="chain-log",
                 class_name="min-h-12 space-y-1 rounded-md border bg-white/60 p-3",
                 children=[
-                    Text("Run a chain to see events here.", class_name="text-sm text-muted-foreground"),
+                    Text(
+                        "Run a chain to see events here.",
+                        class_name="text-sm text-muted-foreground",
+                    ),
                 ],
             ),
         ],
@@ -344,9 +371,11 @@ def render(ctx):
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
 
+
 async def handle_click(ctx: Context, item_id: str) -> None:
     """Example callback handler for basic demo."""
     await ctx.show_toast(f"Clicked {item_id}!", variant="success")
+
 
 async def demo_bound_arg(ctx: Context, flavor: str) -> None:
     """Show a toast using a bound argument passed at callback creation time."""

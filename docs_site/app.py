@@ -78,7 +78,6 @@ from .pages.concepts import (  # noqa: E402
     js_interop,
     routing,
     state,
-    store,
     streaming,
     theming,
     toasts,
@@ -126,8 +125,7 @@ NAV_SECTIONS = [
         "pages": [
             ("Components", "/docs/concepts/components", "box"),
             ("Callbacks & Events", "/docs/concepts/callbacks", "mouse-pointer-click"),
-            ("State Management", "/docs/concepts/state", "database"),
-            ("Store (Browser)", "/docs/concepts/store", "hard-drive"),
+            ("State & Store", "/docs/concepts/state", "database"),
             ("DOM Updates", "/docs/concepts/updates", "refresh-cw"),
             ("Routing & Navigation", "/docs/concepts/routing", "route"),
             ("Streaming", "/docs/concepts/streaming", "radio"),
@@ -454,11 +452,6 @@ def page_concepts_callbacks(ctx: Context):
 @ui.page("/docs/concepts/state")
 def page_concepts_state(ctx: Context):
     return state.render(ctx)
-
-
-@ui.page("/docs/concepts/store")
-def page_concepts_store(ctx: Context):
-    return store.render(ctx)
 
 
 @ui.page("/docs/concepts/updates")

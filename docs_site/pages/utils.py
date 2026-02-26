@@ -35,7 +35,12 @@ def render_markdown_with_demo_apps(content: str, locals: dict):
         if match:
             var_name = match.group(1).strip()
             if var_name in locals:
-                components.append(locals[var_name])
+                components.append(
+                    rc.Container(
+                        children = [locals[var_name]],
+                        class_name="border rounded p-4 mb-4",
+                    )
+                )
             else:
                 logger.error(f"Demo app variable '{var_name}' not found in locals")
                 components.append(

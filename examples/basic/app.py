@@ -6,6 +6,7 @@ This example demonstrates:
 - Callback handling with ctx.callback
 - State management with ctx.state
 """
+from ast import In
 
 from fastapi import FastAPI
 
@@ -19,6 +20,7 @@ from refast.components import (
     CardTitle,
     Column,
     Container,
+    Input,
     Row,
     Text,
 )
@@ -35,7 +37,7 @@ async def increment(ctx: Context):
     print("Incremented count to", ctx.state.get("count"))
 
     # Update just the text content
-    await ctx.update_text("count-value", str(ctx.state.get("count")))
+    await ctx.refresh()
 
 
 async def decrement(ctx: Context):
@@ -45,7 +47,7 @@ async def decrement(ctx: Context):
     print("Decremented count to", ctx.state.get("count"))
 
     # Update just the text content
-    await ctx.update_text("count-value", str(ctx.state.get("count")))
+    await ctx.refresh()
 
 
 async def reset(ctx: Context):
@@ -54,8 +56,17 @@ async def reset(ctx: Context):
     print("Reset count to", ctx.state.get("count"))
 
     # Update just the text content
-    await ctx.update_text("count-value", str(ctx.state.get("count")))
+    await ctx.refresh()
 
+async def set_counter(ctx: Context):
+    """Set the counter to a specific value from the input."""
+    value = ctx.event_data.get("value", "")
+    try:
+        value = int(value)
+        ctx.state.set("count", max(0, value))
+        await ctx.refresh()
+    except ValueError:
+        print("Invalid input for count:", value)
 
 # Define the main page
 @ui.page("/")
@@ -78,8 +89,10 @@ def home(ctx: Context):
                         ]
                     ),
                     CardContent(
+                        id="card-content",
                         children=[
                             Column(
+                                id="counter-column",
                                 gap=4,
                                 children=[
                                     # Count display
@@ -97,6 +110,7 @@ def home(ctx: Context):
                                     ),
                                     # Buttons row
                                     Row(
+                                        id="buttons-row",
                                         gap=2,
                                         justify="center",
                                         children=[
@@ -118,6 +132,7 @@ def home(ctx: Context):
                                     ),
                                     # Reset button
                                     Row(
+                                        id="reset-row",
                                         justify="center",
                                         children=[
                                             Button(
@@ -128,62 +143,22 @@ def home(ctx: Context):
                                             ),
                                         ],
                                     ),
+                                    Input(
+                                        id="input-count",
+                                        type="number",
+                                        placeholder="Set count",
+                                        value=str(count),
+                                        on_change=ctx.callback(set_counter),
+                                    )
                                 ],
-                            )
+                            ),
+
                         ]
                     ),
                 ],
             )
         ],
     )
-
-
-@ui.page("/about")
-def about(ctx: Context):
-    """About page."""
-    return Container(
-        id="about-container",
-        class_name="max-w-md mx-auto mt-10",
-        children=[
-            Card(
-                children=[
-                    CardHeader(
-                        children=[
-                            CardTitle("About Refast"),
-                            CardDescription("Python + React UI Framework"),
-                        ]
-                    ),
-                    CardContent(
-                        children=[
-                            Column(
-                                gap=4,
-                                children=[
-                                    Text(
-                                        "Refast is a Python-first web UI framework that "
-                                        "combines FastAPI on the backend with React on "
-                                        "the frontend."
-                                    ),
-                                    Text(
-                                        "Key features include:",
-                                    ),
-                                    Column(
-                                        gap=1,
-                                        children=[
-                                            Text("• Type-safe components"),
-                                            Text("• Real-time updates via WebSocket"),
-                                            Text("• Session management"),
-                                            Text("• Built-in security features"),
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ]
-                    ),
-                ]
-            )
-        ],
-    )
-
 
 # Create the FastAPI app and mount Refast
 app = FastAPI(title="Refast Basic Example")

@@ -241,8 +241,7 @@ For the **Buttons & Actions** component reference page:
 | Getting Started | `examples_gallery.py` | `/docs/examples` | All `examples/*/app.py` and `examples/*/README.md` |
 | Concepts | `components.py` | `/docs/concepts/components` | `src/refast/components/base.py`, `src/refast/components/registry.py` |
 | Concepts | `callbacks.py` | `/docs/concepts/callbacks` | `src/refast/context.py`, `src/refast/events/types.py` |
-| Concepts | `state.py` | `/docs/concepts/state` | `src/refast/state.py`, `src/refast/context.py` |
-| Concepts | `store.py` | `/docs/concepts/store` | `src/refast/store.py`, `docs/PROP_STORE_GUIDE.md` |
+| Concepts | `state.py` | `/docs/concepts/state` | `src/refast/state.py`, `src/refast/store.py`, `src/refast/context.py` |
 | Concepts | `updates.py` | `/docs/concepts/updates` | `src/refast/context.py`, `examples/longrunning.py` |
 | Concepts | `routing.py` | `/docs/concepts/routing` | `src/refast/app.py`, `src/refast/router.py`, `examples/multi_page/app.py` |
 | Concepts | `streaming.py` | `/docs/concepts/streaming` | `src/refast/events/stream.py`, `docs/STREAMING_GUIDE.md`, `examples/streaming/app.py` |

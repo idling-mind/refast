@@ -2,6 +2,8 @@
 
 from refast.components import Badge, Container, Heading, Markdown, Separator, Text
 
+from ..utils import render_markdown_with_demo_apps
+
 PAGE_TITLE = "Components"
 PAGE_ROUTE = "/docs/concepts/components"
 
@@ -10,9 +12,15 @@ def render(ctx):
     """Render the components concept page."""
     from docs_site.app import docs_layout
 
+    basic_demo = Container(
+        children=[
+            Heading("Hello", level=1),
+            Text("World"),
+        ]
+    )
+
     live_demo = Container(
         id="components-live-demo",
-        class_name="mt-8 rounded-lg border p-4",
         children=[
             Heading("Live demo: component tree", level=3, class_name="text-lg font-semibold"),
             Text(
@@ -36,51 +44,12 @@ def render(ctx):
         ],
     )
 
-    live_demo_code = r"""
-## Live demo
-
-The following component tree is rendered by the code snippet below.
-
-```python
-Container(
-    id="components-live-demo",
-    class_name="mt-8 rounded-lg border p-4",
-    children=[
-        Heading("Live demo: component tree", level=3, class_name="text-lg font-semibold"),
-        Text(
-            "This block is rendered with real components to show how nesting works.",
-            class_name="text-sm text-muted-foreground",
-        ),
-        Container(
-            class_name="mt-4 rounded-md border border-dashed p-4",
-            children=[
-                Heading("Root Container", level=4, class_name="text-base font-semibold"),
-                Container(
-                    class_name="space-y-2 rounded-md bg-muted/50 p-3",
-                    children=[
-                        Heading("Heading child", level=5),
-                        Text("Text child inside the same container."),
-                        Badge("Badge child", variant="secondary"),
-                    ],
-                ),
-            ],
-        ),
-    ],
-)
-```
-"""
-
-
     content = Container(
         class_name="max-w-4xl mx-auto p-6",
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Markdown(content=CONTENT),
-            Separator(class_name="my-6"),
-            Markdown(content=live_demo_code),
-            live_demo,
-            Markdown(content=NEXT_STEPS, class_name="mt-8"),
+            render_markdown_with_demo_apps(CONTENT, locals()),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
@@ -108,6 +77,9 @@ Container(
 ```
 
 This tree is serialized and sent to the frontend for rendering.
+
+{{ basic_demo }}
+
 
 ## Render model
 
@@ -149,7 +121,9 @@ container.render()
 
 ## Patterns & best practices
 
-- Give components stable `id` values when you plan to target them with updates.
+- Give components stable `id` values when you plan to target them with updates. It's also
+  helpful to set explicit `id` for all components so that when you call `ctx.refresh()`
+  the components that haven't changed don't get re-created with new auto-generated IDs.
 - Keep `render()` pure: compute data before constructing components; do not mutate state there.
 - Use `class_name` for styling; reserve `style` for computed values that Tailwind cannot express.
 - Pass props in `snake_case`; in development you can set `REFAST_VALIDATE_PROPS=1` to log camelCase mistakes.
@@ -162,9 +136,41 @@ container.render()
 - The registry lookup is case-sensitive; `component_type` must match the registered name exactly.
 
 - [Component Reference](/docs/components/layout) — Detailed props for each UI element
-"""
 
-NEXT_STEPS = r"""
+## Nested component example code
+
+Here's a simple example of a nested component tree:
+
+```python
+Container(
+    id="components-live-demo",
+    children=[
+        Heading("Live demo: component tree", level=3, class_name="text-lg font-semibold"),
+        Text(
+            "This block is rendered with real components to show how nesting works.",
+            class_name="text-sm text-muted-foreground",
+        ),
+        Container(
+            class_name="mt-4 rounded-md border border-dashed p-4",
+            children=[
+                Heading("Root Container", level=4, class_name="text-base font-semibold"),
+                Container(
+                    class_name="space-y-2 rounded-md bg-muted/50 p-3",
+                    children=[
+                        Heading("Heading child", level=5),
+                        Text("Text child inside the same container."),
+                        Badge("Badge child", variant="secondary"),
+                    ],
+                ),
+            ],
+        ),
+    ],
+)
+```
+
+{{ live_demo }}
+
+
 ## Next steps
 
 - [Callbacks & Events](/docs/concepts/callbacks) — Wire components to interactions

@@ -71,15 +71,18 @@ live interactive demos using real Refast components.
 
 ---
 
-### 3. `state.py` — State Management (`/docs/concepts/state`)
+### 3. `state.py` — State & Store (`/docs/concepts/state`)
 
-**Read:** `src/refast/state.py`
+**Read:** `src/refast/state.py`, `src/refast/store.py`, `src/refast/context.py`
 
 **Cover:**
 - `ctx.state` — per-connection server-side dict
 - `.get(key, default)`, `.set(key, value)`, `.update(dict)`, `.to_dict()`
 - Bracket syntax: `ctx.state["key"]`
-- Pattern: modify state → `ctx.refresh()` to re-render
+- `ctx.store.local` + `ctx.store.session` APIs: `get`, `set`, `set_many`, `delete`, `clear`, `get_all`
+- `await ctx.store.sync()` to pull latest browser values
+- Pattern: modify state → `ctx.refresh()` or `ctx.refresh(target_id="...")`
+- Why stable component `id` values (including parent containers) are required for targeted updates
 - Lifecycle: state exists only within the WebSocket session
 - State is NOT shared across tabs
 - State vs Store comparison table
@@ -87,25 +90,7 @@ live interactive demos using real Refast components.
 **Live demo:** A counter that increments on button click
 
 ---
-
-### 4. `store.py` — Store (Browser Storage) (`/docs/concepts/store`)
-
-**Read:** `src/refast/store.py`, `docs/PROP_STORE_GUIDE.md`, `examples/prop_store/app.py`
-
-**Cover:**
-- `ctx.store.local` (localStorage) and `ctx.store.session` (sessionStorage)
-- Full API: `get`, `set`, `delete`, `clear`, `get_all`, `set_many`
-- `store_as` on callbacks/inputs — client-side form state
-- `ctx.prop_store` — reading stored values
-- `ctx.sync_store()` — pulling latest values from browser
-- When to use store vs state
-- Store persists across page reloads; state doesn't
-
-**Live demo:** Input with `store_as` that persists across refresh
-
----
-
-### 5. `updates.py` — DOM Updates (`/docs/concepts/updates`)
+### 4. `updates.py` — DOM Updates (`/docs/concepts/updates`)
 
 **Read:** `src/refast/context.py` (replace/append/etc.), `examples/longrunning.py`
 
@@ -126,7 +111,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 6. `routing.py` — Routing & Navigation (`/docs/concepts/routing`)
+### 5. `routing.py` — Routing & Navigation (`/docs/concepts/routing`)
 
 **Read:** `examples/multi_page/app.py`, `src/refast/router.py`
 
@@ -141,7 +126,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 7. `streaming.py` — Streaming (`/docs/concepts/streaming`)
+### 6. `streaming.py` — Streaming (`/docs/concepts/streaming`)
 
 **Read:** `docs/STREAMING_GUIDE.md`, `examples/streaming/app.py`, `src/refast/events/stream.py`
 
@@ -156,7 +141,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 8. `background.py` — Background Jobs & Broadcasting (`/docs/concepts/background`)
+### 7. `background.py` — Background Jobs & Broadcasting (`/docs/concepts/background`)
 
 **Read:** `examples/realtime_dashboard/app.py`, `src/refast/events/broadcast.py`
 
@@ -171,7 +156,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 9. `theming.py` — Theming (`/docs/concepts/theming`)
+### 8. `theming.py` — Theming (`/docs/concepts/theming`)
 
 **Read:** `src/refast/theme/theme.py`, `src/refast/theme/defaults.py`, `examples/theme_showcase/app.py`
 
@@ -189,7 +174,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 10. `toasts.py` — Toast Notifications (`/docs/concepts/toasts`)
+### 9. `toasts.py` — Toast Notifications (`/docs/concepts/toasts`)
 
 **Read:** `examples/toast_showcase/app.py`
 
@@ -204,7 +189,7 @@ live interactive demos using real Refast components.
 
 ---
 
-### 11. `js_interop.py` — JavaScript Interop (`/docs/concepts/js-interop`)
+### 10. `js_interop.py` — JavaScript Interop (`/docs/concepts/js-interop`)
 
 **Read:** `examples/js_callbacks/app.py`, `src/refast/context.py`
 

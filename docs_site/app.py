@@ -6,6 +6,7 @@ Run:
     cd <project_root>
     uvicorn docs_site.app:app --reload
 """
+
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -351,7 +352,17 @@ def _build_topbar(ctx: Context, current_path: str):
                         align="center",
                         gap=4,
                     ),
-                    ThemeSwitcher(),
+                    Row(
+                        [
+                            ThemeSwitcher(),
+                            Text(
+                                f"Active users: {len(ui.active_contexts)}",
+                                class_name="text-sm text-muted-foreground",
+                            ),
+                        ],
+                        align="center",
+                        gap=2,
+                    ),
                 ],
             ),
         ],
@@ -569,7 +580,9 @@ def page_advanced_styling(ctx: Context):
 # ── FastAPI app ──────────────────────────────────────────────────────────
 
 app = FastAPI(title="Refast Documentation")
-app.mount("/styles", StaticFiles(directory=Path(__file__).parent / "styles"), name="styles")  # serve custom CSS and JS
+app.mount(
+    "/styles", StaticFiles(directory=Path(__file__).parent / "styles"), name="styles"
+)  # serve custom CSS and JS
 app.include_router(ui.router)
 
 if __name__ == "__main__":

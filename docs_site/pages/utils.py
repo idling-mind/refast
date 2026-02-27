@@ -38,7 +38,7 @@ def render_markdown_with_demo_apps(content: str, locals: dict):
                 components.append(
                     rc.Container(
                         children = [locals[var_name]],
-                        class_name="border rounded p-4 mb-4",
+                        class_name="border rounded p-4 mb-4 overflow-auto",
                     )
                 )
             else:
@@ -52,4 +52,4 @@ def render_markdown_with_demo_apps(content: str, locals: dict):
                 )  # Show as-is if not found
         else:
             components.append(rc.Markdown(part))
-    return rc.Column(components)
+    return rc.Column(components, class_name="w-full min-w-0")

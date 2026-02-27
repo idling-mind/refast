@@ -79,7 +79,7 @@ pip install refast
             ),
             # Feature cards
             Grid(
-                columns=3,
+                columns="repeat(auto-fit, minmax(250px, 1fr))",
                 gap=6,
                 class_name="my-8",
                 children=[

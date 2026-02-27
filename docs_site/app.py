@@ -24,9 +24,14 @@ from refast.components import (
     Button,
     Column,
     Container,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
     Flex,
     Heading,
     Icon,
+    IconButton,
     Row,
     Separator,
     Sidebar,
@@ -51,7 +56,13 @@ from refast.components import (
     Tooltip,
 )
 from refast.components.shadcn import ThemeSwitcher
-from refast.theme import default_theme
+from refast.theme import (
+    amber_minimal_theme,
+    caffine_theme,
+    catppuccin_theme,
+    default_theme,
+    ocean_breeze_theme,
+)
 
 from .pages import home  # noqa: E402
 from .pages.advanced import (  # noqa: E402
@@ -201,11 +212,12 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
             _build_sidebar(ctx, current_path),
             SidebarInset(
                 id="docs-sidebar-inset",
+                class_name="min-w-0",
                 children=[
                     _build_topbar(ctx, current_path),
                     Container(
                         id=content_id,
-                        class_name="flex-1 overflow-auto",
+                        class_name="flex-1 min-w-0 overflow-y-auto overflow-x-hidden",
                         children=[content],
                     ),
                     _build_footer(ctx, current_path),
@@ -315,6 +327,37 @@ def _build_nav_group(ctx: Context, section: dict, current_path: str):
         ],
     )
 
+async def _on_theme_change(ctx: Context, theme_name: str):
+    """Handle theme change from the theme switcher."""
+    theme_map = {
+        "default": default_theme,
+        "caffine": caffine_theme,
+        "catppuccin": catppuccin_theme,
+        "ocean-breeze": ocean_breeze_theme,
+        "amber-minimal": amber_minimal_theme,
+    }
+    selected_theme = theme_map.get(theme_name, default_theme)
+    await ctx.set_theme(selected_theme)
+
+def theme_switcher(ctx: Context):
+    return DropdownMenu(
+        children = [
+            DropdownMenuTrigger(
+                IconButton(
+                    icon="palette",
+                    variant="ghost",
+                    size="sm",
+                )
+            ),
+            DropdownMenuContent(
+                children=[
+                    DropdownMenuItem(theme.title(), on_click=ctx.callback(_on_theme_change, theme_name=theme))
+                    for theme in ["default", "caffine", "catppuccin", "ocean-breeze", "amber-minimal"]
+                ]
+            )
+        ]
+    )
+
 
 def _build_topbar(ctx: Context, current_path: str):
     """Build the top bar with breadcrumb and theme toggle."""
@@ -355,10 +398,11 @@ def _build_topbar(ctx: Context, current_path: str):
                     Row(
                         [
                             ThemeSwitcher(),
-                            Text(
-                                f"Active users: {len(ui.active_contexts)}",
-                                class_name="text-sm text-muted-foreground",
-                            ),
+                            # Text(
+                            #     f"Active users: {len(ui.active_contexts)}",
+                            #     class_name="text-sm text-muted-foreground",
+                            # ),
+                            theme_switcher(ctx),
                         ],
                         align="center",
                         gap=2,

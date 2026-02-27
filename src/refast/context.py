@@ -311,9 +311,7 @@ class ChainedAction:
         ```
     """
 
-    actions: list[
-        Any
-    ]  # list of Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
+    actions: list[Any]  # list of Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
     mode: str = "serial"  # "serial" or "parallel"
 
     def __post_init__(self) -> None:

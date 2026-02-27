@@ -1,6 +1,6 @@
 """Overlay components based on shadcn/ui."""
 
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from refast.components.base import ChildrenType, Component
 

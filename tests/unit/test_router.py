@@ -90,7 +90,7 @@ class TestRefastRouter:
         assert response_about.status_code == 200
 
     def test_html_includes_initial_data_script(self):
-        """Test that HTML includes initial data script tag."""
+        """Test that HTML does not include initial data script tag, as this behavior changed."""
         app = FastAPI()
         ui = RefastApp()
 
@@ -102,7 +102,7 @@ class TestRefastRouter:
         client = TestClient(app)
 
         response = client.get("/ui/")
-        assert "__REFAST_INITIAL_DATA__" in response.text
+        assert "__REFAST_INITIAL_DATA__" not in response.text
 
     def test_html_includes_root_div(self):
         """Test that HTML includes root div for React."""

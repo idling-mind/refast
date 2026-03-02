@@ -13,11 +13,12 @@ from refast.session.middleware import SessionMiddleware
 from refast.session.stores.memory import MemorySessionStore
 
 
-def extract_initial_data(html_content: str) -> dict:
-    """Extract the __REFAST_INITIAL_DATA__ from HTML response."""
-    match = re.search(r"window\.__REFAST_INITIAL_DATA__\s*=\s*({.*?});", html_content, re.DOTALL)
-    if match:
-        return json.loads(match.group(1))
+def extract_initial_data(client, path: str = "/") -> dict:
+    """Extract component tree via API."""
+    api_path = path + "api/page" if path.endswith("/") else path + "/api/page"
+    response = client.get(api_path, headers={"referer": f"http://testserver{path}"})
+    if response.status_code == 200:
+        return response.json()
     return {}
 
 
@@ -112,7 +113,7 @@ class TestWebSocketMessages:
         response = client.get("/")
         assert response.status_code == 200
 
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/")
         on_click = data["props"]["on_click"]
 
         # Verify callback structure

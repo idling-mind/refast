@@ -24,6 +24,8 @@ from refast.components import (
     Container,
     Input,
     Label,
+    Radio,
+    RadioGroup,
     Row,
     Select,
     Separator,
@@ -42,8 +44,9 @@ async def save_profile(ctx: Context):
     await ctx.show_toast("Profile saved successfully!", variant="success")
 
 
-async def save_notifications(ctx: Context):
+async def save_notifications(ctx: Context, **kwargs):
     """Save notification settings."""
+    print("Saving notification settings:", kwargs)
     await ctx.show_toast("Notification preferences updated!", variant="success")
 
 
@@ -52,23 +55,21 @@ async def save_appearance(ctx: Context):
     await ctx.show_toast("Appearance settings saved!", variant="success")
 
 
-async def toggle_setting(ctx: Context):
+async def toggle_setting(ctx: Context, key: str):
     """Toggle a boolean setting."""
-    key = ctx.event_data.get("key")
     current = ctx.state.get(key, False)
     ctx.state.set(key, not current)
+    await ctx.refresh()
 
 
-async def update_input(ctx: Context):
+async def update_input(ctx: Context, key: str, value: str):
     """Update an input value."""
-    key = ctx.event_data.get("key")
-    value = ctx.event_data.get("value", "")
     ctx.state.set(key, value)
+    await ctx.refresh()
 
 
-async def change_section(ctx: Context):
+async def change_section(ctx: Context, section: str):
     """Change active section."""
-    section = ctx.event_data.get("section")
     ctx.state.set("active_section", section)
     await ctx.refresh()
 
@@ -79,11 +80,6 @@ def home(ctx: Context):
     """Settings page."""
     active_section = ctx.state.get("active_section", "profile")
 
-    # Default settings state
-    email_notifications = ctx.state.get("email_notifications", True)
-    push_notifications = ctx.state.get("push_notifications", False)
-    marketing_emails = ctx.state.get("marketing_emails", False)
-    weekly_digest = ctx.state.get("weekly_digest", True)
     theme = ctx.state.get("theme", "system")
     language = ctx.state.get("language", "en")
 
@@ -275,10 +271,7 @@ def home(ctx: Context):
                                             ],
                                         ),
                                         Switch(
-                                            checked=email_notifications,
-                                            on_checked_change=ctx.callback(
-                                                toggle_setting, key="email_notifications"
-                                            ),
+                                            on_checked_change=ctx.save_prop("email_notifications"),
                                         ),
                                     ],
                                 ),
@@ -301,10 +294,7 @@ def home(ctx: Context):
                                             ],
                                         ),
                                         Switch(
-                                            checked=push_notifications,
-                                            on_checked_change=ctx.callback(
-                                                toggle_setting, key="push_notifications"
-                                            ),
+                                            on_checked_change=ctx.save_prop("push_notifications"),
                                         ),
                                     ],
                                 ),
@@ -325,10 +315,7 @@ def home(ctx: Context):
                                             ],
                                         ),
                                         Switch(
-                                            checked=marketing_emails,
-                                            on_checked_change=ctx.callback(
-                                                toggle_setting, key="marketing_emails"
-                                            ),
+                                            on_checked_change=ctx.save_prop("marketing_emails"),
                                         ),
                                     ],
                                 ),
@@ -349,10 +336,7 @@ def home(ctx: Context):
                                             ],
                                         ),
                                         Switch(
-                                            checked=weekly_digest,
-                                            on_checked_change=ctx.callback(
-                                                toggle_setting, key="weekly_digest"
-                                            ),
+                                            on_checked_change=ctx.save_prop("weekly_digest"),
                                         ),
                                     ],
                                 ),
@@ -363,7 +347,15 @@ def home(ctx: Context):
                                     children=[
                                         Button(
                                             label="Save Preferences",
-                                            on_click=ctx.callback(save_notifications),
+                                            on_click=ctx.callback(
+                                                save_notifications,
+                                                props=[
+                                                    "email_notifications",
+                                                    "push_notifications",
+                                                    "marketing_emails",
+                                                    "weekly_digest",
+                                                ],
+                                            ),
                                         ),
                                     ],
                                 ),
@@ -389,63 +381,47 @@ def home(ctx: Context):
                             gap=6,
                             children=[
                                 # Theme selection
-                                Column(
-                                    gap=3,
+                                Row(
                                     children=[
-                                        Label("Theme"),
-                                        Row(
-                                            gap=4,
+                                        RadioGroup(
+                                            orientation="horizontal",
+                                            name="theme",
+                                            value=theme,
+                                            on_change=ctx.save_prop("theme"),
                                             children=[
                                                 Card(
-                                                    class_name=f"cursor-pointer p-4 {'ring-2 ring-primary' if theme == 'light' else ''}",
+                                                    class_name="bg-muted/50 p-3",
                                                     children=[
-                                                        Column(
-                                                            gap=2,
-                                                            align="center",
-                                                            children=[
-                                                                Container(
-                                                                    class_name="w-16 h-12 bg-white border rounded",
-                                                                ),
-                                                                Text("Light", class_name="text-sm"),
-                                                            ],
+                                                        Radio(
+                                                            name="theme",
+                                                            value="light",
+                                                            label="Light",
                                                         ),
                                                     ],
                                                 ),
                                                 Card(
-                                                    class_name=f"cursor-pointer p-4 {'ring-2 ring-primary' if theme == 'dark' else ''}",
+                                                    class_name="bg-muted/50 p-3",
                                                     children=[
-                                                        Column(
-                                                            gap=2,
-                                                            align="center",
-                                                            children=[
-                                                                Container(
-                                                                    class_name="w-16 h-12 bg-slate-900 border rounded",
-                                                                ),
-                                                                Text("Dark", class_name="text-sm"),
-                                                            ],
+                                                        Radio(
+                                                            name="theme",
+                                                            value="dark",
+                                                            label="Dark",
                                                         ),
                                                     ],
                                                 ),
                                                 Card(
-                                                    class_name=f"cursor-pointer p-4 {'ring-2 ring-primary' if theme == 'system' else ''}",
+                                                    class_name="bg-muted/50 p-3",
                                                     children=[
-                                                        Column(
-                                                            gap=2,
-                                                            align="center",
-                                                            children=[
-                                                                Container(
-                                                                    class_name="w-16 h-12 bg-gradient-to-r from-white to-slate-900 border rounded",
-                                                                ),
-                                                                Text(
-                                                                    "System", class_name="text-sm"
-                                                                ),
-                                                            ],
+                                                        Radio(
+                                                            name="theme",
+                                                            value="system",
+                                                            label="System Default",
                                                         ),
                                                     ],
                                                 ),
                                             ],
                                         ),
-                                    ],
+                                    ]
                                 ),
                                 Separator(),
                                 # Language selection

@@ -13,11 +13,13 @@ from refast.session.middleware import SessionMiddleware
 from refast.session.stores.memory import MemorySessionStore
 
 
-def extract_initial_data(html_content: str) -> dict:
-    """Extract the __REFAST_INITIAL_DATA__ from HTML response."""
-    match = re.search(r"window\.__REFAST_INITIAL_DATA__\s*=\s*({.*?});", html_content, re.DOTALL)
-    if match:
-        return json.loads(match.group(1))
+def extract_initial_data(client, path: str = "/") -> dict:
+    """Extract the component tree using the API endpoint."""
+    base_prefix = "/ui" if path.startswith("/ui") else ""
+    api_path = f"{base_prefix}/api/page"
+    response = client.get(api_path, headers={"referer": f"http://testserver{path}"})
+    if response.status_code == 200:
+        return response.json()
     return {}
 
 
@@ -78,7 +80,7 @@ class TestFullFlow:
         assert "text/html" in response.headers.get("content-type", "")
 
         # Extract and verify the component tree from HTML
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/ui/")
         assert "type" in data
         assert data["type"] == "Container"
         assert data["id"] == "main"
@@ -119,7 +121,7 @@ class TestComponentRendering:
         response = client.get("/")
         assert response.status_code == 200
 
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/")
         assert data["id"] == "outer"
         assert data["type"] == "Container"
         assert len(data["children"]) == 1
@@ -145,7 +147,7 @@ class TestComponentRendering:
         response = client.get("/")
         assert response.status_code == 200
 
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/")
         assert data["type"] == "Button"
         assert data["props"]["variant"] == "primary"
         assert data["props"]["size"] == "lg"
@@ -178,7 +180,7 @@ class TestCallbackFlow:
         assert response.status_code == 200
 
         # Check that callback reference is in the rendered output
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/")
         assert data["props"].get("on_click") is not None
         on_click = data["props"]["on_click"]
         assert "callbackId" in on_click
@@ -209,7 +211,7 @@ class TestCallbackFlow:
         response = client.get("/")
         assert response.status_code == 200
 
-        data = extract_initial_data(response.text)
+        data = extract_initial_data(client, "/")
         children = data["children"]
         assert len(children) == 2
 
@@ -273,8 +275,8 @@ class TestMultiplePages:
         home_response = client.get("/")
         about_response = client.get("/about")
 
-        home_data = extract_initial_data(home_response.text)
-        about_data = extract_initial_data(about_response.text)
+        home_data = extract_initial_data(client, "/")
+        about_data = extract_initial_data(client, "/about")
 
         assert home_data["id"] == "home-text"
         assert about_data["id"] == "about-text"

@@ -243,5 +243,6 @@ class TestErrorHandling:
         app.include_router(ui.router)
 
         client = TestClient(app, raise_server_exceptions=False)
-        response = client.get("/error")
+        # Calling API route which actually calls the page function
+        response = client.get("/api/page", headers={"referer": "http://testserver/error"})
         assert response.status_code == 500

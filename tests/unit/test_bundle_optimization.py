@@ -202,7 +202,7 @@ class TestHtmlShell:
     def test_html_includes_initial_data(self, features_app):
         client, _ = features_app()
         response = client.get("/ui/")
-        assert "__REFAST_INITIAL_DATA__" in response.text
+        assert "__REFAST_INITIAL_DATA__" not in response.text
 
 
 # ═══════════════════════════════════════════════════════════════════════════

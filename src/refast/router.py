@@ -255,12 +255,13 @@ class RefastRouter:
         if page_func is None:
             return HTMLResponse(content="<h1>404 - Page Not Found</h1>", status_code=404)
 
-        # Create context and render page
+        # Do NOT call page_func here — components are created (and random IDs
+        # assigned) only after the WebSocket connects via the store_init /
+        # page_render flow.  Calling it twice caused a visible blink because
+        # the initial tree (with one set of IDs) was immediately replaced by
+        # the post-WebSocket tree (with a fresh set of IDs).
         ctx = Context(request=request, app=self.app)
-        component = page_func(ctx)
-
-        # Render to HTML shell with component data
-        html = self._render_html_shell(component, ctx)
+        html = self._render_html_shell(None, ctx)
         return HTMLResponse(content=html)
 
     async def _api_page_handler(self, request: Request) -> JSONResponse:
@@ -438,8 +439,13 @@ class RefastRouter:
                 event = Event(type=event_type, data=data.get("data", {}))
                 await handler(ctx, event)
 
-    def _render_html_shell(self, component: Any, ctx: "Context") -> str:
-        """Render the HTML shell with embedded component data.
+    def _render_html_shell(self, component: Any | None, ctx: "Context") -> str:
+        """Render the HTML shell.
+
+        ``component`` is accepted for backwards compatibility but is intentionally
+        ignored — component creation is deferred until the WebSocket connection
+        is established (``store_init`` → ``page_render`` flow).  Passing ``None``
+        is the expected value from ``_page_handler``.
 
         The shell uses ``<script type="module">`` for the ESM entry chunk
         and any additional feature chunks determined by the build manifest
@@ -449,9 +455,6 @@ class RefastRouter:
         ``refast:ready``, ensuring ``window.RefastClient`` is available.
         """
         import json
-
-        component_data = component.render() if hasattr(component, "render") else {}
-        component_json = json.dumps(component_data)
 
         # Check if React client CSS exists
         client_css_path = STATIC_DIR / "refast-client.css"
@@ -557,11 +560,37 @@ class RefastRouter:
     {ext_styles_html}
     {custom_css_html}
     {head_tags_html}
-    <script>
-        window.__REFAST_INITIAL_DATA__ = {component_json};
-    </script>
+    <style>
+        @keyframes refast-spin {{ to {{ transform: rotate(360deg); }} }}
+        #refast-loading-overlay {{
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            z-index: 9999;
+        }}
+        @media (prefers-color-scheme: dark) {{
+            #refast-loading-overlay {{ background: #09090b; }}
+        }}
+        #refast-loading-spinner {{
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 4px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            animation: refast-spin 0.7s linear infinite;
+        }}
+        @media (prefers-color-scheme: dark) {{
+            #refast-loading-spinner {{ border-color: #27272a; border-top-color: #3b82f6; }}
+        }}
+    </style>
 </head>
 <body>
+    <div id="refast-loading-overlay" aria-label="Loading" role="status">
+        <div id="refast-loading-spinner"></div>
+    </div>
     <div id="refast-root"></div>
     {scripts_html}
     {ext_loader_html}

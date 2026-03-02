@@ -125,8 +125,13 @@ export type {
 function initializeRefast(): void {
   // Look for the refast-root element
   const rootElement = document.getElementById('refast-root');
-  
-  if (rootElement && window.__REFAST_INITIAL_DATA__) {
+
+  // Mount unconditionally — components are delivered via WebSocket
+  // (store_init → page_render) after the connection is established.
+  // __REFAST_INITIAL_DATA__ is no longer set by the server; the initial
+  // content of #refast-root is a pure-HTML/CSS spinner that stays visible
+  // until React hydrates and the WebSocket delivers the first page_render.
+  if (rootElement) {
     const root = createRoot(rootElement);
     root.render(React.createElement(RefastApp));
   }

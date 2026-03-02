@@ -1,4 +1,4 @@
-import React, { useMemo, Suspense } from 'react';
+import React, { useMemo, Suspense, Component } from 'react';
 import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, SavePropRef, ChainedActionRef, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
@@ -11,6 +11,53 @@ import {
   isChainedActionRef,
   createSingleActionExecutor,
 } from '../utils/actionExecutor';
+
+/**
+ * Error boundary that isolates render failures to a single component subtree.
+ * Without this, a crash in any component (e.g. recharts hook errors) would
+ * unmount the entire page.
+ */
+interface ErrorBoundaryState { hasError: boolean; errorMessage: string }
+class ComponentErrorBoundary extends Component<
+  { children: React.ReactNode; componentType: string },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode; componentType: string }) {
+    super(props);
+    this.state = { hasError: false, errorMessage: '' };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, errorMessage: error.message };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error(`[Refast] Error rendering <${this.props.componentType}>:`, error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          data-refast-error={this.props.componentType}
+          title={this.state.errorMessage}
+          style={{
+            display: 'inline-block',
+            border: '1px dashed #ef4444',
+            borderRadius: 4,
+            padding: '2px 6px',
+            color: '#ef4444',
+            fontSize: 11,
+            fontFamily: 'monospace',
+          }}
+        >
+          {`<${this.props.componentType}>`}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /**
  * Default loading fallback for lazy-loaded components.
@@ -36,25 +83,25 @@ interface ComponentRendererProps {
  * Renders a component tree from Python backend.
  */
 export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRendererProps>(({ tree, onUpdate, ...rest }, ref) => {
-  const eventManager = useEventManager();
-
-  // If it's a string, render as text
+  // If it's a string, render as text immediately without hitting any object-specific hooks
   if (typeof tree === 'string') {
     return <>{tree}</>;
   }
+
+  // Delegate object rendering to a sub-component to maintain hook rules
+  return <ComponentObjectRenderer tree={tree} onUpdate={onUpdate} ref={ref} {...rest} />;
+});
+ComponentRenderer.displayName = 'ComponentRenderer';
+
+const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererProps & { tree: Extract<ComponentTree, object> }>(({ tree, onUpdate, ...rest }, ref) => {
+  const eventManager = useEventManager();
 
   const { type, id, props, children } = tree;
 
   // Get the component from registry
   const Component = componentRegistry.get(type);
 
-  if (!Component) {
-    console.warn(`Unknown component type: ${type}`);
-    return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
-  }
-
   // Process props - convert snake_case to camelCase, handle callbacks and formatters
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const processedProps = useMemo(() => {
     const result: Record<string, unknown> = { id };
 
@@ -86,24 +133,68 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
   }, [props, id, eventManager]);
 
   // Render children
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const renderedChildren = useMemo(() => {
     if (!children || children.length === 0) {
       return null;
     }
 
+    const isChartComponent = (compType: string) => componentRegistry.getChunkName(compType) === 'charts';
+    const isChartParent = isChartComponent(type);
+
+    // Define a recursive unwrap function for Recharts children (e.g. XAxis, Line, Cell, Label)
+    const buildChartElement = (node: any, i: number): React.ReactNode => {
+      if (typeof node === 'string') return node;
+      const RComp = componentRegistry.get(node.type) as any;
+      if (!RComp || !isChartComponent(node.type)) {
+        // Fall back to normal renderer if it's NOT a charts component (e.g. Tooltip custom content)
+        return <ComponentRenderer key={node.id || i} tree={node} onUpdate={onUpdate} />;
+      }
+      
+      const nProps: any = { key: node.id || i };
+      for (const [nk, nv] of Object.entries(node.props || {})) {
+        if (isFormatterString(nk, nv)) {
+          nProps[snakeToCamel(nk)] = createFormatterFunction(nv as string);
+        } else if (typeof nv === 'object' && nv !== null && (nv as any).type) {
+          nProps[snakeToCamel(nk)] = <ComponentRenderer tree={nv as any} onUpdate={onUpdate} />;
+        } else {
+          nProps[snakeToCamel(nk)] = nv;
+        }
+      }
+      
+      const nChildren = (node.children || [])
+        .filter((c: any) => c != null && c !== 'None')
+        .map((c: any, ci: number) => buildChartElement(c, ci));
+        
+      return React.createElement(RComp, removeNullValues(nProps), nChildren.length > 0 ? nChildren : undefined);
+    };
+
     // Filter out null/undefined values and 'None' strings (defensive check)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return children
       .filter((child: any) => child != null && child !== 'None')
-      .map((child: any, index: number) => (
-        <ComponentRenderer
-          key={typeof child === 'string' ? index : child.id || index}
-          tree={child}
-          onUpdate={onUpdate}
-        />
-      ));
-  }, [children, onUpdate]);
+      .map((child: any, index: number) => {
+        if (typeof child === 'string') return child;
+
+        // Recharts requires direct elements, not Wrapped by ComponentRenderer/Suspense
+        // Unroll them if their parent is a Recharts parent.
+        if (isChartParent && isChartComponent(child.type)) {
+           return buildChartElement(child, index);
+        }
+
+        return (
+          <ComponentRenderer
+            key={typeof child === 'string' ? index : child.id || index}
+            tree={child}
+            onUpdate={onUpdate}
+          />
+        );
+      });
+  }, [children, onUpdate, type]);
+
+  if (!Component) {
+    console.warn(`Unknown component type: ${type}`);
+    return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
+  }
 
   // Handle parentStyle for wrapper div
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -112,8 +203,17 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
   // Determine if the component is lazy (needs Suspense boundary)
   const needsSuspense = componentRegistry.isLazy(type);
 
-  const componentElement = (
+  // Only pass ref forward if this is actually a forwardRef capable component.
+  // Many internal or customized wrappers don't like having ref forced upon them.
+  const isChart = componentRegistry.getChunkName(type) === 'charts';
+  const shouldPassRef = !isChart;
+
+  const componentElement = shouldPassRef ? (
     <Component {...componentProps} {...rest} data-refast-id={id} ref={ref}>
+      {renderedChildren}
+    </Component>
+  ) : (
+    <Component {...componentProps} {...rest} data-refast-id={id}>
       {renderedChildren}
     </Component>
   );
@@ -125,6 +225,12 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
     </Suspense>
   ) : componentElement;
 
+  const bounded = (
+    <ComponentErrorBoundary componentType={type}>
+      {wrappedElement}
+    </ComponentErrorBoundary>
+  );
+
   if (parentStyle) {
     return (
       <div
@@ -132,14 +238,14 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
         className="refast-component-wrapper"
         data-wrapper-for={id}
       >
-        {wrappedElement}
+        {bounded}
       </div>
     );
   }
 
-  return wrappedElement;
+  return bounded;
 });
-ComponentRenderer.displayName = 'ComponentRenderer';
+ComponentObjectRenderer.displayName = 'ComponentObjectRenderer';
 
 /**
  * Check if a prop key/value pair is a formatter string that needs conversion.

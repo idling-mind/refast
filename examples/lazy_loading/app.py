@@ -112,10 +112,10 @@ def _info_section(mode: str, features: list[str] | None):
 
 def _chart_section():
     """Build a sample chart section to showcase the charts feature chunk."""
-    chart_config = ChartConfig(
-        revenue={"label": "Revenue", "color": "hsl(var(--chart-1))"},
-        profit={"label": "Profit", "color": "hsl(var(--chart-2))"},
-    )
+    chart_config = {
+        "revenue": ChartConfig(label="Revenue", color="hsl(var(--chart-1))"),
+        "profit": ChartConfig(label="Profit", color="hsl(var(--chart-2))"),
+    }
 
     chart_data = [
         {"month": "Jan", "revenue": 4000, "profit": 2400},

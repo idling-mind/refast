@@ -220,3 +220,7 @@ export function ChartLegendContent({
     </div>
   );
 }
+
+
+ChartTooltip.displayName = 'Tooltip';
+ChartLegend.displayName = 'Legend';

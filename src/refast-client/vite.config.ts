@@ -81,9 +81,17 @@ export default defineConfig(({ mode }) => {
         },
         // Split heavy feature groups into separate chunks
         manualChunks(id) {
+          // Normalise separators so matching works on both Windows and Unix.
+          const normalId = id.replace(/\\/g, '/');
+
           for (const [chunkName, markers] of Object.entries(CHUNK_GROUPS)) {
-            if (markers.some((m) => id.includes(m))) {
-              return chunkName;
+            if (markers.some((m) => normalId.includes(m))) {
+              // Only apply manual chunks for node_modules to avoid circular
+              // static imports between app chunks where Rollup merges shared app code
+              // into the explicitly named chunk.
+              if (normalId.includes('node_modules')) {
+                 return chunkName;
+              }
             }
           }
           // Let Vite handle everything else (goes into entry or shared)
@@ -91,8 +99,11 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    // Use esbuild for minification (bundled with Vite)
+    // Use esbuild for JS minification (bundled with Vite)
     minify: 'esbuild',
+    // Use esbuild for CSS minification too — avoids SVGO crashing on
+    // URL-encoded SVGs embedded in third-party CSS (e.g. react-day-picker).
+    cssMinify: 'esbuild',
     // Single CSS file (no CSS code splitting)
     cssCodeSplit: false,
     // Generate a manifest so the Python side knows which chunks exist
@@ -102,6 +113,11 @@ export default defineConfig(({ mode }) => {
     alias: {
       '@': resolve(__dirname, 'src'),
     },
+    // Ensure every package that depends on React (e.g. recharts) resolves to
+    // the exact same module file as the main app.  Without this, dynamic
+    // chunks that bundle recharts can end up with a second copy of React,
+    // triggering "Invalid hook call" (React error #310) at runtime.
+    dedupe: ['react', 'react-dom', 'react-is', 'scheduler'],
   },
   test: {
     globals: true,

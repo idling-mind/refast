@@ -27,7 +27,7 @@ interface RefastAppProps {
 /**
  * Main Refast application component.
  */
-export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): React.ReactElement {
+export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): React.ReactElement | null {
   // Get initial data from window if not provided
   const tree = useMemo(() => {
     if (initialTree) return initialTree;
@@ -137,18 +137,6 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     };
   }, [fetchPage]);
 
-  // Show loading state until page is rendered
-  if (!componentTree) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Wrapper to match the expected signature
   const handleComponentUpdate = useCallback(
     (id: string, component: ComponentTree | null, operation?: string) => {
@@ -156,6 +144,24 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     },
     [updateComponent]
   );
+
+  // Hide the pure-HTML loading overlay once we have a component tree to render.
+  // The overlay is injected by the Python router before any JS runs — it covers
+  // the screen from first HTML paint until the WebSocket delivers page_render.
+  useEffect(() => {
+    if (componentTree) {
+      const overlay = document.getElementById('refast-loading-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+    }
+  }, [componentTree]);
+
+  // Until the WebSocket delivers page_render, keep #refast-root empty —
+  // the HTML overlay is covering the screen anyway.
+  if (!componentTree) {
+    return null;
+  }
 
   return (
     <EventManagerProvider

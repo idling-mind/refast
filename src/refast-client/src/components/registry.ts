@@ -130,6 +130,13 @@ class ComponentRegistry {
   }
 
   /**
+   * Get the chunk name a component belongs to (if any).
+   */
+  getChunkName(name: string): string | undefined {
+    return this.lazyMap.get(name);
+  }
+
+  /**
    * Check whether a component name is registered as part of a lazy chunk
    * that hasn't been loaded yet.
    */

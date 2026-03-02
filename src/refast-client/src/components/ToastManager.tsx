@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast, type ExternalToast } from 'sonner';
-import { AnyActionRef } from '../types';
+import { AnyActionRef, ComponentTree } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { createSingleActionExecutor } from '../utils/actionExecutor';
+import { ComponentRenderer } from './ComponentRenderer';
 
 interface ToastEventDetail {
-  message: string;
+  message?: string;
+  component?: ComponentTree;
   variant?: 'default' | 'success' | 'error' | 'destructive' | 'warning' | 'info' | 'loading';
   description?: string;
   duration?: number;
@@ -101,6 +103,7 @@ export function ToastManager({
     const handleToastEvent = (event: CustomEvent<ToastEventDetail>) => {
       const {
         message,
+        component,
         variant = 'default',
         description,
         duration: customDuration,
@@ -149,26 +152,28 @@ export function ToastManager({
         }
       });
 
+      const content = component ? <ComponentRenderer tree={component} /> : (message || '');
+
       // Call the appropriate toast function based on variant
       switch (variant) {
         case 'success':
-          toast.success(message, options);
+          toast.success(content, options);
           break;
         case 'destructive':
         case 'error':
-          toast.error(message, options);
+          toast.error(content, options);
           break;
         case 'warning':
-          toast.warning(message, options);
+          toast.warning(content, options);
           break;
         case 'info':
-          toast.info(message, options);
+          toast.info(content, options);
           break;
         case 'loading':
-          toast.loading(message, options);
+          toast.loading(content, options);
           break;
         default:
-          toast(message, options);
+          toast(content as any, options);
           break;
       }
     };

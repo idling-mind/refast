@@ -13,6 +13,7 @@ from refast.store import Store
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
+    from refast.components.base import Component
     from refast.session.session import Session
 
 T = TypeVar("T")
@@ -1184,7 +1185,7 @@ class Context(Generic[T]):
 
     async def show_toast(
         self,
-        message: str,
+        message: str = "",
         variant: str = "default",
         description: str | None = None,
         duration: int | None = None,
@@ -1195,6 +1196,7 @@ class Context(Generic[T]):
         action: dict | None = None,
         cancel: dict | None = None,
         toast_id: str | None = None,
+        component: "Component | None" = None,
     ) -> None:
         """
         Show a toast notification using Sonner.
@@ -1214,6 +1216,7 @@ class Context(Generic[T]):
                 ``ctx.chain()``, etc.
             cancel: Cancel button config.  Same form as ``action``.
             toast_id: Custom ID for the toast (useful for updating/dismissing)
+            component: Optional custom component tree to render inside the toast
 
         Example:
             # Simple toast
@@ -1267,6 +1270,8 @@ class Context(Generic[T]):
                 payload["cancel"] = self._normalize_toast_button(cancel)
             if toast_id is not None:
                 payload["id"] = toast_id
+            if component is not None:
+                payload["component"] = component.render()
 
             await self._websocket.send_json(payload)
 

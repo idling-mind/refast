@@ -7,7 +7,6 @@ This example demonstrates:
 - Badge status indicators
 - Dropdown menus for task actions
 """
-
 import uuid
 
 from fastapi import FastAPI
@@ -94,6 +93,9 @@ INITIAL_TASKS = {
 def get_tasks(ctx: Context) -> dict:
     """Get tasks from state or use initial data."""
     tasks = ctx.state.get("tasks")
+    filtered_tasks = ctx.state.get("filtered_tasks")
+    if filtered_tasks:
+        return filtered_tasks
     if tasks is None:
         ctx.state.set("tasks", INITIAL_TASKS)
         return INITIAL_TASKS
@@ -101,29 +103,24 @@ def get_tasks(ctx: Context) -> dict:
 
 
 # Callback handlers
-async def create_task(ctx: Context):
+async def create_task(ctx: Context, **kwargs):
     """Create a new task."""
-    print(f"Creating new task... Event data: {ctx.event_data}")
     tasks = get_tasks(ctx)
 
+    edit_task_id = ctx.state.get("edit_task_id")
+
     new_task = {
-        "id": str(uuid.uuid4()),
-        "title": ctx.state.get("new_task_title", "New Task"),
-        "description": ctx.state.get("new_task_description", ""),
-        "priority": ctx.state.get("new_task_priority", "medium"),
-        "assignee": ctx.state.get("new_task_assignee", ""),
-        "due_date": ctx.state.get("new_task_due_date", ""),
+        "id": edit_task_id or str(uuid.uuid4()),
+        "title": kwargs.get("new_task_title", "New Task"),
+        "description": kwargs.get("new_task_description", ""),
+        "priority": kwargs.get("new_task_priority", "medium"),
+        "assignee": kwargs.get("new_task_assignee", ""),
+        "due_date": kwargs.get("new_task_due_date", ""),
     }
 
     tasks["todo"].append(new_task)
     ctx.state.set("tasks", tasks)
-
-    # Clear form
-    ctx.state.set("new_task_title", "")
-    ctx.state.set("new_task_description", "")
-    ctx.state.set("new_task_priority", "medium")
-    ctx.state.set("new_task_assignee", "")
-    ctx.state.set("new_task_due_date", "")
+    ctx.state.set("edit_task_id", None)
 
     await ctx.show_toast("Task created successfully!", variant="success")
     await ctx.refresh()
@@ -131,9 +128,6 @@ async def create_task(ctx: Context):
 
 async def move_task(ctx: Context, task_id: str, target_column: str):
     """Move task to a different column."""
-    print(f"Moving task... Event data: {ctx.event_data}")
-    print(f"Moving task {task_id} to column {target_column}")
-
     tasks = get_tasks(ctx)
     task_to_move = None
 
@@ -158,8 +152,6 @@ async def move_task(ctx: Context, task_id: str, target_column: str):
 
 async def delete_task(ctx: Context, task_id: str):
     """Delete a task."""
-    print(f"Deleting task... Event data: {ctx.event_data}")
-    print(f"Deleting task {task_id}")
     tasks = get_tasks(ctx)
 
     # Find and remove task
@@ -173,15 +165,6 @@ async def delete_task(ctx: Context, task_id: str):
                 return
 
 
-async def update_input(ctx: Context):
-    """Update form input value."""
-    print(f"Updating input... Event data: {ctx.event_data}")
-    key = ctx.event_data.get("key")
-    value = ctx.event_data.get("value", "")
-    print(f"Updating {key} to {value}")
-    ctx.state.set(key, value)
-
-
 def get_priority_badge(priority: str):
     """Get badge component for priority."""
     variants = {
@@ -190,9 +173,32 @@ def get_priority_badge(priority: str):
         "low": "secondary",
     }
     return Badge(
-        text=priority.capitalize(),
+        priority.capitalize(),
         variant=variants.get(priority, "default"),
     )
+
+
+async def search_tasks(ctx: Context, search: str):
+    """Search tasks by title."""
+    tasks = get_tasks(ctx)
+    search = search.lower()
+
+    if search:
+        filtered_tasks = {
+            "todo": [task for task in tasks["todo"] if search in task["title"].lower()],
+            "in_progress": [task for task in tasks["in_progress"] if search in task["title"].lower()],
+            "done": [task for task in tasks["done"] if search in task["title"].lower()],
+        }
+        ctx.state.set("filtered_tasks", filtered_tasks)
+    else:
+        ctx.state.set("filtered_tasks", None)
+    await ctx.refresh()
+
+
+async def open_edit(ctx: Context, task_id: str):
+    """Open edit dialog for a task."""
+    # For simplicity, we'll just show a toast here. In a real app, you'd open a sheet or modal with a form.
+    await ctx.show_toast("Edit task functionality not implemented in this example.", variant="info")
 
 
 def render_task_card(task: dict, column: str, ctx: Context):
@@ -225,7 +231,10 @@ def render_task_card(task: dict, column: str, ctx: Context):
                                             ),
                                             DropdownMenuContent(
                                                 children=[
-                                                    DropdownMenuItem(label="Edit"),
+                                                    DropdownMenuItem(
+                                                        label="Edit",
+                                                        on_select=ctx.callback(open_edit, task_id=task["id"])
+                                                    ),
                                                     DropdownMenuSeparator(),
                                                     DropdownMenuItem(
                                                         label="Move to To Do",
@@ -348,18 +357,12 @@ def render_column(
                                             ),
                                             Text(title, class_name="font-semibold"),
                                             Badge(
-                                                text=str(len(tasks)),
+                                                str(len(tasks)),
                                                 variant="secondary",
                                             ),
                                         ],
                                     ),
-                                    Button(
-                                        label="+",
-                                        variant="ghost",
-                                        size="sm",
-                                        class_name="p-0",
-                                        style={"width": "1.5rem", "height": "1.5rem"},
-                                    ),
+                                    add_task_button_sheet(ctx) if column_id == "todo" else None,
                                 ],
                             ),
                         ],
@@ -407,21 +410,26 @@ def board(ctx: Context):
     tasks = get_tasks(ctx)
 
     return Container(
+        id="board-page",
         class_name="p-6 bg-background",
         style={"minHeight": "100vh"},
         children=[
             Column(
+                id="board-container",
                 class_name="min-h-screen bg-muted/30 p-6",
                 children=[
                     Column(
+                        id="board-header",
                         gap=6,
                         children=[
                             # Header
                             Row(
+                                id="board-header-row",
                                 justify="between",
                                 align="center",
                                 children=[
                                     Column(
+                                        id="board-title-section",
                                         gap=1,
                                         children=[
                                             Text("Project Board", class_name="text-2xl font-bold"),
@@ -432,163 +440,18 @@ def board(ctx: Context):
                                         ],
                                     ),
                                     Row(
+                                        id="board-controls",
                                         gap=2,
                                         children=[
                                             Input(
+                                                id="search-input",
                                                 name="search",
                                                 placeholder="Search tasks...",
                                                 style={"width": "16rem"},
-                                            ),
-                                            Sheet(
-                                                children=[
-                                                    SheetTrigger(
-                                                        children=[
-                                                            Tooltip(
-                                                                content="Create New Task",
-                                                                children=[
-                                                                    IconButton(
-                                                                        icon="plus",
-                                                                        aria_label="Create Task",
-                                                                        variant="primary",
-                                                                    )
-                                                                ],
-                                                                side="bottom",
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    SheetContent(
-                                                        side="right",
-                                                        children=[
-                                                            SheetHeader(
-                                                                children=[
-                                                                    SheetTitle(
-                                                                        title="Create New Task"
-                                                                    ),
-                                                                    SheetDescription(
-                                                                        description="Add a new task to your board"
-                                                                    ),
-                                                                ]
-                                                            ),
-                                                            Column(
-                                                                gap=4,
-                                                                class_name="py-6",
-                                                                children=[
-                                                                    Column(
-                                                                        gap=2,
-                                                                        children=[
-                                                                            Label("Title"),
-                                                                            Input(
-                                                                                name="new_task_title",
-                                                                                placeholder="Task title",
-                                                                                value=ctx.state.get(
-                                                                                    "new_task_title",
-                                                                                    "",
-                                                                                ),
-                                                                                on_change=ctx.callback(
-                                                                                    update_input,
-                                                                                    key="new_task_title",
-                                                                                ),
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                    Column(
-                                                                        gap=2,
-                                                                        children=[
-                                                                            Label("Description"),
-                                                                            Textarea(
-                                                                                name="new_task_description",
-                                                                                placeholder="Task description",
-                                                                                rows=3,
-                                                                                value=ctx.state.get(
-                                                                                    "new_task_description",
-                                                                                    "",
-                                                                                ),
-                                                                                on_change=ctx.callback(
-                                                                                    update_input,
-                                                                                    key="new_task_description",
-                                                                                ),
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                    Column(
-                                                                        gap=2,
-                                                                        children=[
-                                                                            Label("Priority"),
-                                                                            Select(
-                                                                                name="new_task_priority",
-                                                                                value=ctx.state.get(
-                                                                                    "new_task_priority",
-                                                                                    "medium",
-                                                                                ),
-                                                                                on_change=ctx.callback(
-                                                                                    update_input,
-                                                                                    key="new_task_priority",
-                                                                                ),
-                                                                                options=[
-                                                                                    {
-                                                                                        "value": "high",
-                                                                                        "label": "High",
-                                                                                    },
-                                                                                    {
-                                                                                        "value": "medium",
-                                                                                        "label": "Medium",
-                                                                                    },
-                                                                                    {
-                                                                                        "value": "low",
-                                                                                        "label": "Low",
-                                                                                    },
-                                                                                ],
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                    Column(
-                                                                        gap=2,
-                                                                        children=[
-                                                                            Label("Assignee"),
-                                                                            Input(
-                                                                                name="new_task_assignee",
-                                                                                placeholder="Assignee name",
-                                                                                value=ctx.state.get(
-                                                                                    "new_task_assignee",
-                                                                                    "",
-                                                                                ),
-                                                                                on_change=ctx.callback(
-                                                                                    update_input,
-                                                                                    key="new_task_assignee",
-                                                                                ),
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                    Column(
-                                                                        gap=2,
-                                                                        children=[
-                                                                            Label("Due Date"),
-                                                                            Input(
-                                                                                name="new_task_due_date",
-                                                                                type="date",
-                                                                                value=ctx.state.get(
-                                                                                    "new_task_due_date",
-                                                                                    "",
-                                                                                ),
-                                                                                on_change=ctx.callback(
-                                                                                    update_input,
-                                                                                    key="new_task_due_date",
-                                                                                ),
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                    Button(
-                                                                        label="Create Task",
-                                                                        on_click=ctx.callback(
-                                                                            create_task
-                                                                        ),
-                                                                        class_name="mt-4",
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
+                                                on_change=ctx.chain([
+                                                    ctx.save_prop("search"),
+                                                    ctx.callback(search_tasks, props=["search"], debounce=300),
+                                                ])
                                             ),
                                         ],
                                     ),
@@ -627,6 +490,153 @@ def board(ctx: Context):
         ],
     )
 
+def add_task_button_sheet(ctx: Context):
+    """Sheet for adding a new task."""
+    return Sheet(
+        id="task-sheet",
+        children=[
+            SheetTrigger(
+                children=[
+                    Tooltip(
+                        content="Create New Task",
+                        children=[
+                            IconButton(
+                                icon="plus",
+                                aria_label="Create Task",
+                                variant="ghost",
+                                size="sm",
+                            )
+                        ],
+                        side="bottom",
+                    ),
+                ],
+            ),
+            SheetContent(
+                side="right",
+                children=[
+                    SheetHeader(
+                        children=[
+                            SheetTitle(
+                                title="Create New Task"
+                            ),
+                            SheetDescription(
+                                description="Add a new task to your board"
+                            ),
+                        ]
+                    ),
+                    Column(
+                        gap=4,
+                        class_name="py-6",
+                        children=[
+                            Column(
+                                gap=2,
+                                children=[
+                                    Label("Title"),
+                                    Input(
+                                        name="new_task_title",
+                                        placeholder="Task title",
+                                        value=ctx.state.get(
+                                            "new_task_title",
+                                            "",
+                                        ),
+                                        on_change=ctx.save_prop("new_task_title"),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=2,
+                                children=[
+                                    Label("Description"),
+                                    Textarea(
+                                        name="new_task_description",
+                                        placeholder="Task description",
+                                        rows=3,
+                                        value=ctx.state.get(
+                                            "new_task_description",
+                                            "",
+                                        ),
+                                        on_change=ctx.save_prop("new_task_description"),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=2,
+                                children=[
+                                    Label("Priority"),
+                                    Select(
+                                        name="new_task_priority",
+                                        value=ctx.state.get(
+                                            "new_task_priority",
+                                            "medium",
+                                        ),
+                                        on_change=ctx.save_prop("new_task_priority"),
+                                        options=[
+                                            {
+                                                "value": "high",
+                                                "label": "High",
+                                            },
+                                            {
+                                                "value": "medium",
+                                                "label": "Medium",
+                                            },
+                                            {
+                                                "value": "low",
+                                                "label": "Low",
+                                            },
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=2,
+                                children=[
+                                    Label("Assignee"),
+                                    Input(
+                                        name="new_task_assignee",
+                                        placeholder="Assignee name",
+                                        value=ctx.state.get(
+                                            "new_task_assignee",
+                                            "",
+                                        ),
+                                        on_change=ctx.save_prop("new_task_assignee"),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=2,
+                                children=[
+                                    Label("Due Date"),
+                                    Input(
+                                        name="new_task_due_date",
+                                        type="date",
+                                        value=ctx.state.get(
+                                            "new_task_due_date",
+                                            "",
+                                        ),
+                                        on_change=ctx.save_prop("new_task_due_date"),
+                                    ),
+                                ],
+                            ),
+                            Button(
+                                label="Create Task",
+                                on_click=ctx.callback(
+                                    create_task,
+                                    props=[
+                                        "new_task_title",
+                                        "new_task_description",
+                                        "new_task_priority",
+                                        "new_task_assignee",
+                                        "new_task_due_date",
+                                    ]
+                                ),
+                                class_name="mt-4",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
 
 # Create FastAPI app and include Refast
 app = FastAPI()

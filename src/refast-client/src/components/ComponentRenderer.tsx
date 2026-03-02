@@ -83,6 +83,10 @@ interface ComponentRendererProps {
  * Renders a component tree from Python backend.
  */
 export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRendererProps>(({ tree, onUpdate, ...rest }, ref) => {
+  if (!tree) {
+    return null;
+  }
+
   // If it's a string, render as text immediately without hitting any object-specific hooks
   if (typeof tree === 'string') {
     return <>{tree}</>;
@@ -95,6 +99,10 @@ ComponentRenderer.displayName = 'ComponentRenderer';
 
 const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererProps & { tree: Extract<ComponentTree, object> }>(({ tree, onUpdate, ...rest }, ref) => {
   const eventManager = useEventManager();
+
+  if (!tree) {
+    return null;
+  }
 
   const { type, id, props, children } = tree;
 

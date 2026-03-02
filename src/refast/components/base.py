@@ -81,7 +81,6 @@ class Component(ABC):
         **props: Any,
     ):
         self.id = id or str(uuid.uuid4())
-        print(f"Creating {self.component_type} with id: {self.id}")
         self.class_name = class_name
         self.style = style or {}
         self.parent_style = parent_style or {}

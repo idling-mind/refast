@@ -26,7 +26,7 @@ from refast.components import (
     Heading,
     Row,
     Text,
-    ThemeSwitcher,
+    ThemeSwitcher, Badge,
 )
 
 # Create the Refast app
@@ -292,6 +292,31 @@ async def show_multi_step_toast(ctx: Context):
         if i < len(steps) - 1:
             await asyncio.sleep(1.5)
 
+
+# ============================================================================
+# Advanced: Custom Components
+# ============================================================================
+
+async def show_custom_component_toast(ctx: Context):
+    """Show a toast containing a custom component."""
+    await ctx.show_toast(
+         component=Column(
+            gap=2,
+            children=[
+                Heading("Custom Component Toast", level=6),
+                Text("This is a custom component inside a toast notify!"),
+                Row(
+                    gap=2,
+                    children=[
+                        Button("Confirm", size="sm", variant="default", on_click=ctx.callback(show_success_toast)),
+                        Button("Cancel", size="sm", variant="secondary", on_click=ctx.callback(discard_changes)),
+                    ]
+                ),
+                Row(children=[Badge("New Feature", variant="success", size="sm", class_name="mt-2")])
+            ]
+        ),
+        duration=10000,
+    )
 
 # ============================================================================
 # Page Layout
@@ -604,6 +629,32 @@ def home(ctx: Context):
                                             Button(
                                                 "Multi-Step Process",
                                                 on_click=ctx.callback(show_multi_step_toast),
+                                                variant="outline",
+                                                class_name="w-full justify-start",
+                                            ),
+                                        ],
+                                    )
+                                ]
+                            ),
+                        ]
+                    ),
+                    # Custom Components Card
+                    Card(
+                        children=[
+                            CardHeader(
+                                children=[
+                                    CardTitle("Custom Components"),
+                                    CardDescription("Render full component trees inside toasts"),
+                                ]
+                            ),
+                            CardContent(
+                                children=[
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Button(
+                                                "Custom Request Toast",
+                                                on_click=ctx.callback(show_custom_component_toast),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),

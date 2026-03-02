@@ -91,9 +91,8 @@ async def on_filter_status(ctx: Context):
     await ctx.refresh()
 
 
-async def on_page_change(ctx: Context):
+async def on_page_change(ctx: Context, page: int):
     """Handle page change."""
-    page = ctx.event_data.get("page", 1)
     ctx.state.set("current_page", page)
     await ctx.refresh()
 
@@ -117,9 +116,8 @@ async def on_select_all(ctx: Context):
     await ctx.refresh()
 
 
-async def on_select_row(ctx: Context):
+async def on_select_row(ctx: Context, user_id: int):
     """Handle row selection."""
-    user_id = ctx.event_data.get("user_id")
     selected = ctx.state.get("selected_ids", [])
 
     if user_id in selected:
@@ -131,15 +129,13 @@ async def on_select_row(ctx: Context):
     await ctx.refresh()
 
 
-async def on_edit_user(ctx: Context):
+async def on_edit_user(ctx: Context, user_id: int):
     """Handle edit user action."""
-    user_id = ctx.event_data.get("user_id")
     await ctx.show_toast(f"Editing user {user_id}", variant="info")
 
 
-async def on_delete_user(ctx: Context):
+async def on_delete_user(ctx: Context, user_id: int):
     """Handle delete user action."""
-    user_id = ctx.event_data.get("user_id")
     # In real app, would delete from database
     await ctx.show_toast(f"Deleted user {user_id}", variant="success")
     await ctx.refresh()
@@ -211,16 +207,19 @@ def home(ctx: Context):
     all_selected = len(page_ids) > 0 and all(id in selected_ids for id in page_ids)
 
     return Container(
+        id="user-table-page",
         class_name="p-6",
         style={"maxWidth": "80rem", "marginLeft": "auto", "marginRight": "auto"},
         children=[
             # Header
             Row(
+                id="table-header",
                 justify="between",
                 align="center",
                 class_name="mb-6",
                 children=[
                     Column(
+                        id="header-left",
                         gap=1,
                         children=[
                             Text("Users", class_name="text-3xl font-bold"),
@@ -231,6 +230,7 @@ def home(ctx: Context):
                         ],
                     ),
                     Row(
+                        id="header-right",
                         gap=2,
                         children=[
                             Button(
@@ -242,20 +242,25 @@ def home(ctx: Context):
                 ],
             ),
             Card(
+                id="user-table-card",
                 children=[
                     CardContent(
+                        id="user-table-card-content",
                         class_name="p-6",
                         children=[
                             # Filters row
                             Row(
+                                id="filters-row",
                                 justify="between",
                                 align="center",
                                 class_name="mb-4",
                                 children=[
                                     Row(
+                                        id="search-and-filter",
                                         gap=4,
                                         children=[
                                             Input(
+                                                id="search-input",
                                                 name="search",
                                                 placeholder="Search users...",
                                                 value=search_query,
@@ -264,6 +269,7 @@ def home(ctx: Context):
                                                 debounce=300,
                                             ),
                                             Select(
+                                                id="status-filter",
                                                 name="filter_status",
                                                 value=filter_status,
                                                 on_change=ctx.callback(on_filter_status),
@@ -278,17 +284,21 @@ def home(ctx: Context):
                                     ),
                                     # Bulk actions
                                     Row(
+                                        id="bulk-actions-row",
                                         gap=2,
                                         children=[
                                             Text(
                                                 f"{len(selected_ids)} selected",
+                                                id="selected-count",
                                                 class_name="text-sm text-muted-foreground",
                                             )
                                             if selected_ids
                                             else "",
                                             Dialog(
+                                                id="bulk-delete-dialog",
                                                 children=[
                                                     DialogTrigger(
+                                                        id="bulk-delete-trigger",
                                                         children=Button(
                                                             label="Delete Selected",
                                                             variant="destructive",
@@ -297,18 +307,22 @@ def home(ctx: Context):
                                                         )
                                                     ),
                                                     DialogContent(
+                                                        id="bulk-delete-content",
                                                         children=[
                                                             DialogHeader(
+                                                                id="bulk-delete-header",
                                                                 children=[
                                                                     DialogTitle(
                                                                         title="Delete Users"
                                                                     ),
                                                                     DialogDescription(
+                                                                        id="bulk-delete-description",
                                                                         description=f"Are you sure you want to delete {len(selected_ids)} users? This action cannot be undone."
                                                                     ),
                                                                 ]
                                                             ),
                                                             DialogFooter(
+                                                                id="bulk-delete-footer",
                                                                 children=[
                                                                     DialogCancel(label="Cancel"),
                                                                     DialogAction(
@@ -331,16 +345,20 @@ def home(ctx: Context):
                             ),
                             # Table
                             Container(
+                                id="data-table",
                                 class_name="border rounded-md",
                                 children=[
                                     # Table header
                                     Row(
+                                        id="table-header-row",
                                         class_name="bg-muted/50 p-3 border-b",
                                         children=[
                                             Container(
+                                                id="select-all-header",
                                                 class_name="w-10",
                                                 children=[
                                                     Checkbox(
+                                                        id="select-all-checkbox",
                                                         checked=all_selected,
                                                         on_change=ctx.callback(on_select_all),
                                                     ),
@@ -364,15 +382,19 @@ def home(ctx: Context):
                                     ),
                                     # Table rows
                                     Column(
+                                        id="table-rows",
                                         children=[
                                             Row(
+                                                id=f"user-row-{user['id']}",
                                                 class_name=f"p-3 border-b hover:bg-muted/30 {'bg-muted/20' if user['id'] in selected_ids else ''}",
                                                 align="center",
                                                 children=[
                                                     Container(
+                                                        id=f"select-row-{user['id']}",
                                                         class_name="w-10",
                                                         children=[
                                                             Checkbox(
+                                                                id=f"select-checkbox-{user['id']}",
                                                                 checked=user["id"] in selected_ids,
                                                                 on_change=ctx.callback(
                                                                     on_select_row,
@@ -382,15 +404,18 @@ def home(ctx: Context):
                                                         ],
                                                     ),
                                                     Row(
+                                                        id=f"user-info-{user['id']}",
                                                         class_name="flex-1",
                                                         gap=3,
                                                         align="center",
                                                         children=[
                                                             Avatar(
+                                                                id=f"avatar-{user['id']}",
                                                                 fallback=user["name"][0],
                                                                 size="sm",
                                                             ),
                                                             Column(
+                                                                id=f"user-text-{user['id']}",
                                                                 gap=0,
                                                                 children=[
                                                                     Text(
@@ -414,9 +439,11 @@ def home(ctx: Context):
                                                         class_name="w-28 text-sm text-muted-foreground p-2",
                                                     ),
                                                     Container(
+                                                        id=f"actions-{user['id']}",
                                                         class_name="w-20 text-right",
                                                         children=[
                                                             DropdownMenu(
+                                                                id=f"dropdown-{user['id']}",
                                                                 children=[
                                                                     DropdownMenuTrigger(
                                                                         children=Button(
@@ -464,6 +491,7 @@ def home(ctx: Context):
                             ),
                             # Pagination
                             Row(
+                                id="pagination-row",
                                 justify="between",
                                 align="center",
                                 class_name="mt-4",
@@ -473,6 +501,7 @@ def home(ctx: Context):
                                         class_name="text-sm text-muted-foreground",
                                     ),
                                     Row(
+                                        id="pagination-controls",
                                         gap=1,
                                         children=[
                                             Button(

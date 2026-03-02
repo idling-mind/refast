@@ -51,7 +51,7 @@
     "recharts": "^3.6.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
-    "sonner": "^1.4.0",
+    "sonner": "^1.7.4",
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {

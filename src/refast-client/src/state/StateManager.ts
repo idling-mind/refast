@@ -287,6 +287,7 @@ export function useStateManager(initialTree?: ComponentTree) {
                   action: message.action,
                   cancel: message.cancel,
                   id: message.id,
+                  component: message.component,
                 },
               })
             );

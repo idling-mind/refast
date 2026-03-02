@@ -14,8 +14,6 @@ Run:
 """
 
 from fastapi import FastAPI
-from theme_util import shadcn_registry_to_theme_from_url
-from themes.northern_lights import northern_lights
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -127,6 +125,9 @@ from refast.theme import (
     ThemeColors,
     default_theme,
 )
+
+from .theme_util import shadcn_registry_to_theme_from_url
+from .themes.northern_lights import northern_lights
 
 # ── A fully custom theme to show ThemeColors usage ───────────────────────
 

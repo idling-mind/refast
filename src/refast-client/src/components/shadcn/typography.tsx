@@ -16,6 +16,12 @@ function useTheme(): 'light' | 'dark' {
   React.useEffect(() => {
     if (typeof document === 'undefined') return;
 
+    // Do an initial check in case the class was changed before the effect ran
+    const isInitialDark = document.documentElement.classList.contains('dark');
+    if ((isInitialDark && theme === 'light') || (!isInitialDark && theme === 'dark')) {
+      setTheme(isInitialDark ? 'dark' : 'light');
+    }
+
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -590,28 +596,9 @@ export function Markdown({
     loadMarkdown();
   }, []);
 
-  if (!ReactMarkdown) {
-    // Loading state or fallback to raw content
-    return (
-      <div
-        id={id}
-        className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
-        data-refast-id={dataRefastId}
-      >
-        <pre className="whitespace-pre-wrap text-sm">{content}</pre>
-      </div>
-    );
-  }
-
-  const remarkPlugins: unknown[] = [];
-
-  if (remarkGfm) {
-    remarkPlugins.push(remarkGfm);
-  }
-
   // Custom components for styling
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const components: Record<string, React.ComponentType<any>> = {
+  const components = React.useMemo<Record<string, React.ComponentType<any>>>(() => ({
     // Headers
     h1: ({ children }) => (
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
@@ -737,10 +724,37 @@ export function Markdown({
     ),
     // Horizontal rule
     hr: () => <hr className="my-6 border-muted" />,
-  };
+  }), [theme, SyntaxHighlighter, highlightStyles]);
+
+  if (!ReactMarkdown) {
+    // Loading state or fallback to raw content
+    return (
+      <div
+        id={id}
+        className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
+        data-refast-id={dataRefastId}
+      >
+        <pre className="whitespace-pre-wrap text-sm">{content}</pre>
+      </div>
+    );
+  }
+
+  const remarkPlugins: unknown[] = [];
+
+  if (remarkGfm) {
+    remarkPlugins.push(remarkGfm);
+  }
+
+  // include a readiness flag in the key so that the entire markdown tree
+  // is recreated when the syntax highlighter finishes loading.  without this
+  // ReactMarkdown will often mount once with a fallback <pre> and then never
+  // update the code blocks even after the highlighter becomes available.
+  const ready = Boolean(SyntaxHighlighter && highlightStyles);
+  const markdownKey = `${theme}-${ready}`;
 
   return (
     <div
+      key={markdownKey}
       id={id}
       className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
       data-refast-id={dataRefastId}

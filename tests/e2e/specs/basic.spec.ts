@@ -83,6 +83,34 @@ test.describe('Basic Page Tests', () => {
     await expect(page.locator('body')).toBeAttached();
     await expect(page.locator('#root')).toBeAttached();
   });
+
+  // verify that markdown code blocks render with the correct theme when the
+  // page initially loads in dark mode.  this test reproduces the bug where the
+  // highlighter would mount too late and react-markdown never updated the
+  // nodes, leaving code blocks stuck in the light style until the user toggled
+  // manually.
+  test('code blocks respect dark theme on first load', async ({ page }) => {
+    // set stored preference before navigation so ThemeSwitcher picks it up
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem('refast-theme', 'dark');
+    });
+
+    await page.reload();
+    await page.waitForSelector('pre code', { timeout: 5000 });
+
+    // give the dynamic imports a moment to finish
+    await page.waitForTimeout(500);
+
+    // grab the computed background colour of the first code block
+    const bg = await page.$eval('pre code', (el) => {
+      return window.getComputedStyle(el).backgroundColor;
+    });
+
+    // dark theme style should not be white; if the highlighter loaded it will
+    // likely be a dark grey such as rgb(40, 44, 52).
+    expect(bg).not.toBe('rgb(255, 255, 255)');
+  });
 });
 
 test.describe('WebSocket Connection', () => {

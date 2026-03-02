@@ -17,6 +17,7 @@ from refast.components import (
 
 ui = RefastApp(title="Hello World App")
 
+
 async def change_title(ctx: Context, input_name: str):
     """Change the page title to greet the user."""
     if ctx.state.get("counter", 0) > 0:
@@ -38,10 +39,16 @@ def hello_world_page(ctx: Context):
                 Text("Welcome to your first Refast app."),
                 Row(
                     [
-                        Input(placeholder="What is your name?", on_change=ctx.save_prop("input_name")),
+                        Input(
+                            placeholder="What is your name?", on_change=ctx.save_prop("input_name")
+                        ),
                         Tooltip(
                             "Type in your name and click the button.",
-                            children=Button("Ok", variant="primary", on_click=ctx.callback(change_title, props=["input_name"])),
+                            children=Button(
+                                "Ok",
+                                variant="primary",
+                                on_click=ctx.callback(change_title, props=["input_name"]),
+                            ),
                         ),
                     ]
                 ),
@@ -50,7 +57,7 @@ def hello_world_page(ctx: Context):
             align="center",
             # Full view height
         ),
-        class_name="h-screen"
+        class_name="h-screen",
     )
 
 

@@ -5,6 +5,7 @@ from refast import components as rc
 
 logger = logging.getLogger(__name__)
 
+
 def render_markdown_with_demo_apps(content: str, locals: dict):
     """Renders markdown content with embedded demo apps.
 
@@ -37,7 +38,7 @@ def render_markdown_with_demo_apps(content: str, locals: dict):
             if var_name in locals:
                 components.append(
                     rc.Container(
-                        children = [locals[var_name]],
+                        children=[locals[var_name]],
                         class_name="border rounded p-4 mb-4 overflow-auto",
                     )
                 )

@@ -327,6 +327,7 @@ def _build_nav_group(ctx: Context, section: dict, current_path: str):
         ],
     )
 
+
 async def _on_theme_change(ctx: Context, theme_name: str):
     """Handle theme change from the theme switcher."""
     theme_map = {
@@ -339,9 +340,10 @@ async def _on_theme_change(ctx: Context, theme_name: str):
     selected_theme = theme_map.get(theme_name, default_theme)
     await ctx.set_theme(selected_theme)
 
+
 def theme_switcher(ctx: Context):
     return DropdownMenu(
-        children = [
+        children=[
             DropdownMenuTrigger(
                 IconButton(
                     icon="palette",
@@ -351,10 +353,18 @@ def theme_switcher(ctx: Context):
             ),
             DropdownMenuContent(
                 children=[
-                    DropdownMenuItem(theme.title(), on_click=ctx.callback(_on_theme_change, theme_name=theme))
-                    for theme in ["default", "caffine", "catppuccin", "ocean-breeze", "amber-minimal"]
+                    DropdownMenuItem(
+                        theme.title(), on_click=ctx.callback(_on_theme_change, theme_name=theme)
+                    )
+                    for theme in [
+                        "default",
+                        "caffine",
+                        "catppuccin",
+                        "ocean-breeze",
+                        "amber-minimal",
+                    ]
                 ]
-            )
+            ),
         ]
     )
 

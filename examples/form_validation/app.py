@@ -56,7 +56,9 @@ async def handle_submit(ctx: Context, **kwargs):
     if password != confirm_password:
         errors.append("Passwords do not match")
     else:
-        ctx.state.set("confirm_password", confirm_password)  # Save confirm_password to state for persistence
+        ctx.state.set(
+            "confirm_password", confirm_password
+        )  # Save confirm_password to state for persistence
 
     if errors:
         ctx.state.set("errors", errors)
@@ -86,7 +88,7 @@ def render_form(ctx: Context):
                         children=[
                             CardTitle("Registration"),
                             CardDescription("Create a new account"),
-                        ]
+                        ],
                     ),
                     CardContent(
                         id="card-content",
@@ -115,7 +117,7 @@ def render_form(ctx: Context):
                                         label="Full Name",
                                         placeholder="John Doe",
                                         value=form_data.get("name", ""),
-                                        on_change=ctx.save_prop("name")
+                                        on_change=ctx.save_prop("name"),
                                     ),
                                     Input(
                                         id="input-email",
@@ -153,9 +155,9 @@ def render_form(ctx: Context):
                                     ),
                                 ],
                             )
-                        ]
+                        ],
                     ),
-                ]
+                ],
             )
         ],
     )

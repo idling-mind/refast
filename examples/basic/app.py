@@ -6,6 +6,7 @@ This example demonstrates:
 - Callback handling with ctx.callback
 - State management with ctx.state
 """
+
 from ast import In
 
 from fastapi import FastAPI
@@ -58,6 +59,7 @@ async def reset(ctx: Context):
     # Update just the text content
     await ctx.refresh()
 
+
 async def set_counter(ctx: Context):
     """Set the counter to a specific value from the input."""
     value = ctx.event_data.get("value", "")
@@ -67,6 +69,7 @@ async def set_counter(ctx: Context):
         await ctx.refresh()
     except ValueError:
         print("Invalid input for count:", value)
+
 
 # Define the main page
 @ui.page("/")
@@ -149,16 +152,16 @@ def home(ctx: Context):
                                         placeholder="Set count",
                                         value=str(count),
                                         on_change=ctx.callback(set_counter),
-                                    )
+                                    ),
                                 ],
                             ),
-
-                        ]
+                        ],
                     ),
                 ],
             )
         ],
     )
+
 
 # Create the FastAPI app and mount Refast
 app = FastAPI(title="Refast Basic Example")

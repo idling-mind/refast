@@ -7,6 +7,7 @@ This example demonstrates:
 - Badge status indicators
 - Dropdown menus for task actions
 """
+
 import uuid
 
 from fastapi import FastAPI
@@ -186,7 +187,9 @@ async def search_tasks(ctx: Context, search: str):
     if search:
         filtered_tasks = {
             "todo": [task for task in tasks["todo"] if search in task["title"].lower()],
-            "in_progress": [task for task in tasks["in_progress"] if search in task["title"].lower()],
+            "in_progress": [
+                task for task in tasks["in_progress"] if search in task["title"].lower()
+            ],
             "done": [task for task in tasks["done"] if search in task["title"].lower()],
         }
         ctx.state.set("filtered_tasks", filtered_tasks)
@@ -233,7 +236,9 @@ def render_task_card(task: dict, column: str, ctx: Context):
                                                 children=[
                                                     DropdownMenuItem(
                                                         label="Edit",
-                                                        on_select=ctx.callback(open_edit, task_id=task["id"])
+                                                        on_select=ctx.callback(
+                                                            open_edit, task_id=task["id"]
+                                                        ),
                                                     ),
                                                     DropdownMenuSeparator(),
                                                     DropdownMenuItem(
@@ -448,10 +453,16 @@ def board(ctx: Context):
                                                 name="search",
                                                 placeholder="Search tasks...",
                                                 style={"width": "16rem"},
-                                                on_change=ctx.chain([
-                                                    ctx.save_prop("search"),
-                                                    ctx.callback(search_tasks, props=["search"], debounce=300),
-                                                ])
+                                                on_change=ctx.chain(
+                                                    [
+                                                        ctx.save_prop("search"),
+                                                        ctx.callback(
+                                                            search_tasks,
+                                                            props=["search"],
+                                                            debounce=300,
+                                                        ),
+                                                    ]
+                                                ),
                                             ),
                                         ],
                                     ),
@@ -490,6 +501,7 @@ def board(ctx: Context):
         ],
     )
 
+
 def add_task_button_sheet(ctx: Context):
     """Sheet for adding a new task."""
     return Sheet(
@@ -516,12 +528,8 @@ def add_task_button_sheet(ctx: Context):
                 children=[
                     SheetHeader(
                         children=[
-                            SheetTitle(
-                                title="Create New Task"
-                            ),
-                            SheetDescription(
-                                description="Add a new task to your board"
-                            ),
+                            SheetTitle(title="Create New Task"),
+                            SheetDescription(description="Add a new task to your board"),
                         ]
                     ),
                     Column(
@@ -627,7 +635,7 @@ def add_task_button_sheet(ctx: Context):
                                         "new_task_priority",
                                         "new_task_assignee",
                                         "new_task_due_date",
-                                    ]
+                                    ],
                                 ),
                                 class_name="mt-4",
                             ),
@@ -637,6 +645,7 @@ def add_task_button_sheet(ctx: Context):
             ),
         ],
     )
+
 
 # Create FastAPI app and include Refast
 app = FastAPI()

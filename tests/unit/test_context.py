@@ -404,7 +404,10 @@ class TestContextJs:
             pass
 
         cb = ctx.js(
-            "if (event.key === 'Enter') { refast.invoke(args.on_submit, { value: args.placeholder }); }",
+            (
+                "if (event.key === 'Enter')"
+                " { refast.invoke(args.on_submit, { value: args.placeholder }); }"
+            ),
             on_submit=ctx.callback(handler),
             placeholder="Type here...",
         )

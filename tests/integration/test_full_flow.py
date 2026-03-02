@@ -1,8 +1,5 @@
 """Full flow integration tests."""
 
-import json
-import re
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -272,8 +269,8 @@ class TestMultiplePages:
 
         client = TestClient(app)
 
-        home_response = client.get("/")
-        about_response = client.get("/about")
+        _home_response = client.get("/")
+        _about_response = client.get("/about")
 
         home_data = extract_initial_data(client, "/")
         about_data = extract_initial_data(client, "/about")

@@ -26,7 +26,8 @@ from refast.components import (
     Heading,
     Row,
     Text,
-    ThemeSwitcher, Badge,
+    ThemeSwitcher,
+    Badge,
 )
 
 # Create the Refast app
@@ -297,10 +298,11 @@ async def show_multi_step_toast(ctx: Context):
 # Advanced: Custom Components
 # ============================================================================
 
+
 async def show_custom_component_toast(ctx: Context):
     """Show a toast containing a custom component."""
     await ctx.show_toast(
-         component=Column(
+        component=Column(
             gap=2,
             children=[
                 Heading("Custom Component Toast", level=6),
@@ -308,15 +310,28 @@ async def show_custom_component_toast(ctx: Context):
                 Row(
                     gap=2,
                     children=[
-                        Button("Confirm", size="sm", variant="default", on_click=ctx.callback(show_success_toast)),
-                        Button("Cancel", size="sm", variant="secondary", on_click=ctx.callback(discard_changes)),
-                    ]
+                        Button(
+                            "Confirm",
+                            size="sm",
+                            variant="default",
+                            on_click=ctx.callback(show_success_toast),
+                        ),
+                        Button(
+                            "Cancel",
+                            size="sm",
+                            variant="secondary",
+                            on_click=ctx.callback(discard_changes),
+                        ),
+                    ],
                 ),
-                Row(children=[Badge("New Feature", variant="success", size="sm", class_name="mt-2")])
-            ]
+                Row(
+                    children=[Badge("New Feature", variant="success", size="sm", class_name="mt-2")]
+                ),
+            ],
         ),
         duration=10000,
     )
+
 
 # ============================================================================
 # Page Layout

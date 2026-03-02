@@ -31,6 +31,7 @@ async def mark_todo(ctx: Context, todo_id: str):
     ctx.state["todos"] = todos
     await ctx.replace("todo-list", render_todo_list(ctx))
 
+
 def render_todo_list(ctx: Context) -> rc.Component:
     todos = ctx.state.get("todos", [])
     return rc.Column(
@@ -48,9 +49,7 @@ def render_todo_list(ctx: Context) -> rc.Component:
                     ),
                     rc.Text(
                         todo["text"],
-                        style={"textDecoration": "line-through"}
-                        if todo["completed"]
-                        else {},
+                        style={"textDecoration": "line-through"} if todo["completed"] else {},
                     ),
                 ],
             )
@@ -58,11 +57,11 @@ def render_todo_list(ctx: Context) -> rc.Component:
         ],
     )
 
+
 def render(ctx: Context):
     """Render the live todo app page."""
     from docs_site.app import docs_layout
 
-    
     # The actual app content
     app_content = rc.Container(
         class_name="p-8 border rounded-lg shadow-sm bg-card w-full",
@@ -99,9 +98,7 @@ def render(ctx: Context):
                 It is running right here inside the documentation site!
                 """
             ),
-            rc.Flex(
-                class_name="gap-4 my-8", children=[app_content]
-            ),
+            rc.Flex(class_name="gap-4 my-8", children=[app_content]),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)

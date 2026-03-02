@@ -304,7 +304,7 @@ def home(ctx: Context):
                                                             variant="destructive",
                                                             size="sm",
                                                             disabled=len(selected_ids) == 0,
-                                                        )
+                                                        ),
                                                     ),
                                                     DialogContent(
                                                         id="bulk-delete-content",
@@ -317,9 +317,9 @@ def home(ctx: Context):
                                                                     ),
                                                                     DialogDescription(
                                                                         id="bulk-delete-description",
-                                                                        description=f"Are you sure you want to delete {len(selected_ids)} users? This action cannot be undone."
+                                                                        description=f"Are you sure you want to delete {len(selected_ids)} users? This action cannot be undone.",
                                                                     ),
-                                                                ]
+                                                                ],
                                                             ),
                                                             DialogFooter(
                                                                 id="bulk-delete-footer",
@@ -331,11 +331,11 @@ def home(ctx: Context):
                                                                             on_bulk_delete
                                                                         ),
                                                                     ),
-                                                                ]
+                                                                ],
                                                             ),
-                                                        ]
+                                                        ],
                                                     ),
-                                                ]
+                                                ],
                                             )
                                             if selected_ids
                                             else "",
@@ -478,7 +478,7 @@ def home(ctx: Context):
                                                                             ),
                                                                         ]
                                                                     ),
-                                                                ]
+                                                                ],
                                                             ),
                                                         ],
                                                     ),

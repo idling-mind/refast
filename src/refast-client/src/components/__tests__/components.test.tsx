@@ -133,6 +133,21 @@ describe('Feedback Components', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
   });
 
+  it('applies static striped style when striped="static"', () => {
+    const { container } = render(<Progress value={25} striped="static" />);
+    const indicator = container.querySelector('[role="progressbar"] > div');
+    expect(indicator).toBeTruthy();
+    // static stripes should add a background-image inline style
+    expect(indicator).toHaveStyle('background-image');
+  });
+
+  it('adds animate-stripes class when striped="animated"', () => {
+    const { container } = render(<Progress value={25} striped="animated" />);
+    const indicator = container.querySelector('[role="progressbar"] > div');
+    expect(indicator).toBeTruthy();
+    expect(indicator).toHaveClass('animate-stripes');
+  });
+
   it('renders Spinner', () => {
     render(<Spinner />);
     expect(screen.getByRole('status')).toBeInTheDocument();

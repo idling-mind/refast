@@ -161,12 +161,19 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        // stripes animation used by Progress when striped="animated"
+        stripes: {
+          '0%': { backgroundPosition: '0 0' },
+          '100%': { backgroundPosition: '1rem 0' },
+        },
       },
       animation: {
         'collapsible-down': 'collapsible-down 0.2s ease-out',
         'collapsible-up': 'collapsible-up 0.2s ease-out',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        // animate-stripes moves the background image horizontally
+        stripes: 'stripes 1s linear infinite',
       },
       borderRadius: {
         lg: 'var(--radius)',

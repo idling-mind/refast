@@ -1065,8 +1065,8 @@ class Context(Generic[T]):
                 }
             )
 
-    async def navigate(self, path: str) -> None:
-        """Navigate to a different page.
+    async def load(self, path: str) -> None:
+        """Load a different page.
 
         Sends a navigate message to update the browser URL, then renders
         the target page and sends the component tree so the client
@@ -1096,6 +1096,25 @@ class Context(Generic[T]):
                             "component": component_data,
                         }
                     )
+
+    async def redirect(self, path: str, target: str | None = None) -> None:
+        """Redirect to a different page.
+
+        Redirects the browser URL instead of rendering it using refast.
+
+        Args:
+            path: The target page path (e.g. "/docs/getting-started").
+            target: The target attribute for the window (e.g. "_blank", "_parent").
+        """
+        if self._websocket:
+            message: dict[str, Any] = {
+                "type": "navigate",
+                "path": path,
+                "redirect": True,
+            }
+            if target:
+                message["target"] = target
+            await self._websocket.send_json(message)
 
     async def refresh(self, path: str | None = None, target_id: str | None = None) -> None:
         """

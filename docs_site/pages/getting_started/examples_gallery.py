@@ -1,5 +1,7 @@
 """Examples Gallery — /docs/examples."""
 
+from refast import Context
+
 from refast.components import (
     Badge,
     Card,
@@ -42,7 +44,7 @@ EXAMPLES = [
     },
     {
         "title": "Multi-Page SPA",
-        "desc": "SPA navigation with shared layout and ctx.navigate().",
+        "desc": "SPA navigation with shared layout and ctx.load().",
         "icon": "route",
         "file": "examples/multi_page/app.py",
     },
@@ -175,6 +177,11 @@ EXAMPLES = [
 ]
 
 
+async def _nav(ctx: Context, path):
+    """Navigate to example page."""
+    await ctx.redirect(f"https://github.com/idling-mind/refast/tree/main/{path}")
+
+
 def render(ctx):
     """Render the examples gallery page."""
     from docs_site.app import docs_layout
@@ -189,10 +196,12 @@ def render(ctx):
             ),
             Separator(class_name="my-4"),
             Grid(
-                columns=3,
+                columns="repeat(auto-fit, minmax(280px, 1fr))",
                 gap=4,
                 children=[
                     Card(
+                        on_click=ctx.callback(_nav, path=ex["file"]),
+                        class_name="cursor-pointer hover:bg-secondary transition-colors",
                         children=[
                             CardHeader(
                                 class_name="pb-2",
@@ -212,10 +221,6 @@ def render(ctx):
                                     Text(
                                         ex["desc"],
                                         class_name="text-sm text-muted-foreground",
-                                    ),
-                                    Text(
-                                        ex["file"],
-                                        class_name="text-xs font-mono mt-2 text-muted-foreground",
                                     ),
                                 ],
                             ),

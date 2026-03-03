@@ -262,9 +262,17 @@ export function useStateManager(initialTree?: ComponentTree) {
 
         case 'navigate':
           if (message.path && typeof window !== 'undefined') {
-            window.history.pushState({}, '', message.path);
-            // Trigger a custom event for navigation
-            window.dispatchEvent(new CustomEvent('refast:navigate', { detail: { path: message.path } }));
+            if (message.redirect) {
+              if (message.target) {
+                window.open(message.path, message.target);
+              } else {
+                window.location.href = message.path;
+              }
+            } else {
+              window.history.pushState({}, '', message.path);
+              // Trigger a custom event for navigation
+              window.dispatchEvent(new CustomEvent('refast:navigate', { detail: { path: message.path } }));
+            }
           }
           break;
 

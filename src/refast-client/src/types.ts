@@ -113,6 +113,8 @@ export interface UpdateMessage {
   value?: unknown;
   state?: Record<string, unknown>;
   path?: string;
+  redirect?: boolean;
+  target?: string;
   message?: string;
   variant?: string;
   duration?: number;

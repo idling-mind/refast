@@ -18,7 +18,7 @@ Open http://localhost:8000 in your browser.
 
 - **`app.py`** — Main app. Contains `RefastApp`, shared `docs_layout()` function, all route registrations.
 - **`pages/`** — Each page is a Python module with a `render(ctx)` function.
-- **Navigation** — Sidebar with 4 sections (Getting Started, Concepts, Components, Advanced). SPA navigation via `ctx.navigate()`.
+- **Navigation** — Sidebar with 4 sections (Getting Started, Concepts, Components, Advanced). SPA navigation via `ctx.load()`.
 - **Content** — Primarily `Markdown(text="""...""")` blocks for prose, with real Refast components for live examples.
 
 ## Content Format Rules

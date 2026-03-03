@@ -117,7 +117,7 @@ live interactive demos using real Refast components.
 
 **Cover:**
 - `@ui.page("/path")` — registering pages
-- `ctx.navigate("/path")` — SPA navigation
+- `ctx.load("/path")` — SPA navigation
 - `ctx.refresh()` / `ctx.refresh("/path")` — re-rendering
 - How SPA navigation works internally (JSON fetch + tree swap)
 - State persistence across navigations (same WebSocket)

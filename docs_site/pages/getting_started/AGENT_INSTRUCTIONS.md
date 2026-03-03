@@ -38,7 +38,7 @@ These pages should be welcoming, practical, and code-heavy with working examples
 - The HTML shell: what's in it (theme CSS, client bundle, component tree JSON)
 - Initial page load flow (HTTP GET)
 - WebSocket connection and event loop
-- SPA navigation flow (ctx.navigate → JSON fetch → tree swap)
+- SPA navigation flow (ctx.load → JSON fetch → tree swap)
 - Static asset serving (`/static/refast-client.js`, `/static/refast-client.css`)
 - Component serialization: Python objects → JSON → React rendering
 - Key classes table: RefastApp, Context, State, Store, Component, EventManager

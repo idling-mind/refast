@@ -28,7 +28,7 @@ CONTENT = r"""
 ## Overview
 
 Refast supports **multi-page applications** with SPA-style navigation. Each page is
-registered with `@ui.page()` and navigation happens via `ctx.navigate()`.
+registered with `@ui.page()` and navigation happens via `ctx.load()`.
 
 ## Registering Pages
 
@@ -52,14 +52,14 @@ def settings(ctx: Context):
 
 ```python
 async def go_to_about(ctx: Context):
-    await ctx.navigate("/about")
+    await ctx.load("/about")
 
 Button("About", on_click=ctx.callback(go_to_about))
 ```
 
 ## How SPA Navigation Works
 
-1. `ctx.navigate("/about")` tells the frontend to fetch the new page
+1. `ctx.load("/about")` tells the frontend to fetch the new page
 2. Frontend requests `GET /about?format=json` (JSON only, no HTML shell)
 3. React swaps the component tree in place
 4. **WebSocket stays connected** — `ctx.state` persists across navigations
@@ -85,7 +85,7 @@ Link("Go to About", href="/about")
 ## Important Notes
 
 - Each page handler gets a fresh `ctx` argument but the **same WebSocket context** persists
-- `ctx.state` carries over across `ctx.navigate()` calls
+- `ctx.state` carries over across `ctx.load()` calls
 - On full page reload (F5), state is lost but `ctx.store` persists
 - There's no wildcard/catch-all route support — each page must be registered explicitly
 

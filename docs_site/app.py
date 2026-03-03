@@ -188,7 +188,7 @@ for section in NAV_SECTIONS:
 
 async def nav(ctx: Context, path: str = "/"):
     """Navigate to a documentation page."""
-    await ctx.navigate(path)
+    await ctx.load(path)
 
 
 # ── Shared layout ────────────────────────────────────────────────────────

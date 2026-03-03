@@ -157,7 +157,7 @@ app.include_router(ui.router)
 
 
 async def _nav(ctx, path: str = "/"):
-    await ctx.navigate(path)
+    await ctx.load(path)
 
 
 def _feature_card(title: str, icon: str, description: str):

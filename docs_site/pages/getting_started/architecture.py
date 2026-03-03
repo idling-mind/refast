@@ -84,7 +84,7 @@ Immediately after hydration, the React client establishes a **WebSocket connecti
 
 ### 3. SPA Navigation
 
-Refast behaves like a Single Page Application (SPA). When `ctx.navigate("/about")` is called:
+Refast behaves like a Single Page Application (SPA). When `ctx.load("/about")` is called:
 
 1. The client fetches the new page's component tree via a lightweight JSON request (not full HTML).
 2. The React client swaps the current component tree with the new one.

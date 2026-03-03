@@ -220,10 +220,16 @@ class TestContextWithoutWebSocket:
         await ctx.refresh("/")
 
     @pytest.mark.asyncio
-    async def test_navigate_without_websocket(self):
-        """Test navigate does nothing without websocket."""
+    async def test_load_without_websocket(self):
+        """Test load does nothing without websocket."""
         ctx = Context()
-        await ctx.navigate("/new-page")
+        await ctx.load("/new-page")
+
+    @pytest.mark.asyncio
+    async def test_redirect_without_websocket(self):
+        """Test redirect does nothing without websocket."""
+        ctx = Context()
+        await ctx.redirect("/new-page")
 
     @pytest.mark.asyncio
     async def test_show_toast_without_websocket(self):

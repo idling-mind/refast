@@ -7,6 +7,7 @@ Run with:
     cd examples/toast_showcase
     uvicorn app:app --reload
 """
+
 import dis
 
 import asyncio
@@ -28,7 +29,8 @@ from refast.components import (
     Row,
     Text,
     ThemeSwitcher,
-    Badge, Progress,
+    Badge,
+    Progress,
 )
 
 # Create the Refast app
@@ -342,9 +344,16 @@ async def show_custom_component_toast_with_progress(ctx: Context):
             children=[
                 Heading("Uploading file", level=6),
                 Text("Please wait while we upload your file. This may take a few moments."),
-                Progress(id="toast-progress", value=10, max=100, class_name="w-full", foreground_color="primary"),
+                Progress(
+                    id="toast-progress",
+                    value=10,
+                    max=100,
+                    class_name="w-full",
+                    foreground_color="primary",
+                ),
             ],
         ),
+        variant="default",
         duration=100000,
         close_button=True,
         toast_id="progress-toast",
@@ -357,7 +366,8 @@ async def show_custom_component_toast_with_progress(ctx: Context):
         "Upload complete!",
         variant="success",
         toast_id="progress-toast",
-        )
+    )
+
 
 # ============================================================================
 # Page Layout
@@ -701,7 +711,9 @@ def home(ctx: Context):
                                             ),
                                             Button(
                                                 "Custom Request With Progress",
-                                                on_click=ctx.callback(show_custom_component_toast_with_progress),
+                                                on_click=ctx.callback(
+                                                    show_custom_component_toast_with_progress
+                                                ),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),

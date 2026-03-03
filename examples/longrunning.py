@@ -74,7 +74,9 @@ def long_running_page(ctx: Context):
                 style={"display": "none"},  # Initially hidden
             ),
             rc.Text("", id="task-status", class_name="text-lg font-medium justify-center"),
-            rc.Progress(value=0, id="task-progress", foreground_color="primary", striped="animated"),
+            rc.Progress(
+                value=0, id="task-progress", foreground_color="primary", striped="animated"
+            ),
         ],
         class_name="flex flex-col gap-4 p-4 max-w-6xl mx-auto",
     )

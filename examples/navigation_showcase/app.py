@@ -10,6 +10,8 @@ This example demonstrates:
 - Pagination
 """
 
+from turtle import st
+
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
@@ -68,21 +70,32 @@ ui = RefastApp(title="Navigation Showcase")
 
 
 # Callback handlers
-async def on_nav_click(ctx: Context):
+async def on_nav_click(ctx: Context, item: str = "Unknown"):
     """Handle navigation click."""
-    item = ctx.event_data.get("item", "Unknown")
-    await ctx.show_toast(f"Navigating to: {item}", variant="info")
+    await ctx.show_toast(f"Clicked: {item}", variant="info")
 
 
-async def on_command_select(ctx: Context):
+async def change_checked(ctx: Context, item: str):
+    """Handle checkbox change."""
+    value = ctx.event_data.get("value", False)
+    checked = "Checked" if value else "Unchecked"
+    await ctx.show_toast(f"Checked: {checked}", variant="info")
+    await ctx.update_props(item, {"checked": value})
+
+
+async def on_command_select(ctx: Context, command: str = "Unknown"):
     """Handle command palette selection."""
-    command = ctx.event_data.get("command", "Unknown")
     await ctx.show_toast(f"Executing: {command}", variant="info")
 
 
-async def on_page_change(ctx: Context):
+async def on_tab_select(ctx: Context):
+    """Handle tab selection."""
+    tab = ctx.event_data.get("value", "Unknown")
+    await ctx.update_text("tab-content", f"Selected tab: {tab}")
+
+
+async def on_page_change(ctx: Context, page: int = 1):
     """Handle page change."""
-    page = ctx.event_data.get("page", 1)
     ctx.state.set("current_page", page)
     await ctx.refresh()
 
@@ -131,16 +144,32 @@ def home(ctx: Context):
                                                             MenubarItem(
                                                                 label="New Tab",
                                                                 shortcut="⌘T",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="New Tab"
+                                                                ),
                                                             ),
                                                             MenubarItem(
                                                                 label="New Window",
                                                                 shortcut="⌘N",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="New Window"
+                                                                ),
                                                             ),
                                                             MenubarSeparator(),
-                                                            MenubarItem(label="Share"),
+                                                            MenubarItem(
+                                                                label="Share",
+                                                                shortcut="⌘S",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Share"
+                                                                ),
+                                                            ),
                                                             MenubarSeparator(),
                                                             MenubarItem(
-                                                                label="Print", shortcut="⌘P"
+                                                                label="Print",
+                                                                shortcut="⌘P",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Print"
+                                                                ),
                                                             ),
                                                         ]
                                                     ),
@@ -152,18 +181,40 @@ def home(ctx: Context):
                                                     MenubarContent(
                                                         children=[
                                                             MenubarItem(
-                                                                label="Undo", shortcut="⌘Z"
+                                                                label="Undo",
+                                                                shortcut="⌘Z",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Undo"
+                                                                ),
                                                             ),
                                                             MenubarItem(
-                                                                label="Redo", shortcut="⇧⌘Z"
+                                                                label="Redo",
+                                                                shortcut="⇧⌘Z",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Redo"
+                                                                ),
                                                             ),
                                                             MenubarSeparator(),
-                                                            MenubarItem(label="Cut", shortcut="⌘X"),
                                                             MenubarItem(
-                                                                label="Copy", shortcut="⌘C"
+                                                                label="Cut",
+                                                                shortcut="⌘X",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Cut"
+                                                                ),
                                                             ),
                                                             MenubarItem(
-                                                                label="Paste", shortcut="⌘V"
+                                                                label="Copy",
+                                                                shortcut="⌘C",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Copy"
+                                                                ),
+                                                            ),
+                                                            MenubarItem(
+                                                                label="Paste",
+                                                                shortcut="⌘V",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="Paste"
+                                                                ),
                                                             ),
                                                         ]
                                                     ),
@@ -175,12 +226,22 @@ def home(ctx: Context):
                                                     MenubarContent(
                                                         children=[
                                                             MenubarCheckboxItem(
+                                                                id="show-toolbar-checkbox",
                                                                 label="Show Toolbar",
                                                                 checked=True,
+                                                                on_checked_change=ctx.callback(
+                                                                    change_checked,
+                                                                    item="show-toolbar-checkbox",
+                                                                ),
                                                             ),
                                                             MenubarCheckboxItem(
+                                                                id="show-sidebar-checkbox",
                                                                 label="Show Sidebar",
                                                                 checked=True,
+                                                                on_checked_change=ctx.callback(
+                                                                    change_checked,
+                                                                    item="show-sidebar-checkbox",
+                                                                ),
                                                             ),
                                                             MenubarSeparator(),
                                                             MenubarItem(
@@ -198,10 +259,27 @@ def home(ctx: Context):
                                                     MenubarTrigger(label="Help"),
                                                     MenubarContent(
                                                         children=[
-                                                            MenubarItem(label="Documentation"),
-                                                            MenubarItem(label="Keyboard Shortcuts"),
+                                                            MenubarItem(
+                                                                label="Documentation",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click,
+                                                                    item="Documentation",
+                                                                ),
+                                                            ),
+                                                            MenubarItem(
+                                                                label="Keyboard Shortcuts",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click,
+                                                                    item="Keyboard Shortcuts",
+                                                                ),
+                                                            ),
                                                             MenubarSeparator(),
-                                                            MenubarItem(label="About"),
+                                                            MenubarItem(
+                                                                label="About",
+                                                                on_select=ctx.callback(
+                                                                    on_nav_click, item="About"
+                                                                ),
+                                                            ),
                                                         ]
                                                     ),
                                                 ]
@@ -242,6 +320,10 @@ def home(ctx: Context):
                                                                             BreadcrumbLink(
                                                                                 label="Home",
                                                                                 href="/",
+                                                                                on_select=ctx.callback(
+                                                                                    on_nav_click,
+                                                                                    item="Home",
+                                                                                ),
                                                                             )
                                                                         ]
                                                                     ),
@@ -344,7 +426,8 @@ def home(ctx: Context):
                                                             NavigationMenuContent(
                                                                 children=[
                                                                     Container(
-                                                                        class_name="grid gap-3 p-4 w-[400px] md:w-[500px] md:grid-cols-2",
+                                                                        class_name="grid gap-3 p-4 md:grid-cols-2",
+                                                                        style={"width": "400px"},
                                                                         children=[
                                                                             Column(
                                                                                 gap=1,
@@ -388,7 +471,8 @@ def home(ctx: Context):
                                                             NavigationMenuContent(
                                                                 children=[
                                                                     Container(
-                                                                        class_name="grid gap-3 p-4 w-[400px] md:w-[500px] md:grid-cols-2",
+                                                                        class_name="grid gap-3 p-4 md:grid-cols-2",
+                                                                        style={"width": "400px"},
                                                                         children=[
                                                                             Column(
                                                                                 gap=1,
@@ -566,12 +650,14 @@ def home(ctx: Context):
                                             TabItem(value="reports", label="Reports"),
                                             TabItem(value="notifications", label="Notifications"),
                                         ],
+                                        on_value_change=ctx.callback(on_tab_select),
                                     ),
                                     Container(
                                         class_name="mt-4 p-4 border rounded-md",
                                         children=[
                                             Text(
                                                 "Tab content goes here",
+                                                id="tab-content",
                                                 class_name="text-muted-foreground",
                                             ),
                                         ],

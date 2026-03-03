@@ -4,7 +4,7 @@ import asyncio
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
 from fastapi import Request, WebSocket
 
@@ -1186,7 +1186,9 @@ class Context(Generic[T]):
     async def show_toast(
         self,
         message: str = "",
-        variant: str = "default",
+        variant: Literal[
+            "default", "success", "destructive", "error", "warning", "info", "loading"
+        ] = "default",
         description: str | None = None,
         duration: int | None = None,
         position: str | None = None,

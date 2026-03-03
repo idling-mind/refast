@@ -10,6 +10,8 @@ This example demonstrates:
 - Related products
 """
 
+from click import style
+
 from fastapi import FastAPI
 
 from refast import Context, RefastApp
@@ -37,6 +39,8 @@ from refast.components import (
     Text,
     ToggleGroup,
     ToggleGroupItem,
+    IconButton,
+    Toggle,
 )
 
 # Create the Refast app
@@ -151,18 +155,21 @@ async def add_to_cart(ctx: Context):
 
 async def add_to_wishlist(ctx: Context):
     """Add product to wishlist."""
-    await ctx.show_toast("Added to wishlist!", variant="info")
+    if not ctx.event_data.get("value"):
+        await ctx.show_toast("Removed from wishlist", variant="info")
+        return
+    await ctx.show_toast("Added to wishlist!", variant="success")
 
 
 async def select_color(ctx: Context):
     """Handle color selection."""
     color = ctx.event_data.get("value")
     ctx.state.set("selected_color", color)
+    await ctx.refresh()
 
 
-async def change_quantity(ctx: Context):
+async def change_quantity(ctx: Context, action: str):
     """Handle quantity change."""
-    action = ctx.event_data.get("action")
     quantity = ctx.state.get("quantity", 1)
 
     if action == "increment":
@@ -460,21 +467,18 @@ def home(ctx: Context):
                                                     Row(
                                                         gap=2,
                                                         children=[
-                                                            Label("Color:"),
                                                             Text(
-                                                                selected_color,
+                                                                f"Selected color: {selected_color}",
                                                                 class_name="font-medium",
                                                             ),
                                                         ],
                                                     ),
-                                                    ToggleGroup(
+                                                    Tabs(
                                                         type="single",
                                                         value=selected_color,
                                                         on_value_change=ctx.callback(select_color),
                                                         children=[
-                                                            ToggleGroupItem(
-                                                                value=color, label=color
-                                                            )
+                                                            TabItem(value=color, label=color)
                                                             for color in PRODUCT["colors"]
                                                         ],
                                                     ),
@@ -498,7 +502,11 @@ def home(ctx: Context):
                                                                 ),
                                                             ),
                                                             Container(
-                                                                class_name="w-16 h-10 border-y flex items-center justify-center",
+                                                                class_name="border-y flex items-center justify-center",
+                                                                style={
+                                                                    "width": "3rem",
+                                                                    "height": "2.5rem",
+                                                                },
                                                                 children=[
                                                                     Text(
                                                                         str(quantity),
@@ -536,11 +544,12 @@ def home(ctx: Context):
                                                         class_name="flex-1",
                                                         on_click=ctx.callback(buy_now),
                                                     ),
-                                                    Button(
-                                                        label="♡",
-                                                        variant="outline",
-                                                        size="lg",
-                                                        on_click=ctx.callback(add_to_wishlist),
+                                                    Toggle(
+                                                        id="add-to-wishlist",
+                                                        icon="heart",
+                                                        on_pressed_change=ctx.callback(
+                                                            add_to_wishlist
+                                                        ),
                                                     ),
                                                 ],
                                             ),

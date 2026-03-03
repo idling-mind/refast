@@ -199,6 +199,7 @@ export function Toggle({
   id,
   className,
   label,
+  icon,
   pressed,
   defaultPressed,
   disabled = false,
@@ -226,7 +227,7 @@ export function Toggle({
       )}
       data-refast-id={dataRefastId}
     >
-      {children || label}
+      {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
     </TogglePrimitive.Root>
   );
 }
@@ -394,7 +395,7 @@ export function ToggleGroupItem({
       )}
       data-refast-id={dataRefastId}
     >
-      {children || (icon && <Icon name={icon} size={16} />) || label}
+      {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
     </ToggleGroupPrimitive.Item>
   );
 }

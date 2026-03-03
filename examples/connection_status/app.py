@@ -354,11 +354,11 @@ def home(ctx: Context):
                                         ],
                                     ),
                                     Paragraph(
-                                        [
+                                        text=(
                                             "The inline indicator above shows 'Online' when "
                                             "connected and 'Offline' when disconnected. "
                                             "Try stopping the server to see it change!"
-                                        ],
+                                        ),
                                         class_name="text-sm text-muted-foreground mt-4",
                                     ),
                                 ]

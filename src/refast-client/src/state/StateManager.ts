@@ -374,7 +374,7 @@ function syncPropStoreForComponent(
 /**
  * Apply an update operation to a component tree.
  */
-function applyUpdate(
+export function applyUpdate(
   tree: ComponentTree,
   targetId: string,
   update: ComponentTree | null,

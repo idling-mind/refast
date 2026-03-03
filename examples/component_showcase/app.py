@@ -167,7 +167,7 @@ async def dropdown_select(ctx: Context):
     if "value" in ctx.event_data:
         selection = ctx.event_data.get("value", "")
     else:
-        selection = ", ".join(ctx.event_data.values())
+        selection = ", ".join(ctx.event_data)
     await ctx.show_toast(f"Selected: {selection}", variant="info")
 
 

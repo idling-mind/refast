@@ -7,6 +7,7 @@ Run with:
     cd examples/toast_showcase
     uvicorn app:app --reload
 """
+import dis
 
 import asyncio
 
@@ -27,7 +28,7 @@ from refast.components import (
     Row,
     Text,
     ThemeSwitcher,
-    Badge,
+    Badge, Progress,
 )
 
 # Create the Refast app
@@ -332,6 +333,31 @@ async def show_custom_component_toast(ctx: Context):
         duration=10000,
     )
 
+
+async def show_custom_component_toast_with_progress(ctx: Context):
+    """Show a progress inside a custom component toast."""
+    await ctx.show_toast(
+        component=Column(
+            gap=2,
+            children=[
+                Heading("Uploading file", level=6),
+                Text("Please wait while we upload your file. This may take a few moments."),
+                Progress(id="toast-progress", value=10, max=100, class_name="w-full", foreground_color="primary"),
+            ],
+        ),
+        duration=100000,
+        close_button=True,
+        toast_id="progress-toast",
+    )
+    for i in range(10):
+        await ctx.update_props("toast-progress", {"value": (i + 1) * 10})
+        await asyncio.sleep(1)
+        print(f"Updated progress to {(i + 1) * 10}%")
+    await ctx.show_toast(
+        "Upload complete!",
+        variant="success",
+        toast_id="progress-toast",
+        )
 
 # ============================================================================
 # Page Layout
@@ -670,6 +696,12 @@ def home(ctx: Context):
                                             Button(
                                                 "Custom Request Toast",
                                                 on_click=ctx.callback(show_custom_component_toast),
+                                                variant="outline",
+                                                class_name="w-full justify-start",
+                                            ),
+                                            Button(
+                                                "Custom Request With Progress",
+                                                on_click=ctx.callback(show_custom_component_toast_with_progress),
                                                 variant="outline",
                                                 class_name="w-full justify-start",
                                             ),

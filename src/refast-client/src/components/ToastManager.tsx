@@ -4,6 +4,39 @@ import { AnyActionRef, ComponentTree } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { createSingleActionExecutor } from '../utils/actionExecutor';
 import { ComponentRenderer } from './ComponentRenderer';
+import { applyUpdate } from '../state/StateManager';
+
+function DynamicToastContent({ initialTree }: { initialTree: ComponentTree }) {
+  const [tree, setTree] = useState<ComponentTree>(initialTree);
+  const eventManager = useEventManager();
+
+  useEffect(() => {
+    return eventManager.onUpdate((message: any) => {
+      if (message.type === 'update') {
+        if (message.targetId && message.operation) {
+          let updateObj: ComponentTree | null = message.component || null;
+
+          if (message.operation === 'update_children' && message.children) {
+            updateObj = { type: '', id: '', props: {}, children: message.children } as unknown as ComponentTree;
+          } else if (message.operation === 'update_props' && (message.props || message.children)) {
+            updateObj = { type: '', id: '', props: message.props || {}, children: message.children || [] } as unknown as ComponentTree;
+            // Flag whether children were explicitly provided in the message
+            (updateObj as any).__hasChildren = 'children' in message;
+          } else if (message.operation === 'append_prop' && message.propName !== undefined) {
+            updateObj = { type: '', id: '', props: { __propName: message.propName, __value: message.value } } as unknown as ComponentTree;
+          }
+
+          setTree((currentTree) => {
+            if (!currentTree) return currentTree;
+            return applyUpdate(currentTree, message.targetId, updateObj, message.operation);
+          });
+        }
+      }
+    });
+  }, [eventManager]);
+
+  return <ComponentRenderer tree={tree} />;
+}
 
 interface ToastEventDetail {
   message?: string;
@@ -152,7 +185,7 @@ export function ToastManager({
         }
       });
 
-      const content = component ? <ComponentRenderer tree={component} /> : (message || '');
+      const content = component ? <DynamicToastContent initialTree={component} /> : (message || '');
 
       // Call the appropriate toast function based on variant
       switch (variant) {

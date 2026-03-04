@@ -10,20 +10,33 @@ class InputWrapper(Component):
     A wrapper component for form controls with label, description, required indicator, and error.
 
     Use this component to wrap any form control to add consistent styling for labels,
-    descriptions, required indicators, and error messages.
+    descriptions, required indicators, and error messages. The built-in inputs wrap themselves
+    automatically — use ``InputWrapper`` directly only when building custom controls.
 
     Example:
         ```python
+        from refast.components.shadcn.input import InputWrapper
+        from refast.components.shadcn.controls import Slider
+
         InputWrapper(
-            label="Custom Field",
-            description="This is a custom field with a wrapper",
+            label="Volume",
+            description="Adjust the playback volume.",
             required=True,
-            error="This field has an error",
+            error="Volume must be set.",
             children=[
-                Slider(value=[50], min=0, max=100),
+                Slider(value=[75], min=0, max=100),
             ],
         )
         ```
+
+    Args:
+        label: Label text displayed above the wrapped control.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk next to the label.
+        error: Error message displayed below the control.
+        children: The wrapped control(s).
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputWrapper"
@@ -44,8 +57,7 @@ class InputWrapper(Component):
         self.description = description
         self.required = required
         self.error = error
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -65,7 +77,7 @@ class InputWrapper(Component):
 
 class Input(Component):
     """
-    Text input component.
+    Single-line text input component with label, description, and validation support.
 
     Example:
         ```python
@@ -76,10 +88,33 @@ class Input(Component):
             type="email",
             placeholder="you@example.com",
             required=True,
+            read_only=False,
             error="Please enter a valid email",
+            debounce=300,
             on_change=ctx.callback(handle_change),
         )
         ```
+
+    Args:
+        name: HTML ``name`` attribute used in form data; omit to skip.
+        label: Label text displayed above the input.
+        description: Help text displayed below the label.
+        type: HTML input type.
+        placeholder: Placeholder text shown when the field is empty.
+        value: Controlled value. When ``None`` the input starts uncontrolled.
+        required: Shows a required asterisk and sets the HTML ``required`` attribute.
+        disabled: Disables interaction.
+        read_only: Renders the input in read-only mode.
+        error: Error message displayed below the input.
+        debounce: Milliseconds to delay ``on_change`` after the user stops typing.
+        on_change: Callback fired when the value changes.
+        on_blur: Callback fired when the input loses focus.
+        on_focus: Callback fired when the input gains focus.
+        on_keydown: Callback fired on key-down events.
+        on_keyup: Callback fired on key-up events.
+        on_input: Callback fired on every native input event.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Input"
@@ -94,7 +129,7 @@ class Input(Component):
         value: str | None = None,
         required: bool = False,
         disabled: bool = False,
-        readonly: bool = False,
+        read_only: bool = False,
         error: str | None = None,
         debounce: int = 0,
         on_change: Any = None,
@@ -116,7 +151,7 @@ class Input(Component):
         self.value = value
         self.required = required
         self.disabled = disabled
-        self.readonly = readonly
+        self.read_only = read_only
         self.error = error
         self.debounce = debounce
         self.on_change = on_change
@@ -134,7 +169,7 @@ class Input(Component):
             "placeholder": self.placeholder,
             "required": self.required,
             "disabled": self.disabled,
-            "read_only": self.readonly,
+            "read_only": self.read_only,
             "error": self.error,
             "debounce": self.debounce,
             "class_name": self.class_name,
@@ -172,7 +207,43 @@ class Input(Component):
 
 
 class Textarea(Component):
-    """Multi-line text input."""
+    """
+    Multi-line text input component.
+
+    Example:
+        ```python
+        Textarea(
+            name="bio",
+            label="Biography",
+            description="Tell us a little about yourself.",
+            placeholder="Write your bio here\u2026",
+            rows=5,
+            required=True,
+            debounce=300,
+            on_change=ctx.callback(handle_change),
+        )
+        ```
+
+    Args:
+        name: HTML ``name`` attribute; omit to skip.
+        label: Label text displayed above the textarea.
+        description: Help text displayed below the label.
+        placeholder: Placeholder text.
+        value: Controlled value.
+        rows: Number of visible text rows.
+        required: Shows a required asterisk.
+        disabled: Disables interaction.
+        error: Error message displayed below.
+        debounce: Milliseconds to delay ``on_change``.
+        on_change: Callback fired when the value changes.
+        on_blur: Callback fired on blur.
+        on_focus: Callback fired on focus.
+        on_keydown: Callback fired on key-down.
+        on_keyup: Callback fired on key-up.
+        on_input: Callback fired on every input event.
+        id: Component ID.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "Textarea"
 
@@ -258,7 +329,44 @@ class Textarea(Component):
 
 
 class Select(Component):
-    """Dropdown select component."""
+    """
+    Dropdown select component.
+
+    Options are plain dicts with ``value`` and ``label`` keys. Add
+    ``"disabled": True`` to an option to make it unselectable.
+
+    Example:
+        ```python
+        Select(
+            name="country",
+            label="Country",
+            description="Select your country of residence.",
+            options=[
+                {"value": "us", "label": "United States"},
+                {"value": "gb", "label": "United Kingdom"},
+                {"value": "de", "label": "Germany", "disabled": True},
+            ],
+            placeholder="Choose a country\u2026",
+            required=True,
+            on_change=ctx.callback(handle_change),
+        )
+        ```
+
+    Args:
+        options: List of ``{"value": str, "label": str}`` dicts.
+            Optionally add ``"disabled": True`` to disable an option.
+        name: HTML ``name`` attribute; omit to skip.
+        label: Label text displayed above the select.
+        description: Help text displayed below the label.
+        value: Controlled selected value.
+        placeholder: Placeholder option shown when nothing is selected.
+        required: Shows a required asterisk.
+        disabled: Disables the select.
+        error: Error message displayed below the select.
+        on_change: Callback fired when the selection changes.
+        id: Component ID.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "Select"
 
@@ -321,7 +429,34 @@ class Select(Component):
 
 
 class Checkbox(Component):
-    """Checkbox input component."""
+    """
+    Single checkbox input component.
+
+    Example:
+        ```python
+        Checkbox(
+            name="agree",
+            value="yes",
+            label="I agree to the terms of service",
+            required=True,
+            on_change=ctx.callback(handle_toggle),
+        )
+        ```
+
+    Args:
+        name: HTML ``name`` attribute; omit to skip.
+        value: The value submitted when the checkbox is checked.
+        label: Label text displayed next to the checkbox.
+        description: Help text displayed below the checkbox.
+        checked: Controlled checked state.
+        required: Shows a required asterisk.
+        disabled: Disables interaction.
+        error: Error message displayed below the checkbox.
+        on_change: Callback fired when the checked state changes.
+            Serialized as ``on_checked_change``.
+        id: Component ID.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "Checkbox"
 
@@ -430,8 +565,7 @@ class CheckboxGroup(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.name = name
         self.label = label
         self.description = description
@@ -470,7 +604,27 @@ class CheckboxGroup(Component):
 
 
 class Radio(Component):
-    """Radio button component."""
+    """
+    Single radio button component, typically used inside a ``RadioGroup``.
+
+    Example:
+        ```python
+        Radio(value="small", label="Small", name="size")
+        ```
+
+    Args:
+        value: The value emitted when this radio is selected (required).
+        name: HTML ``name`` attribute shared with other radios in the group.
+        label: Label text displayed next to the radio button.
+        description: Help text displayed below the radio.
+        checked: Controlled checked state.
+        required: Shows a required asterisk.
+        disabled: Disables this radio button.
+        error: Error message displayed below.
+        on_change: Callback fired when this radio is selected.
+        id: Component ID.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "Radio"
 
@@ -582,8 +736,7 @@ class RadioGroup(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.name = name
         self.label = label
         self.description = description

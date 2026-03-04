@@ -175,7 +175,7 @@ class Toggle(Component):
         default_pressed: bool = False,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "default", "lg"] = "default",
+        size: Literal["sm", "md", "lg"] = "md",
         on_pressed_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -244,7 +244,7 @@ class ToggleGroup(Component):
         default_value: str | list[str] | dict[str, bool] | None = None,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "default", "lg"] = "default",
+        size: Literal["sm", "md", "lg"] = "md",
         on_value_change: Any = None,
         children: ChildrenType = None,
         id: str | None = None,
@@ -337,38 +337,49 @@ class ToggleGroupItem(Component):
 
 class Calendar(Component):
     """
-    A date picker calendar component.
+    Inline calendar component for date selection.
 
-    Supports single, multiple, and range selection modes.
+    Supports single, multiple, and range selection modes. Renders directly in the page
+    without a popover trigger. For a trigger-based picker use ``DatePicker``.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import Calendar
+        from datetime import date
+
         # Single date selection
         Calendar(
             mode="single",
-            selected=date(2024, 1, 15),
+            selected=date(2026, 4, 15),
             on_select=ctx.callback(handle_select),
         )
 
-        # Date range selection with dropdown navigation
+        # Date range with dropdown navigation and boundaries
         Calendar(
             mode="range",
-            caption_layout="dropdown",  # Enable month/year dropdowns
+            caption_layout="dropdown",
             min_date=date(2024, 1, 1),
-            max_date=date(2024, 12, 31),
+            max_date=date(2026, 12, 31),
             on_select=ctx.callback(handle_range_select),
         )
         ```
 
     Args:
-        mode: Selection mode - "single", "multiple", or "range"
-        caption_layout: Header layout - "label" (default), "dropdown" (both month/year),
-                       "dropdown-months" (month only), "dropdown-years" (year only)
-        selected: Currently selected date(s)
-        default_month: Initial month to display
-        min_date: Minimum selectable date
-        max_date: Maximum selectable date
-        number_of_months: Number of months to display side by side
+        mode: Selection mode — ``"single"``, ``"multiple"``, or ``"range"``.
+        caption_layout: Calendar header style — ``"label"``, ``"dropdown"`` (month + year
+            dropdowns), ``"dropdown-months"``, or ``"dropdown-years"``.
+        selected: Controlled selected date(s). Pass a ``date`` for single/multiple mode,
+            or a ``dict`` with ``"from"`` and ``"to"`` keys for range mode.
+        default_month: Initial month to display.
+        disabled: Disables all interaction.
+        show_outside_days: Show days from adjacent months in the grid.
+        min_date: Earliest selectable date (``date`` or ISO 8601 string).
+        max_date: Latest selectable date (``date`` or ISO 8601 string).
+        number_of_months: Number of months displayed simultaneously.
+        on_select: Callback fired when the selection changes.
+        on_month_change: Callback fired when the displayed month changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Calendar"
@@ -442,45 +453,60 @@ class Calendar(Component):
 
 class DatePicker(Component):
     """
-    A date picker with input and calendar popup.
+    Date picker with a button trigger that opens a calendar popover.
 
-    Supports single, multiple, and range date selection.
+    Supports single, multiple, and range date selection. Date values can be Python
+    ``date``/``datetime`` objects or ISO 8601 strings. Range mode expects a ``dict``
+    with ``"from"`` and ``"to"`` keys.
 
     Example:
         ```python
-        # Single date picker with label
+        from refast.components.shadcn.controls import DatePicker
+        from datetime import date
+
+        # Single date picker with label and validation
         DatePicker(
-            label="Birth Date",
-            description="Enter your date of birth",
-            value=date(2024, 1, 15),
+            label="Appointment date",
+            description="Select the date of your appointment.",
+            value=date(2026, 4, 15),
             placeholder="Pick a date",
             required=True,
             on_change=ctx.callback(handle_date_change),
         )
 
-        # Date range picker with dropdown navigation
+        # Date range picker with month/year navigation dropdowns
         DatePicker(
-            label="Date Range",
+            label="Report period",
             mode="range",
-            caption_layout="dropdown",  # Enable month/year dropdowns
+            caption_layout="dropdown",
             placeholder="Select date range",
-            min_date="2024-01-01",
-            max_date="2024-12-31",
+            min_date=date(2024, 1, 1),
+            max_date=date(2026, 12, 31),
             on_change=ctx.callback(handle_range_change),
         )
         ```
 
     Args:
-        label: Label text displayed above the input
-        description: Help text displayed below the label
-        required: Whether the field is required (shows asterisk)
-        error: Error message to display
-        mode: Selection mode - "single", "multiple", or "range"
-        caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
-                       "dropdown-months", or "dropdown-years"
-        min_date: Minimum selectable date
-        max_date: Maximum selectable date
-        number_of_months: Number of months to display (defaults to 2 for range mode)
+        value: Controlled selected value. Pass a ``date`` for single mode, a
+            ``list[date]`` for multiple mode, or a ``dict`` with ``"from"``/``"to"``
+            keys for range mode.
+        placeholder: Button text shown when no date is selected.
+        disabled: Disables the picker.
+        format: ``date-fns`` format string used for the button label (default ``"PPP"``
+            renders as ``"April 15, 2026"`` in en-US locale).
+        mode: Selection mode — ``"single"``, ``"multiple"``, or ``"range"``.
+        caption_layout: Calendar header style — ``"label"``, ``"dropdown"`` (month +
+            year dropdowns), ``"dropdown-months"``, or ``"dropdown-years"``.
+        min_date: Earliest selectable date (``date`` or ISO 8601 string).
+        max_date: Latest selectable date (``date`` or ISO 8601 string).
+        number_of_months: Number of calendar months shown simultaneously.
+        label: Label text displayed above the picker.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the picker.
+        on_change: Callback fired when the selection changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "DatePicker"
@@ -573,23 +599,61 @@ class DatePicker(Component):
 
 class Combobox(Component):
     """
-    An autocomplete input with dropdown.
+    Searchable select with type-ahead filtering and optional multi-select.
+
+    Options are plain dicts with ``value`` and ``label`` keys. In single-select mode
+    the ``on_select`` callback receives the selected ``str`` value; in multi-select mode
+    it receives a ``list[str]`` of all selected values.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import Combobox
+
+        # Single-select
         Combobox(
             label="Framework",
-            description="Select your preferred framework",
+            description="Select your primary framework.",
             options=[
-                {"value": "next", "label": "Next.js"},
-                {"value": "react", "label": "React"},
+                {"value": "next",   "label": "Next.js"},
+                {"value": "react",  "label": "React"},
+                {"value": "vue",    "label": "Vue"},
             ],
-            placeholder="Select framework...",
-            multiselect=True,
+            placeholder="Select framework…",
+            search_placeholder="Search frameworks…",
+            empty_text="No frameworks found.",
             required=True,
             on_select=ctx.callback(handle_select),
         )
+
+        # Multi-select with pre-selected values
+        Combobox(
+            label="Tags",
+            options=[
+                {"value": "python", "label": "Python"},
+                {"value": "ts",     "label": "TypeScript"},
+            ],
+            multiselect=True,
+            value=["python"],
+            on_select=ctx.callback(handle_tags),
+        )
         ```
+
+    Args:
+        options: List of ``{"value": str, "label": str}`` dicts.
+        value: Controlled selected value(s). Pass a ``str`` for single-select or a
+            ``list[str]`` for multi-select.
+        placeholder: Trigger button text when nothing is selected.
+        search_placeholder: Placeholder inside the search input.
+        empty_text: Text shown when no options match the current search.
+        multiselect: Allow selecting multiple values simultaneously.
+        disabled: Disables the combobox.
+        label: Label text displayed above the combobox.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the combobox.
+        on_select: Callback fired when the selection changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Combobox"
@@ -652,18 +716,62 @@ class Combobox(Component):
 
 class InputOTP(Component):
     """
-    An input for one-time passwords.
+    One-time password input composed from individual slot primitives.
+
+    The simplest usage passes only ``max_length`` and lets the component auto-generate
+    its layout. For a custom layout (e.g. two groups of three separated by a dash),
+    compose ``InputOTPGroup``, ``InputOTPSlot``, and ``InputOTPSeparator`` as children.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import (
+            InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator,
+        )
+
+        # Simple 6-digit OTP (auto-layout)
         InputOTP(
             label="Verification Code",
-            description="Enter the 6-digit code sent to your email",
+            description="Enter the 6-digit code sent to your email.",
             max_length=6,
             required=True,
             on_complete=ctx.callback(handle_complete),
         )
+
+        # Custom layout: two groups of 3 separated by a dash
+        InputOTP(
+            max_length=6,
+            on_complete=ctx.callback(handle_complete),
+            children=[
+                InputOTPGroup(children=[
+                    InputOTPSlot(index=0),
+                    InputOTPSlot(index=1),
+                    InputOTPSlot(index=2),
+                ]),
+                InputOTPSeparator(),
+                InputOTPGroup(children=[
+                    InputOTPSlot(index=3),
+                    InputOTPSlot(index=4),
+                    InputOTPSlot(index=5),
+                ]),
+            ],
+        )
         ```
+
+    Args:
+        max_length: Total number of OTP characters.
+        value: Controlled OTP value string.
+        disabled: Disables the input.
+        pattern: Optional regex pattern to validate each character (e.g. ``"[0-9]"``).
+        label: Label text displayed above the input.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the input.
+        on_change: Callback fired on every character change.
+        on_complete: Callback fired when all slots are filled.
+        children: Custom layout using ``InputOTPGroup``, ``InputOTPSlot``, and
+            ``InputOTPSeparator``. If omitted, an auto-layout is generated.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTP"
@@ -722,18 +830,28 @@ class InputOTP(Component):
 
 class InputOTPGroup(Component):
     """
-    A group of OTP slots.
+    A group of contiguous OTP slots within an ``InputOTP``.
+
+    Group multiple ``InputOTPSlot`` components together and optionally separate groups
+    with ``InputOTPSeparator``.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPGroup, InputOTPSlot
+
         InputOTPGroup(
             children=[
                 InputOTPSlot(index=0),
                 InputOTPSlot(index=1),
                 InputOTPSlot(index=2),
-            ]
+            ],
         )
         ```
+
+    Args:
+        children: ``InputOTPSlot`` components in this group.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPGroup"
@@ -762,12 +880,22 @@ class InputOTPGroup(Component):
 
 class InputOTPSlot(Component):
     """
-    A single slot in an OTP input.
+    A single character slot in an ``InputOTP``.
+
+    The ``index`` must match the slot's zero-based position within the parent
+    ``InputOTP`` (not within its group).
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPSlot
+
         InputOTPSlot(index=0)
         ```
+
+    Args:
+        index: Zero-based slot index within the parent ``InputOTP``.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPSlot"
@@ -797,12 +925,21 @@ class InputOTPSlot(Component):
 
 class InputOTPSeparator(Component):
     """
-    A separator between OTP groups.
+    A visual separator rendered between ``InputOTPGroup`` components.
+
+    Renders a dash (``—``) character to visually divide slot groups. Accepts no content
+    props.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPSeparator
+
         InputOTPSeparator()
         ```
+
+    Args:
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPSeparator"

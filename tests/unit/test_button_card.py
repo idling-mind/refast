@@ -24,9 +24,9 @@ class TestButton:
 
     def test_button_variant(self):
         """Test Button variant prop."""
-        btn = Button("Test", variant="primary")
+        btn = Button("Test", variant="secondary")
         rendered = btn.render()
-        assert rendered["props"]["variant"] == "primary"
+        assert rendered["props"]["variant"] == "secondary"
 
     def test_button_size(self):
         """Test Button size prop."""

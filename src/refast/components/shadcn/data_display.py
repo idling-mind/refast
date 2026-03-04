@@ -9,6 +9,10 @@ class Table(Component):
     """
     Table container component.
 
+    Use the primitive ``Table*`` family when you need full layout control —
+    custom cell rendering, row selection, or complex filters. For a turnkey
+    solution with sorting, filtering, and pagination see :class:`DataTable`.
+
     Example:
         ```python
         Table(
@@ -28,6 +32,11 @@ class Table(Component):
             ]
         )
         ```
+
+    Args:
+        children: ``TableHeader`` and ``TableBody`` components.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
     """
 
     component_type: str = "Table"
@@ -35,28 +44,18 @@ class Table(Component):
     def __init__(
         self,
         children: ChildrenType = None,
-        caption: str | None = None,
-        striped: bool = False,
-        hoverable: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
-        self.caption = caption
-        self.striped = striped
-        self.hoverable = hoverable
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "caption": self.caption,
-                "striped": self.striped,
-                "hoverable": self.hoverable,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -65,7 +64,27 @@ class Table(Component):
 
 
 class TableHeader(Component):
-    """Table header section."""
+    """
+    Table header section (``<thead>``).
+
+    Wraps one or more :class:`TableRow` components that contain
+    :class:`TableHead` (``<th>``) cells.
+
+    Example:
+        ```python
+        TableHeader(children=[
+            TableRow(children=[
+                TableHead(children=["Name"]),
+                TableHead(children=["Email"]),
+            ])
+        ])
+        ```
+
+    Args:
+        children: :class:`TableRow` components for the header.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TableHeader"
 
@@ -77,8 +96,7 @@ class TableHeader(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -93,7 +111,30 @@ class TableHeader(Component):
 
 
 class TableBody(Component):
-    """Table body section."""
+    """
+    Table body section (``<tbody>``).
+
+    Wraps :class:`TableRow` components that form the data rows of the table.
+
+    Example:
+        ```python
+        TableBody(children=[
+            TableRow(children=[
+                TableCell(children=["Alice"]),
+                TableCell(children=["alice@example.com"]),
+            ]),
+            TableRow(children=[
+                TableCell(children=["Bob"]),
+                TableCell(children=["bob@example.com"]),
+            ]),
+        ])
+        ```
+
+    Args:
+        children: :class:`TableRow` components for the body.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TableBody"
 
@@ -105,8 +146,7 @@ class TableBody(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -121,7 +161,26 @@ class TableBody(Component):
 
 
 class TableRow(Component):
-    """Table row."""
+    """
+    Table row (``<tr>``).
+
+    Used inside both :class:`TableHeader` and :class:`TableBody`. Each child
+    should be a :class:`TableHead` (for header rows) or :class:`TableCell`
+    (for body rows).
+
+    Example:
+        ```python
+        TableRow(children=[
+            TableCell(children=["Alice"]),
+            TableCell(children=["alice@example.com"]),
+        ])
+        ```
+
+    Args:
+        children: :class:`TableHead` or :class:`TableCell` components.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TableRow"
 
@@ -133,8 +192,7 @@ class TableRow(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -149,7 +207,23 @@ class TableRow(Component):
 
 
 class TableHead(Component):
-    """Table header cell."""
+    """
+    Table header cell (``<th>``).
+
+    Used inside a :class:`TableRow` within a :class:`TableHeader`. The
+    ``children`` are rendered as the column header label.
+
+    Example:
+        ```python
+        TableHead(children=["Full Name"])
+        TableHead(children=["Email"], class_name="text-right")
+        ```
+
+    Args:
+        children: Cell content — typically a plain string label.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TableHead"
 
@@ -161,8 +235,7 @@ class TableHead(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -177,7 +250,25 @@ class TableHead(Component):
 
 
 class TableCell(Component):
-    """Table data cell."""
+    """
+    Table data cell (``<td>``).
+
+    Used inside a :class:`TableRow` within a :class:`TableBody`. Supports
+    ``col_span`` and ``row_span`` for spanning multiple columns or rows.
+
+    Example:
+        ```python
+        TableCell(children=["alice@example.com"])
+        TableCell(children=["Total"], col_span=3, class_name="font-bold")
+        ```
+
+    Args:
+        children: Cell content.
+        col_span: Number of columns this cell should span.
+        row_span: Number of rows this cell should span.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TableCell"
 
@@ -191,8 +282,7 @@ class TableCell(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.col_span = col_span
         self.row_span = row_span
 
@@ -410,7 +500,25 @@ class DataTable(Component):
 
 
 class List(Component):
-    """List component for displaying items."""
+    """
+    Ordered or unordered list.
+
+    Renders as ``<ol>`` or ``<ul>`` depending on the ``ordered`` flag.
+    Children should be plain strings or ``ListItem`` components.
+
+    Example:
+        ```python
+        List(children=["Apples", "Bananas", "Cherries"])
+        List(ordered=True, children=["First step", "Second step", "Third step"])
+        ```
+
+    Args:
+        children: List items — strings or ``ListItem`` components.
+        ordered: If ``True``, renders a numbered ``<ol>``; otherwise a
+            bulleted ``<ul>``. Defaults to ``False``.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "List"
 
@@ -423,8 +531,7 @@ class List(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.ordered = ordered
 
     def render(self) -> dict[str, Any]:
@@ -441,7 +548,22 @@ class List(Component):
 
 
 class Badge(Component):
-    """Badge component for labels and tags."""
+    """
+    Badge / tag component for labels, statuses, and counts.
+
+    Example:
+        ```python
+        Badge(children=["New"])
+        Badge(children=["Error"], variant="destructive")
+        Badge(children=["Active"], variant="success")
+        ```
+
+    Args:
+        children: Badge content — typically a short string.
+        variant: Visual style. ``"default"`` is the primary filled style.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "Badge"
 
@@ -449,15 +571,14 @@ class Badge(Component):
         self,
         children: ChildrenType = None,
         variant: Literal[
-            "default", "primary", "secondary", "destructive", "outline", "success", "warning"
+            "default", "secondary", "destructive", "outline", "success", "warning"
         ] = "default",
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.variant = variant
 
     def render(self) -> dict[str, Any]:
@@ -474,7 +595,32 @@ class Badge(Component):
 
 
 class Avatar(Component):
-    """Avatar component for user images."""
+    """
+    User avatar with image and initials fallback.
+
+    Displays a circular user image. When the image is absent or fails to load,
+    the ``fallback`` string (or the first character of ``alt``) is shown instead.
+
+    Example:
+        ```python
+        # Image avatar
+        Avatar(src="/avatars/alice.jpg", alt="Alice")
+
+        # Initials-only avatar
+        Avatar(fallback="JD", size="lg")
+        ```
+
+    Args:
+        src: URL of the user image. Omit to show initials only.
+        alt: Alternative text; also used to derive the fallback initial when
+            ``fallback`` is not supplied.
+        fallback: Short string (one or two letters) shown when the image is
+            unavailable. Defaults to the first character of ``alt``.
+        size: Avatar diameter. ``"sm"`` = 32 px, ``"md"`` = 40 px,
+            ``"lg"`` = 48 px. Defaults to ``"md"``.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "Avatar"
 
@@ -483,7 +629,7 @@ class Avatar(Component):
         src: str | None = None,
         alt: str = "",
         fallback: str | None = None,
-        size: Literal["sm", "md", "lg", "xl"] = "md",
+        size: Literal["sm", "md", "lg"] = "md",
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -511,7 +657,36 @@ class Avatar(Component):
 
 
 class Tooltip(Component):
-    """Tooltip component for hover information."""
+    """
+    Hover tooltip that wraps any trigger element.
+
+    The ``content`` string is shown in a floating popover when the user hovers
+    over the child element. Exactly one child is expected as the trigger.
+
+    Example:
+        ```python
+        Tooltip(
+            content="This action cannot be undone.",
+            children=[Button("Delete", variant="destructive")],
+        )
+
+        Tooltip(
+            content="Home page",
+            side="right",
+            children=[IconButton(icon="home")],
+        )
+        ```
+
+    Args:
+        content: Plain-text tooltip message.
+        children: The trigger element(s). Typically a single component.
+        side: Preferred side of the trigger to display the tooltip.
+            Defaults to ``"top"``.
+        side_offset: Pixel gap between the trigger and the tooltip.
+            Defaults to ``4``.
+        id: Optional HTML element id applied to the trigger.
+        class_name: Additional CSS class names applied to the tooltip content.
+    """
 
     component_type: str = "Tooltip"
 
@@ -526,8 +701,7 @@ class Tooltip(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.content = content
         self.side = side
         self.side_offset = side_offset
@@ -548,7 +722,34 @@ class Tooltip(Component):
 
 
 class Tabs(Component):
-    """Tabs container component."""
+    """
+    Tab container that switches between :class:`TabItem` panels.
+
+    Each direct child should be a :class:`TabItem`. The active panel is
+    determined by the ``value`` / ``default_value`` props.
+
+    Example:
+        ```python
+        Tabs(
+            default_value="overview",
+            children=[
+                TabItem(value="overview", label="Overview",
+                        children=[Text("Overview content")]),
+                TabItem(value="settings", label="Settings",
+                        children=[Text("Settings content")]),
+            ],
+        )
+        ```
+
+    Args:
+        children: :class:`TabItem` components.
+        default_value: Value of the initially active tab (uncontrolled).
+        value: Controlled active tab value. Pair with ``on_value_change``.
+        on_value_change: Callback fired when the active tab changes.
+            ``ctx.event_data`` is the new tab value string.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "Tabs"
 
@@ -563,8 +764,7 @@ class Tabs(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.default_value = default_value
         self.value = value
         self.on_value_change = on_value_change
@@ -587,7 +787,29 @@ class Tabs(Component):
 
 
 class TabItem(Component):
-    """Individual tab item."""
+    """
+    Individual tab panel inside a :class:`Tabs` container.
+
+    ``value`` must be unique among siblings and is used to identify which panel
+    is active. ``label`` is the human-readable text shown on the tab button.
+
+    Example:
+        ```python
+        TabItem(
+            value="settings",
+            label="Settings",
+            children=[Text("Manage your preferences here.")],
+        )
+        ```
+
+    Args:
+        value: Unique identifier for this panel within the :class:`Tabs` group.
+        label: Text displayed on the tab trigger button.
+        children: Panel content shown when this tab is active.
+        disabled: If ``True``, the tab button is grayed out and non-clickable.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "TabItem"
 
@@ -602,8 +824,7 @@ class TabItem(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.value = value
         self.label = label
         self.disabled = disabled
@@ -667,8 +888,7 @@ class Accordion(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.accordion_type = type
         self.collapsible = collapsible
         self.default_value = default_value
@@ -693,7 +913,31 @@ class Accordion(Component):
 
 
 class AccordionItem(Component):
-    """Accordion item component."""
+    """
+    Individual collapsible section inside an :class:`Accordion`.
+
+    Each ``AccordionItem`` contains one :class:`AccordionTrigger` (the
+    clickable header) and one :class:`AccordionContent` (the revealed body).
+
+    Example:
+        ```python
+        AccordionItem(
+            value="faq-1",
+            children=[
+                AccordionTrigger(children=["Is it accessible?"]),
+                AccordionContent(children=[Text("Yes. It adheres to the WAI-ARIA spec.")]),
+            ],
+        )
+        ```
+
+    Args:
+        value: Unique identifier for this item within the :class:`Accordion`.
+            Used by the parent to track open/closed state.
+        children: Exactly one :class:`AccordionTrigger` and one
+            :class:`AccordionContent`.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "AccordionItem"
 
@@ -707,8 +951,7 @@ class AccordionItem(Component):
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.value = value
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -724,7 +967,22 @@ class AccordionItem(Component):
 
 
 class AccordionTrigger(Component):
-    """Accordion trigger component."""
+    """
+    Clickable header that toggles an :class:`AccordionItem`.
+
+    Renders as a button with a rotating chevron indicator. Must be placed
+    inside an :class:`AccordionItem`.
+
+    Example:
+        ```python
+        AccordionTrigger(children=["Frequently Asked Questions"])
+        ```
+
+    Args:
+        children: Trigger label — typically a string.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "AccordionTrigger"
 
@@ -736,8 +994,7 @@ class AccordionTrigger(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -752,7 +1009,24 @@ class AccordionTrigger(Component):
 
 
 class AccordionContent(Component):
-    """Accordion content component."""
+    """
+    Revealed body of an :class:`AccordionItem`.
+
+    Hidden when the item is collapsed; animated into view when the
+    corresponding :class:`AccordionTrigger` is activated.
+
+    Example:
+        ```python
+        AccordionContent(
+            children=[Text("Yes. It adheres to the WAI-ARIA spec.")]
+        )
+        ```
+
+    Args:
+        children: Content shown when the accordion item is open.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+    """
 
     component_type: str = "AccordionContent"
 
@@ -764,8 +1038,7 @@ class AccordionContent(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

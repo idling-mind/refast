@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Layout Components"
 PAGE_ROUTE = "/docs/components/layout"
 
@@ -23,81 +22,139 @@ def render(ctx):
 
 
 CONTENT = r"""
-> **TODO**: This page needs full content. See `AGENT_INSTRUCTIONS.md` in this folder.
+## Overview
 
-## Components in this section
-
-- **Container** — A `<div>` wrapper, the most fundamental layout element
-- **Flex** — Flexbox container with direction, alignment, gap
-- **Row** — Shortcut for `Flex(direction="row")`
-- **Column** — Shortcut for `Flex(direction="column")`
-- **Grid** — CSS Grid with configurable columns and gap
-- **Center** — Centers its children both horizontally and vertically
-- **Box** — Generic container
-- **Separator** — Horizontal or vertical divider line
-- **AspectRatio** — Maintains a specific aspect ratio
-- **ScrollArea** / **ScrollBar** — Custom scrollable area
-- **ResizablePanelGroup** / **ResizablePanel** / **ResizableHandle** — Resizable split panes
+Layout components provide flexbox and CSS Grid primitives for building page
+structure.  All components accept `id`, `class_name`, and arbitrary extra
+props forwarded to the underlying DOM element.
 
 ---
 
-### Container
+## Row
 
-The basic building block. Renders a `<div>`.
-
-```python
-Container(
-    id="main",
-    class_name="max-w-4xl mx-auto p-6",
-    children=[...],
-)
-```
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `id` | `str \| None` | `None` | Unique ID for targeted updates |
-| `class_name` | `str` | `""` | Tailwind CSS classes |
-| `children` | `list` | `[]` | Child components |
-| `style` | `dict \| None` | `None` | Dynamic CSS properties |
-
----
-
-### Flex
+Horizontal flex container (`flex flex-row`).
 
 ```python
-Flex(
-    direction="row",
+from refast.components.shadcn import Row
+
+Row(
+    children=[Button("Save"), Button("Cancel", variant="outline")],
+    justify="end",
     align="center",
-    justify="between",
+    gap=2,
+)
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `list \| Component \| None` | `None` | Child components |
+| `justify` | `"start" \| "end" \| "center" \| "between" \| "around" \| "evenly"` | `"start"` | `justify-content` |
+| `align` | `"start" \| "end" \| "center" \| "stretch" \| "baseline"` | `"start"` | `align-items` |
+| `gap` | `int` | `2` | Gap between children (Tailwind spacing unit × 0.25 rem) |
+| `wrap` | `bool` | `False` | Whether children wrap onto multiple lines |
+| `id` | `str \| None` | `None` | Unique element ID |
+| `class_name` | `str` | `""` | Extra Tailwind classes |
+
+---
+
+## Column
+
+Vertical flex container (`flex flex-col`).
+
+```python
+from refast.components.shadcn import Column
+
+Column(
+    children=[Heading("Title", level=2), Paragraph("Body text")],
     gap=4,
-    wrap="wrap",
+)
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `list \| Component \| None` | `None` | Child components |
+| `justify` | `"start" \| "end" \| "center" \| "between" \| "around" \| "evenly"` | `"start"` | `justify-content` |
+| `align` | `"start" \| "end" \| "center" \| "stretch" \| "baseline"` | `"stretch"` | `align-items` |
+| `gap` | `int` | `2` | Gap between children (Tailwind spacing unit × 0.25 rem) |
+| `wrap` | `bool` | `False` | Whether children wrap |
+| `id` | `str \| None` | `None` | Unique element ID |
+| `class_name` | `str` | `""` | Extra Tailwind classes |
+
+---
+
+## Grid
+
+CSS Grid container.
+
+```python
+from refast.components.shadcn import Grid
+
+Grid(
+    columns=3,
+    gap=4,
+    children=[Card(title=f"Item {i}") for i in range(6)],
+)
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `list \| Component \| None` | `None` | Grid cells |
+| `columns` | `int \| str` | `1` | Number of equal columns, or a `gridTemplateColumns` CSS string |
+| `rows` | `int \| str \| None` | `None` | Number of equal rows, or a `gridTemplateRows` CSS string |
+| `gap` | `int` | `4` | Gap between cells (Tailwind spacing unit) |
+| `id` | `str \| None` | `None` | Unique element ID |
+| `class_name` | `str` | `""` | Extra Tailwind classes |
+
+---
+
+## Flex
+
+Generic flexbox container with full directional control.  For most cases
+prefer the more ergonomic `Row` or `Column` shortcuts.
+
+```python
+from refast.components.shadcn import Flex
+
+Flex(
+    direction="column",
+    justify="between",
+    align="center",
+    gap=4,
+    wrap=True,
     children=[...],
 )
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `direction` | `"row" \| "column"` | `"row"` | Flex direction |
-| `align` | `str` | `"stretch"` | Align items |
-| `justify` | `str` | `"start"` | Justify content |
-| `gap` | `str \| int` | `"0"` | Gap between children |
-| `wrap` | `str` | `"nowrap"` | Flex wrap |
+| `children` | `list \| Component \| None` | `None` | Child components |
+| `direction` | `"row" \| "column" \| "row-reverse" \| "column-reverse"` | `"row"` | Flex direction |
+| `justify` | `"start" \| "end" \| "center" \| "between" \| "around" \| "evenly"` | `"start"` | `justify-content` |
+| `align` | `"start" \| "end" \| "center" \| "stretch" \| "baseline"` | `"stretch"` | `align-items` |
+| `wrap` | `bool` | `False` | Whether children wrap |
+| `gap` | `int` | `2` | Gap (Tailwind spacing unit) |
+| `id` | `str \| None` | `None` | Unique element ID |
+| `class_name` | `str` | `""` | Extra Tailwind classes |
 
 ---
 
-### Grid
+## Center
+
+Centers its children both horizontally and vertically inside a
+`flex items-center justify-center` wrapper.
 
 ```python
-Grid(columns=3, gap=4, children=[...])
+from refast.components.shadcn import Center
+
+Center(
+    class_name="h-screen",
+    children=[Heading("Welcome", level=1)],
+)
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `columns` | `int` | `1` | Number of columns |
-| `gap` | `str \| int` | `"4"` | Gap between grid items |
-
----
-
-*Each component above should have a complete props table and a live example.*
-*See `AGENT_INSTRUCTIONS.md` for detailed requirements.*
+| `children` | `list \| Component \| None` | `None` | Content to center |
+| `id` | `str \| None` | `None` | Unique element ID |
+| `class_name` | `str` | `""` | Extra Tailwind classes |
 """

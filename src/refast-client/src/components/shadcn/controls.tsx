@@ -178,7 +178,7 @@ interface ToggleProps {
   defaultPressed?: boolean;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   onPressedChange?: (pressed: boolean) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -191,7 +191,7 @@ const toggleVariants = {
 
 const toggleSizes = {
   sm: 'h-9 px-2.5',
-  default: 'h-10 px-3',
+  md: 'h-10 px-3',
   lg: 'h-11 px-5',
 };
 
@@ -204,7 +204,7 @@ export function Toggle({
   defaultPressed,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   onPressedChange,
   children,
   'data-refast-id': dataRefastId,
@@ -244,7 +244,7 @@ interface ToggleGroupProps {
   defaultValue?: string | string[];
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -258,7 +258,7 @@ export function ToggleGroup({
   defaultValue,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
@@ -362,7 +362,7 @@ interface ToggleGroupItemProps {
   value: string;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -375,7 +375,7 @@ export function ToggleGroupItem({
   value,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   children,
   'data-refast-id': dataRefastId,
 }: ToggleGroupItemProps): React.ReactElement {

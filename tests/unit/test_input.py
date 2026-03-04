@@ -81,8 +81,8 @@ class TestInput:
         assert rendered["props"]["disabled"] is True
 
     def test_input_readonly(self):
-        """Test Input readonly prop."""
-        inp = Input(name="test", readonly=True)
+        """Test Input read_only prop."""
+        inp = Input(name="test", read_only=True)
         rendered = inp.render()
         assert rendered["props"]["read_only"] is True
 

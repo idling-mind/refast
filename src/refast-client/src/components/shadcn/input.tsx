@@ -83,6 +83,7 @@ interface InputProps {
   defaultValue?: string;
   disabled?: boolean;
   required?: boolean;
+  readOnly?: boolean;
   error?: string;
   name?: string | null;
   debounce?: number;
@@ -114,6 +115,7 @@ export function Input({
   defaultValue,
   disabled = false,
   required = false,
+  readOnly = false,
   error,
   name,
   debounce = 0,
@@ -215,6 +217,7 @@ export function Input({
       placeholder={placeholder}
       value={localValue}
       disabled={disabled}
+      readOnly={readOnly}
       required={required}
       name={name || undefined}
       onChange={handleChange}

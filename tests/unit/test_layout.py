@@ -96,9 +96,9 @@ class TestFlex:
 
     def test_flex_wrap(self):
         """Test Flex wrap prop."""
-        flex = Flex(wrap="wrap")
+        flex = Flex(wrap=True)
         rendered = flex.render()
-        assert rendered["props"]["wrap"] == "wrap"
+        assert rendered["props"]["wrap"] is True
 
 
 class TestCenter:

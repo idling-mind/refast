@@ -34,8 +34,7 @@ class Alert(Component):
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        self.add_children(children)
         self.title = title
         self.message = message
         self.variant = variant

@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Typography Components"
 PAGE_ROUTE = "/docs/components/typography"
 

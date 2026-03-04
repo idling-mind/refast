@@ -7,7 +7,6 @@ from refast.components import (
     Separator,
 )
 
-
 PAGE_TITLE = "Installation & Getting Started"
 PAGE_ROUTE = "/docs/getting-started"
 

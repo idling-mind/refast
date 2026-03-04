@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Cards & Containers"
 PAGE_ROUTE = "/docs/components/cards"
 
@@ -222,53 +221,4 @@ def pricing_card(ctx):
         ],
     )
 ```
-"""
-
-## Components in this section
-
-- **Card** — Container with border and shadow
-- **CardHeader** — Card header area
-- **CardTitle** — Card title text
-- **CardDescription** — Card subtitle/description
-- **CardContent** — Card body
-- **CardFooter** — Card footer area
-- **Collapsible** / **CollapsibleTrigger** / **CollapsibleContent** — Expandable/collapsible section
-
----
-
-### Card
-
-```python
-Card(children=[
-    CardHeader(children=[
-        CardTitle("Dashboard"),
-        CardDescription("Overview of your data"),
-    ]),
-    CardContent(children=[
-        Text("Main content goes here"),
-    ]),
-    CardFooter(children=[
-        Button("Save", on_click=ctx.callback(save)),
-    ]),
-])
-```
-
----
-
-### Collapsible
-
-```python
-Collapsible(children=[
-    CollapsibleTrigger(children=[
-        Button("Toggle Details", variant="ghost"),
-    ]),
-    CollapsibleContent(children=[
-        Text("Hidden details revealed on click"),
-    ]),
-])
-```
-
----
-
-*See `AGENT_INSTRUCTIONS.md` for detailed content requirements per component.*
 """

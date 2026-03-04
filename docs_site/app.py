@@ -14,7 +14,6 @@ from fastapi.staticfiles import StaticFiles
 
 from refast import Context, RefastApp
 from refast.components import (
-    Badge,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -22,15 +21,12 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
-    Column,
     Container,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
     Flex,
-    Heading,
-    Icon,
     IconButton,
     Row,
     Separator,
@@ -45,14 +41,10 @@ from refast.components import (
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
     SidebarProvider,
     SidebarRail,
     SidebarSeparator,
     SidebarTrigger,
-    Text,
     Tooltip,
 )
 from refast.components.shadcn import ThemeSwitcher

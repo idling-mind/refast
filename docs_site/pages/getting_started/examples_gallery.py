@@ -1,20 +1,15 @@
 """Examples Gallery — /docs/examples."""
 
 from refast import Context
-
 from refast.components import (
-    Badge,
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
-    Column,
     Container,
     Grid,
     Heading,
     Icon,
-    Markdown,
     Row,
     Separator,
     Text,

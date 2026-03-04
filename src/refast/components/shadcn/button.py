@@ -116,9 +116,7 @@ class IconButton(Component):
     def __init__(
         self,
         icon: str,
-        variant: Literal[
-            "default", "secondary", "destructive", "outline", "ghost"
-        ] = "ghost",
+        variant: Literal["default", "secondary", "destructive", "outline", "ghost"] = "ghost",
         size: Literal["sm", "md", "lg"] = "md",
         disabled: bool = False,
         on_click: Any = None,

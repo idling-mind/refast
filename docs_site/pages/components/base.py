@@ -1,6 +1,6 @@
 """Base components — /docs/components/base."""
 
-from refast.components import Container, Heading, Text, Separator
+from refast.components import Container, Heading, Separator
 
 from ..utils import render_markdown_with_demo_apps
 

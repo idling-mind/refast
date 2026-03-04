@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Data Display"
 PAGE_ROUTE = "/docs/components/data-display"
 
@@ -537,81 +536,4 @@ HoverCard(
 | `side_offset` | `int` | `4` | Pixel gap between trigger and card. |
 | `align` | `"start" \| "center" \| "end"` | `"center"` | Alignment of the card relative to the trigger. |
 | `class_name` | `str` | `""` | Additional CSS class names. |
-"""
-
-## Components in this section
-
-- **Table** / **TableHeader** / **TableBody** / **TableRow** / **TableHead** / **TableCell** — HTML table primitives
-- **DataTable** — Higher-level data table component
-- **Avatar** — User avatar with image or initials
-- **Image** — Responsive image component
-- **List** — Ordered or unordered list
-- **Calendar** — Date display/selection calendar
-- **Progress** — Progress bar
-- **Skeleton** — Loading placeholder
-- **Carousel** / **CarouselContent** / **CarouselItem** / **CarouselPrevious** / **CarouselNext** — Image/content carousel
-- **Accordion** / **AccordionItem** / **AccordionTrigger** / **AccordionContent** — Expandable content sections
-- **Tabs** / **TabItem** — Tabbed content switcher
-- **HoverCard** / **HoverCardTrigger** / **HoverCardContent** — Card shown on hover
-- **Tooltip** — Hover tooltip
-
----
-
-### Table
-
-```python
-Table(children=[
-    TableHeader(children=[
-        TableRow(children=[
-            TableHead("Name"),
-            TableHead("Email"),
-        ]),
-    ]),
-    TableBody(children=[
-        TableRow(children=[
-            TableCell("Alice"),
-            TableCell("alice@example.com"),
-        ]),
-    ]),
-])
-```
-
----
-
-### Tabs
-
-```python
-Tabs(
-    default_value="tab1",
-    children=[
-        TabItem(label="Overview", value="tab1", children=[
-            Text("Overview content"),
-        ]),
-        TabItem(label="Settings", value="tab2", children=[
-            Text("Settings content"),
-        ]),
-    ],
-)
-```
-
----
-
-### Accordion
-
-```python
-Accordion(
-    type="single",
-    collapsible=True,
-    children=[
-        AccordionItem(value="item1", children=[
-            AccordionTrigger("Section 1"),
-            AccordionContent(children=[Text("Content for section 1")]),
-        ]),
-    ],
-)
-```
-
----
-
-*See `AGENT_INSTRUCTIONS.md` for detailed content requirements per component.*
 """

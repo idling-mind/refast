@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "JavaScript Interop"
 PAGE_ROUTE = "/docs/concepts/js-interop"
 

@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Charts"
 PAGE_ROUTE = "/docs/components/charts"
 

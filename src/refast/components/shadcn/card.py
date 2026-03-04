@@ -9,16 +9,30 @@ class Card(Component):
     """
     Card container component.
 
+    A rounded, bordered container with a subtle drop shadow. Use it to group
+    related content and actions into a visually distinct surface.
+
     Example:
         ```python
         Card(
             children=[
-                CardHeader(title="My Card"),
+                CardHeader(title="My Card", description="A brief subtitle."),
                 CardContent(children=[Text("Content here")]),
                 CardFooter(children=[Button("Action")]),
             ]
         )
         ```
+
+    Args:
+        children: Card sub-components (``CardHeader``, ``CardContent``,
+            ``CardFooter``, etc.).
+        title: Shorthand title rendered by the React component directly
+            (without a ``CardHeader``).
+        description: Shorthand description rendered below ``title``.
+        on_click: Optional click callback — makes the card interactive.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
     """
 
     component_type: str = "Card"

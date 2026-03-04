@@ -1,6 +1,6 @@
 """Components — /docs/concepts/components."""
 
-from refast.components import Badge, Container, Heading, Markdown, Separator, Text
+from refast.components import Badge, Container, Heading, Separator, Text
 
 from ..utils import render_markdown_with_demo_apps
 

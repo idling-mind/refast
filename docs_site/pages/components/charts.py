@@ -1,6 +1,8 @@
 """Charts — /docs/components/charts."""
 
-from refast.components import Container, Heading, Markdown, Separator
+from refast.components import Container, Heading, Separator
+
+from ..utils import render_markdown_with_demo_apps
 
 PAGE_TITLE = "Charts"
 PAGE_ROUTE = "/docs/components/charts"
@@ -15,37 +17,45 @@ def render(ctx):
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Markdown(content=CONTENT),
+            render_markdown_with_demo_apps(CONTENT, locals()),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
 
 
 CONTENT = r"""
-> **TODO**: This page needs full content. See `AGENT_INSTRUCTIONS.md` in this folder.
-
 ## Overview
 
-Refast includes a full charting system built on Recharts. All charts are wrapped in
-a `ChartContainer` with a `ChartConfig` that maps data keys to colors and labels.
+Refast includes a full charting system built on [Recharts](https://recharts.org/).
+All charts are wrapped in a `ChartContainer` with a `ChartConfig` that maps data
+keys to display labels and colors.
 
 ## Chart Types
 
-- **BarChart** — Vertical or horizontal bar charts
-- **LineChart** — Line/trend charts
-- **AreaChart** — Filled area charts
-- **PieChart** — Pie/donut charts
-- **RadarChart** — Radar/spider charts
-- **RadialChart** — Radial bar charts
-- **ScatterChart** — Scatter/point charts
+| Chart | Component | Type |
+|-------|-----------|------|
+| Bar | `BarChart` + `Bar` | Cartesian |
+| Line | `LineChart` + `Line` | Cartesian |
+| Area | `AreaChart` + `Area` | Cartesian |
+| Pie / Donut | `PieChart` + `Pie` | Radial |
+| Radar | `RadarChart` + `Radar` | Polar |
+| Radial Bar | `RadialBarChart` + `RadialBar` | Radial |
+| Scatter | `ScatterChart` + `Scatter` | Cartesian |
+| Composed | `ComposedChart` | Cartesian |
+| Funnel | `FunnelChart` + `Funnel` | Flow |
+| Treemap | `Treemap` (standalone) | Hierarchy |
+| Sankey | `Sankey` (standalone) | Flow |
 
-## Basic Example
+---
+
+## Quick Start: Bar Chart
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig, ChartColor,
-    BarChart, Bar, ChartTooltip, ChartTooltipContent,
-    XAxis, YAxis, CartesianGrid,
+    ChartContainer, ChartConfig,
+    BarChart, Bar,
+    ChartTooltip, ChartTooltipContent,
+    XAxis, CartesianGrid,
 )
 
 data = [
@@ -54,9 +64,9 @@ data = [
     {"month": "Mar", "sales": 200},
 ]
 
-config = ChartConfig(colors={
-    "sales": ChartColor(label="Sales", color="hsl(var(--primary))"),
-})
+config = {
+    "sales": ChartConfig(label="Sales", color="hsl(var(--chart-1))"),
+}
 
 ChartContainer(
     config=config,
@@ -67,7 +77,6 @@ ChartContainer(
             children=[
                 CartesianGrid(stroke_dasharray="3 3"),
                 XAxis(data_key="month"),
-                YAxis(),
                 ChartTooltip(content=ChartTooltipContent()),
                 Bar(data_key="sales", fill="var(--color-sales)", radius=4),
             ],
@@ -76,32 +85,135 @@ ChartContainer(
 )
 ```
 
-## ChartConfig
+---
 
-Maps data keys to labels and colors:
+## ChartContainer
+
+Responsive wrapper that provides theming context and sizing.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `config` | `dict[str, ChartConfig]` | `{}` | Map of data key → `ChartConfig` |
+| `class_name` | `str` | `""` | CSS classes (e.g., `"h-64 w-full"`) |
+| `width` | `str \| int` | `"100%"` | Container width |
+| `height` | `str \| int` | `"100%"` | Container height |
+| `min_height` | `str \| int \| None` | `200` | Minimum height |
+| `aspect` | `float \| None` | `None` | Aspect ratio (width/height) |
+| `on_resize` | `Callback \| None` | `None` | Fired when container is resized |
+
+## ChartConfig (Pydantic model)
 
 ```python
-config = ChartConfig(colors={
-    "revenue": ChartColor(label="Revenue", color="hsl(var(--chart-1))"),
-    "expenses": ChartColor(label="Expenses", color="hsl(var(--chart-2))"),
-})
+ChartConfig(label="Revenue", color="hsl(var(--chart-1))")
 ```
 
-## Sub-Components
-
-| Component | Used In | Purpose |
-|-----------|---------|---------|
-| `Bar` | BarChart | A bar series |
-| `Line` | LineChart | A line series |
-| `Area` | AreaChart | An area series |
-| `Pie` | PieChart | A pie series |
-| `XAxis`, `YAxis` | Any cartesian | Axes |
-| `CartesianGrid` | Any cartesian | Grid lines |
-| `ChartTooltip` | Any | Hover tooltip |
-| `ChartLegend` | Any | Color legend |
-| `PolarGrid`, `PolarAngleAxis`, `PolarRadiusAxis` | Radar/Radial | Polar axes |
+| Field | Type | Description |
+|-------|------|-------------|
+| `label` | `str` | Human-readable series label |
+| `color` | `str \| None` | CSS color value |
+| `icon` | `str \| None` | Lucide icon name for the legend |
 
 ---
 
-*See `AGENT_INSTRUCTIONS.md` for detailed content requirements.*
+## Common Chart Props
+
+All chart components (`BarChart`, `LineChart`, etc.) accept:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `list[dict]` | *(required)* | Array of data records |
+| `layout` | `"horizontal" \| "vertical"` | `"horizontal"` | Chart orientation |
+| `margin` | `dict[str, int] \| None` | `{top:10, right:10, left:10, bottom:0}` | Chart margins |
+| `on_click` | `Callback \| None` | `None` | Click on chart element |
+| `on_mouse_enter` | `Callback \| None` | `None` | Hover enter |
+| `on_mouse_leave` | `Callback \| None` | `None` | Hover leave |
+
+---
+
+## Series Components
+
+### Bar
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data_key` | `str` | *(required)* | Key in the data records for this series |
+| `fill` | `str \| None` | `None` | Bar fill colour (use `var(--color-<key>)`) |
+| `radius` | `int \| list[int]` | `0` | Border radius |
+| `stack_id` | `str \| None` | `None` | Stack identifier for stacked bars |
+
+### Line
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data_key` | `str` | *(required)* | Key in the data records |
+| `stroke` | `str \| None` | `None` | Line colour |
+| `stroke_width` | `int` | `2` | Line thickness |
+| `dot` | `bool` | `True` | Show data-point dots |
+| `type` | `"linear" \| "monotone" \| "step"` | `"linear"` | Interpolation |
+
+### Area
+
+Same as `Line`, plus:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `str \| None` | `None` | Area fill colour |
+| `fill_opacity` | `float` | `0.4` | Fill opacity |
+
+### Pie
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data_key` | `str` | *(required)* | Key for values |
+| `name_key` | `str` | `"name"` | Key for slice labels |
+| `inner_radius` | `int \| str` | `0` | Inner radius (set > 0 for donut) |
+| `outer_radius` | `int \| str` | `"80%"` | Outer radius |
+| `on_click` | `Callback \| None` | `None` | Click a slice |
+
+---
+
+## Axes & Grid
+
+### XAxis / YAxis
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data_key` | `str \| None` | `None` | Key for axis values |
+| `tick_line` | `bool` | `True` | Show tick lines |
+| `axis_line` | `bool` | `True` | Show axis line |
+
+### CartesianGrid
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke_dasharray` | `str` | `"3 3"` | SVG dash pattern |
+| `horizontal` | `bool` | `True` | Show horizontal lines |
+| `vertical` | `bool` | `True` | Show vertical lines |
+
+---
+
+## Tooltip & Legend
+
+### ChartTooltip
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `content` | `ChartTooltipContent \| None` | `None` | Custom content component |
+| `cursor` | `bool` | `True` | Show cursor highlight |
+
+### ChartTooltipContent
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `indicator` | `"line" \| "dot" \| "dashed"` | `"dot"` | Style of series indicator |
+| `name_key` | `str \| None` | `None` | Override key for series name |
+| `label_key` | `str \| None` | `None` | Override key for x-axis label |
+
+### ChartLegend / ChartLegendContent
+
+```python
+ChartLegend(content=ChartLegendContent())
+```
+
+Placed as a child of the chart component; renders the colour/label legend.
 """

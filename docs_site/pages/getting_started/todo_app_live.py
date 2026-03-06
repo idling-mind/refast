@@ -78,7 +78,7 @@ def render(ctx: Context):
                     ),
                     rc.Button(
                         "Add",
-                        variant="primary",
+                        variant="default",
                         on_click=ctx.callback(add_todo, props=["new_todo"]),
                     ),
                 ],

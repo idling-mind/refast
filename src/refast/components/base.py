@@ -145,12 +145,6 @@ class Component(ABC):
         """
         _validate_prop_keys(props, self.component_type)
 
-    @staticmethod
-    def _to_camel_case(snake_str: str) -> str:
-        """Convert snake_case to camelCase. Deprecated - frontend handles conversion."""
-        components = snake_str.split("_")
-        return components[0] + "".join(x.title() for x in components[1:])
-
     @abstractmethod
     def render(self) -> dict[str, Any]:
         """

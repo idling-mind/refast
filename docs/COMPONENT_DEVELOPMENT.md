@@ -124,7 +124,6 @@ class Component(ABC):
 | Method | Description |
 |--------|-------------|
 | `render()` | **Required**. Returns dict with `type`, `id`, `props`, and `children` |
-| `add_child(child)` | Add a single child, returns `self` for chaining |
 | `add_children(children)` | Add multiple children at once |
 | `_render_children()` | Helper to render all children to dicts/strings |
 | `_serialize_extra_props()` | Helper to serialize extra props including callbacks |

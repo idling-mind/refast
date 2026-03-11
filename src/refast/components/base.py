@@ -87,20 +87,6 @@ class Component(ABC):
         self.extra_props = props
         self._children: ChildrenType = []
 
-    def add_child(self, child: Union["Component", str, None]) -> Self:
-        """Add a child component."""
-        if not isinstance(child, (Component, str)) and child is not None:
-            raise ValueError(f"Child must be a Component, string, or None, got {type(child)}")
-        if child is None:
-            return self
-        if isinstance(self._children, list):
-            self._children.append(child)
-        elif isinstance(self._children, Component):
-            self._children = [self._children, child]
-        elif self._children is None:
-            self._children = [child]
-        return self
-
     def add_children(self, children: ChildrenType) -> Self:
         """Add multiple children or a single child."""
         if children is None:

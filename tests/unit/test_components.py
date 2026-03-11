@@ -38,13 +38,6 @@ class TestComponent:
         container = Container(data_testid="test")
         assert container.extra_props == {"data_testid": "test"}
 
-    def test_add_child_fluent(self):
-        """Test add_child returns self for chaining."""
-        container = Container()
-        result = container.add_child(Text("A")).add_child(Text("B"))
-        assert result is container
-        assert len(container._children) == 2
-
     def test_add_children(self):
         """Test add_children adds multiple children."""
         container = Container()

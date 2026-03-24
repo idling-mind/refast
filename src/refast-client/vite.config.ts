@@ -22,8 +22,8 @@ try {
  */
 const CHUNK_GROUPS: Record<string, string[]> = {
   // Heavy third-party libraries get their own chunks
-  charts: ['recharts', '/charts/'],
-  markdown: ['react-markdown', 'remark-gfm', 'react-syntax-highlighter'],
+  charts: ['recharts'],
+  markdown: ['react-markdown', 'remark-gfm', 'rehype-raw', 'react-syntax-highlighter'],
   icons: ['lucide-react'],
   // Component group chunks
   navigation: ['/shadcn/navigation'],
@@ -84,6 +84,12 @@ export default defineConfig(({ mode }) => {
           // Normalise separators so matching works on both Windows and Unix.
           const normalId = id.replace(/\\/g, '/');
 
+          // Keep Rollup virtual modules and CommonJS helper shims in the
+          // neutral vendor chunk so feature chunks are not pulled into core.
+          if (id.startsWith('\u0000') || normalId.includes('commonjsHelpers')) {
+            return 'vendor';
+          }
+
           for (const [chunkName, markers] of Object.entries(CHUNK_GROUPS)) {
             if (markers.some((m) => normalId.includes(m))) {
               // Only apply manual chunks for node_modules to avoid circular
@@ -93,6 +99,11 @@ export default defineConfig(({ mode }) => {
                  return chunkName;
               }
             }
+          }
+          if (normalId.includes('node_modules')) {
+            // Keep other third-party modules in a neutral shared vendor chunk
+            // so feature chunks do not accidentally become dependencies of core runtime.
+            return 'vendor';
           }
           // Let Vite handle everything else (goes into entry or shared)
           return undefined;

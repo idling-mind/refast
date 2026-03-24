@@ -70,13 +70,15 @@ def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
     return None
 
 
-def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> list[str]:
+def _get_chunk_files(
+    manifest: dict[str, Any], preloaded_features: list[str] | None
+) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
     Args:
         manifest: Parsed Vite manifest.json contents.
-        features: ``None`` = load all chunks; otherwise only the listed
-            feature chunks are included.
+        preloaded_features: Which feature chunks should be hinted with
+            ``modulepreload``. ``None`` means no feature chunks are preloaded.
 
     Returns:
         List of JS filenames (relative to /static/) in load order.
@@ -87,7 +89,7 @@ def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> li
         return ["refast-client.js"]
 
     # Determine which feature chunks to include
-    allowed = set(ALL_FEATURE_CHUNKS) if features is None else set(features)
+    allowed = set(preloaded_features or [])
 
     # Prefer explicit manifest entry; keep stable fallback for dev/test.
     entry_key: str | None = None
@@ -484,7 +486,7 @@ class RefastRouter:
 
         The shell uses ``<script type="module">`` for the ESM entry chunk
         and any additional feature chunks determined by the build manifest
-        and the app's ``features`` configuration.
+        and the app's ``preloaded_features`` configuration.
 
         Extension scripts are loaded *after* the core module fires
         ``refast:ready``, ensuring ``window.RefastClient`` is available.
@@ -497,7 +499,15 @@ class RefastRouter:
 
         # Resolve chunk files from the build manifest
         manifest = _load_manifest()
-        chunk_files = _get_chunk_files(manifest, self.app.features)
+        lazy_features = (
+            set(self.app.lazy_features)
+            if self.app.lazy_features is not None
+            else set(ALL_FEATURE_CHUNKS)
+        )
+        startup_features = sorted(
+            (set(self.app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features))
+        )
+        chunk_files = _get_chunk_files(manifest, startup_features)
 
         # Build script tags — entry is type="module", chunks are modulepreload
         client_css = (
@@ -517,6 +527,15 @@ class RefastRouter:
 
         scripts_html = "\n    ".join(script_tags)
         preloads_html = "\n    ".join(preload_tags)
+        preload_config_html = (
+            "<script>window.__REFAST_PRELOADED_FEATURES__ = "
+            f"{json.dumps(startup_features)};"
+            "window.__REFAST_STARTUP_FEATURES__ = "
+            f"{json.dumps(startup_features)};"
+            "window.__REFAST_LAZY_FEATURES__ = "
+            f"{json.dumps(sorted(lazy_features))};"
+            "</script>"
+        )
 
         # Collect extension assets — loaded after refast:ready
         extension_styles = []
@@ -627,6 +646,7 @@ class RefastRouter:
         <div id="refast-loading-spinner"></div>
     </div>
     <div id="refast-root"></div>
+    {preload_config_html}
     {scripts_html}
     {ext_loader_html}
     {custom_js_html}

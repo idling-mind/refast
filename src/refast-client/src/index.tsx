@@ -121,8 +121,54 @@ export type {
   StateManagerState,
 } from './types';
 
+function getConfiguredPreloadedFeatures(): string[] {
+  const globalValue = (window as Window & { __REFAST_PRELOADED_FEATURES__?: unknown })
+    .__REFAST_PRELOADED_FEATURES__;
+  if (!Array.isArray(globalValue)) {
+    return [];
+  }
+  return globalValue.filter((v): v is string => typeof v === 'string');
+}
+
+function getConfiguredStartupFeatures(): string[] {
+  const globalValue = (window as Window & { __REFAST_STARTUP_FEATURES__?: unknown })
+    .__REFAST_STARTUP_FEATURES__;
+  if (!Array.isArray(globalValue)) {
+    return getConfiguredPreloadedFeatures();
+  }
+  return globalValue.filter((v): v is string => typeof v === 'string');
+}
+
+function getConfiguredLazyFeatures(): string[] {
+  const globalValue = (window as Window & { __REFAST_LAZY_FEATURES__?: unknown })
+    .__REFAST_LAZY_FEATURES__;
+  if (!Array.isArray(globalValue)) {
+    return componentRegistry.listChunks();
+  }
+  return globalValue.filter((v): v is string => typeof v === 'string');
+}
+
+async function warmupPreloadedFeatures(): Promise<void> {
+  const configured = getConfiguredStartupFeatures();
+  if (configured.length === 0) {
+    return;
+  }
+
+  const available = new Set(componentRegistry.listChunks());
+  const selected = configured.filter((name) => available.has(name));
+  if (selected.length === 0) {
+    return;
+  }
+
+  try {
+    await componentRegistry.preloadChunks(selected);
+  } catch (error) {
+    console.error('Failed to preload configured feature chunks:', error);
+  }
+}
+
 // Auto-initialize when script loads
-function initializeRefast(): void {
+async function initializeRefast(): Promise<void> {
   // Look for the refast-root element
   const rootElement = document.getElementById('refast-root');
 
@@ -132,6 +178,8 @@ function initializeRefast(): void {
   // content of #refast-root is a pure-HTML/CSS spinner that stays visible
   // until React hydrates and the WebSocket delivers the first page_render.
   if (rootElement) {
+    componentRegistry.configureLazyFeatures(getConfiguredLazyFeatures());
+    await warmupPreloadedFeatures();
     const root = createRoot(rootElement);
     root.render(React.createElement(RefastApp));
   }
@@ -139,9 +187,11 @@ function initializeRefast(): void {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeRefast);
+  document.addEventListener('DOMContentLoaded', () => {
+    void initializeRefast();
+  });
 } else {
-  initializeRefast();
+  void initializeRefast();
 }
 
 // =============================================================================
@@ -171,6 +221,9 @@ if (document.readyState === 'loading') {
  */
 declare global {
   interface Window {
+    __REFAST_PRELOADED_FEATURES__?: string[];
+    __REFAST_STARTUP_FEATURES__?: string[];
+    __REFAST_LAZY_FEATURES__?: string[];
     RefastClient: {
       /** Component registry for registering custom React components */
       componentRegistry: typeof componentRegistry;

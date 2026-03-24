@@ -66,7 +66,7 @@ from refast.components import (
 )
 
 # Create the Refast app
-ui = RefastApp(title="Navigation Showcase")
+ui = RefastApp(title="Navigation Showcase", preloaded_features=["navigation"])
 
 
 # Callback handlers

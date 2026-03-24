@@ -12,9 +12,10 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Input, InputWrapper, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
 import { Form, FormField } from './shadcn/form';
 import { Slot } from './shadcn/slot';
-import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
+import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
 import { ConnectionStatus } from './shadcn/ConnectionStatus';
+import { Icon } from './shadcn/icon';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, DataTable, Avatar, Image, Tooltip, Tabs, TabItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './shadcn/data_display';
 
 // Import utility components that are lightweight
@@ -67,6 +68,8 @@ class ComponentRegistry {
   private chunkPromises: Map<string, Promise<Record<string, ComponentType>>> = new Map();
   /** Which chunks have been fully resolved */
   private resolvedChunks: Set<string> = new Set();
+  /** Which feature chunks are allowed to load lazily */
+  private lazyFeatureSet: Set<string> | null = null;
 
   // ── Eager registration (unchanged API) ─────────────────────────────
 
@@ -160,6 +163,55 @@ class ComponentRegistry {
     return Array.from(this.chunkLoaders.keys());
   }
 
+  /**
+   * Configure which feature chunks are allowed to load lazily.
+   */
+  configureLazyFeatures(featureNames: string[]): void {
+    this.lazyFeatureSet = new Set(featureNames);
+  }
+
+  private _isLazyAllowed(chunkName: string): boolean {
+    if (this.lazyFeatureSet === null) {
+      return true;
+    }
+    return this.lazyFeatureSet.has(chunkName);
+  }
+
+  /**
+   * Eagerly load a lazy feature chunk.
+   *
+   * This resolves and promotes all chunk components to eager registrations
+   * before the first render that uses them.
+   */
+  async preloadChunk(chunkName: string): Promise<void> {
+    if (this.resolvedChunks.has(chunkName)) {
+      return;
+    }
+
+    let promise = this.chunkPromises.get(chunkName);
+    if (!promise) {
+      const loader = this.chunkLoaders.get(chunkName);
+      if (!loader) {
+        throw new Error(`No loader for chunk "${chunkName}"`);
+      }
+      promise = loader();
+      this.chunkPromises.set(chunkName, promise);
+    }
+
+    const exports = await promise;
+    for (const [name, component] of Object.entries(exports)) {
+      this.components.set(name, component);
+    }
+    this.resolvedChunks.add(chunkName);
+  }
+
+  /**
+   * Eagerly load multiple lazy feature chunks.
+   */
+  async preloadChunks(chunkNames: string[]): Promise<void> {
+    await Promise.all(chunkNames.map((chunkName) => this.preloadChunk(chunkName)));
+  }
+
   // ── Internal ───────────────────────────────────────────────────────
 
   /**
@@ -170,6 +222,12 @@ class ComponentRegistry {
     name: string,
     chunkName: string,
   ): Promise<{ default: ComponentType }> {
+    if (!this._isLazyAllowed(chunkName) && !this.resolvedChunks.has(chunkName)) {
+      throw new Error(
+        `Chunk "${chunkName}" is configured as non-lazy and must be preloaded at startup.`,
+      );
+    }
+
     // De-duplicate chunk loading
     let promise = this.chunkPromises.get(chunkName);
     if (!promise) {
@@ -256,7 +314,6 @@ componentRegistry.register('BlockQuote', BlockQuote);
 componentRegistry.register('List', List);
 componentRegistry.register('ListItem', ListItem);
 componentRegistry.register('Label', Label);
-componentRegistry.register('Markdown', Markdown);
 
 // Feedback
 componentRegistry.register('Alert', Alert);
@@ -268,6 +325,7 @@ componentRegistry.register('Spinner', Spinner);
 componentRegistry.register('Toast', Toaster);
 componentRegistry.register('Skeleton', Skeleton);
 componentRegistry.register('ConnectionStatus', ConnectionStatus);
+componentRegistry.register('Icon', Icon);
 
 // Data display
 componentRegistry.register('Table', Table);
@@ -309,10 +367,10 @@ componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
 // ═══════════════════════════════════════════════════════════════════════════
 
 componentRegistry.registerLazyChunk({
-  name: 'icons',
-  componentNames: ['Icon'],
+  name: 'markdown',
+  componentNames: ['Markdown'],
   loader: () =>
-    import('./shadcn/icon').then((m) => ({ Icon: m.Icon })),
+    import('./shadcn/typography').then((m) => ({ Markdown: m.Markdown })),
 });
 
 componentRegistry.registerLazyChunk({

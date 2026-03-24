@@ -56,7 +56,7 @@ from refast.components.shadcn.charts import (
     ZAxis,
 )
 
-ui = RefastApp("Charts Showcase")
+ui = RefastApp("Charts Showcase", preloaded_features=["charts"])
 
 
 def get_data():

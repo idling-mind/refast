@@ -1,7 +1,7 @@
 """Tests for bundle optimization features.
 
 Covers:
-- RefastApp ``features`` configuration
+- RefastApp ``preloaded_features`` configuration
 - _load_manifest / _get_chunk_files helpers
 - HTML shell: ESM script tags, modulepreload hints, extension loader
 - Static handler: pre-compressed file serving (brotli / gzip)
@@ -73,11 +73,15 @@ def sample_manifest() -> dict:
 
 
 @pytest.fixture
-def features_app():
-    """Factory to create a RefastApp with given features + a minimal page."""
+def preloaded_features_app():
+    """Factory to create a RefastApp with given preloaded features + page."""
 
-    def _make(features=None):
-        ui = RefastApp(title="Test", features=features)
+    def _make(preloaded_features=None, lazy_features=None):
+        ui = RefastApp(
+            title="Test",
+            preloaded_features=preloaded_features,
+            lazy_features=lazy_features,
+        )
 
         @ui.page("/")
         def home(ctx):
@@ -91,29 +95,37 @@ def features_app():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# RefastApp.features configuration
+# RefastApp.preloaded_features configuration
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class TestFeaturesConfig:
-    """Tests for the ``features`` parameter on RefastApp."""
+class TestPreloadedFeaturesConfig:
+    """Tests for the ``preloaded_features`` parameter on RefastApp."""
 
-    def test_default_features_is_none(self):
+    def test_default_preloaded_features_is_none(self):
         app = RefastApp()
-        assert app.features is None
+        assert app.preloaded_features is None
 
-    def test_features_empty_list(self):
-        app = RefastApp(features=[])
-        assert app.features == []
+    def test_preloaded_features_empty_list(self):
+        app = RefastApp(preloaded_features=[])
+        assert app.preloaded_features == []
 
-    def test_features_specific_list(self):
-        app = RefastApp(features=["charts", "icons"])
-        assert app.features == ["charts", "icons"]
+    def test_preloaded_features_specific_list(self):
+        app = RefastApp(preloaded_features=["charts", "icons"])
+        assert app.preloaded_features == ["charts", "icons"]
 
-    def test_features_stored_as_given(self):
+    def test_preloaded_features_stored_as_given(self):
         feats = ["navigation", "overlay"]
-        app = RefastApp(features=feats)
-        assert app.features is feats  # same reference
+        app = RefastApp(preloaded_features=feats)
+        assert app.preloaded_features is feats  # same reference
+
+    def test_default_lazy_features_is_none(self):
+        app = RefastApp()
+        assert app.lazy_features is None
+
+    def test_lazy_features_specific_list(self):
+        app = RefastApp(lazy_features=["charts", "icons"])
+        assert app.lazy_features == ["charts", "icons"]
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -127,13 +139,13 @@ class TestGetChunkFiles:
     def test_empty_manifest_returns_entry(self):
         assert _get_chunk_files({}, None) == ["refast-client.js"]
 
-    def test_all_features_when_none(self, sample_manifest):
-        """features=None should include entry + static import graph only."""
+    def test_no_feature_preloads_when_none(self, sample_manifest):
+        """preloaded_features=None should preload only entry + non-feature graph."""
         files = _get_chunk_files(sample_manifest, None)
         assert files[0] == "refast-client.js"
-        # Entry imports charts/icons + shared graph
-        assert any("charts" in f for f in files)
-        assert any("icons" in f for f in files)
+        # Feature chunks are skipped by default
+        assert not any("charts" in f for f in files)
+        assert not any("icons" in f for f in files)
         assert any("shared" in f for f in files)
         assert any("vendor" in f for f in files)
         # Unreferenced dynamic entries should not be preloaded
@@ -155,7 +167,7 @@ class TestGetChunkFiles:
         assert any("vendor" in f for f in files)
 
     def test_empty_features_excludes_all_feature_chunks(self, sample_manifest):
-        """features=[] should include only entry + shared."""
+        """preloaded_features=[] should include only entry + shared."""
         files = _get_chunk_files(sample_manifest, [])
         assert "refast-client.js" in files
         # All feature chunks excluded
@@ -209,21 +221,33 @@ class TestLoadManifest:
 class TestHtmlShell:
     """Test that the HTML shell uses ESM and modulepreload correctly."""
 
-    def test_html_uses_script_type_module(self, features_app):
-        client, _ = features_app()
+    def test_html_uses_script_type_module(self, preloaded_features_app):
+        client, _ = preloaded_features_app()
         response = client.get("/ui/")
         assert response.status_code == 200
         assert '<script type="module"' in response.text
 
-    def test_html_includes_root_div(self, features_app):
-        client, _ = features_app()
+    def test_html_includes_root_div(self, preloaded_features_app):
+        client, _ = preloaded_features_app()
         response = client.get("/ui/")
         assert 'id="refast-root"' in response.text
 
-    def test_html_includes_initial_data(self, features_app):
-        client, _ = features_app()
+    def test_html_includes_initial_data(self, preloaded_features_app):
+        client, _ = preloaded_features_app()
         response = client.get("/ui/")
         assert "__REFAST_INITIAL_DATA__" not in response.text
+
+    def test_html_includes_lazy_and_startup_config(self, preloaded_features_app):
+        client, _ = preloaded_features_app(
+            preloaded_features=["charts"],
+            lazy_features=["charts", "icons"],
+        )
+        response = client.get("/ui/")
+        assert response.status_code == 200
+        assert "__REFAST_STARTUP_FEATURES__" in response.text
+        assert "__REFAST_LAZY_FEATURES__" in response.text
+        assert "\"charts\"" in response.text
+        assert "\"icons\"" in response.text
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -254,9 +278,9 @@ class TestStaticHandlerCompression:
 
         return tmp_path
 
-    def test_serves_brotli_when_accepted(self, features_app, tmp_path):
+    def test_serves_brotli_when_accepted(self, preloaded_features_app, tmp_path):
         static = self._setup_static(tmp_path)
-        client, _ = features_app()
+        client, _ = preloaded_features_app()
 
         with patch("refast.router.STATIC_DIR", static):
             # Use a raw httpx transport to avoid automatic decoding
@@ -268,9 +292,9 @@ class TestStaticHandlerCompression:
         assert response.status_code == 200
         assert response.headers.get("Content-Encoding") == "br"
 
-    def test_serves_gzip_when_br_not_accepted(self, features_app, tmp_path):
+    def test_serves_gzip_when_br_not_accepted(self, preloaded_features_app, tmp_path):
         static = self._setup_static(tmp_path)
-        client, _ = features_app()
+        client, _ = preloaded_features_app()
 
         with patch("refast.router.STATIC_DIR", static):
             response = client.get(
@@ -282,9 +306,9 @@ class TestStaticHandlerCompression:
         # httpx auto-decompresses gzip, so we get the original content
         assert response.content == b"console.log('hello');"
 
-    def test_serves_uncompressed_when_no_encoding(self, features_app, tmp_path):
+    def test_serves_uncompressed_when_no_encoding(self, preloaded_features_app, tmp_path):
         static = self._setup_static(tmp_path)
-        client, _ = features_app()
+        client, _ = preloaded_features_app()
 
         with patch("refast.router.STATIC_DIR", static):
             response = client.get(
@@ -296,8 +320,8 @@ class TestStaticHandlerCompression:
         assert response.headers.get("Content-Encoding") is None
         assert response.content == b"console.log('hello');"
 
-    def test_404_for_missing_file(self, features_app, tmp_path):
-        client, _ = features_app()
+    def test_404_for_missing_file(self, preloaded_features_app, tmp_path):
+        client, _ = preloaded_features_app()
 
         with patch("refast.router.STATIC_DIR", tmp_path):
             response = client.get("/ui/static/nonexistent.js")

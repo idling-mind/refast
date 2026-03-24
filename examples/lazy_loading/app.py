@@ -1,6 +1,6 @@
 """Lazy Loading Example — Refast Bundle Optimization.
 
-This example demonstrates the ``features`` parameter on ``RefastApp``
+This example demonstrates the ``preloaded_features`` parameter on ``RefastApp``
 which controls which heavy frontend chunks are downloaded by the browser.
 
 Run the three apps side-by-side to compare load behaviour:
@@ -211,10 +211,13 @@ def _core_section():
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# App 1: All features (default)
+# App 1: All feature chunks preloaded
 # ══════════════════════════════════════════════════════════════════════════
 
-ui_all = RefastApp(title="Lazy Loading — All Features", features=["charts"])
+ui_all = RefastApp(
+    title="Lazy Loading — All Features",
+    preloaded_features=["charts", "markdown", "icons", "navigation", "overlay", "controls"],
+)
 
 
 @ui_all.page("/")
@@ -234,10 +237,10 @@ app_all.include_router(ui_all.router)
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# App 2: Charts only
+# App 2: Charts only preloaded
 # ══════════════════════════════════════════════════════════════════════════
 
-ui_charts = RefastApp(title="Lazy Loading — Charts Only", features=["charts"])
+ui_charts = RefastApp(title="Lazy Loading — Charts Only", preloaded_features=["charts"])
 
 
 @ui_charts.page("/")
@@ -260,7 +263,7 @@ app_charts.include_router(ui_charts.router)
 # App 3: Minimal (no feature chunks)
 # ══════════════════════════════════════════════════════════════════════════
 
-ui_minimal = RefastApp(title="Lazy Loading — Minimal", features=[])
+ui_minimal = RefastApp(title="Lazy Loading — Minimal", preloaded_features=[])
 
 
 @ui_minimal.page("/")

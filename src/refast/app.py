@@ -58,13 +58,18 @@ class RefastApp:
             an inline ``<script>`` block. Placed at the end of ``<body>``.
         head_tags: Raw HTML strings injected verbatim into ``<head>``
             (e.g. ``<meta>``, ``<link>``, ``<style>``).
-        features: Which lazy-loaded feature chunks to include.
+        preloaded_features: Which lazy-loaded feature chunks should be
+            preloaded at startup.
             Supported values: ``"charts"``, ``"markdown"``, ``"icons"``,
             ``"navigation"``, ``"overlay"``, ``"controls"``.
-            Default ``None`` means **all** feature chunks are loaded.
+            Default ``None`` means no feature chunks are preloaded, so
+            feature chunks load on demand when first used.
             Pass an explicit list (e.g. ``["charts", "icons"]``) to
-            include only those chunks — unlisted chunks are never
-            downloaded by the browser.
+            warm those chunks during startup.
+        lazy_features: Which feature chunks are allowed to load on demand.
+            Default ``None`` means all feature chunks are lazy-loadable.
+            Pass an explicit list to keep only those features lazy; all
+            other feature chunks are warmed at startup.
         extensions: List of Extension instances to register
         auto_discover_extensions: Whether to auto-discover extensions via entry points
     """
@@ -79,7 +84,8 @@ class RefastApp:
         custom_css: str | list[str] | None = None,
         custom_js: str | list[str] | None = None,
         head_tags: list[str] | None = None,
-        features: list[str] | None = None,
+        preloaded_features: list[str] | None = None,
+        lazy_features: list[str] | None = None,
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
     ):
@@ -88,7 +94,9 @@ class RefastApp:
         self.secret_key = secret_key
         self.debug = debug
         self.favicon = favicon
-        self.features = features
+
+        self.preloaded_features = preloaded_features
+        self.lazy_features = lazy_features
 
         # Normalise custom_css / custom_js to lists
         if custom_css is None:

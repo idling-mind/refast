@@ -70,6 +70,11 @@ class RefastApp:
             Default ``None`` means all feature chunks are lazy-loadable.
             Pass an explicit list to keep only those features lazy; all
             other feature chunks are warmed at startup.
+        preloaded_extensions: Extension names to load at startup.
+            Default ``None`` means no extensions are eagerly loaded.
+        lazy_extensions: Extension names that are allowed to load on demand.
+            Default ``None`` means all registered extensions can load lazily.
+            Extensions excluded from this list are loaded at startup.
         extensions: List of Extension instances to register
         auto_discover_extensions: Whether to auto-discover extensions via entry points
     """
@@ -86,6 +91,8 @@ class RefastApp:
         head_tags: list[str] | None = None,
         preloaded_features: list[str] | None = None,
         lazy_features: list[str] | None = None,
+        preloaded_extensions: list[str] | None = None,
+        lazy_extensions: list[str] | None = None,
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
     ):
@@ -97,6 +104,8 @@ class RefastApp:
 
         self.preloaded_features = preloaded_features
         self.lazy_features = lazy_features
+        self.preloaded_extensions = preloaded_extensions
+        self.lazy_extensions = lazy_extensions
 
         # Normalise custom_css / custom_js to lists
         if custom_css is None:

@@ -1,4 +1,4 @@
-import React, { useMemo, Suspense, Component } from 'react';
+import React, { useMemo, Suspense, Component, useEffect, useState } from 'react';
 import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, SavePropRef, ChainedActionRef, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
@@ -99,6 +99,23 @@ ComponentRenderer.displayName = 'ComponentRenderer';
 
 const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererProps & { tree: Extract<ComponentTree, object> }>(({ tree, onUpdate, ...rest }, ref) => {
   const eventManager = useEventManager();
+  const [extensionsReady, setExtensionsReady] = useState<boolean>(
+    (window as Window & { __REFAST_EXTENSIONS_READY__?: boolean }).__REFAST_EXTENSIONS_READY__ ?? true,
+  );
+  const [extensionPending, setExtensionPending] = useState<boolean>(false);
+  const [extensionEpoch, setExtensionEpoch] = useState<number>(0);
+
+  useEffect(() => {
+    const win = window as Window & { __REFAST_EXTENSIONS_READY__?: boolean };
+    if (win.__REFAST_EXTENSIONS_READY__ === true) {
+      setExtensionsReady(true);
+      return;
+    }
+
+    const onReady = () => setExtensionsReady(true);
+    window.addEventListener('refast:extensions-ready', onReady);
+    return () => window.removeEventListener('refast:extensions-ready', onReady);
+  }, []);
 
   if (!tree) {
     return null;
@@ -106,8 +123,57 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
 
   const { type, id, props, children } = tree;
 
-  // Get the component from registry
-  const Component = componentRegistry.get(type);
+  const extensionWindow = window as Window & {
+    __REFAST_EXTENSION_COMPONENT_MAP__?: Record<string, string>;
+    __REFAST_EXTENSION_LOADED__?: Record<string, boolean>;
+    __REFAST_LOAD_EXTENSION__?: (name: string) => Promise<void>;
+  };
+  const mappedExtension = extensionWindow.__REFAST_EXTENSION_COMPONENT_MAP__?.[type];
+  const mappedExtensionLoaded = mappedExtension
+    ? Boolean(extensionWindow.__REFAST_EXTENSION_LOADED__?.[mappedExtension])
+    : false;
+
+  // Re-resolve registry component after extension load events.
+  const Component = useMemo(() => componentRegistry.get(type), [type, extensionEpoch]);
+
+  useEffect(() => {
+    const onExtensionLoaded = () => setExtensionEpoch((value) => value + 1);
+    window.addEventListener('refast:extension-loaded', onExtensionLoaded);
+    return () => window.removeEventListener('refast:extension-loaded', onExtensionLoaded);
+  }, []);
+
+  useEffect(() => {
+    if (Component) {
+      setExtensionPending(false);
+      return;
+    }
+
+    if (!mappedExtension) {
+      return;
+    }
+
+    if (mappedExtensionLoaded) {
+      return;
+    }
+
+    const load = extensionWindow.__REFAST_LOAD_EXTENSION__;
+    if (!load) {
+      return;
+    }
+
+    let cancelled = false;
+    setExtensionPending(true);
+    load(mappedExtension).finally(() => {
+      if (!cancelled) {
+        setExtensionPending(false);
+        setExtensionEpoch((value) => value + 1);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [Component, mappedExtension, mappedExtensionLoaded, extensionWindow.__REFAST_LOAD_EXTENSION__]);
 
   // Process props - convert snake_case to camelCase, handle callbacks and formatters
   const processedProps = useMemo(() => {
@@ -200,6 +266,11 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
   }, [children, onUpdate, type]);
 
   if (!Component) {
+    // If this type is known to come from an extension, keep waiting until the
+    // extension script is confirmed loaded and registration has a chance to apply.
+    if (!extensionsReady || extensionPending || Boolean(mappedExtension && !mappedExtensionLoaded)) {
+      return <LazyFallback />;
+    }
     console.warn(`Unknown component type: ${type}`);
     return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
   }

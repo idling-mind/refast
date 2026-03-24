@@ -525,6 +525,30 @@ class RefastRouter:
                 # Preload hints let the browser fetch chunks early
                 preload_tags.append(f'<link rel="modulepreload" href="{path}">')
 
+        # Collect extension assets and metadata
+        extension_styles = []
+        extension_script_map: dict[str, list[str]] = {}
+        extension_component_map: dict[str, str] = {}
+        for ext in self.app._extensions.values():
+            extension_styles.extend(
+                f'<link rel="stylesheet" href="{url}">' for url in ext.get_style_urls()
+            )
+            extension_script_map[ext.name] = ext.get_script_urls()
+            for component in ext.components:
+                component_type = getattr(component, "component_type", component.__name__)
+                extension_component_map[component_type] = ext.name
+
+        extension_names = set(extension_script_map.keys())
+        lazy_extensions = (
+            set(self.app.lazy_extensions)
+            if self.app.lazy_extensions is not None
+            else set(extension_names)
+        )
+        startup_extensions = sorted(
+            (set(self.app.preloaded_extensions or []) | (extension_names - lazy_extensions))
+            & extension_names
+        )
+
         scripts_html = "\n    ".join(script_tags)
         preloads_html = "\n    ".join(preload_tags)
         preload_config_html = (
@@ -534,38 +558,106 @@ class RefastRouter:
             f"{json.dumps(startup_features)};"
             "window.__REFAST_LAZY_FEATURES__ = "
             f"{json.dumps(sorted(lazy_features))};"
+            "window.__REFAST_EXTENSIONS_READY__ = "
+            f"{str(not bool(extension_script_map)).lower()};"
+            "window.__REFAST_EXTENSION_SCRIPT_MAP__ = "
+            f"{json.dumps(extension_script_map)};"
+            "window.__REFAST_EXTENSION_COMPONENT_MAP__ = "
+            f"{json.dumps(extension_component_map)};"
+            "window.__REFAST_EXTENSION_LOADED__ = "
+            "window.__REFAST_EXTENSION_LOADED__ || {};"
             "</script>"
         )
-
-        # Collect extension assets — loaded after refast:ready
-        extension_styles = []
-        extension_scripts_list = []
-        for ext in self.app._extensions.values():
-            extension_styles.extend(
-                f'<link rel="stylesheet" href="{url}">' for url in ext.get_style_urls()
-            )
-            extension_scripts_list.extend(ext.get_script_urls())
 
         ext_styles_html = "\n    ".join(extension_styles)
 
         # Extensions are IIFE scripts that need window.RefastClient.
-        # We inject them via a small inline module that waits for refast:ready.
+        # We inject a runtime loader that can preload startup extensions and
+        # lazily load the rest on demand by component type.
         ext_loader_html = ""
-        if extension_scripts_list:
-            urls_json = json.dumps(extension_scripts_list)
+        if extension_script_map:
+            script_map_json = json.dumps(extension_script_map)
+            component_map_json = json.dumps(extension_component_map)
+            startup_extensions_json = json.dumps(startup_extensions)
             ext_loader_html = f"""<script type="module">
-    function loadExtensions() {{
-      {urls_json}.forEach(function(url) {{
-        var s = document.createElement('script');
-        s.src = url;
-        document.body.appendChild(s);
-      }});
-    }}
-    if (window.RefastClient) {{
-      loadExtensions();
-    }} else {{
-      window.addEventListener('refast:ready', loadExtensions, {{ once: true }});
-    }}
+        window.__REFAST_EXTENSIONS_READY__ = false;
+        window.__REFAST_EXTENSION_SCRIPT_MAP__ = {script_map_json};
+        window.__REFAST_EXTENSION_COMPONENT_MAP__ = {component_map_json};
+        window.__REFAST_EXTENSION_LOADED__ = window.__REFAST_EXTENSION_LOADED__ || {{}};
+
+        const startupExtensions = {startup_extensions_json};
+        const extensionPromises = {{}};
+
+        function loadScript(url, extName) {{
+            return new Promise((resolve) => {{
+                const existing = document.querySelector('script[data-refast-ext="' + extName + '"][src="' + url + '"]');
+                if (existing) {{
+                    if (existing.dataset.refastLoaded === '1') {{
+                        resolve(true);
+                        return;
+                    }}
+
+                    const onLoad = () => resolve(true);
+                    const onError = () => resolve(false);
+                    existing.addEventListener('load', onLoad, {{ once: true }});
+                    existing.addEventListener('error', onError, {{ once: true }});
+                    return;
+                }}
+                const s = document.createElement('script');
+                s.src = url;
+                s.async = true;
+                s.setAttribute('data-refast-ext', extName);
+                s.onload = () => {{
+                    s.dataset.refastLoaded = '1';
+                    resolve(true);
+                }};
+                s.onerror = () => resolve(false);
+                document.body.appendChild(s);
+            }});
+        }}
+
+        window.__REFAST_LOAD_EXTENSION__ = function(name) {{
+            if (window.__REFAST_EXTENSION_LOADED__[name]) {{
+                window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
+                return Promise.resolve();
+            }}
+
+            if (extensionPromises[name]) {{
+                return extensionPromises[name];
+            }}
+
+            const urls = (window.__REFAST_EXTENSION_SCRIPT_MAP__ || {{}})[name] || [];
+            extensionPromises[name] = Promise.all(urls.map((url) => loadScript(url, name))).then((results) => {{
+                const loaded = results.every(Boolean);
+                if (loaded) {{
+                    window.__REFAST_EXTENSION_LOADED__[name] = true;
+                    window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
+                    return;
+                }}
+
+                delete extensionPromises[name];
+            }});
+            return extensionPromises[name];
+        }};
+
+        function loadStartupExtensions() {{
+            if (startupExtensions.length === 0) {{
+                window.__REFAST_EXTENSIONS_READY__ = true;
+                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
+                return;
+            }}
+
+            Promise.all(startupExtensions.map((name) => window.__REFAST_LOAD_EXTENSION__(name))).finally(() => {{
+                window.__REFAST_EXTENSIONS_READY__ = true;
+                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
+            }});
+        }}
+
+        if (window.RefastClient) {{
+            loadStartupExtensions();
+        }} else {{
+            window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
+        }}
     </script>"""
 
         # --- Theme CSS variable overrides ---

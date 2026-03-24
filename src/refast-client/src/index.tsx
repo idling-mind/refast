@@ -224,6 +224,11 @@ declare global {
     __REFAST_PRELOADED_FEATURES__?: string[];
     __REFAST_STARTUP_FEATURES__?: string[];
     __REFAST_LAZY_FEATURES__?: string[];
+    __REFAST_EXTENSIONS_READY__?: boolean;
+    __REFAST_EXTENSION_SCRIPT_MAP__?: Record<string, string[]>;
+    __REFAST_EXTENSION_COMPONENT_MAP__?: Record<string, string>;
+    __REFAST_EXTENSION_LOADED__?: Record<string, boolean>;
+    __REFAST_LOAD_EXTENSION__?: (name: string) => Promise<void>;
     RefastClient: {
       /** Component registry for registering custom React components */
       componentRegistry: typeof componentRegistry;

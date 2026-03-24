@@ -396,20 +396,71 @@ class TestRouterExtensionIntegration:
         component = Container()
         html = router._render_html_shell(component, ctx)
 
-        # Extension JS should come after refast-client.js
-        # (refast-client.js in body, extension scripts after)
+        # Extension loader should come after refast-client.js in the body
         core_js_pos = html.find("refast-client.js")
-        ext_js_pos = html.find("test-extension/test.js")
+        ext_js_pos = html.find("window.__REFAST_LOAD_EXTENSION__")
 
         # Extension CSS should come after refast-client.css
         core_css_pos = html.find("refast-client.css")
         ext_css_pos = html.find("test-extension/test.css")
 
-        # Core assets first, then extensions
+        # Core assets first, then extension loader/style refs
         if core_js_pos != -1 and ext_js_pos != -1:
             assert core_js_pos < ext_js_pos
         if core_css_pos != -1 and ext_css_pos != -1:
             assert core_css_pos < ext_css_pos
+
+    def test_preloaded_extensions_in_startup_list(self):
+        """Configured preloaded extensions should be loaded at startup."""
+        from refast.components import Container
+        from refast.context import Context
+        from refast.router import RefastRouter
+
+        app = RefastApp(
+            auto_discover_extensions=False,
+            preloaded_extensions=["test-extension"],
+            lazy_extensions=["test-extension"],
+        )
+        app.register_extension(SampleExtension())
+
+        router = RefastRouter(app)
+        ctx = MagicMock(spec=Context)
+        html = router._render_html_shell(Container(), ctx)
+
+        assert 'const startupExtensions = ["test-extension"]' in html
+
+    def test_lazy_extensions_default_keeps_startup_empty(self):
+        """Without preload config, extensions should default to lazy startup behavior."""
+        from refast.components import Container
+        from refast.context import Context
+        from refast.router import RefastRouter
+
+        app = RefastApp(auto_discover_extensions=False)
+        app.register_extension(SampleExtension())
+
+        router = RefastRouter(app)
+        ctx = MagicMock(spec=Context)
+        html = router._render_html_shell(Container(), ctx)
+
+        assert "const startupExtensions = []" in html
+
+    def test_excluding_extension_from_lazy_loads_at_startup(self):
+        """Extensions excluded from lazy_extensions should be loaded during startup."""
+        from refast.components import Container
+        from refast.context import Context
+        from refast.router import RefastRouter
+
+        app = RefastApp(
+            auto_discover_extensions=False,
+            lazy_extensions=[],
+        )
+        app.register_extension(SampleExtension())
+
+        router = RefastRouter(app)
+        ctx = MagicMock(spec=Context)
+        html = router._render_html_shell(Container(), ctx)
+
+        assert 'const startupExtensions = ["test-extension"]' in html
 
 
 class TestExtensionStaticRouting:

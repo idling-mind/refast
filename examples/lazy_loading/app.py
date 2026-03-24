@@ -214,7 +214,7 @@ def _core_section():
 # App 1: All features (default)
 # ══════════════════════════════════════════════════════════════════════════
 
-ui_all = RefastApp(title="Lazy Loading — All Features")
+ui_all = RefastApp(title="Lazy Loading — All Features", features=["charts"])
 
 
 @ui_all.page("/")

@@ -41,6 +41,35 @@ def _load_manifest() -> dict[str, Any]:
     return {}
 
 
+def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
+    """Infer which feature bucket a manifest entry belongs to.
+
+    Returns ``None`` for non-feature (shared/vendor/core) chunks.
+    """
+    name = entry.get("name")
+    if isinstance(name, str) and name in ALL_FEATURE_CHUNKS:
+        return name
+
+    src = str(entry.get("src", ""))
+    if "src/components/charts/" in src:
+        return "charts"
+    if src.endswith("/shadcn/navigation.tsx"):
+        return "navigation"
+    if src.endswith("/shadcn/overlay.tsx"):
+        return "overlay"
+    if src.endswith("/shadcn/controls.tsx"):
+        return "controls"
+    if src.endswith("/shadcn/icon.tsx"):
+        return "icons"
+    if "markdown" in src:
+        return "markdown"
+
+    for feature in ALL_FEATURE_CHUNKS:
+        if file_name.startswith(f"refast-{feature}-"):
+            return feature
+    return None
+
+
 def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
@@ -57,49 +86,55 @@ def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> li
         # Fallback: no manifest, just return the entry file
         return ["refast-client.js"]
 
-    # Collect all chunk filenames from the manifest
-    chunk_files: list[str] = []
-    for _key, entry in manifest.items():
-        file = entry.get("file", "")
-        if file and file.endswith(".js"):
-            chunk_files.append(file)
-
-    if not chunk_files:
-        return ["refast-client.js"]
-
     # Determine which feature chunks to include
-    if features is not None:
-        allowed = set(features)
-    else:
-        allowed = set(ALL_FEATURE_CHUNKS)
+    allowed = set(ALL_FEATURE_CHUNKS) if features is None else set(features)
 
-    # Separate entry from feature chunks
+    # Prefer explicit manifest entry; keep stable fallback for dev/test.
+    entry_key: str | None = None
+    entry_file = "refast-client.js"
+    for key, entry in manifest.items():
+        if entry.get("isEntry") is True:
+            entry_key = key
+            entry_file = str(entry.get("file", entry_file))
+            break
+
+    if entry_key is None:
+        return [entry_file]
+
     result: list[str] = []
-    deferred: list[str] = []
-    for f in chunk_files:
-        if f == "refast-client.js":
-            result.insert(0, f)
-            continue
-        # Check if this chunk belongs to a feature group
-        # Chunk names look like: refast-charts-abc123.js
-        chunk_feature = None
-        for feat in ALL_FEATURE_CHUNKS:
-            if f.startswith(f"refast-{feat}-"):
-                chunk_feature = feat
-                break
+    seen_files: set[str] = set()
+    visited_keys: set[str] = set()
 
-        if chunk_feature is None:
-            # Shared / vendor chunk – always include
-            deferred.append(f)
-        elif chunk_feature in allowed:
-            deferred.append(f)
-        # else: excluded feature chunk – skip
+    def _add_file(file_name: str) -> None:
+        if file_name.endswith(".js") and file_name not in seen_files:
+            seen_files.add(file_name)
+            result.append(file_name)
 
-    # Entry must come first; ensure it's present
-    if "refast-client.js" not in result:
-        result.insert(0, "refast-client.js")
+    def _walk(key: str) -> None:
+        if key in visited_keys:
+            return
+        visited_keys.add(key)
 
-    result.extend(deferred)
+        entry = manifest.get(key, {})
+        file_name = str(entry.get("file", ""))
+        if not file_name:
+            return
+
+        feature = _chunk_feature(file_name, entry)
+        if feature is not None and feature not in allowed:
+            return
+
+        _add_file(file_name)
+        for imported_key in entry.get("imports", []):
+            if isinstance(imported_key, str):
+                _walk(imported_key)
+
+    # Entry chunk is always first.
+    _add_file(entry_file)
+    for imported_key in manifest.get(entry_key, {}).get("imports", []):
+        if isinstance(imported_key, str):
+            _walk(imported_key)
+
     return result
 
 

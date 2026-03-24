@@ -29,27 +29,45 @@ def sample_manifest() -> dict:
             "file": "refast-client.js",
             "isEntry": True,
             "src": "src/index.tsx",
+            "imports": ["_shared", "_charts", "_icons"],
         },
         "_charts": {
             "file": "refast-charts-abc123.js",
+            "name": "charts",
         },
         "_icons": {
             "file": "refast-icons-def456.js",
+            "name": "icons",
         },
         "_navigation": {
             "file": "refast-navigation-ghi789.js",
+            "name": "navigation",
+            "isDynamicEntry": True,
+            "src": "src/components/shadcn/navigation.tsx",
         },
         "_overlay": {
             "file": "refast-overlay-jkl012.js",
+            "name": "overlay",
+            "isDynamicEntry": True,
+            "src": "src/components/shadcn/overlay.tsx",
         },
         "_controls": {
             "file": "refast-controls-mno345.js",
+            "name": "controls",
+            "isDynamicEntry": True,
+            "src": "src/components/shadcn/controls.tsx",
         },
         "_markdown": {
             "file": "refast-markdown-pqr678.js",
+            "name": "markdown",
+            "isDynamicEntry": True,
         },
         "_shared": {
             "file": "refast-shared-zzz000.js",
+            "imports": ["_vendor"],
+        },
+        "_vendor": {
+            "file": "refast-vendor-vvv111.js",
         },
     }
 
@@ -110,18 +128,19 @@ class TestGetChunkFiles:
         assert _get_chunk_files({}, None) == ["refast-client.js"]
 
     def test_all_features_when_none(self, sample_manifest):
-        """features=None should include every chunk."""
+        """features=None should include entry + static import graph only."""
         files = _get_chunk_files(sample_manifest, None)
-        assert "refast-client.js" in files
-        # All feature chunks present
+        assert files[0] == "refast-client.js"
+        # Entry imports charts/icons + shared graph
         assert any("charts" in f for f in files)
         assert any("icons" in f for f in files)
-        assert any("navigation" in f for f in files)
-        assert any("overlay" in f for f in files)
-        assert any("controls" in f for f in files)
-        assert any("markdown" in f for f in files)
-        # Shared chunks always present
         assert any("shared" in f for f in files)
+        assert any("vendor" in f for f in files)
+        # Unreferenced dynamic entries should not be preloaded
+        assert not any("navigation" in f for f in files)
+        assert not any("overlay" in f for f in files)
+        assert not any("controls" in f for f in files)
+        assert not any("markdown" in f for f in files)
 
     def test_specific_features_only(self, sample_manifest):
         """Only requested features should be included."""
@@ -133,6 +152,7 @@ class TestGetChunkFiles:
         assert not any("navigation" in f for f in files)
         # Shared chunks still included
         assert any("shared" in f for f in files)
+        assert any("vendor" in f for f in files)
 
     def test_empty_features_excludes_all_feature_chunks(self, sample_manifest):
         """features=[] should include only entry + shared."""
@@ -143,6 +163,7 @@ class TestGetChunkFiles:
             assert not any(f"refast-{feat}-" in f for f in files)
         # Shared chunk still included
         assert any("shared" in f for f in files)
+        assert any("vendor" in f for f in files)
 
     def test_entry_always_first(self, sample_manifest):
         files = _get_chunk_files(sample_manifest, None)
@@ -152,7 +173,9 @@ class TestGetChunkFiles:
         files = _get_chunk_files(sample_manifest, ["charts", "icons", "overlay"])
         assert any("charts" in f for f in files)
         assert any("icons" in f for f in files)
-        assert any("overlay" in f for f in files)
+        # overlay is dynamic-only and not in static entry imports, so it is
+        # intentionally not preloaded.
+        assert not any("overlay" in f for f in files)
         assert not any("navigation" in f for f in files)
         assert not any("controls" in f for f in files)
 

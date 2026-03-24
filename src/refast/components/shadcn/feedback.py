@@ -114,7 +114,7 @@ class Progress(Component):
         ]
         | None = None,
         track_color: str | None = None,
-        striped: str | None = None,
+        striped: Literal["static", "animated"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -157,6 +157,7 @@ class Skeleton(Component):
         width: str | int | None = None,
         height: str | int | None = None,
         variant: Literal["text", "circular", "rectangular"] = "text",
+        circle: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -165,6 +166,7 @@ class Skeleton(Component):
         self.width = width
         self.height = height
         self.variant = variant
+        self.circle = circle
 
     def render(self) -> dict[str, Any]:
         return {
@@ -174,6 +176,7 @@ class Skeleton(Component):
                 "width": self.width,
                 "height": self.height,
                 "variant": self.variant,
+                "circle": self.circle,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

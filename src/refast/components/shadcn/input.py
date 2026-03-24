@@ -127,6 +127,7 @@ class Input(Component):
         type: Literal["text", "email", "password", "number", "tel", "url", "search"] = "text",
         placeholder: str = "",
         value: str | None = None,
+        default_value: str | None = None,
         required: bool = False,
         disabled: bool = False,
         read_only: bool = False,
@@ -149,6 +150,7 @@ class Input(Component):
         self.input_type = type
         self.placeholder = placeholder
         self.value = value
+        self.default_value = default_value
         self.required = required
         self.disabled = disabled
         self.read_only = read_only
@@ -184,6 +186,8 @@ class Input(Component):
         # to transition from undefined → "" and actually trigger a UI update.
         if self.value is not None:
             props["value"] = self.value
+        if self.default_value is not None:
+            props["default_value"] = self.default_value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -254,6 +258,7 @@ class Textarea(Component):
         description: str | None = None,
         placeholder: str = "",
         value: str | None = None,
+        default_value: str | None = None,
         rows: int = 3,
         required: bool = False,
         disabled: bool = False,
@@ -275,6 +280,7 @@ class Textarea(Component):
         self.description = description
         self.placeholder = placeholder
         self.value = value
+        self.default_value = default_value
         self.rows = rows
         self.required = required
         self.disabled = disabled
@@ -306,6 +312,8 @@ class Textarea(Component):
 
         if self.value is not None:
             props["value"] = self.value
+        if self.default_value is not None:
+            props["default_value"] = self.default_value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -377,6 +385,7 @@ class Select(Component):
         label: str | None = None,
         description: str | None = None,
         value: str | None = None,
+        default_value: str | None = None,
         placeholder: str = "Select...",
         required: bool = False,
         disabled: bool = False,
@@ -392,6 +401,7 @@ class Select(Component):
         self.label = label
         self.description = description
         self.value = value
+        self.default_value = default_value
         self.placeholder = placeholder
         self.required = required
         self.disabled = disabled
@@ -416,6 +426,8 @@ class Select(Component):
 
         if self.value is not None:
             props["value"] = self.value
+        if self.default_value is not None:
+            props["default_value"] = self.default_value
 
         if self.on_change:
             props["on_change"] = self.on_change.serialize()
@@ -467,6 +479,7 @@ class Checkbox(Component):
         label: str | None = None,
         description: str | None = None,
         checked: bool = False,
+        default_checked: bool = False,
         required: bool = False,
         disabled: bool = False,
         error: str | None = None,
@@ -481,6 +494,7 @@ class Checkbox(Component):
         self.label = label
         self.description = description
         self.checked = checked
+        self.default_checked = default_checked
         self.required = required
         self.disabled = disabled
         self.error = error
@@ -493,6 +507,7 @@ class Checkbox(Component):
             "label": self.label,
             "description": self.description,
             "checked": self.checked,
+            "default_checked": self.default_checked,
             "required": self.required,
             "disabled": self.disabled,
             "error": self.error,
@@ -555,6 +570,8 @@ class CheckboxGroup(Component):
         label: str | None = None,
         description: str | None = None,
         value: list[str] | None = None,
+        default_value: list[str] | None = None,
+        options: list[dict[str, Any]] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
         required: bool = False,
         disabled: bool = False,
@@ -570,6 +587,8 @@ class CheckboxGroup(Component):
         self.label = label
         self.description = description
         self.value = value or []
+        self.default_value = default_value
+        self.options = options
         self.orientation = orientation
         self.required = required
         self.disabled = disabled
@@ -581,6 +600,8 @@ class CheckboxGroup(Component):
             "label": self.label,
             "description": self.description,
             "value": self.value,
+            "default_value": self.default_value,
+            "options": self.options,
             "orientation": self.orientation,
             "required": self.required,
             "disabled": self.disabled,
@@ -635,6 +656,7 @@ class Radio(Component):
         label: str | None = None,
         description: str | None = None,
         checked: bool = False,
+        default_checked: bool = False,
         required: bool = False,
         disabled: bool = False,
         error: str | None = None,
@@ -649,6 +671,7 @@ class Radio(Component):
         self.label = label
         self.description = description
         self.checked = checked
+        self.default_checked = default_checked
         self.required = required
         self.disabled = disabled
         self.error = error
@@ -660,6 +683,7 @@ class Radio(Component):
             "label": self.label,
             "description": self.description,
             "checked": self.checked,
+            "default_checked": self.default_checked,
             "required": self.required,
             "disabled": self.disabled,
             "error": self.error,
@@ -726,6 +750,8 @@ class RadioGroup(Component):
         label: str | None = None,
         description: str | None = None,
         value: str | None = None,
+        default_value: str | None = None,
+        options: list[dict[str, Any]] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
         required: bool = False,
         disabled: bool = False,
@@ -741,6 +767,8 @@ class RadioGroup(Component):
         self.label = label
         self.description = description
         self.value = value
+        self.default_value = default_value
+        self.options = options
         self.orientation = orientation
         self.required = required
         self.disabled = disabled
@@ -752,6 +780,8 @@ class RadioGroup(Component):
             "label": self.label,
             "description": self.description,
             "value": self.value,
+            "default_value": self.default_value,
+            "options": self.options,
             "orientation": self.orientation,
             "required": self.required,
             "disabled": self.disabled,

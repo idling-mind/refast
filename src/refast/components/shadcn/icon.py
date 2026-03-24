@@ -65,21 +65,17 @@ class Icon(Component):
         self.stroke_width = stroke_width
 
     def render(self) -> dict[str, Any]:
-        props = {
-            "name": self.name,
-            "size": self.size,
-            "stroke_width": self.stroke_width,
-            "class_name": self.class_name,
-            **self._serialize_extra_props(),
-        }
-
-        if self.color:
-            props["color"] = self.color
-
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": props,
+            "props": {
+                "name": self.name,
+                "size": self.size,
+                "color": self.color,
+                "stroke_width": self.stroke_width,
+                "class_name": self.class_name,
+                **self._serialize_extra_props(),
+            },
             "children": [],
         }
 

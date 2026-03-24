@@ -144,7 +144,7 @@ export function Link({
   id,
   className,
   href = '#',
-  target,
+  target = '_self',
   external = false,
   onClick,
   children,
@@ -355,6 +355,7 @@ export function Code({
 interface BlockQuoteProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   cite?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -366,6 +367,7 @@ interface BlockQuoteProps {
 export function BlockQuote({
   id,
   className,
+  style,
   cite,
   children,
   'data-refast-id': dataRefastId,
@@ -378,6 +380,7 @@ export function BlockQuote({
         'mt-6 border-l-2 pl-6 italic text-muted-foreground',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -388,6 +391,7 @@ export function BlockQuote({
 interface ListProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   ordered?: boolean;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -399,6 +403,7 @@ interface ListProps {
 export function List({
   id,
   className,
+  style,
   ordered = false,
   children,
   'data-refast-id': dataRefastId,
@@ -414,6 +419,7 @@ export function List({
         '[&>li]:mt-2',
         className
       )}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {children}
@@ -488,8 +494,11 @@ export function Label({
 interface MarkdownProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   content: string;
   allowHtml?: boolean;
+  /** @deprecated Kept for backward compatibility; LaTeX is rendered server-side. This prop is ignored. */
+  allowLatex?: boolean;
   'data-refast-id'?: string;
 }
 
@@ -504,8 +513,11 @@ interface MarkdownProps {
 export function Markdown({
   id,
   className,
+  style,
   content,
   allowHtml = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  allowLatex: _allowLatex,
   'data-refast-id': dataRefastId,
 }: MarkdownProps): React.ReactElement {
   const theme = useTheme();
@@ -732,6 +744,7 @@ export function Markdown({
       <div
         id={id}
         className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
+        style={style}
         data-refast-id={dataRefastId}
       >
         <pre className="whitespace-pre-wrap text-sm">{content}</pre>
@@ -757,6 +770,7 @@ export function Markdown({
       key={markdownKey}
       id={id}
       className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       <ReactMarkdown

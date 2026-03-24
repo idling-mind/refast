@@ -38,6 +38,14 @@ class Dialog(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
+        title: str | None = None,
+        description: str | None = None,
+        confirm_label: str = "Continue",
+        cancel_label: str = "Cancel",
+        on_confirm: Any = None,
+        on_cancel: Any = None,
+        trigger: Any = None,
+        variant: Literal["default", "destructive"] = "default",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -47,11 +55,22 @@ class Dialog(Component):
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
+        self.title = title
+        self.description = description
+        self.confirm_label = confirm_label
+        self.cancel_label = cancel_label
+        self.on_confirm = on_confirm
+        self.on_cancel = on_cancel
+        self.trigger = trigger
+        self.variant = variant
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
+            "confirm_label": self.confirm_label,
+            "cancel_label": self.cancel_label,
+            "variant": self.variant,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -60,6 +79,16 @@ class Dialog(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.title is not None:
+            props["title"] = self.title
+        if self.description is not None:
+            props["description"] = self.description
+        if self.on_confirm:
+            props["on_confirm"] = self.on_confirm.serialize()
+        if self.on_cancel:
+            props["on_cancel"] = self.on_cancel.serialize()
+        if self.trigger is not None:
+            props["trigger"] = self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
 
         return {
             "type": self.component_type,
@@ -586,6 +615,9 @@ class Popover(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
+        trigger: Any = None,
+        side: Literal["top", "right", "bottom", "left"] = "bottom",
+        align: Literal["start", "center", "end"] = "center",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -595,11 +627,16 @@ class Popover(Component):
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
+        self.trigger = trigger
+        self.side = side
+        self.align = align
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
+            "side": self.side,
+            "align": self.align,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -608,6 +645,8 @@ class Popover(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.trigger is not None:
+            props["trigger"] = self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
 
         return {
             "type": self.component_type,
@@ -709,6 +748,9 @@ class HoverCard(Component):
         on_open_change: Any = None,
         open_delay: int = 700,
         close_delay: int = 300,
+        trigger: Any = None,
+        side: Literal["top", "right", "bottom", "left"] = "bottom",
+        align: Literal["start", "center", "end"] = "center",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -720,6 +762,9 @@ class HoverCard(Component):
         self.on_open_change = on_open_change
         self.open_delay = open_delay
         self.close_delay = close_delay
+        self.trigger = trigger
+        self.side = side
+        self.align = align
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -727,6 +772,8 @@ class HoverCard(Component):
             "default_open": self.default_open,
             "open_delay": self.open_delay,
             "close_delay": self.close_delay,
+            "side": self.side,
+            "align": self.align,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -735,6 +782,8 @@ class HoverCard(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.trigger is not None:
+            props["trigger"] = self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
 
         return {
             "type": self.component_type,
@@ -1277,11 +1326,13 @@ class ContextMenuTrigger(Component):
     def __init__(
         self,
         children: ChildrenType = None,
+        as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        self.as_child = as_child
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1289,6 +1340,7 @@ class ContextMenuTrigger(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "as_child": self.as_child,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1459,6 +1511,8 @@ class Drawer(Component):
         open: bool | None = None,
         on_open_change: Any = None,
         should_scale_background: bool = True,
+        title: str | None = None,
+        description: str | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -1468,6 +1522,8 @@ class Drawer(Component):
         self.open = open
         self.on_open_change = on_open_change
         self.should_scale_background = should_scale_background
+        self.title = title
+        self.description = description
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1481,6 +1537,10 @@ class Drawer(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.title is not None:
+            props["title"] = self.title
+        if self.description is not None:
+            props["description"] = self.description
 
         return {
             "type": self.component_type,

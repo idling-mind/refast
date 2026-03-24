@@ -10,6 +10,7 @@ import { Row, Column, Grid, Flex, Center } from './shadcn/layout';
 import { Button, IconButton } from './shadcn/button';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
 import { Input, InputWrapper, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
+import { Form, FormField } from './shadcn/form';
 import { Slot } from './shadcn/slot';
 import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Markdown } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
@@ -241,6 +242,10 @@ componentRegistry.register('Checkbox', Checkbox);
 componentRegistry.register('CheckboxGroup', CheckboxGroup);
 componentRegistry.register('Radio', Radio);
 componentRegistry.register('RadioGroup', RadioGroup);
+
+// Form
+componentRegistry.register('Form', Form);
+componentRegistry.register('FormField', FormField);
 
 // Typography
 componentRegistry.register('Heading', Heading);

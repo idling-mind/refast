@@ -14,7 +14,7 @@ class Switch(Component):
         Switch(
             id="airplane-mode",
             checked=True,
-            on_change=ctx.callback(handle_change),
+            on_checked_change=ctx.callback(handle_change),
         )
         ```
     """
@@ -27,7 +27,7 @@ class Switch(Component):
         default_checked: bool = False,
         disabled: bool = False,
         name: str | None = None,
-        on_change: Any = None,
+        on_checked_change: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -37,7 +37,7 @@ class Switch(Component):
         self.default_checked = default_checked
         self.disabled = disabled
         self.name = name
-        self.on_change = on_change
+        self.on_checked_change = on_checked_change
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -47,8 +47,8 @@ class Switch(Component):
             **self._serialize_extra_props(),
         }
 
-        if self.on_change:
-            props["on_checked_change"] = self.on_change.serialize()
+        if self.on_checked_change:
+            props["on_checked_change"] = self.on_checked_change.serialize()
 
         if self.checked is not None:
             props["checked"] = self.checked
@@ -373,6 +373,7 @@ class Calendar(Component):
         default_month: Initial month to display.
         disabled: Disables all interaction.
         show_outside_days: Show days from adjacent months in the grid.
+        show_week_number: Show week numbers in the calendar grid.
         min_date: Earliest selectable date (``date`` or ISO 8601 string).
         max_date: Latest selectable date (``date`` or ISO 8601 string).
         number_of_months: Number of months displayed simultaneously.
@@ -392,6 +393,7 @@ class Calendar(Component):
         default_month: Any = None,  # date
         disabled: bool = False,
         show_outside_days: bool = True,
+        show_week_number: bool = False,
         min_date: Any = None,  # date or ISO string - dates before this are disabled
         max_date: Any = None,  # date or ISO string - dates after this are disabled
         number_of_months: int | None = None,
@@ -408,6 +410,7 @@ class Calendar(Component):
         self.default_month = default_month
         self.disabled = disabled
         self.show_outside_days = show_outside_days
+        self.show_week_number = show_week_number
         self.min_date = min_date
         self.max_date = max_date
         self.number_of_months = number_of_months
@@ -427,26 +430,28 @@ class Calendar(Component):
         return str(d)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "mode": self.mode,
+            "caption_layout": self.caption_layout,
+            "selected": self._serialize_date(self.selected),
+            "default_month": self._serialize_date(self.default_month),
+            "disabled": self.disabled,
+            "show_outside_days": self.show_outside_days,
+            "show_week_number": self.show_week_number,
+            "min_date": self._serialize_date(self.min_date),
+            "max_date": self._serialize_date(self.max_date),
+            "number_of_months": self.number_of_months,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_select:
+            props["on_select"] = self.on_select.serialize()
+        if self.on_month_change:
+            props["on_month_change"] = self.on_month_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "mode": self.mode,
-                "caption_layout": self.caption_layout,
-                "selected": self._serialize_date(self.selected),
-                "default_month": self._serialize_date(self.default_month),
-                "disabled": self.disabled,
-                "show_outside_days": self.show_outside_days,
-                "min_date": self._serialize_date(self.min_date),
-                "max_date": self._serialize_date(self.max_date),
-                "number_of_months": self.number_of_months,
-                "on_select": self.on_select.serialize() if self.on_select else None,
-                "on_month_change": self.on_month_change.serialize()
-                if self.on_month_change
-                else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -568,31 +573,33 @@ class DatePicker(Component):
         return str(d)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "value": self._serialize_date_value(self.value),
+            "placeholder": self.placeholder,
+            "disabled": self.disabled,
+            "format": self.format,
+            "mode": self.mode,
+            "caption_layout": self.caption_layout,
+            "min_date": self.min_date.isoformat()
+            if hasattr(self.min_date, "isoformat")
+            else self.min_date,
+            "max_date": self.max_date.isoformat()
+            if hasattr(self.max_date, "isoformat")
+            else self.max_date,
+            "number_of_months": self.number_of_months,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_change:
+            props["on_change"] = self.on_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "value": self._serialize_date_value(self.value),
-                "placeholder": self.placeholder,
-                "disabled": self.disabled,
-                "format": self.format,
-                "mode": self.mode,
-                "caption_layout": self.caption_layout,
-                "min_date": self.min_date.isoformat()
-                if hasattr(self.min_date, "isoformat")
-                else self.min_date,
-                "max_date": self.max_date.isoformat()
-                if hasattr(self.max_date, "isoformat")
-                else self.max_date,
-                "number_of_months": self.number_of_months,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_change": self.on_change.serialize() if self.on_change else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -691,25 +698,27 @@ class Combobox(Component):
         self.on_select = on_select
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "options": self.options,
+            **({"value": self.value} if self.value is not None else {}),
+            "placeholder": self.placeholder,
+            "search_placeholder": self.search_placeholder,
+            "empty_text": self.empty_text,
+            "multiselect": self.multiselect,
+            "disabled": self.disabled,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_select:
+            props["on_select"] = self.on_select.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "options": self.options,
-                **({"value": self.value} if self.value is not None else {}),
-                "placeholder": self.placeholder,
-                "search_placeholder": self.search_placeholder,
-                "empty_text": self.empty_text,
-                "multiselect": self.multiselect,
-                "disabled": self.disabled,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_select": self.on_select.serialize() if self.on_select else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -807,23 +816,26 @@ class InputOTP(Component):
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "max_length": self.max_length,
+            **({"value": self.value} if self.value is not None else {}),
+            "disabled": self.disabled,
+            "pattern": self.pattern,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_change:
+            props["on_change"] = self.on_change.serialize()
+        if self.on_complete:
+            props["on_complete"] = self.on_complete.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "max_length": self.max_length,
-                **({"value": self.value} if self.value is not None else {}),
-                "disabled": self.disabled,
-                "pattern": self.pattern,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_change": self.on_change.serialize() if self.on_change else None,
-                "on_complete": self.on_complete.serialize() if self.on_complete else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

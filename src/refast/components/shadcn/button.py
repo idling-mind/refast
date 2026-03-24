@@ -67,22 +67,21 @@ class Button(Component):
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
-        props = {
+        props: dict[str, Any] = {
             "variant": self.variant,
             "size": self.size,
             "disabled": self.disabled or self.loading,
             "loading": self.loading,
             "type": self.button_type,
+            "icon": self.icon,
+            "icon_position": self.icon_position,
             "class_name": self.class_name,
-            **self._serialize_extra_props(),
         }
-
-        if self.icon:
-            props["icon"] = self.icon
-            props["icon_position"] = self.icon_position
 
         if self.on_click:
             props["on_click"] = self.on_click.serialize()
+
+        props.update(self._serialize_extra_props())
 
         return {
             "type": self.component_type,
@@ -134,18 +133,19 @@ class IconButton(Component):
         self.aria_label = aria_label
 
     def render(self) -> dict[str, Any]:
-        props = {
+        props: dict[str, Any] = {
             "icon": self.icon,
             "variant": self.variant,
             "size": self.size,
             "disabled": self.disabled,
             "aria_label": self.aria_label,
             "class_name": self.class_name,
-            **self._serialize_extra_props(),
         }
 
         if self.on_click:
             props["on_click"] = self.on_click.serialize()
+
+        props.update(self._serialize_extra_props())
 
         return {
             "type": self.component_type,

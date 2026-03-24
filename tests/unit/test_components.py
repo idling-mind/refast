@@ -44,6 +44,19 @@ class TestComponent:
         container.add_children([Text("A"), Text("B"), Text("C")])
         assert len(container._children) == 3
 
+    def test_add_children_single_component(self):
+        """Test add_children adds a single Component child."""
+        container = Container()
+        container.add_children(Text("A"))
+        assert len(container._children) == 1
+        assert isinstance(container._children[0], Text)
+
+    def test_add_children_single_string(self):
+        """Test add_children adds a single string child."""
+        container = Container()
+        container.add_children("A")
+        assert container._children == ["A"]
+
     def test_component_repr(self):
         """Test component repr."""
         container = Container(id="test-id")

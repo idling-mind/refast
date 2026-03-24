@@ -17,6 +17,7 @@ import { Icon } from './icon';
 
 export interface DialogProps extends BaseProps, ChildrenProp {
   open?: boolean;
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
@@ -30,6 +31,7 @@ export interface DialogProps extends BaseProps, ChildrenProp {
 
 export function Dialog({
   open,
+  defaultOpen = false,
   onOpenChange,
   title,
   description,
@@ -46,7 +48,7 @@ export function Dialog({
   // Compositional API usage (when trigger is not provided prop but likely in children)
   if (!trigger && children && React.Children.count(children) > 0) {
     return (
-      <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
         {children}
       </DialogPrimitive.Root>
     );
@@ -64,7 +66,7 @@ export function Dialog({
   };
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       {trigger && (
         <DialogPrimitive.Trigger asChild>
           {trigger}
@@ -541,6 +543,7 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
   onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
+  shouldScaleBackground?: boolean;
 }
 
 export function Drawer({
@@ -548,6 +551,7 @@ export function Drawer({
   onOpenChange,
   title,
   description,
+  shouldScaleBackground = true,
   className,
   children,
   ...props
@@ -718,6 +722,9 @@ export function DrawerClose({ asChild = true, className, children }: DrawerClose
 // ============================================================================
 
 export interface HoverCardProps extends BaseProps, ChildrenProp {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
   openDelay?: number;
   closeDelay?: number;
@@ -726,6 +733,9 @@ export interface HoverCardProps extends BaseProps, ChildrenProp {
 }
 
 export function HoverCard({
+  open,
+  defaultOpen,
+  onOpenChange,
   trigger,
   openDelay = 700,
   closeDelay = 300,
@@ -738,7 +748,7 @@ export function HoverCard({
   // Compositional API (when trigger is missing)
   if (!trigger && children && React.Children.count(children) > 0) {
     return (
-      <HoverCardPrimitive.Root openDelay={openDelay} closeDelay={closeDelay}>
+      <HoverCardPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange} openDelay={openDelay} closeDelay={closeDelay}>
         {children}
       </HoverCardPrimitive.Root>
     );
@@ -746,7 +756,7 @@ export function HoverCard({
 
   // High-level wrapper
   return (
-    <HoverCardPrimitive.Root openDelay={openDelay} closeDelay={closeDelay}>
+    <HoverCardPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange} openDelay={openDelay} closeDelay={closeDelay}>
       <HoverCardPrimitive.Trigger asChild>
         {trigger}
       </HoverCardPrimitive.Trigger>
@@ -777,14 +787,16 @@ export function HoverCard({
 
 export interface PopoverProps extends BaseProps, ChildrenProp {
   open?: boolean;
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   side?: 'top' | 'right' | 'bottom' | 'left';
   align?: 'start' | 'center' | 'end';
 }
 
 export function Popover({
   open,
+  defaultOpen,
   onOpenChange,
   trigger,
   side = 'bottom',
@@ -796,7 +808,7 @@ export function Popover({
   // Compositional API usage (when trigger is not provided prop)
   if (!trigger && children && React.Children.count(children) > 0) {
     return (
-      <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <PopoverPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
         {children}
       </PopoverPrimitive.Root>
     );
@@ -804,7 +816,7 @@ export function Popover({
 
   // High-level wrapper
   return (
-    <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <PopoverPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       <PopoverPrimitive.Trigger asChild>
         {trigger}
       </PopoverPrimitive.Trigger>
@@ -1231,10 +1243,12 @@ export function DropdownMenuSub({
 
 export interface DropdownMenuSubTriggerProps extends BaseProps, ChildrenProp {
   inset?: boolean;
+  icon?: string;
 }
 
 export function DropdownMenuSubTrigger({
   inset = false,
+  icon,
   className,
   children,
   ...props
@@ -1249,6 +1263,7 @@ export function DropdownMenuSubTrigger({
       )}
       {...props}
     >
+      {icon && <Icon name={icon} size={16} className="shrink-0" />}
       {children}
       <svg className="ml-auto h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="9 18 15 12 9 6" />
@@ -1472,6 +1487,13 @@ export const OverlayComponents = {
   SheetDescription,
   SheetClose,
   Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,

@@ -54,6 +54,8 @@ class Paragraph(Component):
     def __init__(
         self,
         text: str,
+        lead: bool = False,
+        muted: bool = False,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -61,6 +63,8 @@ class Paragraph(Component):
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.text = text
+        self.lead = lead
+        self.muted = muted
         self.style = style
 
     def render(self) -> dict[str, Any]:
@@ -68,6 +72,8 @@ class Paragraph(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "lead": self.lead,
+                "muted": self.muted,
                 "class_name": self.class_name,
                 "style": self.style,
                 **self._serialize_extra_props(),
@@ -136,6 +142,7 @@ class Link(Component):
         href: str,
         target: Literal["_self", "_blank", "_parent", "_top"] = "_self",
         on_click: Any = None,
+        external: bool = False,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -145,6 +152,7 @@ class Link(Component):
         self.text = text
         self.href = href
         self.target = target
+        self.external = external
         self.style = style
         self.on_click = on_click
 
@@ -155,6 +163,7 @@ class Link(Component):
             "props": {
                 "href": self.href,
                 "target": self.target,
+                "external": self.external,
                 "on_click": self.on_click.serialize() if self.on_click else None,
                 "class_name": self.class_name,
                 "style": self.style,
@@ -224,4 +233,52 @@ class Markdown(Component):
                 **self._serialize_extra_props(),
             },
             "children": [],
+        }
+
+
+class BlockQuote(Component):
+    """
+    Blockquote component for quoted text.
+
+    Example:
+        ```python
+        BlockQuote("To be or not to be.", cite="Hamlet")
+        BlockQuote("Premature optimisation is the root of all evil.")
+        ```
+
+    Args:
+        text: The quoted text content.
+        cite: Optional URL or reference for the quote source.
+        id: Optional component ID.
+        class_name: Optional CSS class name.
+        style: Optional inline styles as a dictionary.
+    """
+
+    component_type: str = "BlockQuote"
+
+    def __init__(
+        self,
+        text: str,
+        cite: str | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        style: dict[str, Any] | None = None,
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.text = text
+        self.cite = cite
+        self.style = style
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "cite": self.cite,
+                "class_name": self.class_name,
+                "style": self.style,
+                **self._serialize_extra_props(),
+            },
+            "children": [self.text],
         }

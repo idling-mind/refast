@@ -92,12 +92,14 @@ class Component(ABC):
         if children is None:
             return self
 
-        if isinstance(children, list) and isinstance(self._children, list):
+        if not isinstance(self._children, list):
+            self._children = [self._children] if self._children is not None else []
+
+        if isinstance(children, list):
             self._children.extend(children)
-        elif isinstance(children, list) and isinstance(self._children, Component):
-            self._children = [self._children] + children
-        elif isinstance(children, list) and self._children is None:
-            self._children = children
+        else:
+            self._children.append(children)
+
         return self
 
     def _render_children(self) -> list[dict[str, Any] | str]:

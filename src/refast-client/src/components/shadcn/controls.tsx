@@ -852,6 +852,7 @@ export function DatePicker({
   value,
   placeholder = 'Pick a date',
   disabled = false,
+  format: _format = 'PPP',
   mode = 'single',
   captionLayout = 'label',
   minDate,
@@ -1443,6 +1444,7 @@ export function InputOTP({
   maxLength = 6,
   value,
   disabled = false,
+  pattern,
   onChange,
   onComplete,
   children,
@@ -1470,6 +1472,7 @@ export function InputOTP({
   }, [id]);
 
   const handleChange = (index: number, char: string) => {
+    if (pattern && char && !new RegExp(pattern).test(char)) return;
     const newValue = localValue.split('');
     newValue[index] = char;
     const joined = newValue.join('').slice(0, maxLength);

@@ -164,12 +164,14 @@ class Label(Component):
         required: bool = False,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.text = text
         self.html_for = html_for
         self.required = required
+        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {
@@ -179,6 +181,7 @@ class Label(Component):
                 "html_for": self.html_for,
                 "required": self.required,
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],

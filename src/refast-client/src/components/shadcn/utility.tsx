@@ -133,11 +133,25 @@ export function ScrollArea({
 // Collapsible
 // ============================================================================
 
+export interface CollapsibleProps
+  extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Root> {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
 export const Collapsible = CollapsiblePrimitive.Root;
+
+export interface CollapsibleTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
+  asChild?: boolean;
+}
 
 export const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
+  CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
   // Unwrap single child array if present (fixes Radix Slot issue with internal renderer)
   const child =
@@ -397,19 +411,47 @@ export function CarouselNext({
 // Resizable
 // ============================================================================
 
+export interface ResizablePanelGroupProps {
+  id?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  direction?: 'horizontal' | 'vertical';
+  onLayout?: (sizes: number[]) => void;
+  autoSaveId?: string | null;
+  keyboardResizeBy?: number | null;
+  storage?: object;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
 export function ResizablePanelGroup({
   className,
+  direction = 'horizontal',
   ...props
-}: React.ComponentProps<typeof ResizablePrimitive.PanelGroup> & BaseProps) {
+}: ResizablePanelGroupProps) {
   return (
     <ResizablePrimitive.PanelGroup
       className={cn(
         "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
         className
       )}
-      {...props}
+      direction={direction as 'horizontal' | 'vertical'}
+      {...(props as object)}
     />
   )
+}
+
+export interface ResizablePanelProps
+  extends React.ComponentProps<typeof ResizablePrimitive.Panel> {
+  defaultSize?: number;
+  minSize?: number;
+  maxSize?: number;
+  collapsible?: boolean;
+  collapsedSize?: number;
+  onCollapse?: () => void;
+  onExpand?: () => void;
+  onResize?: (size: number) => void;
+  className?: string;
 }
 
 export function ResizablePanel({
@@ -418,7 +460,7 @@ export function ResizablePanel({
   minSize,
   maxSize,
   ...props
-}: React.ComponentProps<typeof ResizablePrimitive.Panel> & BaseProps) {
+}: ResizablePanelProps) {
   // Convert nulls (from Python None) to undefined so library defaults apply
   return (
     <ResizablePrimitive.Panel
@@ -432,8 +474,9 @@ export function ResizablePanel({
 }
 
 export type ResizableHandleProps = React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
-  withHandle?: boolean
-} & BaseProps
+  withHandle?: boolean;
+  className?: string;
+}
 
 export function ResizableHandle({
   withHandle,

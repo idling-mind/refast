@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useStateManager, findComponent, getComponentPath } from '../StateManager';
+import { useStateManager, findComponent, getComponentPath, applyUpdate } from '../StateManager';
 import { ComponentTree, UpdateMessage } from '../../types';
 
 describe('useStateManager', () => {
@@ -153,5 +153,56 @@ describe('getComponentPath', () => {
   it('returns null for non-existent component', () => {
     const path = getComponentPath(tree, 'non-existent');
     expect(path).toBeNull();
+  });
+});
+
+describe('applyUpdate reference preservation', () => {
+  const makeTree = (): ComponentTree => ({
+    type: 'Container',
+    id: 'root',
+    props: {},
+    children: [
+      {
+        type: 'Card',
+        id: 'chart-a',
+        props: { data: [1, 2, 3] },
+        children: [],
+      },
+      {
+        type: 'Card',
+        id: 'chart-b',
+        props: { data: [4, 5, 6] },
+        children: [],
+      },
+    ],
+  });
+
+  it('preserves untouched sibling references for update_props', () => {
+    const tree = makeTree();
+    const firstChild = tree.children![0] as ComponentTree;
+    const secondChild = tree.children![1] as ComponentTree;
+
+    const updated = applyUpdate(
+      tree,
+      'chart-a',
+      { type: '', id: '', props: { data: [7, 8, 9] }, children: [] } as ComponentTree,
+      'update_props'
+    );
+
+    expect(updated).not.toBe(tree);
+    expect(updated.children![0]).not.toBe(firstChild);
+    expect(updated.children![1]).toBe(secondChild);
+  });
+
+  it('returns original tree reference when target is not found', () => {
+    const tree = makeTree();
+    const updated = applyUpdate(
+      tree,
+      'missing-id',
+      { type: '', id: '', props: { data: [9] }, children: [] } as ComponentTree,
+      'update_props'
+    );
+
+    expect(updated).toBe(tree);
   });
 });

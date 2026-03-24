@@ -5,6 +5,12 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   id?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Shorthand title rendered as an <h3> when no CardHeader child is provided. */
+  title?: string;
+  /** Shorthand description rendered as a <p> when no CardHeader child is provided. */
+  description?: string;
+  /** Optional click callback — makes the card interactive. */
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -16,6 +22,8 @@ export function Card({
   id,
   className,
   style,
+  title,
+  description,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -31,6 +39,12 @@ export function Card({
       data-refast-id={dataRefastId}
       {...props}
     >
+      {title && (
+        <h3 className="text-2xl font-semibold leading-none tracking-tight p-6 pb-0">{title}</h3>
+      )}
+      {description && (
+        <p className="text-sm text-muted-foreground p-6 pt-1 pb-0">{description}</p>
+      )}
       {children}
     </div>
   );

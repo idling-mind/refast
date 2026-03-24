@@ -117,6 +117,7 @@ class ScrollArea(Component):
         children: ChildrenType = None,
         type: Literal["auto", "always", "scroll", "hover"] = "hover",
         scroll_hide_delay: int = 600,
+        dir: Literal["ltr", "rtl"] | None = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
@@ -130,24 +131,30 @@ class ScrollArea(Component):
             scroll_hide_delay: Milliseconds before the scrollbar hides
                 after scrolling stops (``"hover"`` / ``"scroll"`` modes
                 only). Defaults to ``600``.
+            dir: Reading direction of the scroll area — ``"ltr"`` or
+                ``"rtl"``. Defaults to ``None`` (inherits from document).
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
         super().__init__(id=id, class_name=class_name, **props)
         self.scroll_type = type
         self.scroll_hide_delay = scroll_hide_delay
+        self.dir = dir
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "type": self.scroll_type,
+            "scroll_hide_delay": self.scroll_hide_delay,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.dir is not None:
+            props["dir"] = self.dir
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "type": self.scroll_type,
-                "scroll_hide_delay": self.scroll_hide_delay,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -521,20 +528,25 @@ class CarouselPrevious(Component):
 
     def __init__(
         self,
+        on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_click:
+            props["on_click"] = self.on_click.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -560,20 +572,25 @@ class CarouselNext(Component):
 
     def __init__(
         self,
+        on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
+        self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_click:
+            props["on_click"] = self.on_click.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 

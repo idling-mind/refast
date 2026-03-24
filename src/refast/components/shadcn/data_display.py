@@ -528,11 +528,13 @@ class List(Component):
         ordered: bool = False,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
         **props: Any,
     ):
         super().__init__(id=id, class_name=class_name, **props)
         self.add_children(children)
         self.ordered = ordered
+        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {
@@ -541,6 +543,53 @@ class List(Component):
             "props": {
                 "ordered": self.ordered,
                 "class_name": self.class_name,
+                "style": self.style,
+                **self._serialize_extra_props(),
+            },
+            "children": self._render_children(),
+        }
+
+
+class ListItem(Component):
+    """
+    List item component for use inside :class:`List`.
+
+    Example:
+        ```python
+        List(children=[
+            ListItem(children=["First item"]),
+            ListItem(children=["Second item"]),
+        ])
+        ```
+
+    Args:
+        children: Item content — strings or nested components.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Optional inline styles as a dictionary.
+    """
+
+    component_type: str = "ListItem"
+
+    def __init__(
+        self,
+        children: ChildrenType = None,
+        id: str | None = None,
+        class_name: str = "",
+        style: dict[str, Any] | None = None,
+        **props: Any,
+    ):
+        super().__init__(id=id, class_name=class_name, **props)
+        self.add_children(children)
+        self.style = style
+
+    def render(self) -> dict[str, Any]:
+        return {
+            "type": self.component_type,
+            "id": self.id,
+            "props": {
+                "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": self._render_children(),
@@ -770,18 +819,18 @@ class Tabs(Component):
         self.on_value_change = on_value_change
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "default_value": self.default_value,
+            "value": self.value,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_value_change:
+            props["on_value_change"] = self.on_value_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "default_value": self.default_value,
-                "value": self.value,
-                "on_value_change": (
-                    self.on_value_change.serialize() if self.on_value_change else None
-                ),
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
@@ -871,6 +920,9 @@ class Accordion(Component):
         type: "single" allows one item open at a time, "multiple" allows multiple.
         collapsible: If True and type="single", allows closing all items.
         default_value: Initially open item(s). String for single, list for multiple.
+        value: Controlled open item(s). Pair with ``on_value_change`` for
+            server-driven state. String for ``type="single"``, list for
+            ``type="multiple"``.
         on_value_change: Callback when the open items change. Receives {"value": ...}.
     """
 
@@ -882,6 +934,7 @@ class Accordion(Component):
         type: Literal["single", "multiple"] = "single",
         collapsible: bool = True,
         default_value: str | list[str] | None = None,
+        value: str | list[str] | None = None,
         on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -892,22 +945,24 @@ class Accordion(Component):
         self.accordion_type = type
         self.collapsible = collapsible
         self.default_value = default_value
+        self.value = value
         self.on_value_change = on_value_change
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "type": self.accordion_type,
+            "collapsible": self.collapsible,
+            "default_value": self.default_value,
+            "value": self.value,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_value_change:
+            props["on_value_change"] = self.on_value_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "type": self.accordion_type,
-                "collapsible": self.collapsible,
-                "default_value": self.default_value,
-                "on_value_change": (
-                    self.on_value_change.serialize() if self.on_value_change else None
-                ),
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 

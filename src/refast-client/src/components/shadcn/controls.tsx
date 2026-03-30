@@ -77,8 +77,8 @@ interface SliderProps {
   description?: string;
   required?: boolean;
   error?: string;
-  value?: number[];
-  defaultValue?: number[];
+  value?: number | number[];
+  defaultValue?: number | number[];
   min?: number;
   max?: number;
   step?: number;
@@ -107,11 +107,28 @@ export function Slider({
   onValueCommit,
   'data-refast-id': dataRefastId,
 }: SliderProps): React.ReactElement {
+  const normalizeSliderValues = (
+    sliderValues: number | number[] | undefined,
+    fallback: number[]
+  ): number[] => {
+    if (Array.isArray(sliderValues)) {
+      return sliderValues.length > 0 ? sliderValues : fallback;
+    }
+    if (typeof sliderValues === 'number' && Number.isFinite(sliderValues)) {
+      return [sliderValues];
+    }
+    return fallback;
+  };
+
+  const normalizedDefaultValue = normalizeSliderValues(defaultValue, [0]);
+  const normalizedValue = value === undefined ? undefined : normalizeSliderValues(value, normalizedDefaultValue);
+  const thumbValues = normalizedValue ?? normalizedDefaultValue;
+
   const sliderElement = (
     <SliderPrimitive.Root
       id={id}
-      value={value}
-      defaultValue={defaultValue}
+      value={normalizedValue}
+      defaultValue={normalizedDefaultValue}
       min={min}
       max={max}
       step={step}
@@ -133,7 +150,7 @@ export function Slider({
       >
         <SliderPrimitive.Range className="absolute bg-primary h-full" />
       </SliderPrimitive.Track>
-      {(value || defaultValue).map((_, index) => (
+      {thumbValues.map((_, index) => (
         <SliderPrimitive.Thumb
           key={index}
           className={cn(

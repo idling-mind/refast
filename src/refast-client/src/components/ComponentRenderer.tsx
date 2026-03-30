@@ -465,6 +465,15 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
     };
   }
 
+  // Array payloads (e.g., Slider onValueChange) should be available as
+  // event.value for save_prop("key"), while keeping index access ("0", "1").
+  if (Array.isArray(first)) {
+    return {
+      ...first,
+      value: first,
+    };
+  }
+
   // React event
   if (first && typeof first === 'object' && 'target' in first) {
     const event = first as React.SyntheticEvent<HTMLInputElement>;

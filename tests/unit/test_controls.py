@@ -98,6 +98,12 @@ class TestSlider:
         rendered = slider.render()
         assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
 
+    def test_slider_show_value(self):
+        """Test Slider show value option."""
+        slider = Slider(name="test", show_value=True)
+        rendered = slider.render()
+        assert rendered["props"]["show_value"] is True
+
 
 class TestToggle:
     """Tests for Toggle component."""

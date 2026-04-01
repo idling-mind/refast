@@ -73,6 +73,7 @@ class Slider(Component):
             label="Volume",
             description="Adjust the volume level",
             value=[50],
+            show_value=True,
             min=0,
             max=100,
             step=1,
@@ -94,6 +95,7 @@ class Slider(Component):
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         label: str | None = None,
         description: str | None = None,
+        show_value: bool = False,
         required: bool = False,
         error: str | None = None,
         on_value_change: Any = None,
@@ -112,6 +114,7 @@ class Slider(Component):
         self.orientation = orientation
         self.label = label
         self.description = description
+        self.show_value = show_value
         self.required = required
         self.error = error
         self.on_value_change = on_value_change
@@ -127,6 +130,7 @@ class Slider(Component):
             "orientation": self.orientation,
             "label": self.label,
             "description": self.description,
+            "show_value": self.show_value,
             "required": self.required,
             "error": self.error,
             "class_name": self.class_name,

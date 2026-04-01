@@ -12,6 +12,7 @@ export interface InputWrapperProps {
   id?: string;
   className?: string;
   label?: string;
+  labelEnd?: React.ReactNode;
   description?: string;
   required?: boolean;
   error?: string;
@@ -29,6 +30,7 @@ export function InputWrapper({
   id,
   className,
   label,
+  labelEnd,
   description,
   required = false,
   error,
@@ -44,13 +46,16 @@ export function InputWrapper({
     <div className={cn('mb-2', className)} data-input-wrapper data-refast-id={dataRefastId}>
     {/* <div className={className} data-input-wrapper data-refast-id={dataRefastId}> */}
       {label && (
-        <label
-          htmlFor={id}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </label>
+        <div className="flex items-center justify-between gap-2">
+          <label
+            htmlFor={id}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </label>
+          {labelEnd}
+        </div>
       )}
       {description && (
         <p className="text-sm text-muted-foreground">{description}</p>

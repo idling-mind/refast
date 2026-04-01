@@ -75,6 +75,7 @@ interface SliderProps {
   className?: string;
   label?: string;
   description?: string;
+  showValue?: boolean;
   required?: boolean;
   error?: string;
   value?: number | number[];
@@ -94,6 +95,7 @@ export function Slider({
   className,
   label,
   description,
+  showValue = false,
   required = false,
   error,
   value,
@@ -120,22 +122,96 @@ export function Slider({
     return fallback;
   };
 
-  const normalizedDefaultValue = normalizeSliderValues(defaultValue, [0]);
-  const normalizedValue = value === undefined ? undefined : normalizeSliderValues(value, normalizedDefaultValue);
-  const thumbValues = normalizedValue ?? normalizedDefaultValue;
+  const normalizedDefaultValue = React.useMemo(
+    () => normalizeSliderValues(defaultValue, [0]),
+    [defaultValue]
+  );
+  const normalizedValue = React.useMemo(
+    () => (value === undefined ? undefined : normalizeSliderValues(value, normalizedDefaultValue)),
+    [value, normalizedDefaultValue]
+  );
+  const isControlled = value !== undefined;
+  const [liveValues, setLiveValues] = React.useState<number[]>(() => normalizedValue ?? normalizedDefaultValue);
+
+  React.useEffect(() => {
+    if (isControlled && normalizedValue !== undefined) {
+      setLiveValues(normalizedValue);
+    }
+  }, [isControlled, normalizedValue]);
+
+  React.useEffect(() => {
+    if (!isControlled) {
+      setLiveValues(normalizedDefaultValue);
+    }
+  }, [isControlled, normalizedDefaultValue]);
+
+  const thumbValues = isControlled ? (normalizedValue ?? normalizedDefaultValue) : liveValues;
+  const hasLabel = typeof label === 'string' && label.trim().length > 0;
+
+  const handleValueChange = React.useCallback(
+    (nextValue: number[]) => {
+      if (!isControlled) {
+        setLiveValues(nextValue);
+      }
+      onValueChange?.(nextValue);
+    },
+    [isControlled, onValueChange]
+  );
+
+  const handleValueCommit = React.useCallback(
+    (nextValue: number[]) => {
+      if (!isControlled) {
+        setLiveValues(nextValue);
+      }
+      onValueCommit?.(nextValue);
+    },
+    [isControlled, onValueCommit]
+  );
+
+  const formatValue = (rawValue: number): string => {
+    if (!Number.isFinite(rawValue)) {
+      return '';
+    }
+    const stepAsString = Number(step).toString();
+    const decimalPlaces = stepAsString.includes('.') ? stepAsString.split('.')[1].length : 0;
+    return decimalPlaces > 0 ? rawValue.toFixed(decimalPlaces) : rawValue.toString();
+  };
+
+  const formatDisplayValue = (values: number[]): string => {
+    if (values.length === 0) {
+      return '';
+    }
+    if (values.length === 1) {
+      return formatValue(values[0]);
+    }
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    return `${formatValue(minValue)} - ${formatValue(maxValue)}`;
+  };
+
+  const displayValue = formatDisplayValue(thumbValues);
+  const valueElement = showValue ? (
+    <span
+      className="text-sm text-muted-foreground tabular-nums whitespace-nowrap"
+      data-slider-value-display
+      data-slider-value-position={hasLabel ? 'label' : 'inline'}
+    >
+      {displayValue}
+    </span>
+  ) : null;
 
   const sliderElement = (
     <SliderPrimitive.Root
       id={id}
-      value={normalizedValue}
-      defaultValue={normalizedDefaultValue}
+      value={thumbValues}
+      defaultValue={isControlled ? undefined : normalizedDefaultValue}
       min={min}
       max={max}
       step={step}
       disabled={disabled}
       orientation={orientation}
-      onValueChange={onValueChange}
-      onValueCommit={onValueCommit}
+      onValueChange={handleValueChange}
+      onValueCommit={handleValueCommit}
       className={cn(
         'relative flex w-full touch-none select-none items-center',
         orientation === 'vertical' && 'flex-col h-full w-auto',
@@ -163,23 +239,38 @@ export function Slider({
     </SliderPrimitive.Root>
   );
 
+  const sliderContent = showValue && !hasLabel
+    ? (
+      <div
+        className={cn(
+          'flex items-center gap-3',
+          orientation === 'vertical' && 'flex-col items-start'
+        )}
+      >
+        {sliderElement}
+        {valueElement}
+      </div>
+      )
+    : sliderElement;
+
   // Wrap with InputWrapper if label, description, or error is provided
   if (label || description || error) {
     return (
       <InputWrapper
         id={id}
         label={label}
+        labelEnd={hasLabel ? valueElement : undefined}
         description={description}
         required={required}
         error={error}
         data-refast-id={dataRefastId}
       >
-        {sliderElement}
+        {sliderContent}
       </InputWrapper>
     );
   }
 
-  return <div data-refast-id={dataRefastId}>{sliderElement}</div>;
+  return <div data-refast-id={dataRefastId}>{sliderContent}</div>;
 }
 
 // ============================================================================

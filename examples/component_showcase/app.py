@@ -121,7 +121,6 @@ async def on_slider_change(ctx: Context):
     print(ctx.event_data)
     value = ctx.event_data[0] if isinstance(ctx.event_data, list) else ctx.event_data
     ctx.state.set("volume", value)
-    await ctx.update_text("slider-value", f"{value}%")
 
 
 async def on_toggle_change(ctx: Context):
@@ -489,21 +488,12 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Row(
-                                                justify="between",
-                                                children=[
-                                                    Label("Volume"),
-                                                    Text(
-                                                        f"{volume}%",
-                                                        id="slider-value",
-                                                        class_name="text-sm",
-                                                    ),
-                                                ],
-                                            ),
                                             Slider(
+                                                label="Volume",
                                                 default_value=[volume],
                                                 max=100,
                                                 step=1,
+                                                show_value=True,
                                                 on_value_change=ctx.callback(on_slider_change),
                                             ),
                                         ],

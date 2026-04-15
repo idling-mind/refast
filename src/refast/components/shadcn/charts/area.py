@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -38,7 +38,6 @@ class AreaChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         stack_offset: Literal["expand", "none", "wiggle", "silhouette"] | None = None,
@@ -50,10 +49,11 @@ class AreaChart(Component):
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
         on_mouse_move: Callback | None = None,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.margin = margin or {"top": 10, "right": 10, "left": 10, "bottom": 0}
         self.stack_offset = stack_offset
@@ -66,8 +66,7 @@ class AreaChart(Component):
         self.on_mouse_leave = on_mouse_leave
         self.on_mouse_move = on_mouse_move
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -151,9 +150,10 @@ class Area(Component):
         animation_duration: int = 1500,
         animation_easing: str = "ease",
         hide: bool = False,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.type = type
         self.fill = fill

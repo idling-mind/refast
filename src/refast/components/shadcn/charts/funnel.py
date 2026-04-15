@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -28,22 +28,21 @@ class FunnelChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
+        children: ChildrenType = None,
         margin: dict[str, int] | None = None,
         on_click: Callback | None = None,
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.margin = margin or {"top": 5, "right": 5, "left": 5, "bottom": 5}
         self.on_click = on_click
         self.on_mouse_enter = on_mouse_enter
         self.on_mouse_leave = on_mouse_leave
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -87,7 +86,6 @@ class Funnel(Component):
 
     def __init__(
         self,
-        *children: Component,
         data: list[dict[str, Any]],
         data_key: str,
         name_key: str | None = None,
@@ -101,10 +99,11 @@ class Funnel(Component):
         animation_duration: int = 1500,
         animation_easing: str = "ease",
         hide: bool = False,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.data_key = data_key
         self.name_key = name_key
@@ -119,14 +118,7 @@ class Funnel(Component):
         self.animation_easing = animation_easing
         self.hide = hide
 
-        self.children = list(children)
-        if kw_children:
-            if isinstance(kw_children, list):
-                self.children.extend(kw_children)
-            else:
-                self.children.append(kw_children)
-        self.extra_props = kwargs
-
+        self.add_children(children)
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -147,5 +139,5 @@ class Funnel(Component):
                 "hide": self.hide,
                 **self.extra_props,
             },
-            "children": [c.render() for c in self.children],
+            "children": self._render_children(),
         }

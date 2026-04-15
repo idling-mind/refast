@@ -29,9 +29,9 @@ class Breadcrumb(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -56,9 +56,9 @@ class BreadcrumbList(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -83,9 +83,9 @@ class BreadcrumbItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -112,9 +112,9 @@ class BreadcrumbLink(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.href = href
         self.on_click = on_click
@@ -143,9 +143,9 @@ class BreadcrumbPage(Component):
         label: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
 
     def render(self) -> dict[str, Any]:
@@ -170,9 +170,9 @@ class BreadcrumbSeparator(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -196,9 +196,9 @@ class BreadcrumbEllipsis(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -243,9 +243,9 @@ class NavigationMenu(Component):
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.orientation = orientation
         self.add_children(children)
 
@@ -272,9 +272,9 @@ class NavigationMenuList(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -299,9 +299,9 @@ class NavigationMenuItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -326,9 +326,9 @@ class NavigationMenuTrigger(Component):
         label: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
 
     def render(self) -> dict[str, Any]:
@@ -353,9 +353,9 @@ class NavigationMenuContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -383,9 +383,9 @@ class NavigationMenuLink(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.href = href
         self.active = active
@@ -435,9 +435,9 @@ class Pagination(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -462,9 +462,9 @@ class PaginationContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -489,9 +489,9 @@ class PaginationItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -519,9 +519,9 @@ class PaginationLink(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.href = href
         self.active = active
@@ -553,9 +553,9 @@ class PaginationPrevious(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.href = href
         self.on_click = on_click
 
@@ -584,9 +584,9 @@ class PaginationNext(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.href = href
         self.on_click = on_click
 
@@ -613,9 +613,9 @@ class PaginationEllipsis(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -658,9 +658,9 @@ class Menubar(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -687,9 +687,9 @@ class MenubarMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         if trigger and content:
             self._children = [trigger, content]
         elif children:
@@ -717,9 +717,9 @@ class MenubarTrigger(Component):
         label: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
 
     def render(self) -> dict[str, Any]:
@@ -746,9 +746,9 @@ class MenubarContent(Component):
         side_offset: int = 5,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.align = align
         self.side_offset = side_offset
         self.add_children(children)
@@ -780,9 +780,9 @@ class MenubarItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.shortcut = shortcut
         self.disabled = disabled
@@ -812,9 +812,9 @@ class MenubarSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -841,9 +841,9 @@ class MenubarCheckboxItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.checked = checked
         self.on_checked_change = on_checked_change
@@ -876,9 +876,9 @@ class MenubarRadioGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.on_value_change = on_value_change
         self.add_children(children)
@@ -908,9 +908,9 @@ class MenubarRadioItem(Component):
         value: str = "",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.value = value
 
@@ -937,9 +937,9 @@ class MenubarSub(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -964,9 +964,9 @@ class MenubarSubTrigger(Component):
         label: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
 
     def render(self) -> dict[str, Any]:
@@ -991,9 +991,9 @@ class MenubarSubContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1040,9 +1040,9 @@ class Command(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1069,9 +1069,9 @@ class CommandInput(Component):
         on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.placeholder = placeholder
         self.value = value
         self.on_value_change = on_value_change
@@ -1101,9 +1101,9 @@ class CommandList(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1128,9 +1128,9 @@ class CommandEmpty(Component):
         message: str = "No results found.",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.message = message
 
     def render(self) -> dict[str, Any]:
@@ -1156,9 +1156,9 @@ class CommandGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.heading = heading
         self.add_children(children)
 
@@ -1189,9 +1189,9 @@ class CommandItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.value = value or label
@@ -1223,9 +1223,9 @@ class CommandSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1249,9 +1249,9 @@ class CommandShortcut(Component):
         shortcut: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.shortcut = shortcut
 
     def render(self) -> dict[str, Any]:
@@ -1304,9 +1304,9 @@ class SidebarProvider(Component):
         default_open: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.default_open = default_open
         self.add_children(children)
 
@@ -1373,9 +1373,9 @@ class Sidebar(Component):
         collapsible: Literal["offcanvas", "icon", "none"] = "offcanvas",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.side = side
         self.variant = variant
         self.collapsible = collapsible
@@ -1426,9 +1426,9 @@ class SidebarInset(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1467,9 +1467,9 @@ class SidebarHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1509,9 +1509,9 @@ class SidebarContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1558,9 +1558,9 @@ class SidebarFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1584,9 +1584,9 @@ class SidebarSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1630,9 +1630,9 @@ class SidebarGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1664,9 +1664,9 @@ class SidebarGroupLabel(Component):
         label: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
 
     def render(self) -> dict[str, Any]:
@@ -1713,9 +1713,9 @@ class SidebarGroupAction(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.icon = icon
         self.title = title
         self.on_click = on_click
@@ -1761,9 +1761,9 @@ class SidebarGroupContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1800,9 +1800,9 @@ class SidebarMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1838,9 +1838,9 @@ class SidebarMenuItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1901,9 +1901,9 @@ class SidebarMenuButton(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.is_active = is_active
@@ -1962,9 +1962,9 @@ class SidebarMenuAction(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.icon = icon
         self.show_on_hover = show_on_hover
         self.on_click = on_click
@@ -2011,9 +2011,9 @@ class SidebarMenuBadge(Component):
         badge: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.badge = badge
 
     def render(self) -> dict[str, Any]:
@@ -2059,9 +2059,9 @@ class SidebarMenuSub(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -2086,9 +2086,9 @@ class SidebarMenuSubItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -2124,9 +2124,9 @@ class SidebarMenuSubButton(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.is_active = is_active
         self.size = size
@@ -2171,9 +2171,9 @@ class SidebarMenuSkeleton(Component):
         show_icon: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.show_icon = show_icon
 
     def render(self) -> dict[str, Any]:
@@ -2214,9 +2214,9 @@ class SidebarRail(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -2247,9 +2247,9 @@ class SidebarTrigger(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:

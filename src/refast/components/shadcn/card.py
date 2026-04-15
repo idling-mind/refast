@@ -46,9 +46,9 @@ class Card(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
         self.title = title
         self.description = description
@@ -113,9 +113,9 @@ class CardHeader(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
         self.title = title
         self.description = description
@@ -161,9 +161,9 @@ class CardContent(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -208,9 +208,9 @@ class CardFooter(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -253,9 +253,9 @@ class CardTitle(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -298,9 +298,9 @@ class CardDescription(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:

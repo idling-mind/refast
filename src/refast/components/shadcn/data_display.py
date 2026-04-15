@@ -46,9 +46,9 @@ class Table(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -93,9 +93,9 @@ class TableHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -143,9 +143,9 @@ class TableBody(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -189,9 +189,9 @@ class TableRow(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -232,9 +232,9 @@ class TableHead(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -279,9 +279,9 @@ class TableCell(Component):
         row_span: int | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.col_span = col_span
         self.row_span = row_span
@@ -449,9 +449,9 @@ class DataTable(Component):
         on_page_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.columns = columns
         self.data = data
         self.sortable = sortable
@@ -529,9 +529,9 @@ class List(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.ordered = ordered
         self.style = style
@@ -577,9 +577,9 @@ class ListItem(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.style = style
 
@@ -624,9 +624,9 @@ class Badge(Component):
         ] = "default",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.variant = variant
 
@@ -681,9 +681,9 @@ class Avatar(Component):
         size: Literal["sm", "md", "lg"] = "md",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.src = src
         self.alt = alt
         self.fallback = fallback
@@ -747,9 +747,9 @@ class Tooltip(Component):
         side_offset: int | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.content = content
         self.side = side
@@ -810,9 +810,9 @@ class Tabs(Component):
         on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.default_value = default_value
         self.value = value
@@ -870,9 +870,9 @@ class TabItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.value = value
         self.label = label
@@ -938,9 +938,9 @@ class Accordion(Component):
         on_value_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.accordion_type = type
         self.collapsible = collapsible
@@ -1002,9 +1002,9 @@ class AccordionItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.add_children(children)
 
@@ -1046,9 +1046,9 @@ class AccordionTrigger(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1090,9 +1090,9 @@ class AccordionContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1147,9 +1147,9 @@ class Image(Component):
         fallback_src: str | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.src = src
         self.alt = alt
         self.width = width

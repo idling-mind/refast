@@ -331,7 +331,7 @@ def _render_area_chart_card():
                                     tick_line=False,
                                     axis_line=False,
                                     tick_margin=8,
-                                    tick_formatter="value.slice(0,3)",
+                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(indicator="dot")
@@ -381,7 +381,7 @@ def _render_bar_chart_card(ctx: Context):
                         children=BarChart(
                             id="bar-chart",
                             data=get_data()["bar_data"],
-                            barGap=10,
+                            bar_gap=10,
                             on_click=ctx.callback(general_callback),
                             children=[
                                 CartesianGrid(vertical=False),
@@ -390,7 +390,7 @@ def _render_bar_chart_card(ctx: Context):
                                     tick_line=False,
                                     tick_margin=10,
                                     axis_line=False,
-                                    tick_formatter="value.slice(0,3)",
+                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(indicator="dashed")
@@ -430,7 +430,7 @@ def _render_line_chart_card():
                                     tick_line=False,
                                     axis_line=False,
                                     tick_margin=8,
-                                    tick_formatter="value.slice(0,3)",
+                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(hide_label=False)

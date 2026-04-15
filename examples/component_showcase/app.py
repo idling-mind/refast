@@ -405,7 +405,7 @@ def home(ctx: Context):
                                                     ),
                                                     Switch(
                                                         default_checked=notifications,
-                                                        on_change=ctx.callback(on_switch_change),
+                                                        on_checked_change=ctx.callback(on_switch_change),
                                                     ),
                                                 ],
                                             ),
@@ -745,7 +745,7 @@ def home(ctx: Context):
                                                                         "Python + React UI Framework",
                                                                         class_name="text-sm text-muted-foreground",
                                                                     ),
-                                                                    Badge(text="Open Source"),
+                                                                    Badge(children="Open Source"),
                                                                 ],
                                                             ),
                                                         ],
@@ -846,7 +846,6 @@ def home(ctx: Context):
                                             Label("Scroll Area Example"),
                                             ScrollArea(
                                                 class_name="rounded-md border p-4",
-                                                style={"height": "12rem", "width": "100%"},
                                                 children=[
                                                     Column(
                                                         gap=2,

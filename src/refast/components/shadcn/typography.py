@@ -25,9 +25,9 @@ class Heading(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.text = text
         self.level = level
         self.style = style
@@ -59,9 +59,9 @@ class Paragraph(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.text = text
         self.lead = lead
         self.muted = muted
@@ -105,9 +105,9 @@ class Code(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.show_line_numbers = show_line_numbers
         self.code = code
         self.language = language
@@ -146,9 +146,9 @@ class Link(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.text = text
         self.href = href
         self.target = target
@@ -212,9 +212,9 @@ class Markdown(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.content = content
         self.allow_latex = allow_latex
         self.allow_html = allow_html
@@ -263,9 +263,9 @@ class BlockQuote(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.text = text
         self.cite = cite
         self.style = style

@@ -4,7 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -31,9 +31,9 @@ class ChartStyle(Component):
         self,
         id: str,
         config: dict[str, ChartConfig],
-        **kwargs: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, **kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.config = config
 
     def render(self) -> dict[str, Any]:
@@ -73,8 +73,9 @@ class ChartContainer(Component):
 
     def __init__(
         self,
-        *children: Component,
+        children: ChildrenType = None,
         config: dict[str, ChartConfig] | None = None,
+        id: str | None = None,
         class_name: str = "",
         width: str | int = "100%",
         height: str | int = "100%",
@@ -85,14 +86,9 @@ class ChartContainer(Component):
         debounce: int | None = None,
         initial_dimension: dict[str, int] | None = None,
         on_resize: Callback | None = None,
-        # Legacy
-        aspect_ratio: float | None = None,
-        **kwargs: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        # Extract children from kwargs if present
-        kw_children = kwargs.pop("children", None)
-
-        super().__init__(class_name=class_name, **kwargs)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.config = config or {}
 
         # Props
@@ -101,17 +97,12 @@ class ChartContainer(Component):
         self.min_height = min_height
         self.min_width = min_width
         self.max_height = max_height
-        self.aspect = aspect or aspect_ratio
+        self.aspect = aspect
         self.debounce = debounce
         self.initial_dimension = initial_dimension
         self.on_resize = on_resize
 
-        self.children = list(children)
-        if kw_children:
-            if isinstance(kw_children, list):
-                self.children.extend(kw_children)
-            else:
-                self.children.append(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -132,7 +123,7 @@ class ChartContainer(Component):
                 "onResize": self.on_resize.serialize() if self.on_resize else None,
                 **self.extra_props,
             },
-            "children": [c.render() for c in self.children],
+            "children": self._render_children(),
         }
 
 
@@ -157,9 +148,10 @@ class ChartTooltip(Component):
         cursor: bool = True,
         hide_label: bool = False,
         hide_indicator: bool = False,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.content = content
         self.cursor = cursor
         self.hide_label = hide_label
@@ -197,9 +189,10 @@ class ChartTooltipContent(Component):
         label_key: str | None = None,
         hide_label: bool = False,
         hide_indicator: bool = False,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.indicator = indicator
         self.name_key = name_key
         self.label_key = label_key
@@ -236,9 +229,10 @@ class ChartLegend(Component):
         self,
         content: "ChartLegendContent | None" = None,
         vertical_align: Literal["top", "middle", "bottom"] = "bottom",
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.content = content
         self.vertical_align = vertical_align
 
@@ -262,9 +256,10 @@ class ChartLegendContent(Component):
         self,
         name_key: str | None = None,
         hide_icon: bool = False,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.name_key = name_key
         self.hide_icon = hide_icon
 

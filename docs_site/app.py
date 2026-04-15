@@ -348,7 +348,7 @@ def theme_switcher(ctx: Context):
             DropdownMenuContent(
                 children=[
                     DropdownMenuItem(
-                        theme.title(), on_click=ctx.callback(_on_theme_change, theme_name=theme)
+                        theme.title(), on_select=ctx.callback(_on_theme_change, theme_name=theme)
                     )
                     for theme in [
                         "default",

@@ -43,9 +43,9 @@ class Row(Component):
         wrap: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.justify = justify
         self.align = align
@@ -103,9 +103,9 @@ class Column(Component):
         wrap: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.justify = justify
         self.align = align
@@ -162,9 +162,9 @@ class Grid(Component):
         gap: int = 4,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.columns = columns
         self.rows = rows
@@ -231,9 +231,9 @@ class Flex(Component):
         gap: int = 2,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.direction = direction
         self.justify = justify
@@ -285,9 +285,9 @@ class Center(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:

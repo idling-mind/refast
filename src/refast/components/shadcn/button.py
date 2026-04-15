@@ -53,9 +53,9 @@ class Button(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.variant = variant
         self.size = size
@@ -122,9 +122,9 @@ class IconButton(Component):
         aria_label: str | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.icon = icon
         self.variant = variant
         self.size = size

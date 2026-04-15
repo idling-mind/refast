@@ -49,9 +49,9 @@ class Dialog(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -109,9 +109,9 @@ class DialogTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -138,9 +138,9 @@ class DialogContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -165,9 +165,9 @@ class DialogHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -192,9 +192,9 @@ class DialogFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -219,9 +219,9 @@ class DialogTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -246,9 +246,9 @@ class DialogDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -274,9 +274,9 @@ class DialogAction(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.on_click = on_click
 
@@ -308,9 +308,9 @@ class DialogCancel(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.on_click = on_click
 
@@ -364,9 +364,9 @@ class Sheet(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -403,9 +403,9 @@ class SheetTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -433,9 +433,9 @@ class SheetClose(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -463,9 +463,9 @@ class SheetContent(Component):
         side: Literal["top", "right", "bottom", "left"] = "right",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.side = side
         self.add_children(children)
 
@@ -492,9 +492,9 @@ class SheetHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -519,9 +519,9 @@ class SheetFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -546,9 +546,9 @@ class SheetTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -573,9 +573,9 @@ class SheetDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -621,9 +621,9 @@ class Popover(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -667,9 +667,9 @@ class PopoverTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -699,9 +699,9 @@ class PopoverContent(Component):
         align: Literal["start", "center", "end"] = "center",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.side = side
         self.side_offset = side_offset
         self.align = align
@@ -754,9 +754,9 @@ class HoverCard(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -804,9 +804,9 @@ class HoverCardTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -836,9 +836,9 @@ class HoverCardContent(Component):
         align: Literal["start", "center", "end"] = "center",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.side = side
         self.side_offset = side_offset
         self.align = align
@@ -888,9 +888,9 @@ class DropdownMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -927,9 +927,9 @@ class DropdownMenuTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -959,9 +959,9 @@ class DropdownMenuContent(Component):
         align: Literal["start", "center", "end"] = "start",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.side = side
         self.side_offset = side_offset
         self.align = align
@@ -996,9 +996,9 @@ class DropdownMenuItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.shortcut = shortcut
@@ -1036,9 +1036,9 @@ class DropdownMenuLabel(Component):
         inset: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.inset = inset
 
@@ -1064,9 +1064,9 @@ class DropdownMenuSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1093,9 +1093,9 @@ class DropdownMenuCheckboxItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.checked = checked
         self.on_checked_change = on_checked_change
@@ -1132,9 +1132,9 @@ class DropdownMenuRadioGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.on_value_change = on_value_change
         self.add_children(children)
@@ -1168,9 +1168,9 @@ class DropdownMenuRadioItem(Component):
         value: str = "",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.value = value
 
@@ -1197,9 +1197,9 @@ class DropdownMenuSub(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1226,9 +1226,9 @@ class DropdownMenuSubTrigger(Component):
         inset: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.inset = inset
@@ -1257,9 +1257,9 @@ class DropdownMenuSubContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1301,9 +1301,9 @@ class ContextMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1329,9 +1329,9 @@ class ContextMenuTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -1358,9 +1358,9 @@ class ContextMenuContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1389,9 +1389,9 @@ class ContextMenuItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.shortcut = shortcut
@@ -1427,9 +1427,9 @@ class ContextMenuSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1456,9 +1456,9 @@ class ContextMenuCheckboxItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.checked = checked
         self.on_checked_change = on_checked_change
@@ -1516,9 +1516,9 @@ class Drawer(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.on_open_change = on_open_change
         self.should_scale_background = should_scale_background
@@ -1561,9 +1561,9 @@ class DrawerTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -1590,9 +1590,9 @@ class DrawerContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1617,9 +1617,9 @@ class DrawerHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1644,9 +1644,9 @@ class DrawerFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1671,9 +1671,9 @@ class DrawerTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -1698,9 +1698,9 @@ class DrawerDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -1726,9 +1726,9 @@ class DrawerClose(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 

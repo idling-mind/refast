@@ -60,9 +60,10 @@ class Treemap(Component):
         on_click: Callback | None = None,
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.width = width
         self.height = height
@@ -80,8 +81,6 @@ class Treemap(Component):
         self.on_click = on_click
         self.on_mouse_enter = on_mouse_enter
         self.on_mouse_leave = on_mouse_leave
-        self.extra_props = kwargs
-
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

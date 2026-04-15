@@ -30,9 +30,9 @@ class Switch(Component):
         on_checked_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.checked = checked
         self.default_checked = default_checked
         self.disabled = disabled
@@ -102,9 +102,9 @@ class Slider(Component):
         on_value_commit: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.default_value = default_value or [0]
         self.min = min
@@ -183,9 +183,9 @@ class Toggle(Component):
         on_pressed_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.pressed = pressed
@@ -253,9 +253,9 @@ class ToggleGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.toggle_type = type
         self.value = value
         self.default_value = default_value
@@ -315,9 +315,9 @@ class ToggleGroupItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.label = label
         self.icon = icon
         self.value = value or name or ""
@@ -405,9 +405,9 @@ class Calendar(Component):
         on_month_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.mode = mode
         self.caption_layout = caption_layout
         self.selected = selected
@@ -538,9 +538,9 @@ class DatePicker(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.placeholder = placeholder
         self.disabled = disabled
@@ -685,9 +685,9 @@ class Combobox(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.options = options or []
         self.value = value
         self.placeholder = placeholder
@@ -804,9 +804,9 @@ class InputOTP(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.max_length = max_length
         self.value = value
         self.disabled = disabled
@@ -877,9 +877,9 @@ class InputOTPGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -921,9 +921,9 @@ class InputOTPSlot(Component):
         index: int = 0,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.index = index
 
     def render(self) -> dict[str, Any]:
@@ -964,9 +964,9 @@ class InputOTPSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
 
     def render(self) -> dict[str, Any]:
         return {

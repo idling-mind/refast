@@ -27,9 +27,9 @@ class Separator(Component):
         decorative: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.orientation = orientation
         self.decorative = decorative
 
@@ -68,7 +68,7 @@ class AspectRatio(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         """
         Args:
@@ -78,7 +78,7 @@ class AspectRatio(Component):
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.ratio = ratio
         self.add_children(children)
 
@@ -120,7 +120,7 @@ class ScrollArea(Component):
         dir: Literal["ltr", "rtl"] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         """
         Args:
@@ -136,7 +136,7 @@ class ScrollArea(Component):
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.scroll_type = type
         self.scroll_hide_delay = scroll_hide_delay
         self.dir = dir
@@ -185,9 +185,9 @@ class ScrollBar(Component):
         orientation: Literal["horizontal", "vertical"] = "vertical",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.orientation = orientation
 
     def render(self) -> dict[str, Any]:
@@ -231,7 +231,7 @@ class Collapsible(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         """
         Args:
@@ -247,7 +247,7 @@ class Collapsible(Component):
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
@@ -302,9 +302,9 @@ class CollapsibleTrigger(Component):
         as_child: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.as_child = as_child
         self.add_children(children)
 
@@ -348,9 +348,9 @@ class CollapsibleContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -393,7 +393,7 @@ class Carousel(Component):
         opts: dict[str, Any] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         """
         Args:
@@ -406,7 +406,7 @@ class Carousel(Component):
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.orientation = orientation
         self.opts = opts or {}
         self.add_children(children)
@@ -451,9 +451,9 @@ class CarouselContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -490,9 +490,9 @@ class CarouselItem(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -531,9 +531,9 @@ class CarouselPrevious(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
@@ -575,9 +575,9 @@ class CarouselNext(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
@@ -621,7 +621,7 @@ class ResizablePanelGroup(Component):
         on_layout: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         """
         Args:
@@ -634,7 +634,7 @@ class ResizablePanelGroup(Component):
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.direction = direction
         self.on_layout = on_layout
         self.add_children(children)
@@ -702,9 +702,9 @@ class ResizablePanel(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.default_size = default_size
         self.min_size = min_size
         self.max_size = max_size
@@ -766,9 +766,9 @@ class ResizableHandle(Component):
         with_handle: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.with_handle = with_handle
 
     def render(self) -> dict[str, Any]:
@@ -847,9 +847,9 @@ class Toaster(Component):
         invert: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.position = position
         self.expand = expand
         self.duration = duration
@@ -917,9 +917,9 @@ class Empty(Component):
         action: "Component | None" = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.icon = icon
         self.title = title
         self.description = description
@@ -960,9 +960,9 @@ class Kbd(Component):
         key: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.key = key
 
     def render(self) -> dict[str, Any]:
@@ -999,9 +999,9 @@ class LoadingOverlay(Component):
         blur: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.loading = loading
         self.text = text
         self.blur = blur
@@ -1068,9 +1068,9 @@ class ThemeSwitcher(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.default_theme = default_theme
         self.storage_key = storage_key
         self.show_system_option = show_system_option

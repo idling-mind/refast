@@ -31,9 +31,9 @@ class Alert(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.title = title
         self.message = message
@@ -72,9 +72,9 @@ class Spinner(Component):
         size: Literal["sm", "md", "lg"] = "md",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.size = size
 
     def render(self) -> dict[str, Any]:
@@ -117,9 +117,9 @@ class Progress(Component):
         striped: Literal["static", "animated"] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.value = value
         self.max = max
         self.label = label
@@ -160,9 +160,9 @@ class Skeleton(Component):
         circle: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.width = width
         self.height = height
         self.variant = variant
@@ -240,9 +240,9 @@ class ConnectionStatus(Component):
         debounce_ms: int = 500,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.children_connected = children_connected or []
         self.children_disconnected = children_disconnected or []
         self.position = position

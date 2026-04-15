@@ -20,8 +20,8 @@ class MockComponent(Component):
 
     component_type = "MockComponent"
 
-    def __init__(self, value: str = "", **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, value: str = "", extra_props: dict[str, object] | None = None):
+        super().__init__(extra_props=extra_props)
         self.value = value
 
     def render(self):

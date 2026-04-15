@@ -32,6 +32,8 @@ class RadarChart(Component):
         end_angle: int = -270,
         children: ChildrenType = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -86,6 +88,8 @@ class Radar(Component):
         stroke: str | None = None,
         stroke_width: int = 2,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -119,6 +123,8 @@ class PolarGrid(Component):
     def __init__(
         self,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -143,6 +149,8 @@ class PolarAngleAxis(Component):
         type: str = "category",
         tick: bool | dict[str, Any] = True,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -176,6 +184,8 @@ class PolarRadiusAxis(Component):
         tick: bool | dict[str, Any] = True,
         domain: list[int | str] | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)

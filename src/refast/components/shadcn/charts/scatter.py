@@ -47,6 +47,8 @@ class ScatterChart(Component):
         on_mouse_leave: Callback | None = None,
         on_mouse_move: Callback | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -136,6 +138,8 @@ class Scatter(Component):
         animation_easing: str = "ease",
         hide: bool = False,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -158,6 +162,7 @@ class Scatter(Component):
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
         self.hide = hide
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -215,6 +220,8 @@ class ZAxis(Component):
         scale: str = "auto",
         domain: list[Any] | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -226,6 +233,7 @@ class ZAxis(Component):
         self.range = range or [60, 400]
         self.scale = scale
         self.domain = domain
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

@@ -145,7 +145,7 @@ async def on_accordion_change(ctx: Context):
 
 async def on_checkbox_group_change(ctx: Context):
     """Handle checkbox group selection change."""
-    selected = ctx.event_data if isinstance(ctx.event_data, list) else []
+    selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else []
     ctx.state.set("selected_toppings", selected)
     if selected:
         await ctx.show_toast(f"Selected toppings: {', '.join(selected)}", variant="info")
@@ -155,7 +155,8 @@ async def on_checkbox_group_change(ctx: Context):
 
 async def on_radio_group_change(ctx: Context):
     """Handle radio group selection change."""
-    selected = ctx.event_data if isinstance(ctx.event_data, str) else ""
+    print(ctx.event_data)
+    selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else ""
     ctx.state.set("selected_size", selected)
     await ctx.show_toast(f"Selected size: {selected}", variant="info")
 

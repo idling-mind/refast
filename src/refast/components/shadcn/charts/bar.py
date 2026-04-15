@@ -57,6 +57,8 @@ class BarChart(Component):
         on_mouse_move: Callback | None = None,
         children: ChildrenType = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -161,6 +163,8 @@ class Bar(Component):
         animation_easing: str = "ease",
         hide: bool = False,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -185,6 +189,7 @@ class Bar(Component):
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
         self.hide = hide
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

@@ -56,9 +56,17 @@ class Icon(Component):
         stroke_width: float = 2,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.size = size
         self.color = color

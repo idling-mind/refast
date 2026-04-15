@@ -50,9 +50,17 @@ class InputWrapper(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.description = description
         self.required = required
@@ -141,9 +149,17 @@ class Input(Component):
         on_input: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.label = label
         self.description = description
@@ -272,9 +288,17 @@ class Textarea(Component):
         on_input: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.label = label
         self.description = description
@@ -393,9 +417,17 @@ class Select(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.options = options
         self.label = label
@@ -486,9 +518,17 @@ class Checkbox(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.value = value
         self.label = label
@@ -579,9 +619,17 @@ class CheckboxGroup(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.name = name
         self.label = label
@@ -663,9 +711,17 @@ class Radio(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.name = name
         self.value = value
         self.label = label
@@ -759,9 +815,17 @@ class RadioGroup(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.name = name
         self.label = label

@@ -75,6 +75,8 @@ class Sankey(Component):
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -94,6 +96,7 @@ class Sankey(Component):
         self.on_click = on_click
         self.on_mouse_enter = on_mouse_enter
         self.on_mouse_leave = on_mouse_leave
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

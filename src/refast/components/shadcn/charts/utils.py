@@ -74,6 +74,8 @@ class XAxis(Component):
         unit: str | None = None,
         name: str | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -105,6 +107,7 @@ class XAxis(Component):
         self.min_tick_gap = min_tick_gap
         self.unit = unit
         self.name = name
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -211,6 +214,8 @@ class YAxis(Component):
         unit: str | None = None,
         name: str | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -242,6 +247,7 @@ class YAxis(Component):
         self.min_tick_gap = min_tick_gap
         self.unit = unit
         self.name = name
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -326,6 +332,8 @@ class CartesianGrid(Component):
         x_axis_id: str | int | None = None,
         y_axis_id: str | int | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -346,6 +354,7 @@ class CartesianGrid(Component):
         self.sync_with_ticks = sync_with_ticks
         self.x_axis_id = x_axis_id
         self.y_axis_id = y_axis_id
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -407,6 +416,8 @@ class ReferenceLine(Component):
         segment: list[dict[str, Any]] | None = None,
         position: Literal["start", "middle", "end"] | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -421,6 +432,7 @@ class ReferenceLine(Component):
         self.if_overflow = if_overflow
         self.segment = segment
         self.position = position
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -480,6 +492,8 @@ class ReferenceArea(Component):
         stroke_dasharray: str | None = None,
         label: str | dict[str, Any] | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -496,6 +510,7 @@ class ReferenceArea(Component):
         self.stroke_width = stroke_width
         self.stroke_dasharray = stroke_dasharray
         self.label = label
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -551,6 +566,8 @@ class ReferenceDot(Component):
         stroke_width: int = 1,
         label: str | dict[str, Any] | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -564,6 +581,7 @@ class ReferenceDot(Component):
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.label = label
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -624,6 +642,8 @@ class Brush(Component):
         always_show_text: bool = False,
         on_change: Callback | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -641,6 +661,7 @@ class Brush(Component):
         self.padding = padding
         self.always_show_text = always_show_text
         self.on_change = on_change
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -681,11 +702,14 @@ class Cell(Component):
         fill: str | None = None,
         stroke: str | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
         self.fill = fill
         self.stroke = stroke
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -722,6 +746,8 @@ class LabelList(Component):
         fill: str = "#333",
         font_size: int | str = 12,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -731,6 +757,7 @@ class LabelList(Component):
         self.angle = angle
         self.fill = fill
         self.font_size = font_size
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -771,6 +798,8 @@ class Label(Component):
         fill: str = "#333",
         font_size: int | str = 12,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -780,6 +809,7 @@ class Label(Component):
         self.angle = angle
         self.fill = fill
         self.font_size = font_size
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -826,6 +856,8 @@ class ErrorBar(Component):
         animation_duration: int = 1500,
         animation_easing: str = "ease",
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -838,6 +870,7 @@ class ErrorBar(Component):
         self.animation_begin = animation_begin
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,

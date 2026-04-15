@@ -34,6 +34,8 @@ class PieChart(Component):
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -119,6 +121,8 @@ class Pie(Component):
         hide: bool = False,
         children: ChildrenType = None,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -146,6 +150,7 @@ class Pie(Component):
         self.hide = hide
 
         self.add_children(children)
+
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
@@ -187,6 +192,8 @@ class PieLabel(Component):
     def __init__(
         self,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
@@ -210,6 +217,8 @@ class Sector(Component):
     def __init__(
         self,
         id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)

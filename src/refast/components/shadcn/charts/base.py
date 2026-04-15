@@ -86,9 +86,17 @@ class ChartContainer(Component):
         debounce: int | None = None,
         initial_dimension: dict[str, int] | None = None,
         on_resize: Callback | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.config = config or {}
 
         # Props

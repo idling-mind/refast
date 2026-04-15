@@ -60,6 +60,12 @@ class TestButton:
         rendered = btn.render()
         assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
+    def test_button_accepts_style_kwargs(self):
+        """Test Button accepts explicit style kwargs."""
+        btn = Button("Styled", style={"color": "red"})
+        rendered = btn.render()
+        assert rendered["props"]["style"] == {"color": "red"}
+
 
 class TestIconButton:
     """Tests for IconButton component."""
@@ -89,6 +95,12 @@ class TestIconButton:
         btn = IconButton(icon="save", on_click=cb)
         rendered = btn.render()
         assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
+
+    def test_icon_button_accepts_style_kwargs(self):
+        """Test IconButton accepts style kwargs through base component handling."""
+        btn = IconButton(icon="trash", style={"opacity": 0.5})
+        rendered = btn.render()
+        assert rendered["props"]["style"] == {"opacity": 0.5}
 
 
 class TestCard:

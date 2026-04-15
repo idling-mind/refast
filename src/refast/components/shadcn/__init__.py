@@ -257,6 +257,7 @@ __all__ = [
     "DataTable",
     "Image",
     "List",
+    "ListItem",
     "Badge",
     "Avatar",
     "Tooltip",
@@ -269,6 +270,7 @@ __all__ = [
     # Typography
     "Heading",
     "Paragraph",
+    "BlockQuote",
     "Code",
     "Link",
     "Markdown",

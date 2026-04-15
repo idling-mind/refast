@@ -35,7 +35,7 @@ class TestComponent:
 
     def test_component_extra_props(self):
         """Test component accepts extra props."""
-        container = Container(data_testid="test")
+        container = Container(extra_props={"data_testid": "test"})
         assert container.extra_props == {"data_testid": "test"}
 
     def test_add_children(self):

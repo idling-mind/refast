@@ -256,9 +256,8 @@ async def navigate_to(ctx: Context):
     await ctx.refresh()
 
 
-async def toggle_selection(ctx: Context):
+async def toggle_selection(ctx: Context, item_id: str):
     """Toggle item selection."""
-    item_id = ctx.event_data.get("item_id")
     selected = ctx.state.get("selected_items", [])
 
     if item_id in selected:
@@ -379,7 +378,6 @@ def render_file_row(item: dict, ctx: Context, selected_items: list):
                 children=Row(
                     class_name=f"p-3 hover:bg-muted/50 cursor-pointer border-b {'bg-muted/30' if is_selected else ''}",
                     align="center",
-                    on_double_click=ctx.callback(open_item, item_id=item["id"]),
                     children=[
                         Container(
                             class_name="w-8",
@@ -512,7 +510,6 @@ def render_sidebar_folder(folder: dict, ctx: Context, depth: int = 0):
                         Row(
                             gap=2,
                             class_name="flex-1",
-                            on_click=ctx.callback(navigate_to, folder_id=folder["id"]),
                             children=[
                                 Text("📁"),
                                 Text(folder["name"], class_name="text-sm"),
@@ -531,7 +528,6 @@ def render_sidebar_folder(folder: dict, ctx: Context, depth: int = 0):
         return Row(
             class_name=f"px-2 py-1 rounded hover:bg-muted cursor-pointer {'bg-muted' if is_active else ''}",
             style={"paddingLeft": f"{depth * 12 + 20}px"},
-            on_click=ctx.callback(navigate_to, folder_id=folder["id"]),
             children=[
                 Text("📁"),
                 Text(folder["name"], class_name="text-sm ml-2"),

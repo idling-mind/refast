@@ -46,9 +46,17 @@ class Form(Component):
         on_submit: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.on_submit = on_submit
 
@@ -108,9 +116,17 @@ class FormField(Component):
         required: bool = False,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.label = label
         self.error = error
@@ -165,13 +181,19 @@ class Label(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.text = text
         self.html_for = html_for
         self.required = required
-        self.style = style
 
     def render(self) -> dict[str, Any]:
         return {

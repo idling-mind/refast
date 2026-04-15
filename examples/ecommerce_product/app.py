@@ -474,7 +474,6 @@ def home(ctx: Context):
                                                         ],
                                                     ),
                                                     Tabs(
-                                                        type="single",
                                                         value=selected_color,
                                                         on_value_change=ctx.callback(select_color),
                                                         children=[

@@ -328,7 +328,7 @@ async def show_custom_component_toast(ctx: Context):
                     ],
                 ),
                 Row(
-                    children=[Badge("New Feature", variant="success", size="sm", class_name="mt-2")]
+                    children=[Badge("New Feature", variant="success", class_name="mt-2")]
                 ),
             ],
         ),

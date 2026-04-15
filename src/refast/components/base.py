@@ -5,7 +5,7 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Self, Union
+from typing import Any, Self, Union, cast
 
 logger = logging.getLogger(__name__)
 
@@ -92,13 +92,20 @@ class Component(ABC):
         if children is None:
             return self
 
-        if not isinstance(self._children, list):
-            self._children = [self._children] if self._children is not None else []
+        children_list: list[Component | str | None]
+        if isinstance(self._children, list):
+            children_list = cast(list[Component | str | None], self._children)
+        elif self._children is None:
+            children_list = []
+        else:
+            children_list = [self._children]
 
         if isinstance(children, list):
-            self._children.extend(children)
+            children_list.extend(cast(list[Component | str | None], children))
         else:
-            self._children.append(children)
+            children_list.append(children)
+
+        self._children = children_list
 
         return self
 
@@ -186,9 +193,16 @@ class Container(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -222,9 +236,16 @@ class Text(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.content = content
 
     def render(self) -> dict[str, Any]:

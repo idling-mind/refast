@@ -53,9 +53,17 @@ class Button(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.variant = variant
         self.size = size
@@ -122,9 +130,17 @@ class IconButton(Component):
         aria_label: str | None = None,
         id: str | None = None,
         class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.icon = icon
         self.variant = variant
         self.size = size

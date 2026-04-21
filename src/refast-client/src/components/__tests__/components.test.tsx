@@ -95,6 +95,13 @@ describe('Input Components', () => {
     expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument();
   });
 
+  it('applies Input className and style to the input element', () => {
+    render(<Input placeholder="Styled input" className="input-custom" style={{ width: '321px' }} />);
+    const input = screen.getByPlaceholderText('Styled input');
+    expect(input).toHaveClass('input-custom');
+    expect(input).toHaveStyle('width: 321px');
+  });
+
   it('renders Checkbox with label', () => {
     render(<Checkbox label="Check me" />);
     expect(screen.getByText('Check me')).toBeInTheDocument();

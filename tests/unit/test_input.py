@@ -48,6 +48,13 @@ class TestInput:
         rendered = inp.render()
         assert rendered["props"]["description"] == "We'll never share your email"
 
+    def test_input_with_class_name_and_style(self):
+        """Input should serialize class_name and style props."""
+        inp = Input(name="email", class_name="w-full", style={"maxWidth": "320px"})
+        rendered = inp.render()
+        assert rendered["props"]["class_name"] == "w-full"
+        assert rendered["props"]["style"] == {"maxWidth": "320px"}
+
     def test_input_with_label_and_description(self):
         """Test Input with both label and description."""
         inp = Input(name="email", label="Email Address", description="Enter your email address")
@@ -198,6 +205,13 @@ class TestTextarea:
         rendered = ta.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
+    def test_textarea_with_class_name_and_style(self):
+        """Textarea should serialize class_name and style props."""
+        ta = Textarea(name="bio", class_name="min-h-32", style={"resize": "vertical"})
+        rendered = ta.render()
+        assert rendered["props"]["class_name"] == "min-h-32"
+        assert rendered["props"]["style"] == {"resize": "vertical"}
+
     def test_textarea_with_debounce(self):
         """Test Textarea debounce prop."""
         ta = Textarea(name="bio", debounce=150)
@@ -284,6 +298,18 @@ class TestSelect:
         sel = Select(name="test", options=[], on_change=cb)
         rendered = sel.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+
+    def test_select_with_class_name_and_style(self):
+        """Select should serialize class_name and style props."""
+        sel = Select(
+            name="choice",
+            options=[{"value": "a", "label": "A"}],
+            class_name="w-40",
+            style={"minWidth": "10rem"},
+        )
+        rendered = sel.render()
+        assert rendered["props"]["class_name"] == "w-40"
+        assert rendered["props"]["style"] == {"minWidth": "10rem"}
 
 
 class TestCheckbox:

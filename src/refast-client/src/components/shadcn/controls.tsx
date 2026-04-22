@@ -950,6 +950,27 @@ interface DatePickerProps {
   'data-refast-id'?: string;
 }
 
+type DropdownSide = 'top' | 'bottom';
+
+function resolveDropdownSide(
+  container: HTMLDivElement | null,
+  requiredSpace: number
+): DropdownSide {
+  if (!container || typeof window === 'undefined') {
+    return 'bottom';
+  }
+
+  const rect = container.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  if (spaceBelow < requiredSpace && spaceAbove > spaceBelow) {
+    return 'top';
+  }
+
+  return 'bottom';
+}
+
 export function DatePicker({
   id,
   className,
@@ -970,6 +991,7 @@ export function DatePicker({
   'data-refast-id': dataRefastId,
 }: DatePickerProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
+  const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
   const pendingChangeRef = React.useRef<
     string | string[] | { from?: string; to?: string } | undefined | null
   >(null);
@@ -1059,6 +1081,24 @@ export function DatePicker({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    const updateDropdownSide = () => {
+      const requiredSpace = mode === 'range' ? 420 : 360;
+      setDropdownSide(resolveDropdownSide(containerRef.current, requiredSpace));
+    };
+
+    updateDropdownSide();
+    window.addEventListener('resize', updateDropdownSide);
+    window.addEventListener('scroll', updateDropdownSide, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownSide);
+      window.removeEventListener('scroll', updateDropdownSide, true);
+    };
+  }, [open, mode]);
 
   // Format display value
   const displayValue = React.useMemo(() => {
@@ -1154,7 +1194,12 @@ export function DatePicker({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 rounded-md border bg-popover p-0 text-popover-foreground shadow-md">
+        <div
+          className={cn(
+            'absolute left-0 z-50 rounded-md border bg-popover p-0 text-popover-foreground shadow-md',
+            dropdownSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+          )}
+        >
           {mode === 'range' ? (
             <Calendar
               mode="range"
@@ -1255,6 +1300,7 @@ export function Combobox({
 }: ComboboxProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
 
   const [internalValue, setInternalValue] = React.useState<string | string[]>(
     value !== undefined ? value : (multiselect ? [] : '')
@@ -1294,6 +1340,23 @@ export function Combobox({
       setInternalValue(value);
     }
   }, [value]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    const updateDropdownSide = () => {
+      setDropdownSide(resolveDropdownSide(containerRef.current, 340));
+    };
+
+    updateDropdownSide();
+    window.addEventListener('resize', updateDropdownSide);
+    window.addEventListener('scroll', updateDropdownSide, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownSide);
+      window.removeEventListener('scroll', updateDropdownSide, true);
+    };
+  }, [open]);
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
@@ -1429,7 +1492,12 @@ export function Combobox({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
+        <div
+          className={cn(
+            'absolute left-0 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md',
+            dropdownSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+          )}
+        >
           <div className="flex items-center border-b px-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"

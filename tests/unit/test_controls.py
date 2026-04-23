@@ -2,6 +2,7 @@
 
 from refast.components.shadcn.controls import (
     Calendar,
+    Combobox,
     DatePicker,
     Slider,
     Switch,
@@ -294,4 +295,60 @@ class TestCalendar:
         cb = MockCallback()
         calendar = Calendar(on_select=cb)
         rendered = calendar.render()
+        assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
+
+
+class TestCombobox:
+    """Tests for Combobox component."""
+
+    def test_combobox_renders(self):
+        """Test Combobox renders correctly."""
+        combobox = Combobox(options=[{"value": "react", "label": "React"}])
+        rendered = combobox.render()
+
+        assert rendered["type"] == "Combobox"
+        assert rendered["props"]["options"] == [{"value": "react", "label": "React"}]
+
+    def test_combobox_with_rich_option_metadata(self):
+        """Test Combobox preserves rich option metadata in serialization."""
+        combobox = Combobox(
+            options=[
+                {
+                    "value": "qwen-local",
+                    "label": "Qwen-local",
+                    "description": "vllm - Qwen/Qwen3-4B-Instruct-2507",
+                    "icon": "bot",
+                    "color": "#3b82f6",
+                    "search_text": "llm local qwen",
+                    "disabled": False,
+                }
+            ]
+        )
+        rendered = combobox.render()
+        option = rendered["props"]["options"][0]
+
+        assert option["description"] == "vllm - Qwen/Qwen3-4B-Instruct-2507"
+        assert option["icon"] == "bot"
+        assert option["color"] == "#3b82f6"
+        assert option["search_text"] == "llm local qwen"
+        assert option["disabled"] is False
+
+    def test_combobox_multiselect_value(self):
+        """Test Combobox supports multiselect values."""
+        combobox = Combobox(
+            options=[{"value": "react", "label": "React"}],
+            multiselect=True,
+            value=["react"],
+        )
+        rendered = combobox.render()
+
+        assert rendered["props"]["multiselect"] is True
+        assert rendered["props"]["value"] == ["react"]
+
+    def test_combobox_with_callback(self):
+        """Test Combobox serializes on_select callback."""
+        cb = MockCallback()
+        combobox = Combobox(options=[{"value": "react", "label": "React"}], on_select=cb)
+        rendered = combobox.render()
+
         assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}

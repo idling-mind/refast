@@ -1,6 +1,6 @@
 """Advanced form control components based on shadcn/ui."""
 
-from typing import Any, Literal
+from typing import Any, Literal, NotRequired, TypedDict
 
 from refast.components.base import ChildrenType, Component
 
@@ -664,13 +664,28 @@ class DatePicker(Component):
         }
 
 
+class ComboboxOption(TypedDict):
+    """Combobox option payload sent to the client renderer."""
+
+    value: str
+    label: str
+    description: NotRequired[str]
+    icon: NotRequired[str]
+    color: NotRequired[str]
+    search_text: NotRequired[str]
+    disabled: NotRequired[bool]
+
+
 class Combobox(Component):
     """
     Searchable select with type-ahead filtering and optional multi-select.
 
-    Options are plain dicts with ``value`` and ``label`` keys. In single-select mode
-    the ``on_select`` callback receives the selected ``str`` value; in multi-select mode
-    it receives a ``list[str]`` of all selected values.
+    Options are dicts with required ``value`` and ``label`` keys, plus optional
+    metadata (e.g. ``description``, ``icon``, ``color``, ``search_text``,
+    ``disabled``) for
+    richer list rows and filtering behavior. In single-select mode the ``on_select``
+    callback receives the selected ``str`` value; in multi-select mode it receives a
+    ``list[str]`` of all selected values.
 
     Example:
         ```python
@@ -706,7 +721,11 @@ class Combobox(Component):
         ```
 
     Args:
-        options: List of ``{"value": str, "label": str}`` dicts.
+        options: List of option dicts. Each option must contain ``value`` and
+            ``label`` keys. Optional keys:
+            ``description`` (secondary text), ``icon`` (icon name),
+            ``color`` (color swatch value like ``"#10b981"``),
+            ``search_text`` (extra searchable text), and ``disabled`` (non-selectable).
         value: Controlled selected value(s). Pass a ``str`` for single-select or a
             ``list[str]`` for multi-select.
         placeholder: Trigger button text when nothing is selected.
@@ -727,7 +746,7 @@ class Combobox(Component):
 
     def __init__(
         self,
-        options: list[dict[str, str]] | None = None,
+        options: list[ComboboxOption] | None = None,
         value: str | list[str] | None = None,
         placeholder: str = "Select...",
         search_placeholder: str = "Search...",

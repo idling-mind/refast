@@ -1261,6 +1261,11 @@ export function DatePicker({
 interface ComboboxOption {
   value: string;
   label: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  searchText?: string;
+  disabled?: boolean;
 }
 
 interface ComboboxProps {
@@ -1377,9 +1382,18 @@ export function Combobox({
     }
   }, [multiselect]); // removed internalValue from deps to avoid loop if modifying it
 
+  const normalizedSearch = search.trim().toLowerCase();
+
   const filteredOptions = options.filter((option) => {
     if (!option || typeof option.label !== 'string') return false;
-    return option.label.toLowerCase().includes(search.toLowerCase());
+    if (!normalizedSearch) return true;
+
+    const haystack = [option.label, option.description, option.searchText, option.color]
+      .filter((part): part is string => typeof part === 'string' && part.length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(normalizedSearch);
   });
 
   const isSelected = (val: string) => {
@@ -1389,7 +1403,17 @@ export function Combobox({
     return internalValue === val;
   };
 
+  const selectedSingleOption =
+    !multiselect && typeof internalValue === 'string'
+      ? options.find((option) => option.value === internalValue)
+      : undefined;
+
   const handleSelect = (val: string) => {
+    const option = options.find((item) => item.value === val);
+    if (option?.disabled) {
+      return;
+    }
+
     if (multiselect) {
       const current = Array.isArray(internalValue) ? internalValue : [];
       let next: string[];
@@ -1471,8 +1495,17 @@ export function Combobox({
             })}
           </div>
         ) : (
-          <span className={!internalValue || (Array.isArray(internalValue) && internalValue.length === 0) ? 'text-muted-foreground' : ''}>
-            {(!multiselect && typeof internalValue === 'string' && options.find((opt) => opt.value === internalValue)?.label) || placeholder}
+          <span className={cn('flex min-w-0 items-center gap-3', !selectedSingleOption && 'text-muted-foreground')}>
+            {selectedSingleOption?.icon ? (
+              <Icon
+                name={selectedSingleOption.icon}
+                className="h-4 w-4 shrink-0"
+                color={selectedSingleOption.color}
+              />
+            ) : null}
+            <span className="truncate">
+              {selectedSingleOption?.label || placeholder}
+            </span>
           </span>
         )}
         <svg
@@ -1535,31 +1568,51 @@ export function Combobox({
                     key={option.value}
                     type="button"
                     onClick={() => handleSelect(option.value)}
+                    disabled={option.disabled}
                     className={cn(
-                      'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+                      'relative flex w-full select-none items-center rounded-sm pr-2 pl-1.5 py-1.5 text-sm outline-none',
                       'hover:bg-accent hover:text-accent-foreground',
-                      selected && 'bg-accent text-accent-foreground'
+                      selected && 'bg-accent text-accent-foreground',
+                      option.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent hover:text-inherit'
                     )}
                   >
-                    {selected && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="mr-2 h-4 w-4"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    <span className={!selected ? 'pl-6' : ''}>
-                      {option.label}
+                    <span className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      {option.icon ? (
+                        <Icon
+                          name={option.icon}
+                          className="h-4 w-4 shrink-0"
+                          color={option.color}
+                        />
+                      ) : null}
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate">{option.label}</span>
+                        {option.description ? (
+                          <span className="truncate text-xs text-muted-foreground">
+                            {option.description}
+                          </span>
+                        ) : null}
+                      </span>
                     </span>
+                    {multiselect ? (
+                      <span className="ml-2 flex h-4 w-4 shrink-0 items-center justify-center">
+                        {selected ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })

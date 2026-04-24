@@ -2,14 +2,80 @@ from turtle import st
 from operator import le
 from fastapi import FastAPI
 from refast import Context, RefastApp, components as rc
+from refast.theme import ocean_breeze_theme
 
-ui = RefastApp(title="AI Chat Example")
+ui = RefastApp(title="AI Chat Example", theme=ocean_breeze_theme)
 
 dummy_chats = [
     {"title": "Chat with AI", "tags": ["AI", "Chat"], "timestamp": "2h ago"},
     {"title": "Project Brainstorming", "tags": ["Project", "Ideas"], "timestamp": "1d ago"},
     {"title": "Code Review", "tags": ["Code", "Review"], "timestamp": "3d ago"},
 ]
+
+dummy_messages = [
+    {"role": "user", "content": "Hello, how are you?"},
+    {"role": "assistant", "content": "I'm good, thank you! How can I assist you today?"},
+    {"role": "user", "content": "Can you write a simple python script to ask the user their name and then print it?"},
+    {"role": "assistant", "content": "Sure! Here's a simple Python script that does that:\n\n```python\nname = input('What is your name? ')\nprint(f'Hello, {name}!')\n```"},
+]
+
+def message_row(role: str, content: str):
+    is_user = role == "user"
+    return rc.Row(
+        class_name="p-2",
+        align="start",
+        children=[
+            rc.Column(
+                rc.IconButton("user" if is_user else "rocket", class_name="rounded-full", variant="default" if is_user else "outline"),
+                class_name="pl-2",
+            ),
+            rc.Column(
+                [
+                    rc.Row(
+                        [
+                            rc.Text("User" if is_user else "Assistant", class_name="text-sm font-bold"),
+                            rc.Text("·", class_name="text-xs text-gray-400 px-2 leading-none"),
+                            rc.Text("Just now", class_name="text-xs text-gray-400"),
+                        ],
+                        gap=0,
+                        align="center",
+                    ),
+                    rc.Markdown(content),
+                ],
+                class_name="p-2 flex-1",
+            )
+        ]
+    )
+
+def artifacts_panel():
+    return rc.Column(
+        class_name="h-full",
+        children=[
+            rc.Row(
+                class_name="border-b p-2",
+                children=[
+                    rc.Icon("image"),
+                    rc.Text(f"Artifacts (2)", class_name="font-semibold text-sm"),
+                    rc.Container(class_name="flex-1"),
+                    rc.IconButton(icon="x", aria_label="Close panel", class_name="rounded-full h-5 w-5", size="sm"),
+                ],
+                align="center",
+            ),
+            rc.Row(
+                class_name="border-b px-2",
+                children=[
+                    rc.Tabs(
+                        children=[
+                            rc.TabItem(label="Images", value="images", icon="image"),
+                            rc.TabItem(label="Files", value="files", icon="image"),
+                            rc.TabItem(label="Code Snippets", value="code", icon="image"),
+                        ],
+                        default_value="images",
+                    )
+                ]
+            )
+        ]
+    )
 
 
 def left_panel(chats: list[dict[str, str]] = dummy_chats):
@@ -22,6 +88,8 @@ def left_panel(chats: list[dict[str, str]] = dummy_chats):
                     rc.Button(
                         label="New Chat",
                         class_name="w-full rounded-full",
+                        variant="outline",
+                        icon="plus",
                     ),
                 ],
             ),
@@ -70,13 +138,13 @@ def main_panel():
         class_name="h-full",
         children=[
             rc.Row(
-                class_name="border-b p-2",
+                class_name="border-b p-2 pr-4",
                 children=[
                     rc.IconButton(
                         icon="menu",
                     ),
                     rc.Text("Chat with AI", class_name="font-semibold"),
-                    rc.Text("4 Messages, 2 Artifacts", class_name="text-sm text-gray-500"),
+                    rc.Text("4 Messages, 2 Artifacts", class_name="text-sm text-gray-500 border-l px-4 ml-4"),
                     rc.Container(class_name="flex-1"),
                     rc.ConnectionStatus(
                         position="inline",
@@ -86,7 +154,7 @@ def main_panel():
                 ],
                 align="center",
             ),
-            rc.Row(class_name="flex-1", children=["Chat history"]),
+            rc.Column(class_name="flex-1", children=[message_row(**msg) for msg in dummy_messages]),
             rc.Row(
                 class_name="border-t p-2",
                 style={"height": "40px"},
@@ -105,7 +173,6 @@ def main_panel():
                                     rc.Row(
                                         children=[
                                             rc.Combobox(
-                                                label="Select Agent",
                                                 options=[
                                                     {
                                                         "value": "react",
@@ -202,17 +269,20 @@ def home(ctx: Context):
                         children=[left_panel()],
                         min_size=10,
                         max_size=40,
-                        default_size=20,
+                        default_size=15,
                     ),
-                    rc.ResizableHandle(with_handle=True),
+                    rc.ResizableHandle(class_name="w-1"),
                     rc.ResizablePanel(
                         children=[main_panel()],
                         default_size=40,
+                        min_size=30,
                     ),
-                    rc.ResizableHandle(with_handle=True),
+                    rc.ResizableHandle(class_name="w-1"),
                     rc.ResizablePanel(
-                        children=[rc.Text("Artifacts", class_name="text-gray-500 italic")],
-                        default_size=20,
+                        children=[
+                            artifacts_panel(),
+                        ],
+                        default_size=15,
                     ),
                 ],
             )

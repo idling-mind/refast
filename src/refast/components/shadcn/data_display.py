@@ -941,6 +941,7 @@ class TabItem(Component):
 
     ``value`` must be unique among siblings and is used to identify which panel
     is active. ``label`` is the human-readable text shown on the tab button.
+    ``icon`` can optionally prefix the label in the tab trigger.
 
     Example:
         ```python
@@ -954,6 +955,7 @@ class TabItem(Component):
     Args:
         value: Unique identifier for this panel within the :class:`Tabs` group.
         label: Text displayed on the tab trigger button.
+        icon: Optional icon text shown before the tab label.
         children: Panel content shown when this tab is active.
         disabled: If ``True``, the tab button is grayed out and non-clickable.
         id: Optional HTML element id.
@@ -966,6 +968,7 @@ class TabItem(Component):
         self,
         value: str,
         label: str,
+        icon: str | None = None,
         children: ChildrenType = None,
         disabled: bool = False,
         id: str | None = None,
@@ -984,6 +987,7 @@ class TabItem(Component):
         self.add_children(children)
         self.value = value
         self.label = label
+        self.icon = icon
         self.disabled = disabled
 
     def render(self) -> dict[str, Any]:
@@ -993,6 +997,7 @@ class TabItem(Component):
             "props": {
                 "value": self.value,
                 "label": self.label,
+                "icon": self.icon,
                 "disabled": self.disabled,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),

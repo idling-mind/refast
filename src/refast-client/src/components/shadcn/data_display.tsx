@@ -3,6 +3,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../../utils';
+import { Icon } from './icon';
 
 // ============================================================================
 // Accordion Components
@@ -883,7 +884,7 @@ export function Tabs({
   const childArray = React.Children.toArray(children);
   
   // Collect tab metadata from children
-  const tabMeta: Array<{ value: string; label: string; disabled: boolean }> = [];
+  const tabMeta: Array<{ value: string; label: string; icon?: string; disabled: boolean }> = [];
   
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child)) {
@@ -891,6 +892,7 @@ export function Tabs({
       
       let itemValue: string | undefined;
       let itemLabel: string | undefined;
+      let itemIcon: string | undefined;
       let itemDisabled: boolean | undefined;
 
       // Handle ComponentRenderer children (wrapped)
@@ -899,11 +901,13 @@ export function Tabs({
         const treeProps = (props.tree as any).props || {};
         itemValue = treeProps.value;
         itemLabel = treeProps.label;
+        itemIcon = treeProps.icon;
         itemDisabled = treeProps.disabled;
       } else {
         // Handle direct usage
         itemValue = props.value as string;
         itemLabel = props.label as string;
+        itemIcon = props.icon as string;
         itemDisabled = props.disabled as boolean;
       }
 
@@ -912,6 +916,7 @@ export function Tabs({
         tabMeta.push({
           value: String(itemValue || ''),
           label: String(itemLabel || itemValue || ''),
+          icon: itemIcon,
           disabled: Boolean(itemDisabled),
         });
       }
@@ -949,13 +954,14 @@ export function Tabs({
                 onClick={() => !tab.disabled && handleTabChange(tab.value)}
                 disabled={tab.disabled}
                 className={cn(
-                  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+                  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
                   isActive
                     ? 'bg-background text-foreground shadow-sm'
                     : 'hover:bg-background/50'
                 )}
               >
-                {tab.label}
+                {tab.icon ? <Icon name={tab.icon} size={14} /> : null}
+                <span>{tab.label}</span>
               </button>
             );
           })}
@@ -997,6 +1003,7 @@ interface TabItemProps {
   className?: string;
   value: string;
   label: string;
+  icon?: string;
   disabled?: boolean;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -1011,6 +1018,7 @@ export function TabItem({
   className,
   value,
   label,
+  icon,
   disabled = false,
   children,
   'data-refast-id': dataRefastId,
@@ -1022,6 +1030,7 @@ export function TabItem({
       role="tabpanel"
       data-value={value}
       data-label={label}
+      data-icon={icon}
       data-disabled={disabled}
       data-refast-id={dataRefastId}
     >

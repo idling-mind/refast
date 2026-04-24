@@ -554,7 +554,6 @@ def home(ctx: Context):
                                         children=[
                                             Combobox(
                                                 label="Select a framework",
-                                                description="Single select combobox example",
                                                 placeholder="Choose a framework...",
                                                 options=[
                                                     {

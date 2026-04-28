@@ -1,7 +1,7 @@
-from turtle import st
-from operator import le
 from fastapi import FastAPI
-from refast import Context, RefastApp, components as rc
+
+from refast import Context, RefastApp
+from refast import components as rc
 from refast.theme import ocean_breeze_theme
 
 ui = RefastApp(title="AI Chat Example", theme=ocean_breeze_theme)
@@ -55,7 +55,7 @@ def artifacts_panel():
                 class_name="border-b p-2",
                 children=[
                     rc.Icon("image"),
-                    rc.Text(f"Artifacts (2)", class_name="font-semibold text-sm"),
+                    rc.Text("Artifacts (2)", class_name="font-semibold text-sm"),
                     rc.Container(class_name="flex-1"),
                     rc.IconButton(icon="x", aria_label="Close panel", class_name="rounded-full h-5 w-5", size="sm"),
                 ],

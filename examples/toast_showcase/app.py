@@ -8,7 +8,6 @@ Run with:
     uvicorn app:app --reload
 """
 
-import dis
 
 import asyncio
 
@@ -16,6 +15,7 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
+    Badge,
     Button,
     Card,
     CardContent,
@@ -26,11 +26,10 @@ from refast.components import (
     Container,
     Grid,
     Heading,
+    Progress,
     Row,
     Text,
     ThemeSwitcher,
-    Badge,
-    Progress,
 )
 
 # Create the Refast app

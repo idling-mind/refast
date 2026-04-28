@@ -10,7 +10,6 @@ This example demonstrates:
 - Related products
 """
 
-from click import style
 
 from fastapi import FastAPI
 
@@ -37,9 +36,6 @@ from refast.components import (
     TabItem,
     Tabs,
     Text,
-    ToggleGroup,
-    ToggleGroupItem,
-    IconButton,
     Toggle,
 )
 

@@ -116,7 +116,6 @@ from refast.components.shadcn.charts import (
     Pie,
     PieChart,
     XAxis,
-    YAxis,
 )
 from refast.components.shadcn.input import Textarea
 from refast.theme import (

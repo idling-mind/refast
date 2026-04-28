@@ -36,7 +36,6 @@ from refast.components import (
     Paragraph,
     Row,
     Separator,
-    Text,
 )
 from refast.components.shadcn.charts import (
     Bar,
@@ -49,7 +48,6 @@ from refast.components.shadcn.charts import (
     XAxis,
     YAxis,
 )
-
 
 # ──────────────────────────────────────────────────────────────────────────
 # Shared page builders

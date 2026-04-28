@@ -505,7 +505,7 @@ class RefastRouter:
             else set(ALL_FEATURE_CHUNKS)
         )
         startup_features = sorted(
-            (set(self.app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features))
+            set(self.app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features)
         )
         chunk_files = _get_chunk_files(manifest, startup_features)
 
@@ -658,7 +658,7 @@ class RefastRouter:
         }} else {{
             window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
         }}
-    </script>"""
+    </script>""" # noqa: E501
 
         # --- Theme CSS variable overrides ---
         theme_style = ""

@@ -10,7 +10,6 @@ This example demonstrates:
 - Pagination
 """
 
-from turtle import st
 
 from fastapi import FastAPI
 

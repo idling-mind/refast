@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class RadarChart(Component):
@@ -22,7 +22,6 @@ class RadarChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         cx: str | int = "50%",
@@ -31,10 +30,13 @@ class RadarChart(Component):
         outer_radius: int | str = "80%",
         start_angle: int = 90,
         end_angle: int = -270,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.margin = margin or {"top": 0, "right": 0, "left": 0, "bottom": 0}
         self.cx = cx
@@ -44,8 +46,7 @@ class RadarChart(Component):
         self.start_angle = start_angle
         self.end_angle = end_angle
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -86,15 +87,18 @@ class Radar(Component):
         fill_opacity: float = 0.6,
         stroke: str | None = None,
         stroke_width: int = 2,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.fill = fill
         self.fill_opacity = fill_opacity
         self.stroke = stroke or fill
         self.stroke_width = stroke_width
-        self.props = kwargs
+        self.props = extra_props or {}
 
     def render(self) -> dict[str, Any]:
         return {
@@ -116,9 +120,15 @@ class PolarGrid(Component):
 
     component_type: str = "PolarGrid"
 
-    def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.props = kwargs
+    def __init__(
+        self,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
+    ):
+        super().__init__(id=id, extra_props=extra_props)
+        self.props = extra_props or {}
 
     def render(self) -> dict[str, Any]:
         return {
@@ -138,13 +148,16 @@ class PolarAngleAxis(Component):
         data_key: str | None = None,
         type: str = "category",
         tick: bool | dict[str, Any] = True,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.type = type
         self.tick = tick
-        self.props = kwargs
+        self.props = extra_props or {}
 
     def render(self) -> dict[str, Any]:
         return {
@@ -170,14 +183,17 @@ class PolarRadiusAxis(Component):
         type: str = "number",
         tick: bool | dict[str, Any] = True,
         domain: list[int | str] | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.angle = angle
         self.type = type
         self.tick = tick
         self.domain = domain
-        self.props = kwargs
+        self.props = extra_props or {}
 
     def render(self) -> dict[str, Any]:
         return {

@@ -7,7 +7,6 @@ from refast.components import (
     Separator,
 )
 
-
 PAGE_TITLE = "Architecture"
 PAGE_ROUTE = "/docs/architecture"
 

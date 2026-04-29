@@ -10,7 +10,6 @@ This example demonstrates:
 - Pagination
 """
 
-from turtle import st
 
 from fastapi import FastAPI
 
@@ -66,7 +65,7 @@ from refast.components import (
 )
 
 # Create the Refast app
-ui = RefastApp(title="Navigation Showcase")
+ui = RefastApp(title="Navigation Showcase", preloaded_features=["navigation"])
 
 
 # Callback handlers
@@ -320,7 +319,7 @@ def home(ctx: Context):
                                                                             BreadcrumbLink(
                                                                                 label="Home",
                                                                                 href="/",
-                                                                                on_select=ctx.callback(
+                                                                                on_click=ctx.callback(
                                                                                     on_nav_click,
                                                                                     item="Home",
                                                                                 ),
@@ -718,8 +717,7 @@ def home(ctx: Context):
                                                                             PaginationLink(
                                                                                 label="1",
                                                                                 href="#",
-                                                                                page=1,
-                                                                                is_active=(
+                                                                                active=(
                                                                                     current_page
                                                                                     == 1
                                                                                 ),
@@ -735,8 +733,7 @@ def home(ctx: Context):
                                                                             PaginationLink(
                                                                                 label="2",
                                                                                 href="#",
-                                                                                page=2,
-                                                                                is_active=(
+                                                                                active=(
                                                                                     current_page
                                                                                     == 2
                                                                                 ),
@@ -752,8 +749,7 @@ def home(ctx: Context):
                                                                             PaginationLink(
                                                                                 label="3",
                                                                                 href="#",
-                                                                                page=3,
-                                                                                is_active=(
+                                                                                active=(
                                                                                     current_page
                                                                                     == 3
                                                                                 ),
@@ -774,8 +770,7 @@ def home(ctx: Context):
                                                                             PaginationLink(
                                                                                 label="10",
                                                                                 href="#",
-                                                                                page=10,
-                                                                                is_active=(
+                                                                                active=(
                                                                                     current_page
                                                                                     == 10
                                                                                 ),

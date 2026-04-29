@@ -34,9 +34,9 @@ class Slot(Component):
         id: str | None = None,
         class_name: str = "",
         fallback: Component | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(id=id, class_name=class_name, extra_props=extra_props)
         self.add_children(children)
         self.fallback = fallback
 

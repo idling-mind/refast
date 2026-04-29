@@ -41,13 +41,44 @@ def _load_manifest() -> dict[str, Any]:
     return {}
 
 
-def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> list[str]:
+def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
+    """Infer which feature bucket a manifest entry belongs to.
+
+    Returns ``None`` for non-feature (shared/vendor/core) chunks.
+    """
+    name = entry.get("name")
+    if isinstance(name, str) and name in ALL_FEATURE_CHUNKS:
+        return name
+
+    src = str(entry.get("src", ""))
+    if "src/components/charts/" in src:
+        return "charts"
+    if src.endswith("/shadcn/navigation.tsx"):
+        return "navigation"
+    if src.endswith("/shadcn/overlay.tsx"):
+        return "overlay"
+    if src.endswith("/shadcn/controls.tsx"):
+        return "controls"
+    if src.endswith("/shadcn/icon.tsx"):
+        return "icons"
+    if "markdown" in src:
+        return "markdown"
+
+    for feature in ALL_FEATURE_CHUNKS:
+        if file_name.startswith(f"refast-{feature}-"):
+            return feature
+    return None
+
+
+def _get_chunk_files(
+    manifest: dict[str, Any], preloaded_features: list[str] | None
+) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
     Args:
         manifest: Parsed Vite manifest.json contents.
-        features: ``None`` = load all chunks; otherwise only the listed
-            feature chunks are included.
+        preloaded_features: Which feature chunks should be hinted with
+            ``modulepreload``. ``None`` means no feature chunks are preloaded.
 
     Returns:
         List of JS filenames (relative to /static/) in load order.
@@ -57,49 +88,55 @@ def _get_chunk_files(manifest: dict[str, Any], features: list[str] | None) -> li
         # Fallback: no manifest, just return the entry file
         return ["refast-client.js"]
 
-    # Collect all chunk filenames from the manifest
-    chunk_files: list[str] = []
-    for _key, entry in manifest.items():
-        file = entry.get("file", "")
-        if file and file.endswith(".js"):
-            chunk_files.append(file)
-
-    if not chunk_files:
-        return ["refast-client.js"]
-
     # Determine which feature chunks to include
-    if features is not None:
-        allowed = set(features)
-    else:
-        allowed = set(ALL_FEATURE_CHUNKS)
+    allowed = set(preloaded_features or [])
 
-    # Separate entry from feature chunks
+    # Prefer explicit manifest entry; keep stable fallback for dev/test.
+    entry_key: str | None = None
+    entry_file = "refast-client.js"
+    for key, entry in manifest.items():
+        if entry.get("isEntry") is True:
+            entry_key = key
+            entry_file = str(entry.get("file", entry_file))
+            break
+
+    if entry_key is None:
+        return [entry_file]
+
     result: list[str] = []
-    deferred: list[str] = []
-    for f in chunk_files:
-        if f == "refast-client.js":
-            result.insert(0, f)
-            continue
-        # Check if this chunk belongs to a feature group
-        # Chunk names look like: refast-charts-abc123.js
-        chunk_feature = None
-        for feat in ALL_FEATURE_CHUNKS:
-            if f.startswith(f"refast-{feat}-"):
-                chunk_feature = feat
-                break
+    seen_files: set[str] = set()
+    visited_keys: set[str] = set()
 
-        if chunk_feature is None:
-            # Shared / vendor chunk – always include
-            deferred.append(f)
-        elif chunk_feature in allowed:
-            deferred.append(f)
-        # else: excluded feature chunk – skip
+    def _add_file(file_name: str) -> None:
+        if file_name.endswith(".js") and file_name not in seen_files:
+            seen_files.add(file_name)
+            result.append(file_name)
 
-    # Entry must come first; ensure it's present
-    if "refast-client.js" not in result:
-        result.insert(0, "refast-client.js")
+    def _walk(key: str) -> None:
+        if key in visited_keys:
+            return
+        visited_keys.add(key)
 
-    result.extend(deferred)
+        entry = manifest.get(key, {})
+        file_name = str(entry.get("file", ""))
+        if not file_name:
+            return
+
+        feature = _chunk_feature(file_name, entry)
+        if feature is not None and feature not in allowed:
+            return
+
+        _add_file(file_name)
+        for imported_key in entry.get("imports", []):
+            if isinstance(imported_key, str):
+                _walk(imported_key)
+
+    # Entry chunk is always first.
+    _add_file(entry_file)
+    for imported_key in manifest.get(entry_key, {}).get("imports", []):
+        if isinstance(imported_key, str):
+            _walk(imported_key)
+
     return result
 
 
@@ -449,7 +486,7 @@ class RefastRouter:
 
         The shell uses ``<script type="module">`` for the ESM entry chunk
         and any additional feature chunks determined by the build manifest
-        and the app's ``features`` configuration.
+        and the app's ``preloaded_features`` configuration.
 
         Extension scripts are loaded *after* the core module fires
         ``refast:ready``, ensuring ``window.RefastClient`` is available.
@@ -462,7 +499,15 @@ class RefastRouter:
 
         # Resolve chunk files from the build manifest
         manifest = _load_manifest()
-        chunk_files = _get_chunk_files(manifest, self.app.features)
+        lazy_features = (
+            set(self.app.lazy_features)
+            if self.app.lazy_features is not None
+            else set(ALL_FEATURE_CHUNKS)
+        )
+        startup_features = sorted(
+            set(self.app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features)
+        )
+        chunk_files = _get_chunk_files(manifest, startup_features)
 
         # Build script tags — entry is type="module", chunks are modulepreload
         client_css = (
@@ -480,39 +525,140 @@ class RefastRouter:
                 # Preload hints let the browser fetch chunks early
                 preload_tags.append(f'<link rel="modulepreload" href="{path}">')
 
-        scripts_html = "\n    ".join(script_tags)
-        preloads_html = "\n    ".join(preload_tags)
-
-        # Collect extension assets — loaded after refast:ready
+        # Collect extension assets and metadata
         extension_styles = []
-        extension_scripts_list = []
+        extension_script_map: dict[str, list[str]] = {}
+        extension_component_map: dict[str, str] = {}
         for ext in self.app._extensions.values():
             extension_styles.extend(
                 f'<link rel="stylesheet" href="{url}">' for url in ext.get_style_urls()
             )
-            extension_scripts_list.extend(ext.get_script_urls())
+            extension_script_map[ext.name] = ext.get_script_urls()
+            for component in ext.components:
+                component_type = getattr(component, "component_type", component.__name__)
+                extension_component_map[component_type] = ext.name
+
+        extension_names = set(extension_script_map.keys())
+        lazy_extensions = (
+            set(self.app.lazy_extensions)
+            if self.app.lazy_extensions is not None
+            else set(extension_names)
+        )
+        startup_extensions = sorted(
+            (set(self.app.preloaded_extensions or []) | (extension_names - lazy_extensions))
+            & extension_names
+        )
+
+        scripts_html = "\n    ".join(script_tags)
+        preloads_html = "\n    ".join(preload_tags)
+        preload_config_html = (
+            "<script>window.__REFAST_PRELOADED_FEATURES__ = "
+            f"{json.dumps(startup_features)};"
+            "window.__REFAST_STARTUP_FEATURES__ = "
+            f"{json.dumps(startup_features)};"
+            "window.__REFAST_LAZY_FEATURES__ = "
+            f"{json.dumps(sorted(lazy_features))};"
+            "window.__REFAST_EXTENSIONS_READY__ = "
+            f"{str(not bool(extension_script_map)).lower()};"
+            "window.__REFAST_EXTENSION_SCRIPT_MAP__ = "
+            f"{json.dumps(extension_script_map)};"
+            "window.__REFAST_EXTENSION_COMPONENT_MAP__ = "
+            f"{json.dumps(extension_component_map)};"
+            "window.__REFAST_EXTENSION_LOADED__ = "
+            "window.__REFAST_EXTENSION_LOADED__ || {};"
+            "</script>"
+        )
 
         ext_styles_html = "\n    ".join(extension_styles)
 
         # Extensions are IIFE scripts that need window.RefastClient.
-        # We inject them via a small inline module that waits for refast:ready.
+        # We inject a runtime loader that can preload startup extensions and
+        # lazily load the rest on demand by component type.
         ext_loader_html = ""
-        if extension_scripts_list:
-            urls_json = json.dumps(extension_scripts_list)
+        if extension_script_map:
+            script_map_json = json.dumps(extension_script_map)
+            component_map_json = json.dumps(extension_component_map)
+            startup_extensions_json = json.dumps(startup_extensions)
             ext_loader_html = f"""<script type="module">
-    function loadExtensions() {{
-      {urls_json}.forEach(function(url) {{
-        var s = document.createElement('script');
-        s.src = url;
-        document.body.appendChild(s);
-      }});
-    }}
-    if (window.RefastClient) {{
-      loadExtensions();
-    }} else {{
-      window.addEventListener('refast:ready', loadExtensions, {{ once: true }});
-    }}
-    </script>"""
+        window.__REFAST_EXTENSIONS_READY__ = false;
+        window.__REFAST_EXTENSION_SCRIPT_MAP__ = {script_map_json};
+        window.__REFAST_EXTENSION_COMPONENT_MAP__ = {component_map_json};
+        window.__REFAST_EXTENSION_LOADED__ = window.__REFAST_EXTENSION_LOADED__ || {{}};
+
+        const startupExtensions = {startup_extensions_json};
+        const extensionPromises = {{}};
+
+        function loadScript(url, extName) {{
+            return new Promise((resolve) => {{
+                const existing = document.querySelector('script[data-refast-ext="' + extName + '"][src="' + url + '"]');
+                if (existing) {{
+                    if (existing.dataset.refastLoaded === '1') {{
+                        resolve(true);
+                        return;
+                    }}
+
+                    const onLoad = () => resolve(true);
+                    const onError = () => resolve(false);
+                    existing.addEventListener('load', onLoad, {{ once: true }});
+                    existing.addEventListener('error', onError, {{ once: true }});
+                    return;
+                }}
+                const s = document.createElement('script');
+                s.src = url;
+                s.async = true;
+                s.setAttribute('data-refast-ext', extName);
+                s.onload = () => {{
+                    s.dataset.refastLoaded = '1';
+                    resolve(true);
+                }};
+                s.onerror = () => resolve(false);
+                document.body.appendChild(s);
+            }});
+        }}
+
+        window.__REFAST_LOAD_EXTENSION__ = function(name) {{
+            if (window.__REFAST_EXTENSION_LOADED__[name]) {{
+                window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
+                return Promise.resolve();
+            }}
+
+            if (extensionPromises[name]) {{
+                return extensionPromises[name];
+            }}
+
+            const urls = (window.__REFAST_EXTENSION_SCRIPT_MAP__ || {{}})[name] || [];
+            extensionPromises[name] = Promise.all(urls.map((url) => loadScript(url, name))).then((results) => {{
+                const loaded = results.every(Boolean);
+                if (loaded) {{
+                    window.__REFAST_EXTENSION_LOADED__[name] = true;
+                    window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
+                    return;
+                }}
+
+                delete extensionPromises[name];
+            }});
+            return extensionPromises[name];
+        }};
+
+        function loadStartupExtensions() {{
+            if (startupExtensions.length === 0) {{
+                window.__REFAST_EXTENSIONS_READY__ = true;
+                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
+                return;
+            }}
+
+            Promise.all(startupExtensions.map((name) => window.__REFAST_LOAD_EXTENSION__(name))).finally(() => {{
+                window.__REFAST_EXTENSIONS_READY__ = true;
+                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
+            }});
+        }}
+
+        if (window.RefastClient) {{
+            loadStartupExtensions();
+        }} else {{
+            window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
+        }}
+    </script>""" # noqa: E501
 
         # --- Theme CSS variable overrides ---
         theme_style = ""
@@ -592,6 +738,7 @@ class RefastRouter:
         <div id="refast-loading-spinner"></div>
     </div>
     <div id="refast-root"></div>
+    {preload_config_html}
     {scripts_html}
     {ext_loader_html}
     {custom_js_html}

@@ -75,10 +75,11 @@ interface SliderProps {
   className?: string;
   label?: string;
   description?: string;
+  showValue?: boolean;
   required?: boolean;
   error?: string;
-  value?: number[];
-  defaultValue?: number[];
+  value?: number | number[];
+  defaultValue?: number | number[];
   min?: number;
   max?: number;
   step?: number;
@@ -94,6 +95,7 @@ export function Slider({
   className,
   label,
   description,
+  showValue = false,
   required = false,
   error,
   value,
@@ -107,18 +109,109 @@ export function Slider({
   onValueCommit,
   'data-refast-id': dataRefastId,
 }: SliderProps): React.ReactElement {
+  const normalizeSliderValues = (
+    sliderValues: number | number[] | undefined,
+    fallback: number[]
+  ): number[] => {
+    if (Array.isArray(sliderValues)) {
+      return sliderValues.length > 0 ? sliderValues : fallback;
+    }
+    if (typeof sliderValues === 'number' && Number.isFinite(sliderValues)) {
+      return [sliderValues];
+    }
+    return fallback;
+  };
+
+  const normalizedDefaultValue = React.useMemo(
+    () => normalizeSliderValues(defaultValue, [0]),
+    [defaultValue]
+  );
+  const normalizedValue = React.useMemo(
+    () => (value === undefined ? undefined : normalizeSliderValues(value, normalizedDefaultValue)),
+    [value, normalizedDefaultValue]
+  );
+  const isControlled = value !== undefined;
+  const [liveValues, setLiveValues] = React.useState<number[]>(() => normalizedValue ?? normalizedDefaultValue);
+
+  React.useEffect(() => {
+    if (isControlled && normalizedValue !== undefined) {
+      setLiveValues(normalizedValue);
+    }
+  }, [isControlled, normalizedValue]);
+
+  React.useEffect(() => {
+    if (!isControlled) {
+      setLiveValues(normalizedDefaultValue);
+    }
+  }, [isControlled, normalizedDefaultValue]);
+
+  const thumbValues = isControlled ? (normalizedValue ?? normalizedDefaultValue) : liveValues;
+  const hasLabel = typeof label === 'string' && label.trim().length > 0;
+
+  const handleValueChange = React.useCallback(
+    (nextValue: number[]) => {
+      if (!isControlled) {
+        setLiveValues(nextValue);
+      }
+      onValueChange?.(nextValue);
+    },
+    [isControlled, onValueChange]
+  );
+
+  const handleValueCommit = React.useCallback(
+    (nextValue: number[]) => {
+      if (!isControlled) {
+        setLiveValues(nextValue);
+      }
+      onValueCommit?.(nextValue);
+    },
+    [isControlled, onValueCommit]
+  );
+
+  const formatValue = (rawValue: number): string => {
+    if (!Number.isFinite(rawValue)) {
+      return '';
+    }
+    const stepAsString = Number(step).toString();
+    const decimalPlaces = stepAsString.includes('.') ? stepAsString.split('.')[1].length : 0;
+    return decimalPlaces > 0 ? rawValue.toFixed(decimalPlaces) : rawValue.toString();
+  };
+
+  const formatDisplayValue = (values: number[]): string => {
+    if (values.length === 0) {
+      return '';
+    }
+    if (values.length === 1) {
+      return formatValue(values[0]);
+    }
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    return `${formatValue(minValue)} - ${formatValue(maxValue)}`;
+  };
+
+  const displayValue = formatDisplayValue(thumbValues);
+  const valueElement = showValue ? (
+    <span
+      className="text-sm text-muted-foreground tabular-nums whitespace-nowrap"
+      data-slider-value-display
+      data-slider-value-position={hasLabel ? 'label' : 'inline'}
+    >
+      {displayValue}
+    </span>
+  ) : null;
+
   const sliderElement = (
     <SliderPrimitive.Root
       id={id}
-      value={value}
-      defaultValue={defaultValue}
+      value={thumbValues}
+      defaultValue={isControlled ? undefined : normalizedDefaultValue}
       min={min}
       max={max}
       step={step}
       disabled={disabled}
       orientation={orientation}
-      onValueChange={onValueChange}
-      onValueCommit={onValueCommit}
+      onValueChange={handleValueChange}
+      onValueCommit={handleValueCommit}
       className={cn(
         'relative flex w-full touch-none select-none items-center',
         orientation === 'vertical' && 'flex-col h-full w-auto',
@@ -133,7 +226,7 @@ export function Slider({
       >
         <SliderPrimitive.Range className="absolute bg-primary h-full" />
       </SliderPrimitive.Track>
-      {(value || defaultValue).map((_, index) => (
+      {thumbValues.map((_, index) => (
         <SliderPrimitive.Thumb
           key={index}
           className={cn(
@@ -146,23 +239,38 @@ export function Slider({
     </SliderPrimitive.Root>
   );
 
+  const sliderContent = showValue && !hasLabel
+    ? (
+      <div
+        className={cn(
+          'flex items-center gap-3',
+          orientation === 'vertical' && 'flex-col items-start'
+        )}
+      >
+        {sliderElement}
+        {valueElement}
+      </div>
+      )
+    : sliderElement;
+
   // Wrap with InputWrapper if label, description, or error is provided
   if (label || description || error) {
     return (
       <InputWrapper
         id={id}
         label={label}
+        labelEnd={hasLabel ? valueElement : undefined}
         description={description}
         required={required}
         error={error}
         data-refast-id={dataRefastId}
       >
-        {sliderElement}
+        {sliderContent}
       </InputWrapper>
     );
   }
 
-  return <div data-refast-id={dataRefastId}>{sliderElement}</div>;
+  return <div data-refast-id={dataRefastId}>{sliderContent}</div>;
 }
 
 // ============================================================================
@@ -178,7 +286,7 @@ interface ToggleProps {
   defaultPressed?: boolean;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   onPressedChange?: (pressed: boolean) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -191,7 +299,7 @@ const toggleVariants = {
 
 const toggleSizes = {
   sm: 'h-9 px-2.5',
-  default: 'h-10 px-3',
+  md: 'h-10 px-3',
   lg: 'h-11 px-5',
 };
 
@@ -204,7 +312,7 @@ export function Toggle({
   defaultPressed,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   onPressedChange,
   children,
   'data-refast-id': dataRefastId,
@@ -244,7 +352,7 @@ interface ToggleGroupProps {
   defaultValue?: string | string[];
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -258,7 +366,7 @@ export function ToggleGroup({
   defaultValue,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
@@ -362,7 +470,7 @@ interface ToggleGroupItemProps {
   value: string;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -375,7 +483,7 @@ export function ToggleGroupItem({
   value,
   disabled = false,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   children,
   'data-refast-id': dataRefastId,
 }: ToggleGroupItemProps): React.ReactElement {
@@ -842,6 +950,27 @@ interface DatePickerProps {
   'data-refast-id'?: string;
 }
 
+type DropdownSide = 'top' | 'bottom';
+
+function resolveDropdownSide(
+  container: HTMLDivElement | null,
+  requiredSpace: number
+): DropdownSide {
+  if (!container || typeof window === 'undefined') {
+    return 'bottom';
+  }
+
+  const rect = container.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  if (spaceBelow < requiredSpace && spaceAbove > spaceBelow) {
+    return 'top';
+  }
+
+  return 'bottom';
+}
+
 export function DatePicker({
   id,
   className,
@@ -852,6 +981,7 @@ export function DatePicker({
   value,
   placeholder = 'Pick a date',
   disabled = false,
+  format: _format = 'PPP',
   mode = 'single',
   captionLayout = 'label',
   minDate,
@@ -861,6 +991,7 @@ export function DatePicker({
   'data-refast-id': dataRefastId,
 }: DatePickerProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
+  const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
   const pendingChangeRef = React.useRef<
     string | string[] | { from?: string; to?: string } | undefined | null
   >(null);
@@ -950,6 +1081,24 @@ export function DatePicker({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    const updateDropdownSide = () => {
+      const requiredSpace = mode === 'range' ? 420 : 360;
+      setDropdownSide(resolveDropdownSide(containerRef.current, requiredSpace));
+    };
+
+    updateDropdownSide();
+    window.addEventListener('resize', updateDropdownSide);
+    window.addEventListener('scroll', updateDropdownSide, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownSide);
+      window.removeEventListener('scroll', updateDropdownSide, true);
+    };
+  }, [open, mode]);
 
   // Format display value
   const displayValue = React.useMemo(() => {
@@ -1045,7 +1194,12 @@ export function DatePicker({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 rounded-md border bg-popover p-0 text-popover-foreground shadow-md">
+        <div
+          className={cn(
+            'absolute left-0 z-50 rounded-md border bg-popover p-0 text-popover-foreground shadow-md',
+            dropdownSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+          )}
+        >
           {mode === 'range' ? (
             <Calendar
               mode="range"
@@ -1107,6 +1261,11 @@ export function DatePicker({
 interface ComboboxOption {
   value: string;
   label: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  searchText?: string;
+  disabled?: boolean;
 }
 
 interface ComboboxProps {
@@ -1146,6 +1305,7 @@ export function Combobox({
 }: ComboboxProps): React.ReactElement {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
 
   const [internalValue, setInternalValue] = React.useState<string | string[]>(
     value !== undefined ? value : (multiselect ? [] : '')
@@ -1186,6 +1346,23 @@ export function Combobox({
     }
   }, [value]);
 
+  React.useEffect(() => {
+    if (!open) return;
+
+    const updateDropdownSide = () => {
+      setDropdownSide(resolveDropdownSide(containerRef.current, 340));
+    };
+
+    updateDropdownSide();
+    window.addEventListener('resize', updateDropdownSide);
+    window.addEventListener('scroll', updateDropdownSide, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownSide);
+      window.removeEventListener('scroll', updateDropdownSide, true);
+    };
+  }, [open]);
+
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
     const handleForceSync = (e: Event) => {
@@ -1205,9 +1382,18 @@ export function Combobox({
     }
   }, [multiselect]); // removed internalValue from deps to avoid loop if modifying it
 
+  const normalizedSearch = search.trim().toLowerCase();
+
   const filteredOptions = options.filter((option) => {
     if (!option || typeof option.label !== 'string') return false;
-    return option.label.toLowerCase().includes(search.toLowerCase());
+    if (!normalizedSearch) return true;
+
+    const haystack = [option.label, option.description, option.searchText, option.color]
+      .filter((part): part is string => typeof part === 'string' && part.length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(normalizedSearch);
   });
 
   const isSelected = (val: string) => {
@@ -1217,7 +1403,17 @@ export function Combobox({
     return internalValue === val;
   };
 
+  const selectedSingleOption =
+    !multiselect && typeof internalValue === 'string'
+      ? options.find((option) => option.value === internalValue)
+      : undefined;
+
   const handleSelect = (val: string) => {
+    const option = options.find((item) => item.value === val);
+    if (option?.disabled) {
+      return;
+    }
+
     if (multiselect) {
       const current = Array.isArray(internalValue) ? internalValue : [];
       let next: string[];
@@ -1299,8 +1495,17 @@ export function Combobox({
             })}
           </div>
         ) : (
-          <span className={!internalValue || (Array.isArray(internalValue) && internalValue.length === 0) ? 'text-muted-foreground' : ''}>
-            {(!multiselect && typeof internalValue === 'string' && options.find((opt) => opt.value === internalValue)?.label) || placeholder}
+          <span className={cn('flex min-w-0 items-center gap-3', !selectedSingleOption && 'text-muted-foreground')}>
+            {selectedSingleOption?.icon ? (
+              <Icon
+                name={selectedSingleOption.icon}
+                className="h-4 w-4 shrink-0"
+                color={selectedSingleOption.color}
+              />
+            ) : null}
+            <span className="truncate">
+              {selectedSingleOption?.label || placeholder}
+            </span>
           </span>
         )}
         <svg
@@ -1320,7 +1525,12 @@ export function Combobox({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
+        <div
+          className={cn(
+            'absolute left-0 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md',
+            dropdownSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+          )}
+        >
           <div className="flex items-center border-b px-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1358,31 +1568,51 @@ export function Combobox({
                     key={option.value}
                     type="button"
                     onClick={() => handleSelect(option.value)}
+                    disabled={option.disabled}
                     className={cn(
-                      'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+                      'relative flex w-full select-none items-center rounded-sm pr-2 pl-1.5 py-1.5 text-sm outline-none',
                       'hover:bg-accent hover:text-accent-foreground',
-                      selected && 'bg-accent text-accent-foreground'
+                      selected && 'bg-accent text-accent-foreground',
+                      option.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent hover:text-inherit'
                     )}
                   >
-                    {selected && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="mr-2 h-4 w-4"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    <span className={!selected ? 'pl-6' : ''}>
-                      {option.label}
+                    <span className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      {option.icon ? (
+                        <Icon
+                          name={option.icon}
+                          className="h-4 w-4 shrink-0"
+                          color={option.color}
+                        />
+                      ) : null}
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate">{option.label}</span>
+                        {option.description ? (
+                          <span className="truncate text-xs text-muted-foreground">
+                            {option.description}
+                          </span>
+                        ) : null}
+                      </span>
                     </span>
+                    {multiselect ? (
+                      <span className="ml-2 flex h-4 w-4 shrink-0 items-center justify-center">
+                        {selected ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })
@@ -1443,6 +1673,7 @@ export function InputOTP({
   maxLength = 6,
   value,
   disabled = false,
+  pattern,
   onChange,
   onComplete,
   children,
@@ -1470,6 +1701,7 @@ export function InputOTP({
   }, [id]);
 
   const handleChange = (index: number, char: string) => {
+    if (pattern && char && !new RegExp(pattern).test(char)) return;
     const newValue = localValue.split('');
     newValue[index] = char;
     const joined = newValue.join('').slice(0, maxLength);

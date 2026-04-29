@@ -1,6 +1,6 @@
 """Advanced form control components based on shadcn/ui."""
 
-from typing import Any, Literal
+from typing import Any, Literal, NotRequired, TypedDict
 
 from refast.components.base import ChildrenType, Component
 
@@ -14,7 +14,7 @@ class Switch(Component):
         Switch(
             id="airplane-mode",
             checked=True,
-            on_change=ctx.callback(handle_change),
+            on_checked_change=ctx.callback(handle_change),
         )
         ```
     """
@@ -27,17 +27,25 @@ class Switch(Component):
         default_checked: bool = False,
         disabled: bool = False,
         name: str | None = None,
-        on_change: Any = None,
+        on_checked_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.checked = checked
         self.default_checked = default_checked
         self.disabled = disabled
         self.name = name
-        self.on_change = on_change
+        self.on_checked_change = on_checked_change
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -47,8 +55,8 @@ class Switch(Component):
             **self._serialize_extra_props(),
         }
 
-        if self.on_change:
-            props["on_checked_change"] = self.on_change.serialize()
+        if self.on_checked_change:
+            props["on_checked_change"] = self.on_checked_change.serialize()
 
         if self.checked is not None:
             props["checked"] = self.checked
@@ -73,6 +81,7 @@ class Slider(Component):
             label="Volume",
             description="Adjust the volume level",
             value=[50],
+            show_value=True,
             min=0,
             max=100,
             step=1,
@@ -94,15 +103,24 @@ class Slider(Component):
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         label: str | None = None,
         description: str | None = None,
+        show_value: bool = False,
         required: bool = False,
         error: str | None = None,
         on_value_change: Any = None,
         on_value_commit: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.value = value
         self.default_value = default_value or [0]
         self.min = min
@@ -112,6 +130,7 @@ class Slider(Component):
         self.orientation = orientation
         self.label = label
         self.description = description
+        self.show_value = show_value
         self.required = required
         self.error = error
         self.on_value_change = on_value_change
@@ -127,6 +146,7 @@ class Slider(Component):
             "orientation": self.orientation,
             "label": self.label,
             "description": self.description,
+            "show_value": self.show_value,
             "required": self.required,
             "error": self.error,
             "class_name": self.class_name,
@@ -175,13 +195,21 @@ class Toggle(Component):
         default_pressed: bool = False,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "default", "lg"] = "default",
+        size: Literal["sm", "md", "lg"] = "md",
         on_pressed_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.icon = icon
         self.pressed = pressed
@@ -244,14 +272,22 @@ class ToggleGroup(Component):
         default_value: str | list[str] | dict[str, bool] | None = None,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "default", "lg"] = "default",
+        size: Literal["sm", "md", "lg"] = "md",
         on_value_change: Any = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.toggle_type = type
         self.value = value
         self.default_value = default_value
@@ -311,9 +347,17 @@ class ToggleGroupItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.icon = icon
         self.value = value or name or ""
@@ -337,38 +381,50 @@ class ToggleGroupItem(Component):
 
 class Calendar(Component):
     """
-    A date picker calendar component.
+    Inline calendar component for date selection.
 
-    Supports single, multiple, and range selection modes.
+    Supports single, multiple, and range selection modes. Renders directly in the page
+    without a popover trigger. For a trigger-based picker use ``DatePicker``.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import Calendar
+        from datetime import date
+
         # Single date selection
         Calendar(
             mode="single",
-            selected=date(2024, 1, 15),
+            selected=date(2026, 4, 15),
             on_select=ctx.callback(handle_select),
         )
 
-        # Date range selection with dropdown navigation
+        # Date range with dropdown navigation and boundaries
         Calendar(
             mode="range",
-            caption_layout="dropdown",  # Enable month/year dropdowns
+            caption_layout="dropdown",
             min_date=date(2024, 1, 1),
-            max_date=date(2024, 12, 31),
+            max_date=date(2026, 12, 31),
             on_select=ctx.callback(handle_range_select),
         )
         ```
 
     Args:
-        mode: Selection mode - "single", "multiple", or "range"
-        caption_layout: Header layout - "label" (default), "dropdown" (both month/year),
-                       "dropdown-months" (month only), "dropdown-years" (year only)
-        selected: Currently selected date(s)
-        default_month: Initial month to display
-        min_date: Minimum selectable date
-        max_date: Maximum selectable date
-        number_of_months: Number of months to display side by side
+        mode: Selection mode — ``"single"``, ``"multiple"``, or ``"range"``.
+        caption_layout: Calendar header style — ``"label"``, ``"dropdown"`` (month + year
+            dropdowns), ``"dropdown-months"``, or ``"dropdown-years"``.
+        selected: Controlled selected date(s). Pass a ``date`` for single/multiple mode,
+            or a ``dict`` with ``"from"`` and ``"to"`` keys for range mode.
+        default_month: Initial month to display.
+        disabled: Disables all interaction.
+        show_outside_days: Show days from adjacent months in the grid.
+        show_week_number: Show week numbers in the calendar grid.
+        min_date: Earliest selectable date (``date`` or ISO 8601 string).
+        max_date: Latest selectable date (``date`` or ISO 8601 string).
+        number_of_months: Number of months displayed simultaneously.
+        on_select: Callback fired when the selection changes.
+        on_month_change: Callback fired when the displayed month changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Calendar"
@@ -381,6 +437,7 @@ class Calendar(Component):
         default_month: Any = None,  # date
         disabled: bool = False,
         show_outside_days: bool = True,
+        show_week_number: bool = False,
         min_date: Any = None,  # date or ISO string - dates before this are disabled
         max_date: Any = None,  # date or ISO string - dates after this are disabled
         number_of_months: int | None = None,
@@ -388,15 +445,24 @@ class Calendar(Component):
         on_month_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.mode = mode
         self.caption_layout = caption_layout
         self.selected = selected
         self.default_month = default_month
         self.disabled = disabled
         self.show_outside_days = show_outside_days
+        self.show_week_number = show_week_number
         self.min_date = min_date
         self.max_date = max_date
         self.number_of_months = number_of_months
@@ -416,71 +482,88 @@ class Calendar(Component):
         return str(d)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "mode": self.mode,
+            "caption_layout": self.caption_layout,
+            "selected": self._serialize_date(self.selected),
+            "default_month": self._serialize_date(self.default_month),
+            "disabled": self.disabled,
+            "show_outside_days": self.show_outside_days,
+            "show_week_number": self.show_week_number,
+            "min_date": self._serialize_date(self.min_date),
+            "max_date": self._serialize_date(self.max_date),
+            "number_of_months": self.number_of_months,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_select:
+            props["on_select"] = self.on_select.serialize()
+        if self.on_month_change:
+            props["on_month_change"] = self.on_month_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "mode": self.mode,
-                "caption_layout": self.caption_layout,
-                "selected": self._serialize_date(self.selected),
-                "default_month": self._serialize_date(self.default_month),
-                "disabled": self.disabled,
-                "show_outside_days": self.show_outside_days,
-                "min_date": self._serialize_date(self.min_date),
-                "max_date": self._serialize_date(self.max_date),
-                "number_of_months": self.number_of_months,
-                "on_select": self.on_select.serialize() if self.on_select else None,
-                "on_month_change": self.on_month_change.serialize()
-                if self.on_month_change
-                else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
 
 class DatePicker(Component):
     """
-    A date picker with input and calendar popup.
+    Date picker with a button trigger that opens a calendar popover.
 
-    Supports single, multiple, and range date selection.
+    Supports single, multiple, and range date selection. Date values can be Python
+    ``date``/``datetime`` objects or ISO 8601 strings. Range mode expects a ``dict``
+    with ``"from"`` and ``"to"`` keys.
 
     Example:
         ```python
-        # Single date picker with label
+        from refast.components.shadcn.controls import DatePicker
+        from datetime import date
+
+        # Single date picker with label and validation
         DatePicker(
-            label="Birth Date",
-            description="Enter your date of birth",
-            value=date(2024, 1, 15),
+            label="Appointment date",
+            description="Select the date of your appointment.",
+            value=date(2026, 4, 15),
             placeholder="Pick a date",
             required=True,
             on_change=ctx.callback(handle_date_change),
         )
 
-        # Date range picker with dropdown navigation
+        # Date range picker with month/year navigation dropdowns
         DatePicker(
-            label="Date Range",
+            label="Report period",
             mode="range",
-            caption_layout="dropdown",  # Enable month/year dropdowns
+            caption_layout="dropdown",
             placeholder="Select date range",
-            min_date="2024-01-01",
-            max_date="2024-12-31",
+            min_date=date(2024, 1, 1),
+            max_date=date(2026, 12, 31),
             on_change=ctx.callback(handle_range_change),
         )
         ```
 
     Args:
-        label: Label text displayed above the input
-        description: Help text displayed below the label
-        required: Whether the field is required (shows asterisk)
-        error: Error message to display
-        mode: Selection mode - "single", "multiple", or "range"
-        caption_layout: Calendar header layout - "label" (default), "dropdown" (both),
-                       "dropdown-months", or "dropdown-years"
-        min_date: Minimum selectable date
-        max_date: Maximum selectable date
-        number_of_months: Number of months to display (defaults to 2 for range mode)
+        value: Controlled selected value. Pass a ``date`` for single mode, a
+            ``list[date]`` for multiple mode, or a ``dict`` with ``"from"``/``"to"``
+            keys for range mode.
+        placeholder: Button text shown when no date is selected.
+        disabled: Disables the picker.
+        format: ``date-fns`` format string used for the button label (default ``"PPP"``
+            renders as ``"April 15, 2026"`` in en-US locale).
+        mode: Selection mode — ``"single"``, ``"multiple"``, or ``"range"``.
+        caption_layout: Calendar header style — ``"label"``, ``"dropdown"`` (month +
+            year dropdowns), ``"dropdown-months"``, or ``"dropdown-years"``.
+        min_date: Earliest selectable date (``date`` or ISO 8601 string).
+        max_date: Latest selectable date (``date`` or ISO 8601 string).
+        number_of_months: Number of calendar months shown simultaneously.
+        label: Label text displayed above the picker.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the picker.
+        on_change: Callback fired when the selection changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "DatePicker"
@@ -503,9 +586,17 @@ class DatePicker(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.value = value
         self.placeholder = placeholder
         self.disabled = disabled
@@ -542,61 +633,120 @@ class DatePicker(Component):
         return str(d)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "value": self._serialize_date_value(self.value),
+            "placeholder": self.placeholder,
+            "disabled": self.disabled,
+            "format": self.format,
+            "mode": self.mode,
+            "caption_layout": self.caption_layout,
+            "min_date": self.min_date.isoformat()
+            if hasattr(self.min_date, "isoformat")
+            else self.min_date,
+            "max_date": self.max_date.isoformat()
+            if hasattr(self.max_date, "isoformat")
+            else self.max_date,
+            "number_of_months": self.number_of_months,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_change:
+            props["on_change"] = self.on_change.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "value": self._serialize_date_value(self.value),
-                "placeholder": self.placeholder,
-                "disabled": self.disabled,
-                "format": self.format,
-                "mode": self.mode,
-                "caption_layout": self.caption_layout,
-                "min_date": self.min_date.isoformat()
-                if hasattr(self.min_date, "isoformat")
-                else self.min_date,
-                "max_date": self.max_date.isoformat()
-                if hasattr(self.max_date, "isoformat")
-                else self.max_date,
-                "number_of_months": self.number_of_months,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_change": self.on_change.serialize() if self.on_change else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
 
+class ComboboxOption(TypedDict):
+    """Combobox option payload sent to the client renderer."""
+
+    value: str
+    label: str
+    description: NotRequired[str]
+    icon: NotRequired[str]
+    color: NotRequired[str]
+    search_text: NotRequired[str]
+    disabled: NotRequired[bool]
+
+
 class Combobox(Component):
     """
-    An autocomplete input with dropdown.
+    Searchable select with type-ahead filtering and optional multi-select.
+
+    Options are dicts with required ``value`` and ``label`` keys, plus optional
+    metadata (e.g. ``description``, ``icon``, ``color``, ``search_text``,
+    ``disabled``) for
+    richer list rows and filtering behavior. In single-select mode the ``on_select``
+    callback receives the selected ``str`` value; in multi-select mode it receives a
+    ``list[str]`` of all selected values.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import Combobox
+
+        # Single-select
         Combobox(
             label="Framework",
-            description="Select your preferred framework",
+            description="Select your primary framework.",
             options=[
-                {"value": "next", "label": "Next.js"},
-                {"value": "react", "label": "React"},
+                {"value": "next",   "label": "Next.js"},
+                {"value": "react",  "label": "React"},
+                {"value": "vue",    "label": "Vue"},
             ],
-            placeholder="Select framework...",
-            multiselect=True,
+            placeholder="Select framework…",
+            search_placeholder="Search frameworks…",
+            empty_text="No frameworks found.",
             required=True,
             on_select=ctx.callback(handle_select),
         )
+
+        # Multi-select with pre-selected values
+        Combobox(
+            label="Tags",
+            options=[
+                {"value": "python", "label": "Python"},
+                {"value": "ts",     "label": "TypeScript"},
+            ],
+            multiselect=True,
+            value=["python"],
+            on_select=ctx.callback(handle_tags),
+        )
         ```
+
+    Args:
+        options: List of option dicts. Each option must contain ``value`` and
+            ``label`` keys. Optional keys:
+            ``description`` (secondary text), ``icon`` (icon name),
+            ``color`` (color swatch value like ``"#10b981"``),
+            ``search_text`` (extra searchable text), and ``disabled`` (non-selectable).
+        value: Controlled selected value(s). Pass a ``str`` for single-select or a
+            ``list[str]`` for multi-select.
+        placeholder: Trigger button text when nothing is selected.
+        search_placeholder: Placeholder inside the search input.
+        empty_text: Text shown when no options match the current search.
+        multiselect: Allow selecting multiple values simultaneously.
+        disabled: Disables the combobox.
+        label: Label text displayed above the combobox.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the combobox.
+        on_select: Callback fired when the selection changes.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Combobox"
 
     def __init__(
         self,
-        options: list[dict[str, str]] | None = None,
+        options: list[ComboboxOption] | None = None,
         value: str | list[str] | None = None,
         placeholder: str = "Select...",
         search_placeholder: str = "Search...",
@@ -610,9 +760,17 @@ class Combobox(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.options = options or []
         self.value = value
         self.placeholder = placeholder
@@ -627,43 +785,89 @@ class Combobox(Component):
         self.on_select = on_select
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "options": self.options,
+            **({"value": self.value} if self.value is not None else {}),
+            "placeholder": self.placeholder,
+            "search_placeholder": self.search_placeholder,
+            "empty_text": self.empty_text,
+            "multiselect": self.multiselect,
+            "disabled": self.disabled,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_select:
+            props["on_select"] = self.on_select.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "options": self.options,
-                **({"value": self.value} if self.value is not None else {}),
-                "placeholder": self.placeholder,
-                "search_placeholder": self.search_placeholder,
-                "empty_text": self.empty_text,
-                "multiselect": self.multiselect,
-                "disabled": self.disabled,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_select": self.on_select.serialize() if self.on_select else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
 
 class InputOTP(Component):
     """
-    An input for one-time passwords.
+    One-time password input composed from individual slot primitives.
+
+    The simplest usage passes only ``max_length`` and lets the component auto-generate
+    its layout. For a custom layout (e.g. two groups of three separated by a dash),
+    compose ``InputOTPGroup``, ``InputOTPSlot``, and ``InputOTPSeparator`` as children.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import (
+            InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator,
+        )
+
+        # Simple 6-digit OTP (auto-layout)
         InputOTP(
             label="Verification Code",
-            description="Enter the 6-digit code sent to your email",
+            description="Enter the 6-digit code sent to your email.",
             max_length=6,
             required=True,
             on_complete=ctx.callback(handle_complete),
         )
+
+        # Custom layout: two groups of 3 separated by a dash
+        InputOTP(
+            max_length=6,
+            on_complete=ctx.callback(handle_complete),
+            children=[
+                InputOTPGroup(children=[
+                    InputOTPSlot(index=0),
+                    InputOTPSlot(index=1),
+                    InputOTPSlot(index=2),
+                ]),
+                InputOTPSeparator(),
+                InputOTPGroup(children=[
+                    InputOTPSlot(index=3),
+                    InputOTPSlot(index=4),
+                    InputOTPSlot(index=5),
+                ]),
+            ],
+        )
         ```
+
+    Args:
+        max_length: Total number of OTP characters.
+        value: Controlled OTP value string.
+        disabled: Disables the input.
+        pattern: Optional regex pattern to validate each character (e.g. ``"[0-9]"``).
+        label: Label text displayed above the input.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk.
+        error: Error message displayed below the input.
+        on_change: Callback fired on every character change.
+        on_complete: Callback fired when all slots are filled.
+        children: Custom layout using ``InputOTPGroup``, ``InputOTPSlot``, and
+            ``InputOTPSeparator``. If omitted, an auto-layout is generated.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTP"
@@ -683,9 +887,17 @@ class InputOTP(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.max_length = max_length
         self.value = value
         self.disabled = disabled
@@ -699,41 +911,54 @@ class InputOTP(Component):
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "max_length": self.max_length,
+            **({"value": self.value} if self.value is not None else {}),
+            "disabled": self.disabled,
+            "pattern": self.pattern,
+            "label": self.label,
+            "description": self.description,
+            "required": self.required,
+            "error": self.error,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_change:
+            props["on_change"] = self.on_change.serialize()
+        if self.on_complete:
+            props["on_complete"] = self.on_complete.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "max_length": self.max_length,
-                **({"value": self.value} if self.value is not None else {}),
-                "disabled": self.disabled,
-                "pattern": self.pattern,
-                "label": self.label,
-                "description": self.description,
-                "required": self.required,
-                "error": self.error,
-                "on_change": self.on_change.serialize() if self.on_change else None,
-                "on_complete": self.on_complete.serialize() if self.on_complete else None,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
 
 class InputOTPGroup(Component):
     """
-    A group of OTP slots.
+    A group of contiguous OTP slots within an ``InputOTP``.
+
+    Group multiple ``InputOTPSlot`` components together and optionally separate groups
+    with ``InputOTPSeparator``.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPGroup, InputOTPSlot
+
         InputOTPGroup(
             children=[
                 InputOTPSlot(index=0),
                 InputOTPSlot(index=1),
                 InputOTPSlot(index=2),
-            ]
+            ],
         )
         ```
+
+    Args:
+        children: ``InputOTPSlot`` components in this group.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPGroup"
@@ -743,9 +968,17 @@ class InputOTPGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -762,12 +995,22 @@ class InputOTPGroup(Component):
 
 class InputOTPSlot(Component):
     """
-    A single slot in an OTP input.
+    A single character slot in an ``InputOTP``.
+
+    The ``index`` must match the slot's zero-based position within the parent
+    ``InputOTP`` (not within its group).
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPSlot
+
         InputOTPSlot(index=0)
         ```
+
+    Args:
+        index: Zero-based slot index within the parent ``InputOTP``.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPSlot"
@@ -777,9 +1020,17 @@ class InputOTPSlot(Component):
         index: int = 0,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.index = index
 
     def render(self) -> dict[str, Any]:
@@ -797,12 +1048,21 @@ class InputOTPSlot(Component):
 
 class InputOTPSeparator(Component):
     """
-    A separator between OTP groups.
+    A visual separator rendered between ``InputOTPGroup`` components.
+
+    Renders a dash (``—``) character to visually divide slot groups. Accepts no content
+    props.
 
     Example:
         ```python
+        from refast.components.shadcn.controls import InputOTPSeparator
+
         InputOTPSeparator()
         ```
+
+    Args:
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "InputOTPSeparator"
@@ -811,9 +1071,17 @@ class InputOTPSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
 
     def render(self) -> dict[str, Any]:
         return {

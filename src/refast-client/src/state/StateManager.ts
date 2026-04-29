@@ -486,19 +486,35 @@ export function applyUpdate(
     }
   }
 
-  // Recursively search children (default to empty array if undefined)
-  const newChildren = (tree.children || [])
-    .map((child) => {
-      if (typeof child === 'string') return child;
+  // Recursively search children (default to empty array if undefined).
+  // Preserve references when no descendant changed so React can skip
+  // re-rendering sibling subtrees.
+  const currentChildren = tree.children || [];
+  let hasChanges = false;
+  const newChildren: (ComponentTree | string)[] = [];
 
-      // Handle remove operation
-      if (operation === 'remove' && child.id === targetId) {
-        return null;
-      }
+  for (const child of currentChildren) {
+    if (typeof child === 'string') {
+      newChildren.push(child);
+      continue;
+    }
 
-      return applyUpdate(child, targetId, update, operation);
-    })
-    .filter((child): child is ComponentTree | string => child !== null);
+    // Handle remove operation for direct children
+    if (operation === 'remove' && child.id === targetId) {
+      hasChanges = true;
+      continue;
+    }
+
+    const updatedChild = applyUpdate(child, targetId, update, operation);
+    if (updatedChild !== child) {
+      hasChanges = true;
+    }
+    newChildren.push(updatedChild);
+  }
+
+  if (!hasChanges) {
+    return tree;
+  }
 
   return {
     ...tree,

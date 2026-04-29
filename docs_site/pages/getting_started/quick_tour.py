@@ -7,7 +7,6 @@ from refast.components import (
     Separator,
 )
 
-
 PAGE_TITLE = "Quick Tour"
 PAGE_ROUTE = "/docs/quick-tour"
 

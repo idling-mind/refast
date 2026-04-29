@@ -1,6 +1,6 @@
 """State & Store — /docs/concepts/state."""
 
-from refast.components import Container, Heading, Markdown, Separator
+from refast.components import Container, Heading, Separator
 
 from ..utils import render_markdown_with_demo_apps
 

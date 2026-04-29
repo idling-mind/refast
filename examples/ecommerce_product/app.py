@@ -10,7 +10,6 @@ This example demonstrates:
 - Related products
 """
 
-from click import style
 
 from fastapi import FastAPI
 
@@ -37,9 +36,6 @@ from refast.components import (
     TabItem,
     Tabs,
     Text,
-    ToggleGroup,
-    ToggleGroupItem,
-    IconButton,
     Toggle,
 )
 
@@ -474,7 +470,6 @@ def home(ctx: Context):
                                                         ],
                                                     ),
                                                     Tabs(
-                                                        type="single",
                                                         value=selected_color,
                                                         on_value_change=ctx.callback(select_color),
                                                         children=[

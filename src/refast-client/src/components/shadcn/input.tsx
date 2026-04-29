@@ -11,7 +11,9 @@ import { cn } from '../../utils';
 export interface InputWrapperProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   label?: string;
+  labelEnd?: React.ReactNode;
   description?: string;
   required?: boolean;
   error?: string;
@@ -28,7 +30,9 @@ export interface InputWrapperProps {
 export function InputWrapper({
   id,
   className,
+  style,
   label,
+  labelEnd,
   description,
   required = false,
   error,
@@ -37,20 +41,27 @@ export function InputWrapper({
 }: InputWrapperProps): React.ReactElement {
   // If no label, description, or error, just return the children
   if (!label && !description && !error) {
-    return <>{children}</>;
+    return (
+      <div className={className} style={style} data-input-wrapper data-refast-id={dataRefastId}>
+        {children}
+      </div>
+    );
   }
 
   return (
-    <div className={cn('mb-2', className)} data-input-wrapper data-refast-id={dataRefastId}>
+    <div className={cn('mb-2', className)} style={style} data-input-wrapper data-refast-id={dataRefastId}>
     {/* <div className={className} data-input-wrapper data-refast-id={dataRefastId}> */}
       {label && (
-        <label
-          htmlFor={id}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </label>
+        <div className="flex items-center justify-between gap-2">
+          <label
+            htmlFor={id}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </label>
+          {labelEnd}
+        </div>
       )}
       {description && (
         <p className="text-sm text-muted-foreground">{description}</p>
@@ -75,6 +86,7 @@ interface OptionItem {
 interface InputProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   label?: string;
   description?: string;
   type?: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
@@ -83,6 +95,7 @@ interface InputProps {
   defaultValue?: string;
   disabled?: boolean;
   required?: boolean;
+  readOnly?: boolean;
   error?: string;
   name?: string | null;
   debounce?: number;
@@ -106,6 +119,7 @@ interface InputProps {
 export function Input({
   id,
   className,
+  style,
   label,
   description,
   type = 'text',
@@ -114,6 +128,7 @@ export function Input({
   defaultValue,
   disabled = false,
   required = false,
+  readOnly = false,
   error,
   name,
   debounce = 0,
@@ -215,6 +230,7 @@ export function Input({
       placeholder={placeholder}
       value={localValue}
       disabled={disabled}
+      readOnly={readOnly}
       required={required}
       name={name || undefined}
       onChange={handleChange}
@@ -233,6 +249,7 @@ export function Input({
           : 'border-input placeholder:text-muted-foreground',
         className
       )}
+      style={style}
     />
   );
 
@@ -258,6 +275,7 @@ export function Input({
 interface TextareaProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   label?: string;
   description?: string;
   required?: boolean;
@@ -286,6 +304,7 @@ interface TextareaProps {
 export function Textarea({
   id,
   className,
+  style,
   label,
   description,
   required = false,
@@ -407,6 +426,7 @@ export function Textarea({
         error ? 'border-destructive' : 'border-input',
         className
       )}
+      style={style}
     />
   );
 
@@ -437,6 +457,7 @@ interface SelectOption {
 interface SelectProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   label?: string;
   description?: string;
   required?: boolean;
@@ -458,6 +479,7 @@ interface SelectProps {
 export function Select({
   id,
   className,
+  style,
   label,
   description,
   required = false,
@@ -515,6 +537,7 @@ export function Select({
         error ? 'border-destructive' : 'border-input',
         className
       )}
+      style={style}
     >
       {placeholder && (
         <option value="" disabled>
@@ -574,6 +597,7 @@ export function SelectOption({
 interface CheckboxProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   label?: string;
   description?: string;
   required?: boolean;
@@ -593,6 +617,7 @@ interface CheckboxProps {
 export function Checkbox({
   id,
   className,
+  style,
   label,
   description,
   required = false,
@@ -660,7 +685,7 @@ export function Checkbox({
 
   if (description || error) {
     return (
-      <div className={cn('space-y-1', className)} data-refast-id={dataRefastId}>
+      <div className={cn('space-y-1', className)} style={style} data-refast-id={dataRefastId}>
         {checkboxElement}
         {description && (
           <p className="text-sm text-muted-foreground ml-6">{description}</p>
@@ -672,12 +697,13 @@ export function Checkbox({
     );
   }
 
-  return <div className={className} data-refast-id={dataRefastId}>{checkboxElement}</div>;
+  return <div className={className} style={style} data-refast-id={dataRefastId}>{checkboxElement}</div>;
 }
 
 interface RadioProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   checked?: boolean;
   defaultChecked?: boolean;
   disabled?: boolean;
@@ -697,6 +723,7 @@ interface RadioProps {
 export function Radio({
   id,
   className,
+  style,
   checked,
   defaultChecked,
   disabled = false,
@@ -725,7 +752,7 @@ export function Radio({
   };
 
   return (
-    <div className="space-y-1" data-refast-id={dataRefastId}>
+    <div className="space-y-1" style={style} data-refast-id={dataRefastId}>
       <label className={cn('flex items-center space-x-2', className)}>
         <input
           id={id}
@@ -764,6 +791,7 @@ export function Radio({
 interface RadioGroupProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   name?: string | null;
   value?: string;
   defaultValue?: string;
@@ -785,6 +813,7 @@ interface RadioGroupProps {
 export function RadioGroup({
   id,
   className,
+  style,
   name,
   value,
   defaultValue,
@@ -865,7 +894,7 @@ export function RadioGroup({
   };
 
   return (
-    <div className={cn('space-y-1', className)} data-refast-id={dataRefastId}>
+    <div className={cn('space-y-1', className)} style={style} data-refast-id={dataRefastId}>
       {label && (
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
@@ -898,6 +927,7 @@ export function RadioGroup({
 interface CheckboxGroupProps {
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   name?: string | null;
   value?: string[];
   defaultValue?: string[];
@@ -919,6 +949,7 @@ interface CheckboxGroupProps {
 export function CheckboxGroup({
   id,
   className,
+  style,
   name,
   value,
   defaultValue,
@@ -1024,6 +1055,7 @@ export function CheckboxGroup({
       id={rootId}
       role="group"
       className={cn('space-y-1', className)}
+      style={style}
       data-refast-id={dataRefastId}
     >
       {label && (

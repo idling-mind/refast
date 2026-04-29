@@ -156,7 +156,7 @@ def render_user_row(user: User):
                         gap=3,
                         align="center",
                         children=[
-                            Avatar(name=user.name, size="sm"),
+                            Avatar(alt=user.name, size="sm"),
                             Column(
                                 gap=0,
                                 children=[
@@ -277,14 +277,14 @@ def dashboard(ctx: Context):
                                     Button(
                                         "Generate Report",
                                         icon="download",
-                                        variant="primary",
+                                        variant="default",
                                     ),
                                 ],
                             ),
                             # Metrics grid
                             Grid(
                                 id="metrics-grid",
-                                cols=4,
+                                columns=4,
                                 gap=6,
                                 children=[
                                     render_metric_card(metric, i)
@@ -359,7 +359,7 @@ def dashboard(ctx: Context):
                             ),
                             # Activity section
                             Grid(
-                                cols=2,
+                                columns=2,
                                 gap=6,
                                 children=[
                                     Card(

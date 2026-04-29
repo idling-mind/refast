@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -39,7 +39,6 @@ class ComposedChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         layout: Literal["horizontal", "vertical"] = "horizontal",
@@ -52,10 +51,13 @@ class ComposedChart(Component):
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
         on_mouse_move: Callback | None = None,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.margin = margin or {"top": 20, "right": 20, "left": 20, "bottom": 20}
         self.layout = layout
@@ -69,8 +71,7 @@ class ComposedChart(Component):
         self.on_mouse_leave = on_mouse_leave
         self.on_mouse_move = on_mouse_move
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

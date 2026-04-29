@@ -5,7 +5,7 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Self, Union
+from typing import Any, Self, Union, cast
 
 logger = logging.getLogger(__name__)
 
@@ -78,40 +78,35 @@ class Component(ABC):
         class_name: str = "",
         style: dict[str, Any] | None = None,
         parent_style: dict[str, Any] | None = None,
-        **props: Any,
+        extra_props: dict[str, Any] | None = None,
     ):
         self.id = id or str(uuid.uuid4())
         self.class_name = class_name
         self.style = style or {}
         self.parent_style = parent_style or {}
-        self.extra_props = props
+        self.extra_props = extra_props or {}
         self._children: ChildrenType = []
-
-    def add_child(self, child: Union["Component", str, None]) -> Self:
-        """Add a child component."""
-        if not isinstance(child, (Component, str)) and child is not None:
-            raise ValueError(f"Child must be a Component, string, or None, got {type(child)}")
-        if child is None:
-            return self
-        if isinstance(self._children, list):
-            self._children.append(child)
-        elif isinstance(self._children, Component):
-            self._children = [self._children, child]
-        elif self._children is None:
-            self._children = [child]
-        return self
 
     def add_children(self, children: ChildrenType) -> Self:
         """Add multiple children or a single child."""
         if children is None:
             return self
 
-        if isinstance(children, list) and isinstance(self._children, list):
-            self._children.extend(children)
-        elif isinstance(children, list) and isinstance(self._children, Component):
-            self._children = [self._children] + children
-        elif isinstance(children, list) and self._children is None:
-            self._children = children
+        children_list: list[Component | str | None]
+        if isinstance(self._children, list):
+            children_list = cast(list[Component | str | None], self._children)
+        elif self._children is None:
+            children_list = []
+        else:
+            children_list = [self._children]
+
+        if isinstance(children, list):
+            children_list.extend(cast(list[Component | str | None], children))
+        else:
+            children_list.append(children)
+
+        self._children = children_list
+
         return self
 
     def _render_children(self) -> list[dict[str, Any] | str]:
@@ -159,12 +154,6 @@ class Component(ABC):
         """
         _validate_prop_keys(props, self.component_type)
 
-    @staticmethod
-    def _to_camel_case(snake_str: str) -> str:
-        """Convert snake_case to camelCase. Deprecated - frontend handles conversion."""
-        components = snake_str.split("_")
-        return components[0] + "".join(x.title() for x in components[1:])
-
     @abstractmethod
     def render(self) -> dict[str, Any]:
         """
@@ -204,9 +193,16 @@ class Container(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -240,9 +236,16 @@ class Text(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.content = content
 
     def render(self) -> dict[str, Any]:

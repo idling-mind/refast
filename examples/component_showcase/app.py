@@ -121,7 +121,6 @@ async def on_slider_change(ctx: Context):
     print(ctx.event_data)
     value = ctx.event_data[0] if isinstance(ctx.event_data, list) else ctx.event_data
     ctx.state.set("volume", value)
-    await ctx.update_text("slider-value", f"{value}%")
 
 
 async def on_toggle_change(ctx: Context):
@@ -146,7 +145,7 @@ async def on_accordion_change(ctx: Context):
 
 async def on_checkbox_group_change(ctx: Context):
     """Handle checkbox group selection change."""
-    selected = ctx.event_data if isinstance(ctx.event_data, list) else []
+    selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else []
     ctx.state.set("selected_toppings", selected)
     if selected:
         await ctx.show_toast(f"Selected toppings: {', '.join(selected)}", variant="info")
@@ -156,7 +155,8 @@ async def on_checkbox_group_change(ctx: Context):
 
 async def on_radio_group_change(ctx: Context):
     """Handle radio group selection change."""
-    selected = ctx.event_data if isinstance(ctx.event_data, str) else ""
+    print(ctx.event_data)
+    selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else ""
     ctx.state.set("selected_size", selected)
     await ctx.show_toast(f"Selected size: {selected}", variant="info")
 
@@ -406,7 +406,7 @@ def home(ctx: Context):
                                                     ),
                                                     Switch(
                                                         default_checked=notifications,
-                                                        on_change=ctx.callback(on_switch_change),
+                                                        on_checked_change=ctx.callback(on_switch_change),
                                                     ),
                                                 ],
                                             ),
@@ -489,21 +489,12 @@ def home(ctx: Context):
                                     Column(
                                         gap=2,
                                         children=[
-                                            Row(
-                                                justify="between",
-                                                children=[
-                                                    Label("Volume"),
-                                                    Text(
-                                                        f"{volume}%",
-                                                        id="slider-value",
-                                                        class_name="text-sm",
-                                                    ),
-                                                ],
-                                            ),
                                             Slider(
+                                                label="Volume",
                                                 default_value=[volume],
                                                 max=100,
                                                 step=1,
+                                                show_value=True,
                                                 on_value_change=ctx.callback(on_slider_change),
                                             ),
                                         ],
@@ -563,13 +554,39 @@ def home(ctx: Context):
                                         children=[
                                             Combobox(
                                                 label="Select a framework",
-                                                description="Single select combobox example",
                                                 placeholder="Choose a framework...",
                                                 options=[
-                                                    {"value": "react", "label": "React"},
-                                                    {"value": "vue", "label": "Vue"},
-                                                    {"value": "angular", "label": "Angular"},
-                                                    {"value": "svelte", "label": "Svelte"},
+                                                    {
+                                                        "value": "react",
+                                                        "label": "React",
+                                                        "description": "Component-first UI library",
+                                                        "icon": "layers",
+                                                        "color": "#61DAFB",
+                                                        "search_text": "jsx hooks frontend",
+                                                    },
+                                                    {
+                                                        "value": "vue",
+                                                        "label": "Vue",
+                                                        "description": "Progressive framework",
+                                                        "icon": "code",
+                                                        "color": "#42B883",
+                                                        "search_text": "sfc composition api",
+                                                    },
+                                                    {
+                                                        "value": "angular",
+                                                        "label": "Angular",
+                                                        "description": "Full-featured application framework",
+                                                        "icon": "shield",
+                                                        "color": "#DD0031",
+                                                    },
+                                                    {
+                                                        "value": "svelte",
+                                                        "label": "Svelte",
+                                                        "description": "Compile-time reactive UI",
+                                                        "icon": "zap",
+                                                        "color": "#FF3E00",
+                                                        "disabled": True,
+                                                    },
                                                 ],
                                                 on_select=ctx.callback(dropdown_select),
                                             ),
@@ -579,10 +596,34 @@ def home(ctx: Context):
                                                 description="Multi select combobox example",
                                                 placeholder="Choose frameworks...",
                                                 options=[
-                                                    {"value": "react", "label": "React"},
-                                                    {"value": "vue", "label": "Vue"},
-                                                    {"value": "angular", "label": "Angular"},
-                                                    {"value": "svelte", "label": "Svelte"},
+                                                    {
+                                                        "value": "react",
+                                                        "label": "React",
+                                                        "description": "Component-first UI library",
+                                                        "icon": "layers",
+                                                        "color": "#61DAFB",
+                                                    },
+                                                    {
+                                                        "value": "vue",
+                                                        "label": "Vue",
+                                                        "description": "Progressive framework",
+                                                        "icon": "code",
+                                                        "color": "#42B883",
+                                                    },
+                                                    {
+                                                        "value": "angular",
+                                                        "label": "Angular",
+                                                        "description": "Full-featured application framework",
+                                                        "icon": "shield",
+                                                        "color": "#DD0031",
+                                                    },
+                                                    {
+                                                        "value": "svelte",
+                                                        "label": "Svelte",
+                                                        "description": "Compile-time reactive UI",
+                                                        "icon": "zap",
+                                                        "color": "#FF3E00",
+                                                    },
                                                 ],
                                                 multiselect=True,
                                                 on_select=ctx.callback(dropdown_select),
@@ -755,7 +796,7 @@ def home(ctx: Context):
                                                                         "Python + React UI Framework",
                                                                         class_name="text-sm text-muted-foreground",
                                                                     ),
-                                                                    Badge(text="Open Source"),
+                                                                    Badge(children="Open Source"),
                                                                 ],
                                                             ),
                                                         ],
@@ -856,7 +897,6 @@ def home(ctx: Context):
                                             Label("Scroll Area Example"),
                                             ScrollArea(
                                                 class_name="rounded-md border p-4",
-                                                style={"height": "12rem", "width": "100%"},
                                                 children=[
                                                     Column(
                                                         gap=2,

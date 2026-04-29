@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Sessions"
 PAGE_ROUTE = "/docs/advanced/sessions"
 

@@ -9,16 +9,30 @@ class Card(Component):
     """
     Card container component.
 
+    A rounded, bordered container with a subtle drop shadow. Use it to group
+    related content and actions into a visually distinct surface.
+
     Example:
         ```python
         Card(
             children=[
-                CardHeader(title="My Card"),
+                CardHeader(title="My Card", description="A brief subtitle."),
                 CardContent(children=[Text("Content here")]),
                 CardFooter(children=[Button("Action")]),
             ]
         )
         ```
+
+    Args:
+        children: Card sub-components (``CardHeader``, ``CardContent``,
+            ``CardFooter``, etc.).
+        title: Shorthand title rendered by the React component directly
+            (without a ``CardHeader``).
+        description: Shorthand description rendered below ``title``.
+        on_click: Optional click callback — makes the card interactive.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
     """
 
     component_type: str = "Card"
@@ -32,11 +46,17 @@ class Card(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
         self.title = title
         self.description = description
         self.on_click = on_click
@@ -61,7 +81,34 @@ class Card(Component):
 
 
 class CardHeader(Component):
-    """Card header section."""
+    """
+    Card header section.
+
+    Renders as a vertically-stacked flex container at the top of the card.
+    Typically wraps :class:`CardTitle` and :class:`CardDescription`, or accepts
+    a ``title``/``description`` shorthand that the React component renders
+    directly.
+
+    Example:
+        ```python
+        CardHeader(title="Dashboard", description="Overview of your metrics")
+
+        # Or with explicit sub-components:
+        CardHeader(children=[
+            CardTitle("Dashboard"),
+            CardDescription("Overview of your metrics"),
+        ])
+        ```
+
+    Args:
+        title: Shorthand title text rendered as a heading inside the header.
+        description: Shorthand subtitle text rendered below the title.
+        children: Explicit child components (used instead of ``title``/
+            ``description`` when fine-grained control is needed).
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
+    """
 
     component_type: str = "CardHeader"
 
@@ -73,11 +120,17 @@ class CardHeader(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
         self.title = title
         self.description = description
 
@@ -96,7 +149,23 @@ class CardHeader(Component):
 
 
 class CardContent(Component):
-    """Card content section."""
+    """
+    Card body content section.
+
+    Rendered with appropriate padding below any :class:`CardHeader`. This is
+    the primary area for the card's main content.
+
+    Example:
+        ```python
+        CardContent(children=[Text("Main content goes here.")])
+        ```
+
+    Args:
+        children: Content to display in the card body.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
+    """
 
     component_type: str = "CardContent"
 
@@ -106,11 +175,17 @@ class CardContent(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -125,7 +200,26 @@ class CardContent(Component):
 
 
 class CardFooter(Component):
-    """Card footer section."""
+    """
+    Card footer section.
+
+    Rendered as an inline flex row at the bottom of the card. Typically used
+    for action buttons.
+
+    Example:
+        ```python
+        CardFooter(children=[
+            Button("Cancel", variant="outline"),
+            Button("Save", on_click=ctx.callback(save)),
+        ])
+        ```
+
+    Args:
+        children: Footer content — typically action buttons.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
+    """
 
     component_type: str = "CardFooter"
 
@@ -135,11 +229,17 @@ class CardFooter(Component):
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -154,25 +254,44 @@ class CardFooter(Component):
 
 
 class CardTitle(Component):
-    """Card title component."""
+    """
+    Card title text.
+
+    Renders as a prominent ``<h3>`` heading inside the card. Pass the title
+    text as ``children``.
+
+    Example:
+        ```python
+        CardTitle("Dashboard")
+        CardTitle(children=["Dashboard"])
+        ```
+
+    Args:
+        children: Title text or components.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
+    """
 
     component_type: str = "CardTitle"
 
     def __init__(
         self,
-        text: str = "",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        self.text = text
-        if children:
-            self._children = children
-        elif text:
-            self._children = [text]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -187,25 +306,44 @@ class CardTitle(Component):
 
 
 class CardDescription(Component):
-    """Card description component."""
+    """
+    Card description / subtitle text.
+
+    Renders as a muted ``<p>`` tag beneath the title. Pass the description
+    text as ``children``.
+
+    Example:
+        ```python
+        CardDescription("Overview of your metrics")
+        CardDescription(children=["Overview of your metrics"])
+        ```
+
+    Args:
+        children: Description text or components.
+        id: Optional HTML element id.
+        class_name: Additional CSS class names.
+        style: Inline CSS style dict.
+    """
 
     component_type: str = "CardDescription"
 
     def __init__(
         self,
-        text: str = "",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
-        **props: Any,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, style=style, **props)
-        self.text = text
-        if children:
-            self._children = children
-        elif text:
-            self._children = [text]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Background Jobs & Broadcasting"
 PAGE_ROUTE = "/docs/concepts/background"
 

@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class RadialBarChart(Component):
@@ -24,7 +24,6 @@ class RadialBarChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         cx: str | int = "50%",
@@ -34,10 +33,13 @@ class RadialBarChart(Component):
         bar_size: int | None = None,
         start_angle: int = 90,
         end_angle: int = -270,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.margin = margin or {"top": 0, "right": 0, "left": 0, "bottom": 0}
         self.cx = cx
@@ -48,8 +50,7 @@ class RadialBarChart(Component):
         self.start_angle = start_angle
         self.end_angle = end_angle
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -92,16 +93,19 @@ class RadialBar(Component):
         label: bool | dict[str, Any] | None = None,
         corner_radius: int | str | None = None,
         fill: str = "hsl(var(--chart-1))",
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.min_angle = min_angle
         self.background = background
         self.label = label
         self.corner_radius = corner_radius
         self.fill = fill
-        self.props = kwargs
+        self.props = extra_props or {}
 
     def render(self) -> dict[str, Any]:
         return {

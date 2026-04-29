@@ -1,4 +1,8 @@
+import asyncio
+import random
+
 from fastapi import FastAPI
+
 from refast import RefastApp
 from refast.components import (
     Button,
@@ -6,12 +10,10 @@ from refast.components import (
     Container,
     Heading,
     Input,
-    Text,
     Row,
+    Text,
 )
 from refast.context import Context
-import random
-import asyncio
 
 app = FastAPI(title="Refast Component Refresh Demo")
 ui = RefastApp("Component Refresh Demo")

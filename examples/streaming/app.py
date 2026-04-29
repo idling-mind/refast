@@ -364,7 +364,6 @@ def home(ctx: Context):
                                 children=[
                                     BarChart(
                                         id="live-chart",
-                                        animation_duration=100,
                                         data=get_initial_chart_data(),
                                         margin={"top": 20, "right": 20, "left": 20, "bottom": 20},
                                         children=[

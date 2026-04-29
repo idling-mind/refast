@@ -116,7 +116,6 @@ from refast.components.shadcn.charts import (
     Pie,
     PieChart,
     XAxis,
-    YAxis,
 )
 from refast.components.shadcn.input import Textarea
 from refast.theme import (
@@ -734,7 +733,7 @@ def home(ctx: Context):
                                                     children=[
                                                         ChartTooltip(
                                                             content=ChartTooltipContent(
-                                                                hideLabel=True
+                                                                hide_label=True
                                                             )
                                                         ),
                                                         Pie(
@@ -942,7 +941,7 @@ def home(ctx: Context):
                                                                     ),
                                                                     Switch(
                                                                         default_checked=notifications,
-                                                                        on_change=ctx.callback(
+                                                                        on_checked_change=ctx.callback(
                                                                             on_switch_change
                                                                         ),
                                                                     ),
@@ -1707,7 +1706,7 @@ def _component_preview(ctx: Context) -> Column:
                 gap=2,
                 class_name="flex-wrap",
                 children=[
-                    Button("Primary", variant="primary"),
+                    Button("Primary", variant="default"),
                     Button("Secondary", variant="secondary"),
                     Button("Outline", variant="outline"),
                     Button("Ghost", variant="ghost"),
@@ -1730,7 +1729,7 @@ def _component_preview(ctx: Context) -> Column:
                 children=[
                     Alert(
                         title="Heads up!",
-                        description="This alert inherits the current theme colours.",
+                        message="This alert inherits the current theme colours.",
                         class_name="flex-1 min-w-[200px]",
                     ),
                     Card(

@@ -38,21 +38,47 @@ class Dialog(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
+        title: str | None = None,
+        description: str | None = None,
+        confirm_label: str = "Continue",
+        cancel_label: str = "Cancel",
+        on_confirm: Any = None,
+        on_cancel: Any = None,
+        trigger: Any = None,
+        variant: Literal["default", "destructive"] = "default",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
-        if children:
-            self._children = children
+        self.title = title
+        self.description = description
+        self.confirm_label = confirm_label
+        self.cancel_label = cancel_label
+        self.on_confirm = on_confirm
+        self.on_cancel = on_cancel
+        self.trigger = trigger
+        self.variant = variant
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
+            "confirm_label": self.confirm_label,
+            "cancel_label": self.cancel_label,
+            "variant": self.variant,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -61,6 +87,18 @@ class Dialog(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.title is not None:
+            props["title"] = self.title
+        if self.description is not None:
+            props["description"] = self.description
+        if self.on_confirm:
+            props["on_confirm"] = self.on_confirm.serialize()
+        if self.on_cancel:
+            props["on_cancel"] = self.on_cancel.serialize()
+        if self.trigger is not None:
+            props["trigger"] = (
+                self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
+            )
 
         return {
             "type": self.component_type,
@@ -81,15 +119,19 @@ class DialogTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -114,14 +156,18 @@ class DialogContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -145,14 +191,18 @@ class DialogHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -176,14 +226,18 @@ class DialogFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -207,9 +261,17 @@ class DialogTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -234,9 +296,17 @@ class DialogDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -262,9 +332,17 @@ class DialogAction(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.on_click = on_click
 
@@ -296,9 +374,17 @@ class DialogCancel(Component):
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.on_click = on_click
 
@@ -352,14 +438,21 @@ class Sheet(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -392,15 +485,19 @@ class SheetTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -426,15 +523,19 @@ class SheetClose(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -460,15 +561,19 @@ class SheetContent(Component):
         side: Literal["top", "right", "bottom", "left"] = "right",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.side = side
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -493,14 +598,18 @@ class SheetHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -524,14 +633,18 @@ class SheetFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -555,9 +668,17 @@ class SheetTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -582,9 +703,17 @@ class SheetDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -624,21 +753,36 @@ class Popover(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
+        trigger: Any = None,
+        side: Literal["top", "right", "bottom", "left"] = "bottom",
+        align: Literal["start", "center", "end"] = "center",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
-        if children:
-            self._children = children
+        self.trigger = trigger
+        self.side = side
+        self.align = align
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
+            "side": self.side,
+            "align": self.align,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -647,6 +791,10 @@ class Popover(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.trigger is not None:
+            props["trigger"] = (
+                self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
+            )
 
         return {
             "type": self.component_type,
@@ -667,15 +815,19 @@ class PopoverTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -703,17 +855,21 @@ class PopoverContent(Component):
         align: Literal["start", "center", "end"] = "center",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.side = side
         self.side_offset = side_offset
         self.align = align
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -756,25 +912,40 @@ class HoverCard(Component):
         on_open_change: Any = None,
         open_delay: int = 700,
         close_delay: int = 300,
+        trigger: Any = None,
+        side: Literal["top", "right", "bottom", "left"] = "bottom",
+        align: Literal["start", "center", "end"] = "center",
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
         self.open_delay = open_delay
         self.close_delay = close_delay
-        if children:
-            self._children = children
+        self.trigger = trigger
+        self.side = side
+        self.align = align
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "default_open": self.default_open,
             "open_delay": self.open_delay,
             "close_delay": self.close_delay,
+            "side": self.side,
+            "align": self.align,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -783,6 +954,10 @@ class HoverCard(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.trigger is not None:
+            props["trigger"] = (
+                self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
+            )
 
         return {
             "type": self.component_type,
@@ -803,15 +978,19 @@ class HoverCardTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -839,17 +1018,21 @@ class HoverCardContent(Component):
         align: Literal["start", "center", "end"] = "center",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.side = side
         self.side_offset = side_offset
         self.align = align
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -895,14 +1078,21 @@ class DropdownMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -935,15 +1125,19 @@ class DropdownMenuTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -971,14 +1165,21 @@ class DropdownMenuContent(Component):
         align: Literal["start", "center", "end"] = "start",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.side = side
         self.side_offset = side_offset
         self.align = align
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1009,9 +1210,17 @@ class DropdownMenuItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.icon = icon
         self.shortcut = shortcut
@@ -1049,9 +1258,17 @@ class DropdownMenuLabel(Component):
         inset: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.inset = inset
 
@@ -1077,9 +1294,17 @@ class DropdownMenuSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1106,9 +1331,17 @@ class DropdownMenuCheckboxItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.checked = checked
         self.on_checked_change = on_checked_change
@@ -1145,13 +1378,20 @@ class DropdownMenuRadioGroup(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.value = value
         self.on_value_change = on_value_change
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -1182,9 +1422,17 @@ class DropdownMenuRadioItem(Component):
         value: str = "",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.value = value
 
@@ -1211,11 +1459,18 @@ class DropdownMenuSub(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1241,9 +1496,17 @@ class DropdownMenuSubTrigger(Component):
         inset: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.icon = icon
         self.inset = inset
@@ -1272,11 +1535,18 @@ class DropdownMenuSubContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1317,11 +1587,18 @@ class ContextMenu(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1343,22 +1620,29 @@ class ContextMenuTrigger(Component):
     def __init__(
         self,
         children: ChildrenType = None,
+        as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.as_child = as_child
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "as_child": self.as_child,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1376,11 +1660,18 @@ class ContextMenuContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1408,9 +1699,17 @@ class ContextMenuItem(Component):
         on_select: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.icon = icon
         self.shortcut = shortcut
@@ -1446,9 +1745,17 @@ class ContextMenuSeparator(Component):
         self,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1475,9 +1782,17 @@ class ContextMenuCheckboxItem(Component):
         disabled: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.label = label
         self.checked = checked
         self.on_checked_change = on_checked_change
@@ -1530,17 +1845,28 @@ class Drawer(Component):
         open: bool | None = None,
         on_open_change: Any = None,
         should_scale_background: bool = True,
+        title: str | None = None,
+        description: str | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.on_open_change = on_open_change
         self.should_scale_background = should_scale_background
-        if children:
-            self._children = children
+        self.title = title
+        self.description = description
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -1553,6 +1879,10 @@ class Drawer(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.title is not None:
+            props["title"] = self.title
+        if self.description is not None:
+            props["description"] = self.description
 
         return {
             "type": self.component_type,
@@ -1573,15 +1903,19 @@ class DrawerTrigger(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1606,14 +1940,18 @@ class DrawerContent(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1637,14 +1975,18 @@ class DrawerHeader(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1668,14 +2010,18 @@ class DrawerFooter(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -1699,9 +2045,17 @@ class DrawerTitle(Component):
         title: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.title = title
 
     def render(self) -> dict[str, Any]:
@@ -1726,9 +2080,17 @@ class DrawerDescription(Component):
         description: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.description = description
 
     def render(self) -> dict[str, Any]:
@@ -1754,15 +2116,19 @@ class DrawerClose(Component):
         as_child: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {

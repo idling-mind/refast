@@ -550,7 +550,7 @@ def home(ctx: Context):
                                                             class_name="font-medium",
                                                         ),
                                                         Badge(
-                                                            label="Recommended", variant="secondary"
+                                                            children="Recommended", variant="secondary"
                                                         ),
                                                     ],
                                                 ),
@@ -588,7 +588,7 @@ def home(ctx: Context):
                                                                             class_name="font-medium",
                                                                         ),
                                                                         Badge(
-                                                                            label="Current",
+                                                                            children="Current",
                                                                             variant="success",
                                                                         ),
                                                                     ],
@@ -675,7 +675,7 @@ def home(ctx: Context):
                                                                     class_name="text-xl font-bold",
                                                                 ),
                                                                 Badge(
-                                                                    label="Active",
+                                                                    children="Active",
                                                                     variant="success",
                                                                 ),
                                                             ],
@@ -686,7 +686,7 @@ def home(ctx: Context):
                                                         ),
                                                     ],
                                                 ),
-                                                Button(label="Manage Plan", variant="outline"),
+                                                Button("Manage Plan", variant="outline"),
                                             ],
                                         ),
                                     ],
@@ -739,7 +739,7 @@ def home(ctx: Context):
                                                                 ),
                                                             ],
                                                         ),
-                                                        Badge(label="Default"),
+                                                        Badge("Default"),
                                                     ],
                                                 ),
                                             ],
@@ -761,9 +761,9 @@ def home(ctx: Context):
                                                     children=[
                                                         Text("Dec 15, 2024"),
                                                         Text("$29.00"),
-                                                        Badge(label="Paid", variant="success"),
+                                                        Badge("Paid", variant="success"),
                                                         Button(
-                                                            label="Download",
+                                                            "Download",
                                                             variant="ghost",
                                                             size="sm",
                                                         ),
@@ -775,23 +775,23 @@ def home(ctx: Context):
                                                     children=[
                                                         Text("Nov 15, 2024"),
                                                         Text("$29.00"),
-                                                        Badge(label="Paid", variant="success"),
+                                                        Badge("Paid", variant="success"),
                                                         Button(
-                                                            label="Download",
+                                                            "Download",
                                                             variant="ghost",
                                                             size="sm",
                                                         ),
                                                     ],
                                                 ),
                                                 Row(
-                                                    class_name="p-3",
+                                                    class_name="p-3 border-b",
                                                     justify="between",
                                                     children=[
                                                         Text("Oct 15, 2024"),
                                                         Text("$29.00"),
-                                                        Badge(label="Paid", variant="success"),
+                                                        Badge("Paid", variant="success"),
                                                         Button(
-                                                            label="Download",
+                                                            "Download",
                                                             variant="ghost",
                                                             size="sm",
                                                         ),

@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Container, Text, Fragment } from '../base';
 import { Button } from '../shadcn/button';
 import { Card, CardHeader, CardContent, CardTitle } from '../shadcn/card';
 import { Row, Column, Grid, Center } from '../shadcn/layout';
 import { Input, Checkbox } from '../shadcn/input';
+import { Slider } from '../shadcn/controls';
 import { Heading, Paragraph, Link } from '../shadcn/typography';
 import { Alert, Badge, Progress, Spinner } from '../shadcn/feedback';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar } from '../shadcn/data_display';
@@ -94,9 +95,48 @@ describe('Input Components', () => {
     expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument();
   });
 
+  it('applies Input className and style to the input element', () => {
+    render(<Input placeholder="Styled input" className="input-custom" style={{ width: '321px' }} />);
+    const input = screen.getByPlaceholderText('Styled input');
+    expect(input).toHaveClass('input-custom');
+    expect(input).toHaveStyle('width: 321px');
+  });
+
   it('renders Checkbox with label', () => {
     render(<Checkbox label="Check me" />);
     expect(screen.getByText('Check me')).toBeInTheDocument();
+  });
+
+  it('renders Slider value in label row when label is present', () => {
+    render(<Slider label="Volume" showValue value={[42]} />);
+    const valueEl = screen.getByText('42');
+    expect(valueEl).toHaveAttribute('data-slider-value-position', 'label');
+  });
+
+  it('renders Slider value inline when label is empty', () => {
+    render(<Slider showValue value={[24]} />);
+    const valueEl = screen.getByText('24');
+    expect(valueEl).toHaveAttribute('data-slider-value-position', 'inline');
+  });
+
+  it('renders Slider range value for multi-thumb values', () => {
+    render(<Slider showValue value={[80, 20]} />);
+    expect(screen.getByText('20 - 80')).toBeInTheDocument();
+  });
+
+  it('hides Slider value when showValue is false', () => {
+    render(<Slider value={[33]} />);
+    expect(screen.queryByText('33')).not.toBeInTheDocument();
+  });
+
+  it('keeps onValueChange callback working with value display enabled', () => {
+    const onValueChange = vi.fn();
+    render(<Slider showValue defaultValue={[10]} onValueChange={onValueChange} />);
+
+    const thumb = screen.getByRole('slider');
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+
+    expect(onValueChange).toHaveBeenCalled();
   });
 });
 

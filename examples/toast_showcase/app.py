@@ -8,7 +8,6 @@ Run with:
     uvicorn app:app --reload
 """
 
-import dis
 
 import asyncio
 
@@ -16,6 +15,7 @@ from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
+    Badge,
     Button,
     Card,
     CardContent,
@@ -26,11 +26,10 @@ from refast.components import (
     Container,
     Grid,
     Heading,
+    Progress,
     Row,
     Text,
     ThemeSwitcher,
-    Badge,
-    Progress,
 )
 
 # Create the Refast app
@@ -328,7 +327,7 @@ async def show_custom_component_toast(ctx: Context):
                     ],
                 ),
                 Row(
-                    children=[Badge("New Feature", variant="success", size="sm", class_name="mt-2")]
+                    children=[Badge("New Feature", variant="success", class_name="mt-2")]
                 ),
             ],
         ),

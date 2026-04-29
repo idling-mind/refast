@@ -208,8 +208,11 @@ from refast.components.shadcn.utility import (
     ThemeSwitcher,
     Toaster,
 )
+from refast.components.shadcn.file_uploader import FileUploader
 
 __all__ = [
+    # File upload
+    "FileUploader",
     # Layout
     "Row",
     "Column",

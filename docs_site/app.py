@@ -14,7 +14,6 @@ from fastapi.staticfiles import StaticFiles
 
 from refast import Context, RefastApp
 from refast.components import (
-    Badge,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -22,15 +21,12 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
-    Column,
     Container,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
     Flex,
-    Heading,
-    Icon,
     IconButton,
     Row,
     Separator,
@@ -45,14 +41,10 @@ from refast.components import (
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
     SidebarProvider,
     SidebarRail,
     SidebarSeparator,
     SidebarTrigger,
-    Text,
     Tooltip,
 )
 from refast.components.shadcn import ThemeSwitcher
@@ -73,6 +65,7 @@ from .pages.advanced import (  # noqa: E402
     styling,
 )
 from .pages.components import (  # noqa: E402
+    base,
     buttons,
     cards,
     charts,
@@ -151,6 +144,7 @@ NAV_SECTIONS = [
         "label": "Components",
         "icon": "component",
         "pages": [
+            ("Base", "/docs/components/base", "box"),
             ("Layout", "/docs/components/layout", "layout"),
             ("Typography", "/docs/components/typography", "type"),
             ("Buttons & Actions", "/docs/components/buttons", "square"),
@@ -354,7 +348,7 @@ def theme_switcher(ctx: Context):
             DropdownMenuContent(
                 children=[
                     DropdownMenuItem(
-                        theme.title(), on_click=ctx.callback(_on_theme_change, theme_name=theme)
+                        theme.title(), on_select=ctx.callback(_on_theme_change, theme_name=theme)
                     )
                     for theme in [
                         "default",
@@ -555,6 +549,11 @@ def page_concepts_js_interop(ctx: Context):
 
 
 # Component Reference
+@ui.page("/docs/components/base")
+def page_components_base(ctx: Context):
+    return base.render(ctx)
+
+
 @ui.page("/docs/components/layout")
 def page_components_layout(ctx: Context):
     return layout.render(ctx)

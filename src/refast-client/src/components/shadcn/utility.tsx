@@ -133,11 +133,25 @@ export function ScrollArea({
 // Collapsible
 // ============================================================================
 
+export interface CollapsibleProps
+  extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Root> {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
 export const Collapsible = CollapsiblePrimitive.Root;
+
+export interface CollapsibleTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
+  asChild?: boolean;
+}
 
 export const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
+  CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
   // Unwrap single child array if present (fixes Radix Slot issue with internal renderer)
   const child =
@@ -397,19 +411,47 @@ export function CarouselNext({
 // Resizable
 // ============================================================================
 
+export interface ResizablePanelGroupProps {
+  id?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  direction?: 'horizontal' | 'vertical';
+  onLayout?: (sizes: number[]) => void;
+  autoSaveId?: string | null;
+  keyboardResizeBy?: number | null;
+  storage?: object;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
 export function ResizablePanelGroup({
   className,
+  direction = 'horizontal',
   ...props
-}: React.ComponentProps<typeof ResizablePrimitive.PanelGroup> & BaseProps) {
+}: ResizablePanelGroupProps) {
   return (
     <ResizablePrimitive.PanelGroup
       className={cn(
         "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
         className
       )}
-      {...props}
+      direction={direction as 'horizontal' | 'vertical'}
+      {...(props as object)}
     />
   )
+}
+
+export interface ResizablePanelProps
+  extends React.ComponentProps<typeof ResizablePrimitive.Panel> {
+  defaultSize?: number;
+  minSize?: number;
+  maxSize?: number;
+  collapsible?: boolean;
+  collapsedSize?: number;
+  onCollapse?: () => void;
+  onExpand?: () => void;
+  onResize?: (size: number) => void;
+  className?: string;
 }
 
 export function ResizablePanel({
@@ -418,7 +460,7 @@ export function ResizablePanel({
   minSize,
   maxSize,
   ...props
-}: React.ComponentProps<typeof ResizablePrimitive.Panel> & BaseProps) {
+}: ResizablePanelProps) {
   // Convert nulls (from Python None) to undefined so library defaults apply
   return (
     <ResizablePrimitive.Panel
@@ -432,8 +474,9 @@ export function ResizablePanel({
 }
 
 export type ResizableHandleProps = React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
-  withHandle?: boolean
-} & BaseProps
+  withHandle?: boolean;
+  className?: string;
+}
 
 export function ResizableHandle({
   withHandle,
@@ -649,12 +692,33 @@ export function InputOTPSeparator({
 
 type Theme = 'light' | 'dark' | 'system';
 
+type DropdownSide = 'top' | 'bottom';
+
 export interface ThemeSwitcherProps extends Omit<BaseProps, 'onChange'> {
   defaultTheme?: Theme;
   storageKey?: string;
   showSystemOption?: boolean;
   mode?: 'toggle' | 'dropdown';
   onChange?: (theme: Theme) => void;
+}
+
+function resolveDropdownSide(
+  container: HTMLDivElement | null,
+  requiredSpace: number
+): DropdownSide {
+  if (!container || typeof window === 'undefined') {
+    return 'bottom';
+  }
+
+  const rect = container.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  if (spaceBelow < requiredSpace && spaceAbove > spaceBelow) {
+    return 'top';
+  }
+
+  return 'bottom';
 }
 
 // Sun icon component
@@ -770,6 +834,8 @@ export function ThemeSwitcher({
   
   const [mounted, setMounted] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Apply theme on mount and when theme changes
   React.useEffect(() => {
@@ -787,6 +853,23 @@ export function ThemeSwitcher({
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
+
+  React.useEffect(() => {
+    if (!isOpen || mode !== 'dropdown') return;
+
+    const updateDropdownSide = () => {
+      setDropdownSide(resolveDropdownSide(containerRef.current, 220));
+    };
+
+    updateDropdownSide();
+    window.addEventListener('resize', updateDropdownSide);
+    window.addEventListener('scroll', updateDropdownSide, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownSide);
+      window.removeEventListener('scroll', updateDropdownSide, true);
+    };
+  }, [isOpen, mode]);
 
   const setTheme = React.useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -811,7 +894,7 @@ export function ThemeSwitcher({
     return (
       <button
         className={cn(
-          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'inline-flex h-10 w-10 items-center justify-center rounded-md bg-background',
           'text-sm font-medium ring-offset-background transition-colors',
           'hover:bg-accent hover:text-accent-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -832,7 +915,7 @@ export function ThemeSwitcher({
         type="button"
         onClick={toggleTheme}
         className={cn(
-          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'inline-flex h-10 w-10 items-center justify-center rounded-md bg-background',
           'text-sm font-medium ring-offset-background transition-colors',
           'hover:bg-accent hover:text-accent-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -853,12 +936,12 @@ export function ThemeSwitcher({
 
   // Dropdown mode
   return (
-    <div className={cn('relative', className)} {...props}>
+    <div ref={containerRef} className={cn('relative', className)} {...props}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background',
+          'inline-flex h-10 w-10 items-center justify-center rounded-md bg-background',
           'text-sm font-medium ring-offset-background transition-colors',
           'hover:bg-accent hover:text-accent-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -884,9 +967,10 @@ export function ThemeSwitcher({
           
           <div
             className={cn(
-              'absolute right-0 top-full z-50 mt-2 min-w-[8rem]',
+              'absolute right-0 z-50 min-w-[8rem]',
               'rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-              'animate-in fade-in-0 zoom-in-95'
+              'animate-in fade-in-0 zoom-in-95',
+              dropdownSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
             )}
             role="menu"
           >

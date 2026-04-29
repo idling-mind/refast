@@ -31,11 +31,18 @@ class Alert(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
         self.title = title
         self.message = message
         self.variant = variant
@@ -73,9 +80,17 @@ class Spinner(Component):
         size: Literal["sm", "md", "lg"] = "md",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.size = size
 
     def render(self) -> dict[str, Any]:
@@ -115,12 +130,20 @@ class Progress(Component):
         ]
         | None = None,
         track_color: str | None = None,
-        striped: str | None = None,
+        striped: Literal["static", "animated"] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.value = value
         self.max = max
         self.label = label
@@ -158,14 +181,24 @@ class Skeleton(Component):
         width: str | int | None = None,
         height: str | int | None = None,
         variant: Literal["text", "circular", "rectangular"] = "text",
+        circle: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.width = width
         self.height = height
         self.variant = variant
+        self.circle = circle
 
     def render(self) -> dict[str, Any]:
         return {
@@ -175,6 +208,7 @@ class Skeleton(Component):
                 "width": self.width,
                 "height": self.height,
                 "variant": self.variant,
+                "circle": self.circle,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -238,9 +272,17 @@ class ConnectionStatus(Component):
         debounce_ms: int = 500,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.children_connected = children_connected or []
         self.children_disconnected = children_disconnected or []
         self.position = position

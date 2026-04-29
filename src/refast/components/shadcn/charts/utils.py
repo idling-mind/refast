@@ -73,9 +73,12 @@ class XAxis(Component):
         min_tick_gap: int = 5,
         unit: str | None = None,
         name: str | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.orientation = orientation
         self.type = type
@@ -104,7 +107,6 @@ class XAxis(Component):
         self.min_tick_gap = min_tick_gap
         self.unit = unit
         self.name = name
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -211,9 +213,12 @@ class YAxis(Component):
         min_tick_gap: int = 5,
         unit: str | None = None,
         name: str | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.orientation = orientation
         self.type = type
@@ -242,7 +247,6 @@ class YAxis(Component):
         self.min_tick_gap = min_tick_gap
         self.unit = unit
         self.name = name
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -327,9 +331,12 @@ class CartesianGrid(Component):
         sync_with_ticks: bool = False,
         x_axis_id: str | int | None = None,
         y_axis_id: str | int | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.stroke_dasharray = stroke_dasharray
         self.vertical = vertical
         self.horizontal = horizontal
@@ -347,7 +354,6 @@ class CartesianGrid(Component):
         self.sync_with_ticks = sync_with_ticks
         self.x_axis_id = x_axis_id
         self.y_axis_id = y_axis_id
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -409,9 +415,12 @@ class ReferenceLine(Component):
         if_overflow: Literal["discard", "hidden", "visible", "extendDomain"] = "discard",
         segment: list[dict[str, Any]] | None = None,
         position: Literal["start", "middle", "end"] | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.y = y
         self.x = x
         self.stroke = stroke
@@ -423,7 +432,6 @@ class ReferenceLine(Component):
         self.if_overflow = if_overflow
         self.segment = segment
         self.position = position
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -483,9 +491,12 @@ class ReferenceArea(Component):
         stroke_width: int | None = None,
         stroke_dasharray: str | None = None,
         label: str | dict[str, Any] | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.x1 = x1
         self.x2 = x2
         self.y1 = y1
@@ -499,7 +510,6 @@ class ReferenceArea(Component):
         self.stroke_width = stroke_width
         self.stroke_dasharray = stroke_dasharray
         self.label = label
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -555,9 +565,12 @@ class ReferenceDot(Component):
         stroke: str = "#ccc",
         stroke_width: int = 1,
         label: str | dict[str, Any] | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.x = x
         self.y = y
         self.r = r
@@ -568,7 +581,6 @@ class ReferenceDot(Component):
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.label = label
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -629,9 +641,12 @@ class Brush(Component):
         padding: dict[str, int] | None = None,
         always_show_text: bool = False,
         on_change: Callback | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.height = height
         self.stroke = stroke
@@ -646,7 +661,6 @@ class Brush(Component):
         self.padding = padding
         self.always_show_text = always_show_text
         self.on_change = on_change
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -687,12 +701,14 @@ class Cell(Component):
         self,
         fill: str | None = None,
         stroke: str | None = None,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.fill = fill
         self.stroke = stroke
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -729,16 +745,18 @@ class LabelList(Component):
         angle: int = 0,
         fill: str = "#333",
         font_size: int | str = 12,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.position = position
         self.offset = offset
         self.angle = angle
         self.fill = fill
         self.font_size = font_size
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -779,16 +797,18 @@ class Label(Component):
         angle: int = 0,
         fill: str = "#333",
         font_size: int | str = 12,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.value = value
         self.position = position
         self.offset = offset
         self.angle = angle
         self.fill = fill
         self.font_size = font_size
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {
@@ -835,9 +855,12 @@ class ErrorBar(Component):
         animation_begin: int = 0,
         animation_duration: int = 1500,
         animation_easing: str = "ease",
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.width = width
         self.direction = direction
@@ -847,7 +870,6 @@ class ErrorBar(Component):
         self.animation_begin = animation_begin
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {

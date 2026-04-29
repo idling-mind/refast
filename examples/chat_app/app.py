@@ -148,7 +148,7 @@ def render_message(message: Message, current_user: str):
         gap=2,
         children=[
             Avatar(
-                name=message.username,
+                alt=message.username,
                 size="sm",
             ),
             Container(

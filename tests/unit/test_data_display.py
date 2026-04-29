@@ -202,6 +202,12 @@ class TestTabItem:
         rendered = item.render()
         assert rendered["props"]["disabled"] is True
 
+    def test_tab_item_icon(self):
+        """Test TabItem icon prop."""
+        item = TabItem(value="tab1", label="Tab 1", icon="paperclip")
+        rendered = item.render()
+        assert rendered["props"]["icon"] == "paperclip"
+
 
 class TestAccordion:
     """Tests for Accordion component."""

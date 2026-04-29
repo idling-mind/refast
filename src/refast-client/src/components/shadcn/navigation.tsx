@@ -12,7 +12,6 @@ import { Icon } from './icon';
 interface BreadcrumbProps {
   id?: string;
   className?: string;
-  separator?: React.ReactNode;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -245,12 +244,14 @@ interface NavigationMenuProps {
 export function NavigationMenu({
   id,
   className,
+  orientation,
   children,
   'data-refast-id': dataRefastId,
 }: NavigationMenuProps): React.ReactElement {
   return (
     <NavigationMenuPrimitive.Root
       id={id}
+      orientation={orientation}
       className={cn(
         'relative z-10 flex max-w-max flex-1 items-center justify-center',
         className
@@ -1928,7 +1929,6 @@ interface SidebarMenuButtonProps {
   className?: string;
   icon?: string;
   isActive?: boolean;
-  tooltip?: string;
   variant?: 'default' | 'outline';
   size?: 'default' | 'sm' | 'lg';
   onClick?: () => void;

@@ -7,21 +7,35 @@ from refast.components.base import ChildrenType, Component
 
 class Form(Component):
     """
-    Form container component.
+    Form container component that intercepts the submit event and routes it to a server callback.
+
+    Refast intercepts the native ``submit`` event; ``method`` and ``enctype`` are therefore
+    not configurable — all data is sent over the WebSocket.
 
     Example:
         ```python
+        from refast.components.shadcn.form import Form, FormField
+        from refast.components.shadcn.input import Input
+        from refast.components.shadcn.button import Button
+
         Form(
             on_submit=ctx.callback(handle_submit),
             children=[
                 FormField(
                     label="Email",
-                    children=[Input(name="email", type="email")]
+                    required=True,
+                    children=[Input(name="email", type="email")],
                 ),
                 Button("Submit", type="submit"),
-            ]
+            ],
         )
         ```
+
+    Args:
+        children: Form content — typically ``FormField`` components and a submit ``Button``.
+        on_submit: Callback fired when the form is submitted.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
     """
 
     component_type: str = "Form"
@@ -32,9 +46,17 @@ class Form(Component):
         on_submit: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.on_submit = on_submit
 
@@ -56,7 +78,32 @@ class Form(Component):
 
 
 class FormField(Component):
-    """Form field wrapper with label and error handling."""
+    """
+    Form field wrapper that pairs an input with a label, hint text, and validation error.
+
+    Example:
+        ```python
+        from refast.components.shadcn.form import FormField
+        from refast.components.shadcn.input import Input
+
+        FormField(
+            label="Password",
+            hint="At least 8 characters, one number, one symbol.",
+            required=True,
+            error="Password is too short.",
+            children=[Input(name="password", type="password")],
+        )
+        ```
+
+    Args:
+        children: The input component(s) to wrap.
+        label: Field label text.
+        error: Validation error message displayed below the field.
+        hint: Hint text displayed below the label.
+        required: Shows a required asterisk next to the label.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "FormField"
 
@@ -69,9 +116,17 @@ class FormField(Component):
         required: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.add_children(children)
         self.label = label
         self.error = error
@@ -95,7 +150,26 @@ class FormField(Component):
 
 
 class Label(Component):
-    """Form label component."""
+    """
+    Standalone form label element.
+
+    Most inputs include a built-in ``label`` prop — use ``Label`` only when you need a
+    label element that is decoupled from the control it describes.
+
+    Example:
+        ```python
+        from refast.components.shadcn.form import Label
+
+        Label(text="API Key", html_for="api-key-input", required=True)
+        ```
+
+    Args:
+        text: Label text content.
+        html_for: Associates the label with a control's ``id`` (rendered as ``htmlFor``).
+        required: Shows a required asterisk.
+        id: Component ID (auto-generated if omitted).
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "Label"
 
@@ -106,9 +180,17 @@ class Label(Component):
         required: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.text = text
         self.html_for = html_for
         self.required = required
@@ -121,6 +203,7 @@ class Label(Component):
                 "html_for": self.html_for,
                 "required": self.required,
                 "class_name": self.class_name,
+                "style": self.style,
                 **self._serialize_extra_props(),
             },
             "children": [self.text],

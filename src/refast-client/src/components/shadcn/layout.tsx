@@ -20,7 +20,7 @@ export function Row({
   className,
   justify = 'start',
   align = 'start',
-  gap = 0,
+  gap = 2,
   wrap = false,
   children,
   'data-refast-id': dataRefastId,
@@ -79,7 +79,7 @@ export function Column({
   className,
   justify = 'start',
   align = 'stretch',
-  gap = 0,
+  gap = 2,
   wrap = false,
   children,
   'data-refast-id': dataRefastId,
@@ -131,7 +131,7 @@ export function Grid({
   className,
   columns = 1,
   rows,
-  gap = 0,
+  gap = 4,
   children,
   'data-refast-id': dataRefastId,
 }: GridProps): React.ReactElement {
@@ -156,21 +156,66 @@ export function Grid({
   );
 }
 
-interface FlexProps extends RowProps {
-  direction?: 'row' | 'column';
+interface FlexProps {
+  id?: string;
+  className?: string;
+  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
+  align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
+  gap?: number | string;
+  wrap?: boolean;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
 }
 
 /**
- * Flex component - configurable flex container.
+ * Flex component - configurable flex container supporting all four directions.
  */
 export function Flex({
+  id,
+  className,
   direction = 'row',
-  ...rest
+  justify = 'start',
+  align = 'stretch',
+  gap = 2,
+  wrap = false,
+  children,
+  'data-refast-id': dataRefastId,
 }: FlexProps): React.ReactElement {
-  if (direction === 'column') {
-    return <Column {...rest} />;
-  }
-  return <Row {...rest} />;
+  const directionClass = {
+    row: 'flex-row',
+    column: 'flex-col',
+    'row-reverse': 'flex-row-reverse',
+    'column-reverse': 'flex-col-reverse',
+  }[direction];
+
+  const justifyClass = {
+    start: 'justify-start',
+    end: 'justify-end',
+    center: 'justify-center',
+    between: 'justify-between',
+    around: 'justify-around',
+    evenly: 'justify-evenly',
+  }[justify];
+
+  const alignClass = {
+    start: 'items-start',
+    end: 'items-end',
+    center: 'items-center',
+    stretch: 'items-stretch',
+    baseline: 'items-baseline',
+  }[align];
+
+  return (
+    <div
+      id={id}
+      className={cn('flex', directionClass, justifyClass, alignClass, wrap && 'flex-wrap', className)}
+      style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </div>
+  );
 }
 
 interface CenterProps {

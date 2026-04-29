@@ -35,21 +35,27 @@ class TestComponent:
 
     def test_component_extra_props(self):
         """Test component accepts extra props."""
-        container = Container(data_testid="test")
+        container = Container(extra_props={"data_testid": "test"})
         assert container.extra_props == {"data_testid": "test"}
-
-    def test_add_child_fluent(self):
-        """Test add_child returns self for chaining."""
-        container = Container()
-        result = container.add_child(Text("A")).add_child(Text("B"))
-        assert result is container
-        assert len(container._children) == 2
 
     def test_add_children(self):
         """Test add_children adds multiple children."""
         container = Container()
         container.add_children([Text("A"), Text("B"), Text("C")])
         assert len(container._children) == 3
+
+    def test_add_children_single_component(self):
+        """Test add_children adds a single Component child."""
+        container = Container()
+        container.add_children(Text("A"))
+        assert len(container._children) == 1
+        assert isinstance(container._children[0], Text)
+
+    def test_add_children_single_string(self):
+        """Test add_children adds a single string child."""
+        container = Container()
+        container.add_children("A")
+        assert container._children == ["A"]
 
     def test_component_repr(self):
         """Test component repr."""

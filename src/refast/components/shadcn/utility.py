@@ -1,8 +1,8 @@
 """Utility and advanced data display components based on shadcn/ui."""
 
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Separator(Component):
@@ -27,9 +27,17 @@ class Separator(Component):
         decorative: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.orientation = orientation
         self.decorative = decorative
 
@@ -65,18 +73,30 @@ class AspectRatio(Component):
     def __init__(
         self,
         ratio: float = 1.0,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        """
+        Args:
+            ratio: Desired width-to-height ratio, e.g. ``16/9`` or ``4/3``.
+                Defaults to ``1.0`` (square).
+            children: Content to constrain inside the ratio box.
+            id: Optional unique element ID for targeted updates.
+            class_name: Additional Tailwind CSS classes.
+        """
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.ratio = ratio
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -110,35 +130,77 @@ class ScrollArea(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         type: Literal["auto", "always", "scroll", "hover"] = "hover",
         scroll_hide_delay: int = 600,
+        dir: Literal["ltr", "rtl"] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        """
+        Args:
+            children: Content to render inside the scrollable area.
+            type: When the scrollbar is visible — ``"hover"`` (default,
+                shows on hover), ``"auto"`` (shows when overflowing),
+                ``"always"``, or ``"scroll"`` (shows while scrolling).
+            scroll_hide_delay: Milliseconds before the scrollbar hides
+                after scrolling stops (``"hover"`` / ``"scroll"`` modes
+                only). Defaults to ``600``.
+            dir: Reading direction of the scroll area — ``"ltr"`` or
+                ``"rtl"``. Defaults to ``None`` (inherits from document).
+            id: Optional unique element ID for targeted updates.
+            class_name: Additional Tailwind CSS classes.
+        """
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.scroll_type = type
         self.scroll_hide_delay = scroll_hide_delay
-        if children:
-            self._children = children
+        self.dir = dir
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "type": self.scroll_type,
+            "scroll_hide_delay": self.scroll_hide_delay,
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.dir is not None:
+            props["dir"] = self.dir
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "type": self.scroll_type,
-                "scroll_hide_delay": self.scroll_hide_delay,
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": self._render_children(),
         }
 
 
 class ScrollBar(Component):
-    """A scrollbar for ScrollArea."""
+    """
+    A scrollbar companion for :class:`ScrollArea`.
+
+    Usually you do not need to render this manually — ``ScrollArea`` includes
+    both vertical and horizontal scrollbars automatically.
+
+    Example:
+        ```python
+        ScrollBar(orientation="horizontal")
+        ```
+
+    Args:
+        orientation: Scrollbar axis — ``"vertical"`` (default) or
+            ``"horizontal"``.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "ScrollBar"
 
@@ -147,9 +209,17 @@ class ScrollBar(Component):
         orientation: Literal["horizontal", "vertical"] = "vertical",
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.orientation = orientation
 
     def render(self) -> dict[str, Any]:
@@ -190,18 +260,39 @@ class Collapsible(Component):
         default_open: bool = False,
         on_open_change: Any = None,
         disabled: bool = False,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        """
+        Args:
+            open: Controlled open state. When set, the component is fully
+                controlled; omit to use uncontrolled behaviour.
+            default_open: Initial open state for uncontrolled usage.
+                Defaults to ``False``.
+            on_open_change: Callback fired when the open state changes.
+            disabled: When ``True`` the collapsible cannot be toggled.
+                Defaults to ``False``.
+            children: Typically a :class:`CollapsibleTrigger` followed by
+                a :class:`CollapsibleContent`.
+            id: Optional unique element ID for targeted updates.
+            class_name: Additional Tailwind CSS classes.
+        """
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
         self.disabled = disabled
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -225,25 +316,45 @@ class Collapsible(Component):
 
 
 class CollapsibleTrigger(Component):
-    """The button that toggles the collapsible."""
+    """
+    The toggle trigger for a :class:`Collapsible`.
+
+    Wrap your trigger control (e.g. a ``Button``) inside this component.
+
+    Example:
+        ```python
+        CollapsibleTrigger(Button("Toggle section"))
+        ```
+
+    Args:
+        children: The interactive element that triggers open/close.
+        as_child: When ``True`` (default) the trigger merges its props
+            onto its single child element (Radix ``asChild`` pattern).
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CollapsibleTrigger"
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         as_child: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.as_child = as_child
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -259,23 +370,44 @@ class CollapsibleTrigger(Component):
 
 
 class CollapsibleContent(Component):
-    """The content that can be collapsed."""
+    """
+    The collapsible area inside a :class:`Collapsible`.
+
+    Content animates open and closed. Place any components you want to
+    hide/show inside this wrapper.
+
+    Example:
+        ```python
+        CollapsibleContent(
+            children=[Paragraph("Hidden by default.")]
+        )
+        ```
+
+    Args:
+        children: Components to show when the collapsible is open.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CollapsibleContent"
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -312,18 +444,39 @@ class Carousel(Component):
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
+        loop: bool = False,
         opts: dict[str, Any] | None = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        """
+        Args:
+            children: Typically :class:`CarouselContent`, :class:`CarouselPrevious`,
+                and :class:`CarouselNext`.
+            orientation: Scroll axis — ``"horizontal"`` (default) or
+                ``"vertical"``.
+            loop: Whether the carousel should wrap around continuously.
+            opts: Embla Carousel options dict (e.g.
+                ``{"loop": True, "align": "start"}``).
+            id: Optional unique element ID for targeted updates.
+            class_name: Additional Tailwind CSS classes.
+        """
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.orientation = orientation
+        self.loop = loop
         self.opts = opts or {}
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -331,6 +484,7 @@ class Carousel(Component):
             "id": self.id,
             "props": {
                 "orientation": self.orientation,
+                "loop": self.loop,
                 "opts": self.opts,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
@@ -340,20 +494,43 @@ class Carousel(Component):
 
 
 class CarouselContent(Component):
-    """The container for carousel items."""
+    """
+    The scrollable slide container inside a :class:`Carousel`.
+
+    Wrap :class:`CarouselItem` components inside this element.
+
+    Example:
+        ```python
+        CarouselContent(
+            children=[CarouselItem(Card(...)) for card in cards]
+        )
+        ```
+
+    Args:
+        children: :class:`CarouselItem` components.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CarouselContent"
 
     def __init__(
         self,
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            self._children = children
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -368,23 +545,39 @@ class CarouselContent(Component):
 
 
 class CarouselItem(Component):
-    """A single item in the carousel."""
+    """
+    A single slide inside a :class:`CarouselContent`.
+
+    Example:
+        ```python
+        CarouselItem(children=[Card(title="Slide 1")])
+        ```
+
+    Args:
+        children: Content to display in this slide.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CarouselItem"
 
     def __init__(
         self,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -399,51 +592,105 @@ class CarouselItem(Component):
 
 
 class CarouselPrevious(Component):
-    """The previous button for the carousel."""
+    """
+    The "previous slide" navigation button for a :class:`Carousel`.
+
+    Place this as a direct child of :class:`Carousel` (outside
+    :class:`CarouselContent`).
+
+    Example:
+        ```python
+        CarouselPrevious()
+        ```
+
+    Args:
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CarouselPrevious"
 
     def __init__(
         self,
+        on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_click:
+            props["on_click"] = self.on_click.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
 
 class CarouselNext(Component):
-    """The next button for the carousel."""
+    """
+    The "next slide" navigation button for a :class:`Carousel`.
+
+    Place this as a direct child of :class:`Carousel` (outside
+    :class:`CarouselContent`).
+
+    Example:
+        ```python
+        CarouselNext()
+        ```
+
+    Args:
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "CarouselNext"
 
     def __init__(
         self,
+        on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
+        props: dict[str, Any] = {
+            "class_name": self.class_name,
+            **self._serialize_extra_props(),
+        }
+        if self.on_click:
+            props["on_click"] = self.on_click.serialize()
         return {
             "type": self.component_type,
             "id": self.id,
-            "props": {
-                "class_name": self.class_name,
-                **self._serialize_extra_props(),
-            },
+            "props": props,
             "children": [],
         }
 
@@ -470,17 +717,35 @@ class ResizablePanelGroup(Component):
     def __init__(
         self,
         direction: Literal["horizontal", "vertical"] = "horizontal",
-        children: list["Component"] | None = None,
+        children: ChildrenType = None,
         on_layout: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        """
+        Args:
+            direction: Split orientation — ``"horizontal"`` (default, panels
+                side by side) or ``"vertical"`` (panels stacked).
+            children: Alternating :class:`ResizablePanel` and
+                :class:`ResizableHandle` components.
+            on_layout: Callback fired with the new panel sizes array whenever
+                a resize occurs.
+            id: Optional unique element ID for targeted updates.
+            class_name: Additional Tailwind CSS classes.
+        """
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.direction = direction
         self.on_layout = on_layout
-        if children:
-            self._children = children
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -501,7 +766,34 @@ class ResizablePanelGroup(Component):
 
 
 class ResizablePanel(Component):
-    """A resizable panel."""
+    """
+    A single panel inside a :class:`ResizablePanelGroup`.
+
+    Example:
+        ```python
+        ResizablePanel(
+            default_size=50,
+            min_size=20,
+            children=[Paragraph("Panel content")],
+        )
+        ```
+
+    Args:
+        default_size: Initial size as a percentage of the group (0–100).
+            Defaults to ``50``.
+        min_size: Minimum size percentage. ``None`` means no minimum.
+        max_size: Maximum size percentage. ``None`` means no maximum.
+        collapsible: When ``True`` the panel can be fully collapsed by
+            dragging past ``min_size``. Defaults to ``False``.
+        collapsed_size: Size percentage when fully collapsed (requires
+            ``collapsible=True``).
+        on_collapse: Callback fired when the panel collapses.
+        on_expand: Callback fired when the panel expands from collapse.
+        on_resize: Callback fired with the new size on every resize.
+        children: Content to render inside the panel.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "ResizablePanel"
 
@@ -515,12 +807,20 @@ class ResizablePanel(Component):
         on_collapse: Any = None,
         on_expand: Any = None,
         on_resize: Any = None,
-        children: Union[list["Component"], "Component", None] = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.default_size = default_size
         self.min_size = min_size
         self.max_size = max_size
@@ -529,11 +829,7 @@ class ResizablePanel(Component):
         self.on_collapse = on_collapse
         self.on_expand = on_expand
         self.on_resize = on_resize
-        if children:
-            if isinstance(children, list):
-                self._children = children
-            else:
-                self._children = [children]
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -562,7 +858,22 @@ class ResizablePanel(Component):
 
 
 class ResizableHandle(Component):
-    """A handle between resizable panels."""
+    """
+    A drag handle between two :class:`ResizablePanel` components.
+
+    Place this between panels inside a :class:`ResizablePanelGroup`.
+
+    Example:
+        ```python
+        ResizableHandle(with_handle=True)  # shows a grip icon
+        ```
+
+    Args:
+        with_handle: When ``True`` renders a visible grip icon on the
+            handle bar. Defaults to ``False``.
+        id: Optional unique element ID for targeted updates.
+        class_name: Additional Tailwind CSS classes.
+    """
 
     component_type: str = "ResizableHandle"
 
@@ -571,9 +882,17 @@ class ResizableHandle(Component):
         with_handle: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.with_handle = with_handle
 
     def render(self) -> dict[str, Any]:
@@ -652,9 +971,17 @@ class Toaster(Component):
         invert: bool = False,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.position = position
         self.expand = expand
         self.duration = duration
@@ -722,9 +1049,17 @@ class Empty(Component):
         action: "Component | None" = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.icon = icon
         self.title = title
         self.description = description
@@ -765,9 +1100,17 @@ class Kbd(Component):
         key: str,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.key = key
 
     def render(self) -> dict[str, Any]:
@@ -804,9 +1147,17 @@ class LoadingOverlay(Component):
         blur: bool = True,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.loading = loading
         self.text = text
         self.blur = blur
@@ -873,9 +1224,17 @@ class ThemeSwitcher(Component):
         on_change: Any = None,
         id: str | None = None,
         class_name: str = "",
-        **props: Any,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(id=id, class_name=class_name, **props)
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
         self.default_theme = default_theme
         self.storage_key = storage_key
         self.show_system_option = show_system_option

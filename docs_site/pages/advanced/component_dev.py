@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Building Components"
 PAGE_ROUTE = "/docs/advanced/component-dev"
 
@@ -41,8 +40,8 @@ from refast.components.base import Component
 class MyWidget(Component):
     component_type: str = "MyWidget"
 
-    def __init__(self, title: str, value: int = 0, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, title: str, value: int = 0, extra_props: dict[str, object] | None = None):
+        super().__init__(extra_props=extra_props)
         self.title = title
         self.value = value
 

@@ -179,8 +179,9 @@ interface ProgressProps {
   className?: string;
   value?: number;
   max?: number;
+  label?: string;
   showValue?: boolean;
-  foregroundColor?: string;
+  foregroundColor?: 'primary' | 'secondary' | 'destructive' | 'muted' | 'accent' | 'popover' | 'card' | 'background' | 'foreground';
   trackColor?: string;
   striped?: 'static' | 'animated' | null;
   'data-refast-id'?: string;
@@ -196,6 +197,7 @@ export function Progress({
   className,
   value = 0,
   max = 100,
+  label,
   showValue = false,
   foregroundColor,
   trackColor,
@@ -222,6 +224,7 @@ export function Progress({
 
   return (
     <div className={cn('relative', className)} data-refast-id={dataRefastId}>
+      {label && <div className="mb-1 text-sm font-medium">{label}</div>}
       <div
         id={id}
         role="progressbar"
@@ -289,6 +292,7 @@ interface SkeletonProps {
   className?: string;
   width?: string | number;
   height?: string | number;
+  variant?: 'text' | 'circular' | 'rectangular';
   circle?: boolean;
   'data-refast-id'?: string;
 }
@@ -301,6 +305,7 @@ export function Skeleton({
   className,
   width,
   height,
+  variant = 'text',
   circle = false,
   'data-refast-id': dataRefastId,
 }: SkeletonProps): React.ReactElement {
@@ -309,7 +314,7 @@ export function Skeleton({
       id={id}
       className={cn(
         'animate-pulse bg-muted',
-        circle ? 'rounded-full' : 'rounded-md',
+        (circle || variant === 'circular') ? 'rounded-full' : 'rounded-md',
         className
       )}
       style={{

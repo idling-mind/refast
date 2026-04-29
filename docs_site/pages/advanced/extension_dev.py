@@ -2,7 +2,6 @@
 
 from refast.components import Container, Heading, Markdown, Separator
 
-
 PAGE_TITLE = "Building Extensions"
 PAGE_ROUTE = "/docs/advanced/extension-dev"
 

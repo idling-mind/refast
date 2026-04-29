@@ -110,7 +110,7 @@ def render_result(ctx: Context):
                 Alert(
                     variant="default",
                     title="Success!",
-                    description="Form submitted successfully",
+                    message="Form submitted successfully",
                 ),
                 Card(
                     class_name="mt-4",

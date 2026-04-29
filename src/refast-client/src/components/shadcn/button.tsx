@@ -4,11 +4,14 @@ import { cn } from '../../utils';
 import { Icon } from './icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   loading?: boolean;
   icon?: string;
   iconPosition?: 'left' | 'right';
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   'data-refast-id'?: string;
 }
 
@@ -28,7 +31,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
 }, ref) => {
   const variantClasses = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
     destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
@@ -80,7 +82,7 @@ interface IconButtonProps {
   id?: string;
   className?: string;
   icon: string;
-  variant?: 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost';
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   onClick?: () => void;

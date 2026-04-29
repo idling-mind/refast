@@ -7,7 +7,6 @@ This example demonstrates:
 - State management with ctx.state
 """
 
-from ast import In
 
 from fastapi import FastAPI
 

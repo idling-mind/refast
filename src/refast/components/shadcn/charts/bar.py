@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -40,7 +40,6 @@ class BarChart(Component):
 
     def __init__(
         self,
-        *children: Component | str | None,
         data: list[dict[str, Any]],
         margin: dict[str, int] | None = None,
         bar_category_gap: str | int | None = None,
@@ -56,10 +55,13 @@ class BarChart(Component):
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
         on_mouse_move: Callback | None = None,
-        **kwargs: Any,
+        children: ChildrenType = None,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        kw_children = kwargs.pop("children", None)
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.margin = margin or {"top": 10, "right": 10, "left": 10, "bottom": 0}
         self.bar_category_gap = bar_category_gap
@@ -76,8 +78,7 @@ class BarChart(Component):
         self.on_mouse_leave = on_mouse_leave
         self.on_mouse_move = on_mouse_move
 
-        self.add_children(list(children))
-        self.add_children(kw_children)
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -161,9 +162,12 @@ class Bar(Component):
         animation_duration: int = 1500,
         animation_easing: str = "ease",
         hide: bool = False,
-        **kwargs: Any,
+        id: str | None = None,
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
         self.fill = fill
         self.radius = radius
@@ -185,7 +189,6 @@ class Bar(Component):
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
         self.hide = hide
-        self.extra_props = kwargs
 
     def render(self) -> dict[str, Any]:
         return {

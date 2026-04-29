@@ -53,7 +53,7 @@ class TestContextRefresh:
         target_id = "target-comp"
         target_comp = MockComponent(id=target_id)
         parent_comp = MockComponent(id="parent")
-        parent_comp.add_child(target_comp)
+        parent_comp.add_children([target_comp])
 
         mock_page_func = MagicMock(return_value=parent_comp)
         mock_app._pages = {"/": mock_page_func}

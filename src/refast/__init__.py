@@ -18,6 +18,7 @@ from refast.extensions import Extension
 from refast.state import State
 from refast.store import BrowserStore, JSONEncoder, LocalStore, SessionStore, Store
 from refast.theme import Theme, ThemeColors, ThemeMode
+from refast.utils.temp_file_store import DiskFileStore, FileInfo, MemoryFileStore, TempFileStore
 
 __version__ = "0.1.0"
 __all__ = [
@@ -39,4 +40,9 @@ __all__ = [
     "Theme",
     "ThemeColors",
     "ThemeMode",
+    # File upload/download
+    "FileInfo",
+    "TempFileStore",
+    "MemoryFileStore",
+    "DiskFileStore",
 ]

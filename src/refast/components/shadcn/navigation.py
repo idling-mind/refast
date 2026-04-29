@@ -27,6 +27,7 @@ class Breadcrumb(Component):
     def __init__(
         self,
         children: ChildrenType = None,
+        separator: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -40,6 +41,7 @@ class Breadcrumb(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
+        self.separator = separator
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -47,6 +49,7 @@ class Breadcrumb(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "separator": self.separator,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -133,6 +136,7 @@ class BreadcrumbLink(Component):
         self,
         label: str,
         href: str = "#",
+        current: bool = False,
         on_click: Any = None,
         id: str | None = None,
         class_name: str = "",
@@ -149,6 +153,7 @@ class BreadcrumbLink(Component):
         )
         self.label = label
         self.href = href
+        self.current = current
         self.on_click = on_click
 
     def render(self) -> dict[str, Any]:
@@ -157,7 +162,8 @@ class BreadcrumbLink(Component):
             "id": self.id,
             "props": {
                 "href": self.href,
-                "onClick": self.on_click.serialize() if self.on_click else None,
+                "current": self.current,
+                "on_click": self.on_click.serialize() if self.on_click else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -368,6 +374,7 @@ class NavigationMenuItem(Component):
 
     def __init__(
         self,
+        label: str | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -382,6 +389,7 @@ class NavigationMenuItem(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
+        self.label = label
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -389,6 +397,7 @@ class NavigationMenuItem(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "label": self.label,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -995,7 +1004,7 @@ class MenubarItem(Component):
             "props": {
                 "shortcut": self.shortcut,
                 "disabled": self.disabled,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
+                "on_select": self.on_select.serialize() if self.on_select else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1296,6 +1305,7 @@ class Command(Component):
     def __init__(
         self,
         children: ChildrenType = None,
+        placeholder: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -1309,6 +1319,7 @@ class Command(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
+        self.placeholder = placeholder
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1316,6 +1327,7 @@ class Command(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "placeholder": self.placeholder,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },
@@ -1512,7 +1524,7 @@ class CommandItem(Component):
                 "icon": self.icon,
                 "value": self.value,
                 "disabled": self.disabled,
-                "onSelect": self.on_select.serialize() if self.on_select else None,
+                "on_select": self.on_select.serialize() if self.on_select else None,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

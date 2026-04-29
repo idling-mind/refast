@@ -49,9 +49,9 @@ class TestSwitch:
         assert rendered["props"]["checked"] is True
 
     def test_switch_with_callback(self):
-        """Test Switch with on_change callback."""
+        """Test Switch with on_checked_change callback."""
         cb = MockCallback()
-        switch = Switch(name="test", on_change=cb)
+        switch = Switch(name="test", on_checked_change=cb)
         rendered = switch.render()
         assert rendered["props"]["on_checked_change"] == {"callbackId": "cb-123"}
 
@@ -61,14 +61,14 @@ class TestSlider:
 
     def test_slider_renders(self):
         """Test Slider renders correctly."""
-        slider = Slider(name="volume")
+        slider = Slider(label="volume")
         rendered = slider.render()
         assert rendered["type"] == "Slider"
-        assert rendered["props"]["name"] == "volume"
+        assert rendered["props"]["label"] == "volume"
 
     def test_slider_with_range(self):
         """Test Slider with min/max values."""
-        slider = Slider(name="brightness", min=0, max=255, step=5)
+        slider = Slider(label="brightness", min=0, max=255, step=5)
         rendered = slider.render()
         assert rendered["props"]["min"] == 0
         assert rendered["props"]["max"] == 255
@@ -76,32 +76,32 @@ class TestSlider:
 
     def test_slider_with_value(self):
         """Test Slider with initial value."""
-        slider = Slider(name="test", value=[50])
+        slider = Slider(label="test", value=[50])
         rendered = slider.render()
         assert rendered["props"]["value"] == [50]
 
     def test_slider_disabled(self):
         """Test Slider disabled state."""
-        slider = Slider(name="test", disabled=True)
+        slider = Slider(label="test", disabled=True)
         rendered = slider.render()
         assert rendered["props"]["disabled"] is True
 
     def test_slider_orientation(self):
         """Test Slider orientation."""
-        slider = Slider(name="test", orientation="vertical")
+        slider = Slider(label="test", orientation="vertical")
         rendered = slider.render()
         assert rendered["props"]["orientation"] == "vertical"
 
     def test_slider_with_callback(self):
-        """Test Slider with onValueChange callback."""
+        """Test Slider with on_value_change callback."""
         cb = MockCallback()
-        slider = Slider(name="test", on_value_change=cb)
+        slider = Slider(label="test", on_value_change=cb)
         rendered = slider.render()
         assert rendered["props"]["on_value_change"] == {"callbackId": "cb-123"}
 
     def test_slider_show_value(self):
         """Test Slider show value option."""
-        slider = Slider(name="test", show_value=True)
+        slider = Slider(label="test", show_value=True)
         rendered = slider.render()
         assert rendered["props"]["show_value"] is True
 
@@ -141,7 +141,7 @@ class TestToggle:
         assert rendered["props"]["size"] == "sm"
 
     def test_toggle_with_callback(self):
-        """Test Toggle with onPressedChange callback."""
+        """Test Toggle with on_pressed_change callback."""
         cb = MockCallback()
         toggle = Toggle(label="Test", on_pressed_change=cb)
         rendered = toggle.render()
@@ -202,51 +202,51 @@ class TestDatePicker:
 
     def test_date_picker_renders(self):
         """Test DatePicker renders correctly."""
-        picker = DatePicker(name="birthday")
+        picker = DatePicker(label="birthday")
         rendered = picker.render()
         assert rendered["type"] == "DatePicker"
-        assert rendered["props"]["name"] == "birthday"
+        assert rendered["props"]["label"] == "birthday"
 
     def test_date_picker_with_value(self):
         """Test DatePicker with value."""
-        picker = DatePicker(name="test", value="2024-01-15")
+        picker = DatePicker(label="test", value="2024-01-15")
         rendered = picker.render()
         assert rendered["props"]["value"] == "2024-01-15"
 
     def test_date_picker_placeholder(self):
         """Test DatePicker with placeholder."""
-        picker = DatePicker(name="test", placeholder="Select date")
+        picker = DatePicker(label="test", placeholder="Select date")
         rendered = picker.render()
         assert rendered["props"]["placeholder"] == "Select date"
 
     def test_date_picker_disabled(self):
         """Test DatePicker disabled state."""
-        picker = DatePicker(name="test", disabled=True)
+        picker = DatePicker(label="test", disabled=True)
         rendered = picker.render()
         assert rendered["props"]["disabled"] is True
 
     def test_date_picker_format(self):
         """Test DatePicker with custom format."""
-        picker = DatePicker(name="test", format="dd/MM/yyyy")
+        picker = DatePicker(label="test", format="dd/MM/yyyy")
         rendered = picker.render()
         assert rendered["props"]["format"] == "dd/MM/yyyy"
 
     def test_date_picker_with_callback(self):
         """Test DatePicker with onChange callback."""
         cb = MockCallback()
-        picker = DatePicker(name="test", on_change=cb)
+        picker = DatePicker(label="test", on_change=cb)
         rendered = picker.render()
         assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
 
     def test_date_picker_mode_multiple(self):
         """Test DatePicker in multiple mode."""
-        picker = DatePicker(name="test", mode="multiple")
+        picker = DatePicker(label="test", mode="multiple")
         rendered = picker.render()
         assert rendered["props"]["mode"] == "multiple"
 
     def test_date_picker_with_multiple_values(self):
         """Test DatePicker serializes multiple selected dates."""
-        picker = DatePicker(name="test", mode="multiple", value=["2026-02-17", "2026-02-25"])
+        picker = DatePicker(label="test", mode="multiple", value=["2026-02-17", "2026-02-25"])
         rendered = picker.render()
         assert rendered["props"]["value"] == ["2026-02-17", "2026-02-25"]
 

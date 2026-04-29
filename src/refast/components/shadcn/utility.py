@@ -446,6 +446,7 @@ class Carousel(Component):
         self,
         children: ChildrenType = None,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
+        loop: bool = False,
         opts: dict[str, Any] | None = None,
         id: str | None = None,
         class_name: str = "",
@@ -459,6 +460,7 @@ class Carousel(Component):
                 and :class:`CarouselNext`.
             orientation: Scroll axis — ``"horizontal"`` (default) or
                 ``"vertical"``.
+            loop: Whether the carousel should wrap around continuously.
             opts: Embla Carousel options dict (e.g.
                 ``{"loop": True, "align": "start"}``).
             id: Optional unique element ID for targeted updates.
@@ -472,6 +474,7 @@ class Carousel(Component):
             extra_props=extra_props,
         )
         self.orientation = orientation
+        self.loop = loop
         self.opts = opts or {}
         self.add_children(children)
 
@@ -481,6 +484,7 @@ class Carousel(Component):
             "id": self.id,
             "props": {
                 "orientation": self.orientation,
+                "loop": self.loop,
                 "opts": self.opts,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),

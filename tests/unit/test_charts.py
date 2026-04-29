@@ -363,9 +363,11 @@ class TestComposedChart:
         """Test ComposedChart with children."""
         data = [{"name": "A", "bar": 100, "line": 50}]
         chart = ComposedChart(
-            Bar(data_key="bar"),
-            Line(data_key="line"),
             data=data,
+            children=[
+                Bar(data_key="bar"),
+                Line(data_key="line"),
+            ]
         )
 
         rendered = chart.render()

@@ -35,6 +35,8 @@ class Table(Component):
 
     Args:
         children: ``TableHeader`` and ``TableBody`` components.
+        striped: If ``True``, enables zebra-striping for body rows.
+        hoverable: If ``True``, body rows show a hover highlight.
         id: Optional HTML element id.
         class_name: Additional CSS class names.
     """
@@ -46,6 +48,8 @@ class Table(Component):
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
+        striped: bool = False,
+        hoverable: bool = True,
         style: dict[str, Any] | None = None,
         parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
@@ -57,6 +61,8 @@ class Table(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
+        self.striped = striped
+        self.hoverable = hoverable
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -64,6 +70,8 @@ class Table(Component):
             "type": self.component_type,
             "id": self.id,
             "props": {
+                "striped": self.striped,
+                "hoverable": self.hoverable,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

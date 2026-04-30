@@ -144,6 +144,7 @@ ICON_NAMES = Literal[
     "folder-plus",
     "folder-minus",
     "upload",
+    "upload-cloud",
     "download",
     "cloud-off",
     "image",

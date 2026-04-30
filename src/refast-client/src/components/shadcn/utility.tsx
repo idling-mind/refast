@@ -9,6 +9,7 @@ import * as AspectRatioPrimitive from '@radix-ui/react-aspect-ratio';
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import * as ResizablePrimitive from "react-resizable-panels";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 import { GripVertical } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { cn } from '../../utils';
@@ -459,11 +460,40 @@ export function ResizablePanel({
   defaultSize,
   minSize,
   maxSize,
+  id,
   ...props
 }: ResizablePanelProps) {
+  const panelRef = React.useRef<ImperativePanelHandle>(null);
+
+  // Attach imperative methods to the panel's DOM element so they can be
+  // called via ctx.bound_js(id, "collapse") / ctx.call_bound_js(id, "resize", 30)
+  React.useEffect(() => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    (el as any).collapse = () => panelRef.current?.collapse();
+    (el as any).expand = (minSizeArg?: number) => panelRef.current?.expand(minSizeArg);
+    (el as any).resize = (size: number) => panelRef.current?.resize(size);
+    (el as any).getSize = () => panelRef.current?.getSize();
+    (el as any).isCollapsed = () => panelRef.current?.isCollapsed();
+    (el as any).isExpanded = () => panelRef.current?.isExpanded();
+
+    return () => {
+      delete (el as any).collapse;
+      delete (el as any).expand;
+      delete (el as any).resize;
+      delete (el as any).getSize;
+      delete (el as any).isCollapsed;
+      delete (el as any).isExpanded;
+    };
+  }, [id]);
+
   // Convert nulls (from Python None) to undefined so library defaults apply
   return (
     <ResizablePrimitive.Panel
+      ref={panelRef}
+      id={id}
       className={cn(className)}
       defaultSize={defaultSize ?? undefined}
       minSize={minSize ?? undefined}

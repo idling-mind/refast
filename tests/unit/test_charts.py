@@ -367,7 +367,7 @@ class TestComposedChart:
             children=[
                 Bar(data_key="bar"),
                 Line(data_key="line"),
-            ]
+            ],
         )
 
         rendered = chart.render()

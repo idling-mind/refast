@@ -63,7 +63,9 @@ def test_table_accepts_explicit_style_and_parent_style() -> None:
 
 
 def test_data_table_accepts_explicit_style_and_parent_style() -> None:
-    table = DataTable(columns=[], data=[], style={"fontSize": "12px"}, parent_style={"padding": "4px"})
+    table = DataTable(
+        columns=[], data=[], style={"fontSize": "12px"}, parent_style={"padding": "4px"}
+    )
     rendered = table.render()
 
     assert rendered["props"]["style"] == {"fontSize": "12px"}

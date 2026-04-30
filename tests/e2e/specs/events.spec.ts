@@ -4,10 +4,9 @@ test.describe('Event Handling Tests', () => {
   test('should have callback references in component tree', async ({ page }) => {
     await page.goto('/');
     
-    // Get initial data
-    const initialData = await page.evaluate(() => {
-      return (window as any).__REFAST_INITIAL_DATA__;
-    });
+    // Fetch component tree from the API endpoint
+    const response = await page.request.get('/api/page');
+    const initialData = await response.json();
     
     expect(initialData).toBeDefined();
     
@@ -19,10 +18,9 @@ test.describe('Event Handling Tests', () => {
   test('should render buttons with click handlers', async ({ page }) => {
     await page.goto('/');
     
-    // Check for buttons in the initial data
-    const initialData = await page.evaluate(() => {
-      return (window as any).__REFAST_INITIAL_DATA__;
-    });
+    // Fetch component tree from the API endpoint
+    const response = await page.request.get('/api/page');
+    const initialData = await response.json();
     
     // Find Button components
     const buttons = findComponents(initialData, 'Button');
@@ -74,9 +72,9 @@ test.describe('Event Handling Tests', () => {
   test('should have proper callback structure', async ({ page }) => {
     await page.goto('/');
     
-    const initialData = await page.evaluate(() => {
-      return (window as any).__REFAST_INITIAL_DATA__;
-    });
+    // Fetch component tree from the API endpoint
+    const response = await page.request.get('/api/page');
+    const initialData = await response.json();
     
     // Find callbacks and verify structure
     const callbacks = extractCallbacks(initialData);
@@ -92,9 +90,9 @@ test.describe('State Management', () => {
   test('should have initial state values', async ({ page }) => {
     await page.goto('/');
     
-    const initialData = await page.evaluate(() => {
-      return (window as any).__REFAST_INITIAL_DATA__;
-    });
+    // Fetch component tree from the API endpoint
+    const response = await page.request.get('/api/page');
+    const initialData = await response.json();
     
     // The counter example should show "0" initially
     const textContent = JSON.stringify(initialData);
@@ -104,10 +102,12 @@ test.describe('State Management', () => {
   test('should handle multiple page loads', async ({ page }) => {
     // Load page multiple times
     await page.goto('/');
-    let data1 = await page.evaluate(() => (window as any).__REFAST_INITIAL_DATA__);
+    const res1 = await page.request.get('/api/page');
+    const data1 = await res1.json();
     
     await page.reload();
-    let data2 = await page.evaluate(() => (window as any).__REFAST_INITIAL_DATA__);
+    const res2 = await page.request.get('/api/page');
+    const data2 = await res2.json();
     
     // Both should have valid data
     expect(data1).toBeDefined();

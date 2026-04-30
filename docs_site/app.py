@@ -79,7 +79,9 @@ from .pages.components import (  # noqa: E402
 )
 from .pages.concepts import (  # noqa: E402
     background,
+    bundle_splitting,
     callbacks,
+    file_transfers,
     js_interop,
     routing,
     state,
@@ -138,6 +140,8 @@ NAV_SECTIONS = [
             ("Theming", "/docs/concepts/theming", "palette"),
             ("Toast Notifications", "/docs/concepts/toasts", "bell"),
             ("JavaScript Interop", "/docs/concepts/js-interop", "code"),
+            ("File Uploads & Downloads", "/docs/concepts/file-transfers", "upload"),
+            ("Bundle Splitting", "/docs/concepts/bundle-splitting", "package"),
         ],
     },
     {
@@ -546,6 +550,16 @@ def page_concepts_toasts(ctx: Context):
 @ui.page("/docs/concepts/js-interop")
 def page_concepts_js_interop(ctx: Context):
     return js_interop.render(ctx)
+
+
+@ui.page("/docs/concepts/file-transfers")
+def page_concepts_file_transfers(ctx: Context):
+    return file_transfers.render(ctx)
+
+
+@ui.page("/docs/concepts/bundle-splitting")
+def page_concepts_bundle_splitting(ctx: Context):
+    return bundle_splitting.render(ctx)
 
 
 # Component Reference

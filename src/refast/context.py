@@ -1408,6 +1408,99 @@ class Context(Generic[T]):
                     pass
         return count
 
+    async def create_file_url(
+        self,
+        content: bytes,
+        filename: str,
+        content_type: str = "application/octet-stream",
+        inline: bool = False,
+    ) -> str:
+        """
+        Store bytes in the app's file store and return a URL that serves them.
+
+        This is a general-purpose helper.  Set *inline* to ``True`` so the
+        browser displays the content (images, video, PDF) rather than
+        downloading it.  When *inline* is ``False`` (the default) the browser
+        treats the URL as a download.
+
+        The URL is relative (``/api/file/<uuid>``) so it works regardless of
+        the prefix the user mounted the Refast router under.
+
+        Args:
+            content: Raw bytes to store.
+            filename: Suggested filename (used in ``Content-Disposition``).
+            content_type: MIME type.  Defaults to ``application/octet-stream``.
+            inline: ``True`` → serve with ``Content-Disposition: inline``;
+                ``False`` (default) → ``Content-Disposition: attachment``.
+
+        Returns:
+            A relative URL string (e.g. ``"/api/file/some-uuid"``).
+
+        Raises:
+            RuntimeError: If the app or file store is not available.
+            ValueError: If *content* exceeds the store's size limit.
+
+        Example:
+            ```python
+            async def export_csv(ctx: Context):
+                csv_data = generate_csv()
+                url = await ctx.create_file_url(csv_data, "export.csv", "text/csv")
+                await ctx.trigger_download(url, "export.csv")
+
+            async def show_generated_image(ctx: Context):
+                png_bytes = render_chart()
+                url = await ctx.create_file_url(
+                    png_bytes, "chart.png", "image/png", inline=True
+                )
+                await ctx.update_props("my-image", {"src": url})
+            ```
+        """
+        if self._app is None:
+            raise RuntimeError("Context has no associated app")
+        info = await self._app.file_store.store_file(content, filename, content_type, inline=inline)
+        return f"/api/file/{info.id}"
+
+    async def trigger_download(self, url: str, filename: str) -> None:
+        """
+        Trigger a file download in the browser without any visible UI change.
+
+        Creates a temporary ``<a download>`` element, clicks it, and removes
+        it — the standard browser download trick.  Safe to call from any
+        callback, including from components with ``visible=False``.
+
+        Args:
+            url: The file URL to download.  Use :meth:`create_file_url` to
+                generate a server-side URL, or pass any absolute/relative URL.
+            filename: Suggested save-as filename for the browser.
+
+        Example:
+            ```python
+            async def download_report(ctx: Context):
+                pdf_bytes = generate_pdf()
+                url = await ctx.create_file_url(pdf_bytes, "report.pdf", "application/pdf")
+                await ctx.trigger_download(url, "report.pdf")
+
+            # Trigger a download of an external URL
+            async def export_handler(ctx: Context):
+                await ctx.trigger_download("https://example.com/data.csv", "data.csv")
+            ```
+        """
+        await self.call_js(
+            """
+            (function() {
+                var a = document.createElement('a');
+                a.href = args.url;
+                a.download = args.filename;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            })();
+            """,
+            url=url,
+            filename=filename,
+        )
+
     async def sync_store(self) -> None:
         """
         Sync any pending store updates to the browser.

@@ -5,7 +5,7 @@ import json as json_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 if TYPE_CHECKING:
@@ -70,9 +70,7 @@ def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
     return None
 
 
-def _get_chunk_files(
-    manifest: dict[str, Any], preloaded_features: list[str] | None
-) -> list[str]:
+def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | None) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
     Args:
@@ -186,6 +184,20 @@ class RefastRouter:
             methods=["GET"],
         )
 
+        # File upload endpoint
+        self.api_router.add_api_route(
+            "/api/upload",
+            self._upload_handler,
+            methods=["POST"],
+        )
+
+        # File serving endpoint (used for create_file_url results)
+        self.api_router.add_api_route(
+            "/api/file/{file_id}",
+            self._file_handler,
+            methods=["GET"],
+        )
+
         # Page routes are added dynamically
         self.api_router.add_api_route(
             "/{path:path}",
@@ -274,6 +286,80 @@ class RefastRouter:
             content_type = f"image/{suffix[1:]}"
 
         return FileResponse(file_path, media_type=content_type)
+
+    async def _upload_handler(
+        self,
+        request: Request,
+        files: list[UploadFile] = File(...),
+    ) -> JSONResponse:
+        """Handle multipart file uploads.
+
+        Accepts one or more files via ``multipart/form-data`` under the field
+        name ``files``.  Each file is stored in the app's :attr:`file_store`
+        and its metadata is returned in the response.
+
+        Returns:
+            JSON ``{"files": [{id, name, size, content_type}]}``
+
+        Status codes:
+            * ``400`` – no files supplied
+            * ``413`` – a file exceeds the store's ``max_size_bytes``
+        """
+        if not files:
+            return JSONResponse(
+                content={"error": "No files provided"},
+                status_code=400,
+            )
+
+        results = []
+        store = self.app.file_store
+
+        for upload in files:
+            data = await upload.read()
+            filename = upload.filename or "upload"
+            content_type = upload.content_type or "application/octet-stream"
+
+            try:
+                info = await store.store_file(data, filename, content_type, inline=False)
+            except ValueError as exc:
+                return JSONResponse(
+                    content={"error": str(exc), "file": filename},
+                    status_code=413,
+                )
+
+            results.append(info.to_dict())
+
+        return JSONResponse(content={"files": results})
+
+    async def _file_handler(self, file_id: str) -> Response:
+        """Serve a stored file by ID.
+
+        Returns ``404`` if the file does not exist or has expired.
+        The ``Content-Disposition`` header is set to ``inline`` or
+        ``attachment`` according to how the file was stored.
+        """
+        store = self.app.file_store
+        info = await store.get_file_info(file_id)
+        if info is None:
+            return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+
+        data = await store.get_file(file_id)
+        if data is None:
+            return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+
+        # Sanitise filename for Content-Disposition header
+        safe_name = info.name.replace('"', "").replace("\n", "").replace("\r", "")
+        disposition = "inline" if info.inline else "attachment"
+
+        return Response(
+            content=data,
+            media_type=info.content_type,
+            headers={
+                "Content-Disposition": f'{disposition}; filename="{safe_name}"',
+                "Content-Length": str(len(data)),
+                "Cache-Control": "private, no-store",
+            },
+        )
 
     async def _page_handler(self, request: Request, path: str = "") -> HTMLResponse:
         """Handle page requests."""
@@ -658,7 +744,7 @@ class RefastRouter:
         }} else {{
             window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
         }}
-    </script>""" # noqa: E501
+    </script>"""  # noqa: E501
 
         # --- Theme CSS variable overrides ---
         theme_style = ""

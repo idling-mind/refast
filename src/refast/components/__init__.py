@@ -95,6 +95,7 @@ from refast.components.shadcn import (
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
     Empty,
+    FileUploader,
     Flex,
     Form,
     FormField,
@@ -287,6 +288,8 @@ __all__ = [
     "Badge",
     "Avatar",
     "Tooltip",
+    # File Upload
+    "FileUploader",
     "Tabs",
     "TabItem",
     "Accordion",

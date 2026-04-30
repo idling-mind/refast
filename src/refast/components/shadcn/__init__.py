@@ -51,6 +51,7 @@ from refast.components.shadcn.feedback import (
     Skeleton,
     Spinner,
 )
+from refast.components.shadcn.file_uploader import FileUploader
 from refast.components.shadcn.form import Form, FormField, Label
 from refast.components.shadcn.icon import Icon
 from refast.components.shadcn.input import (
@@ -210,6 +211,8 @@ from refast.components.shadcn.utility import (
 )
 
 __all__ = [
+    # File upload
+    "FileUploader",
     # Layout
     "Row",
     "Column",

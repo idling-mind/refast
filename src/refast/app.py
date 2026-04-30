@@ -8,6 +8,7 @@ from fastapi import APIRouter
 
 from refast.router import RefastRouter
 from refast.theme.theme import Theme
+from refast.utils.temp_file_store import MemoryFileStore, TempFileStore
 
 if TYPE_CHECKING:
     from refast.context import Context
@@ -95,6 +96,7 @@ class RefastApp:
         lazy_extensions: list[str] | None = None,
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
+        file_store: TempFileStore | None = None,
     ):
         self.title = title
         self.theme = theme
@@ -129,6 +131,9 @@ class RefastApp:
         self._event_handlers: dict[str, Callable] = {}
         self._router: RefastRouter | None = None
         self._extensions: dict[str, Extension] = {}
+
+        # File store for upload/download support
+        self.file_store: TempFileStore = file_store if file_store is not None else MemoryFileStore()
 
         # Auto-discover extensions via entry points
         if auto_discover_extensions:

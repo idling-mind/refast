@@ -204,13 +204,20 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   // ── File validation ──────────────────────────────────────────────────────
 
   const validateFiles = useCallback(
-    (files: File[]): { valid: File[]; errors: string[] } => {
+    (files: File[], currentCount = 0): { valid: File[]; errors: string[] } => {
       const errors: string[] = [];
       let valid = files;
 
-      if (maxFiles !== undefined && files.length > maxFiles) {
-        errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
-        valid = files.slice(0, maxFiles);
+      if (maxFiles !== undefined) {
+        const remaining = maxFiles - currentCount;
+        if (remaining <= 0) {
+          errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
+          return { valid: [], errors };
+        }
+        if (files.length > remaining) {
+          errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
+          valid = files.slice(0, remaining);
+        }
       }
 
       if (maxSize !== undefined) {
@@ -326,7 +333,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       }
 
       const fileArr = Array.from(rawFiles);
-      const { valid, errors } = validateFiles(fileArr);
+      const { valid, errors } = validateFiles(fileArr, entries.length);
 
       if (errors.length > 0) {
         setLocalError(errors.join(' '));

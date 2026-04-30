@@ -582,12 +582,15 @@ class RefastRouter:
                 )
 
                 if has_var_keyword:
-                    # Callback accepts **kwargs, pass all data
-                    await callback(ctx, **callback_data)
+                    # Callback accepts **kwargs, pass all data (event_data merged in)
+                    await callback(ctx, **{**event_data_raw, **callback_data})
                 else:
-                    # Filter to only accepted parameters (excluding 'ctx')
+                    # Merge event_data into callback_data so component-driven values
+                    # (e.g. Checkbox checked, Select value) reach named parameters.
+                    # callback_data (bound args / props) takes precedence.
+                    combined_data = {**event_data_raw, **callback_data}
                     accepted_params = {
-                        k: v for k, v in callback_data.items() if k in params and k != "ctx"
+                        k: v for k, v in combined_data.items() if k in params and k != "ctx"
                     }
                     await callback(ctx, **accepted_params)
 
@@ -601,6 +604,7 @@ class RefastRouter:
 
             # Get the page path from the data (sent by frontend)
             page_path = data.get("path", "/")
+            ctx._current_path = page_path
 
             # Find and render the page with the loaded store
             page_func = self.app._pages.get(page_path)
@@ -628,6 +632,7 @@ class RefastRouter:
             page_path = data.get("path", "/")
             if page_path != "/" and page_path.endswith("/"):
                 page_path = page_path.rstrip("/")
+            ctx._current_path = page_path
             page_func = self.app._pages.get(page_path)
             if page_func is None:
                 page_func = self.app._pages.get("/")  # Fallback to index

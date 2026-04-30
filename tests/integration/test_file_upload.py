@@ -108,9 +108,7 @@ class TestUploadEndpoint:
         # Retrieve from store directly to verify storage
         import asyncio
 
-        data = asyncio.get_event_loop().run_until_complete(
-            memory_app.file_store.get_file(file_id)
-        )
+        data = asyncio.run(memory_app.file_store.get_file(file_id))
         assert data == b"stored content"
 
     def test_upload_stores_file_on_disk(self, disk_app, disk_client, tmp_path):

@@ -263,7 +263,7 @@ NAV_SECTIONS = [
             },
             {
                 "label": "Buttons & Actions",
-                "icon": "square-mouse-pointer",
+                "icon": "mouse-pointer-click",
                 "pages": [
                     ("Button", "/docs/components/button", "square"),
                     ("Icon Button", "/docs/components/icon-button", "circle"),

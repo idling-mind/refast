@@ -26,7 +26,9 @@ PAGE_ROUTE = "/docs/components/switch"
 # ── Playground callbacks ──────────────────────────────────────────────────
 
 
-async def _toggle_switch(ctx: Context, checked: bool):
+async def _toggle_switch(ctx: Context):
+    print(ctx.event_data)
+    checked = ctx.event_data.get("value", False)
     ctx.state.set("sw_checked", checked)
     await ctx.refresh()
 

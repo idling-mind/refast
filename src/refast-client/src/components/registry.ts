@@ -13,7 +13,7 @@ import { Input, InputWrapper, Textarea, Select, SelectOption, Checkbox, Radio, R
 import { FileUploader } from './shadcn/file-uploader';
 import { Form, FormField } from './shadcn/form';
 import { Slot } from './shadcn/slot';
-import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label } from './shadcn/typography';
+import { Heading, Paragraph, Link, Code, BlockQuote, List, ListItem, Label, Kbd } from './shadcn/typography';
 import { Alert, AlertTitle, AlertDescription, Badge, Progress, Spinner, Skeleton } from './shadcn/feedback';
 import { ConnectionStatus } from './shadcn/ConnectionStatus';
 import { Icon } from './shadcn/icon';
@@ -316,6 +316,7 @@ componentRegistry.register('BlockQuote', BlockQuote);
 componentRegistry.register('List', List);
 componentRegistry.register('ListItem', ListItem);
 componentRegistry.register('Label', Label);
+componentRegistry.register('Kbd', Kbd);
 
 // Feedback
 componentRegistry.register('Alert', Alert);

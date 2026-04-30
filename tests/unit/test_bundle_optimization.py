@@ -246,8 +246,8 @@ class TestHtmlShell:
         assert response.status_code == 200
         assert "__REFAST_STARTUP_FEATURES__" in response.text
         assert "__REFAST_LAZY_FEATURES__" in response.text
-        assert "\"charts\"" in response.text
-        assert "\"icons\"" in response.text
+        assert '"charts"' in response.text
+        assert '"icons"' in response.text
 
 
 # ═══════════════════════════════════════════════════════════════════════════

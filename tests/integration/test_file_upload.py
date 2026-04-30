@@ -1,7 +1,6 @@
 """Integration tests for the file upload/download HTTP endpoints."""
 
 import io
-import json
 
 import pytest
 from fastapi import FastAPI
@@ -9,7 +8,6 @@ from fastapi.testclient import TestClient
 
 from refast import RefastApp
 from refast.utils.temp_file_store import DiskFileStore, MemoryFileStore
-
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -162,7 +160,6 @@ class TestFileEndpoint:
         assert resp.status_code == 200
 
     def test_expired_file_returns_404(self, memory_app, memory_client):
-        import asyncio
         import time
 
         fid = self._upload(memory_client, b"temp")

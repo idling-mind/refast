@@ -185,12 +185,23 @@ class TestFileUploaderCallbacks:
         assert "callbackId" in props["on_remove"]
 
     def test_all_callbacks_have_different_ids(self, ctx):
-        async def h1(ctx): pass
-        async def h2(ctx): pass
-        async def h3(ctx): pass
-        async def h4(ctx): pass
-        async def h5(ctx): pass
-        async def h6(ctx): pass
+        async def h1(ctx):
+            pass
+
+        async def h2(ctx):
+            pass
+
+        async def h3(ctx):
+            pass
+
+        async def h4(ctx):
+            pass
+
+        async def h5(ctx):
+            pass
+
+        async def h6(ctx):
+            pass
 
         fu = FileUploader(
             on_select=ctx.callback(h1),
@@ -212,7 +223,8 @@ class TestFileUploaderCallbacks:
         assert len(ids) == len(set(ids)), "Callback IDs must be unique"
 
     def test_callback_with_bound_args(self, ctx):
-        async def handler(ctx, folder_id: int): pass
+        async def handler(ctx, folder_id: int):
+            pass
 
         cb = ctx.callback(handler, folder_id=42)
         fu = FileUploader(on_upload_complete=cb)
@@ -220,7 +232,8 @@ class TestFileUploaderCallbacks:
         assert props["on_upload_complete"]["boundArgs"]["folder_id"] == 42
 
     def test_callback_with_throttle(self, ctx):
-        async def handler(ctx): pass
+        async def handler(ctx):
+            pass
 
         cb = ctx.callback(handler, throttle=200)
         fu = FileUploader(on_upload_progress=cb)

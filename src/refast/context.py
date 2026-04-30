@@ -1457,9 +1457,7 @@ class Context(Generic[T]):
         """
         if self._app is None:
             raise RuntimeError("Context has no associated app")
-        info = await self._app.file_store.store_file(
-            content, filename, content_type, inline=inline
-        )
+        info = await self._app.file_store.store_file(content, filename, content_type, inline=inline)
         return f"/api/file/{info.id}"
 
     async def trigger_download(self, url: str, filename: str) -> None:

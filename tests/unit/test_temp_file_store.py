@@ -1,12 +1,10 @@
 """Unit tests for TempFileStore implementations."""
 
-import asyncio
 import time
 
 import pytest
 
 from refast.utils.temp_file_store import DiskFileStore, FileInfo, MemoryFileStore
-
 
 # ─── FileInfo ─────────────────────────────────────────────────────────────────
 

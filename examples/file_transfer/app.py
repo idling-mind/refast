@@ -10,7 +10,6 @@ Demonstrates:
 
 import csv
 import io
-import json
 from datetime import datetime
 from typing import Any
 
@@ -33,7 +32,6 @@ from refast.components import (
     Image,
     Paragraph,
     Row,
-    Separator,
     Text,
 )
 

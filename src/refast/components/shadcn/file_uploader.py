@@ -14,11 +14,9 @@ class FileUploader(Component):
     be enabled/disabled independently via *drag_drop*.
 
     Files are uploaded via a multipart ``POST`` to *upload_url* (which must
-    be served by the same Refast router, or a compatible endpoint).  Upload
-    progress is tracked in the browser and can be reported back to Python
-    via *on_upload_progress*.  Because progress events can fire many times
-    per second, **use the** ``throttle`` **parameter** on that callback to
-    avoid flooding the WebSocket.
+    be served by the same Refast router, or a compatible endpoint).  Per-file
+    progress bars are displayed automatically via XHR ``onprogress`` events
+    inside the component — no server callback is required for progress tracking.
 
     Example:
         ```python
@@ -65,9 +63,6 @@ class FileUploader(Component):
             ``eventData``: ``{ files: [{ name, size, type }] }``
         on_upload_start: Fired when the HTTP upload starts.
             ``eventData``: ``{ files: [{ name, size, type }] }``
-        on_upload_progress: Fired on XHR progress events.
-            ``eventData``: ``{ file: { name }, percent: 0–100, loaded: int, total: int }``
-            Use ``throttle=200`` to limit the WebSocket traffic.
         on_upload_complete: Fired when **all** files have been uploaded.
             ``eventData``: ``{ files: [{ id, name, size, content_type }] }``
         on_upload_error: Fired on a network or server error.
@@ -96,7 +91,6 @@ class FileUploader(Component):
         upload_url: str = "/api/upload",
         on_select: Any = None,
         on_upload_start: Any = None,
-        on_upload_progress: Any = None,
         on_upload_complete: Any = None,
         on_upload_error: Any = None,
         on_remove: Any = None,
@@ -127,7 +121,6 @@ class FileUploader(Component):
         self.upload_url = upload_url
         self.on_select = on_select
         self.on_upload_start = on_upload_start
-        self.on_upload_progress = on_upload_progress
         self.on_upload_complete = on_upload_complete
         self.on_upload_error = on_upload_error
         self.on_remove = on_remove
@@ -158,8 +151,6 @@ class FileUploader(Component):
             props["on_select"] = self.on_select.serialize()
         if self.on_upload_start is not None:
             props["on_upload_start"] = self.on_upload_start.serialize()
-        if self.on_upload_progress is not None:
-            props["on_upload_progress"] = self.on_upload_progress.serialize()
         if self.on_upload_complete is not None:
             props["on_upload_complete"] = self.on_upload_complete.serialize()
         if self.on_upload_error is not None:

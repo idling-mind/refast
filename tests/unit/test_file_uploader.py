@@ -65,7 +65,6 @@ class TestFileUploaderDefaults:
         for key in (
             "on_select",
             "on_upload_start",
-            "on_upload_progress",
             "on_upload_complete",
             "on_upload_error",
             "on_remove",
@@ -156,13 +155,6 @@ class TestFileUploaderCallbacks:
         assert "on_upload_start" in props
         assert "callbackId" in props["on_upload_start"]
 
-    def test_on_upload_progress_serialized(self, ctx):
-        cb = self._make_callback(ctx)
-        fu = FileUploader(on_upload_progress=cb)
-        props = fu.render()["props"]
-        assert "on_upload_progress" in props
-        assert "callbackId" in props["on_upload_progress"]
-
     def test_on_upload_complete_serialized(self, ctx):
         cb = self._make_callback(ctx)
         fu = FileUploader(on_upload_complete=cb)
@@ -200,22 +192,17 @@ class TestFileUploaderCallbacks:
         async def h5(ctx):
             pass
 
-        async def h6(ctx):
-            pass
-
         fu = FileUploader(
             on_select=ctx.callback(h1),
             on_upload_start=ctx.callback(h2),
-            on_upload_progress=ctx.callback(h3),
-            on_upload_complete=ctx.callback(h4),
-            on_upload_error=ctx.callback(h5),
-            on_remove=ctx.callback(h6),
+            on_upload_complete=ctx.callback(h3),
+            on_upload_error=ctx.callback(h4),
+            on_remove=ctx.callback(h5),
         )
         props = fu.render()["props"]
         ids = [
             props["on_select"]["callbackId"],
             props["on_upload_start"]["callbackId"],
-            props["on_upload_progress"]["callbackId"],
             props["on_upload_complete"]["callbackId"],
             props["on_upload_error"]["callbackId"],
             props["on_remove"]["callbackId"],
@@ -230,12 +217,3 @@ class TestFileUploaderCallbacks:
         fu = FileUploader(on_upload_complete=cb)
         props = fu.render()["props"]
         assert props["on_upload_complete"]["boundArgs"]["folder_id"] == 42
-
-    def test_callback_with_throttle(self, ctx):
-        async def handler(ctx):
-            pass
-
-        cb = ctx.callback(handler, throttle=200)
-        fu = FileUploader(on_upload_progress=cb)
-        props = fu.render()["props"]
-        assert props["on_upload_progress"]["throttle"] == 200

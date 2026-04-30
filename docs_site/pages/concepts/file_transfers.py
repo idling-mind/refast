@@ -300,7 +300,6 @@ FileUploader(
     on_select=ctx.callback(on_select),                          # Files selected
     on_upload_complete=ctx.callback(on_done),                   # Upload finished
     on_upload_error=ctx.callback(on_error),                     # Upload failed
-    on_upload_progress=ctx.callback(on_progress, throttle=300), # Progress (ms throttle)
     on_remove=ctx.callback(on_removed),                         # File removed from list
 )
 ```
@@ -312,7 +311,6 @@ FileUploader(
 | `on_select` | `{"files": [{id, name, size, content_type}]}` |
 | `on_upload_complete` | `{"files": [{id, name, size, content_type}]}` |
 | `on_upload_error` | `{"error": "message", "file": {name, ...}}` |
-| `on_upload_progress` | `{"file": {name, ...}, "percent": 0–100}` |
 | `on_remove` | `{"file": {name, size, ...}}` |
 
 ### Reading uploaded file contents
@@ -330,16 +328,6 @@ async def on_done(ctx: Context):
 
 The URL is served by Refast with the correct `Content-Type` header. Use it in an
 `Image` component or any other place that accepts a URL.
-
-### Progress throttling
-
-The `on_upload_progress` callback fires on every chunk by default, which can flood the
-server with events for large files. Use the `throttle` parameter (milliseconds) to
-rate-limit the events:
-
-```python
-on_upload_progress=ctx.callback(on_progress, throttle=300)  # max one call per 300 ms
-```
 """
 
 DOWNLOAD_REFERENCE = r"""

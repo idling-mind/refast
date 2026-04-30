@@ -85,14 +85,17 @@ function diffAndMerge(
   oldTree: ComponentTree,
   newTree: ComponentTree
 ): { tree: ComponentTree; changed: boolean } {
-  // If IDs don't match, replace entirely
-  if (oldTree.id !== newTree.id) {
-    return { tree: newTree, changed: true };
-  }
-  
-  // If types don't match, replace entirely
+  // If types don't match, replace entirely regardless of ID
   if (oldTree.type !== newTree.type) {
     return { tree: newTree, changed: true };
+  }
+
+  // If IDs don't match but types match, the server re-rendered with a new auto-generated
+  // ID (e.g. from uuid4() on every page render). Preserve the OLD id so React keeps the
+  // same component instance alive (same key) and internal state (like upload progress) is
+  // not lost. This mirrors React's own positional reconciliation when no explicit key is set.
+  if (oldTree.id !== newTree.id) {
+    return diffAndMerge(oldTree, { ...newTree, id: oldTree.id });
   }
   
   // Check if props changed

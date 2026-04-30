@@ -45,7 +45,6 @@ interface FileUploaderProps {
   className?: string;
   onSelect?: (eventData: { files: PendingFileInfo[] }) => void;
   onUploadStart?: (eventData: { files: PendingFileInfo[] }) => void;
-  onUploadProgress?: (eventData: { file: PendingFileInfo; percent: number; loaded: number; total: number }) => void;
   onUploadComplete?: (eventData: { files: UploadedFileInfo[] }) => void;
   onUploadError?: (eventData: { error: string; file: PendingFileInfo }) => void;
   onRemove?: (eventData: { file: PendingFileInfo }) => void;
@@ -171,7 +170,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   className,
   onSelect,
   onUploadStart,
-  onUploadProgress,
   onUploadComplete,
   onUploadError,
   onRemove,
@@ -224,12 +222,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             setEntries((prev) =>
               prev.map((en) => (en.localId === entry.localId ? { ...en, progress: percent } : en)),
             );
-            onUploadProgress?.({
-              file: toPendingFileInfo(entry.file),
-              percent,
-              loaded: e.loaded,
-              total: e.total,
-            });
           }
         };
 
@@ -286,7 +278,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         xhr.send(formData);
       });
     },
-    [uploadUrl, onUploadProgress],
+    [uploadUrl],
   );
 
   // ── Handle file selection ────────────────────────────────────────────────

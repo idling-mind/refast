@@ -42,8 +42,8 @@ async def _set_pressed(ctx: Context, value: bool):
     await ctx.refresh()
 
 
-async def _toggle_pressed(ctx: Context, pressed: bool):
-    ctx.state.set("tgl_pressed", pressed)
+async def _toggle_pressed(ctx: Context, value: bool):
+    ctx.state.set("tgl_pressed", value)
     await ctx.refresh()
 
 
@@ -58,8 +58,14 @@ async def _set_group_mode(ctx: Context, value: str):
     await ctx.refresh()
 
 
-async def _group_change(ctx: Context, value):
-    ctx.state.set("tgl_group_value", value)
+async def _group_change(ctx: Context):
+    event = ctx.event_data
+    group_mode = ctx.state.get("tgl_group_mode", "single")
+    if group_mode == "multiple":
+        # multiple mode sends {item_value: bool, ...} — no "value" key
+        ctx.state.set("tgl_group_value", event)
+    else:
+        ctx.state.set("tgl_group_value", event.get("value", ""))
     await ctx.refresh()
 
 

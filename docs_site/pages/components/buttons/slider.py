@@ -2,6 +2,7 @@
 
 Interactive reference page for the Slider component.
 """
+from turtle import st
 
 from refast import Context
 from refast.components import (
@@ -155,10 +156,7 @@ def _playground(ctx: Context):
                         ],
                     ),
                     Container(
-                        class_name=(
-                            "border rounded-lg p-6 flex items-center justify-center bg-muted/30 mb-2 "
-                            + ("min-h-[160px]" if orientation == "vertical" else "min-h-[80px]")
-                        ),
+                        style={"height": "200px"} if orientation == "vertical" else {},
                         children=[
                             Slider(
                                 value=value,
@@ -169,11 +167,6 @@ def _playground(ctx: Context):
                                 disabled=disabled,
                                 show_value=True,
                                 on_value_change=ctx.callback(_set_value),
-                                class_name=(
-                                    "w-full max-w-sm"
-                                    if orientation == "horizontal"
-                                    else "h-40"
-                                ),
                             ),
                         ],
                     ),

@@ -788,3 +788,36 @@ export function Markdown({
     </div>
   );
 }
+
+interface KbdProps {
+  id?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * Kbd component - renders a keyboard key in a styled <kbd> element.
+ */
+export function Kbd({
+  id,
+  className,
+  style,
+  children,
+  'data-refast-id': dataRefastId,
+}: KbdProps): React.ReactElement {
+  return (
+    <kbd
+      id={id}
+      className={cn(
+        'pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground',
+        className
+      )}
+      style={style}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </kbd>
+  );
+}

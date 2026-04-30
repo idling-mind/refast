@@ -1,12 +1,20 @@
 """Temporary file storage for uploaded files."""
 
 import asyncio
+import re
 import time
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+# Strict UUID v4 pattern used to validate externally-supplied file IDs before
+# they are composed into filesystem paths (defence-in-depth).
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -268,7 +276,20 @@ class DiskFileStore(TempFileStore):
         self._cleanup_task: asyncio.Task[None] | None = None
 
     def _file_path(self, file_id: str) -> Path:
-        return self._directory / file_id
+        """Return the filesystem path for *file_id*.
+
+        Raises ``ValueError`` if *file_id* is not a valid UUID to prevent
+        path-traversal attacks in case the ID originates from user input.
+        """
+        if not _UUID_RE.match(file_id):
+            raise ValueError(f"Invalid file ID: {file_id!r}")
+        path = self._directory / file_id
+        # Belt-and-suspenders: ensure the resolved path stays inside the store directory.
+        try:
+            path.resolve().relative_to(self._directory.resolve())
+        except ValueError as exc:
+            raise ValueError(f"Invalid file ID: {file_id!r}") from exc
+        return path
 
     # ── Cleanup ────────────────────────────────────────────────────────────
 

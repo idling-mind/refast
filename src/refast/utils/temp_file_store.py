@@ -82,8 +82,7 @@ class TempFileStore(ABC):
         """Raise :exc:`ValueError` if *data* exceeds :attr:`max_size_bytes`."""
         if self.max_size_bytes is not None and len(data) > self.max_size_bytes:
             raise ValueError(
-                f"File size {len(data)} bytes exceeds the limit of "
-                f"{self.max_size_bytes} bytes"
+                f"File size {len(data)} bytes exceeds the limit of {self.max_size_bytes} bytes"
             )
 
     @abstractmethod

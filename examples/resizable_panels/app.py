@@ -17,7 +17,6 @@ Run with:
     cd examples/resizable_panels
     uvicorn app:app --reload
 """
-import fastapi
 
 from fastapi import FastAPI
 
@@ -38,7 +37,6 @@ from refast.components import (
     ResizablePanel,
     ResizablePanelGroup,
     Row,
-    Separator,
     Text,
 )
 

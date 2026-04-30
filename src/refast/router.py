@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
@@ -70,9 +70,7 @@ def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
     return None
 
 
-def _get_chunk_files(
-    manifest: dict[str, Any], preloaded_features: list[str] | None
-) -> list[str]:
+def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | None) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
     Args:
@@ -746,7 +744,7 @@ class RefastRouter:
         }} else {{
             window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
         }}
-    </script>""" # noqa: E501
+    </script>"""  # noqa: E501
 
         # --- Theme CSS variable overrides ---
         theme_style = ""

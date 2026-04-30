@@ -70,6 +70,27 @@ function nextLocalId(): string {
   return `fu-${++localIdCounter}`;
 }
 
+/** Read a cookie value by name, returning null when absent. */
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Validate that an upload URL is safe to use.
+ * Rejects javascript: and data: schemes; only same-origin or relative paths
+ * are accepted.
+ */
+function isSafeUploadUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    // Only allow same-origin URLs (relative or explicitly same origin)
+    return parsed.origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 interface FileRowProps {
@@ -229,6 +250,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
               const resp: { files: UploadedFileInfo[] } = JSON.parse(xhr.responseText);
+              if (!Array.isArray(resp.files) || resp.files.length === 0) {
+                throw new Error('Empty files array in server response');
+              }
               const uploaded = resp.files[0];
               setEntries((prev) =>
                 prev.map((en) =>
@@ -275,6 +299,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         };
 
         xhr.open('POST', uploadUrl);
+
+        // Forward the CSRF token when the security middleware has set the cookie.
+        const csrfToken = getCookie('csrf_token');
+        if (csrfToken) {
+          xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+        }
+
         xhr.send(formData);
       });
     },
@@ -287,6 +318,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     async (rawFiles: FileList | File[]) => {
       if (disabled) return;
       setLocalError(null);
+
+      // Reject uploads to URLs that are not same-origin to prevent data exfiltration.
+      if (!isSafeUploadUrl(uploadUrl)) {
+        setLocalError('Upload URL is not allowed.');
+        return;
+      }
 
       const fileArr = Array.from(rawFiles);
       const { valid, errors } = validateFiles(fileArr);

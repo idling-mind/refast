@@ -78,6 +78,14 @@ class RefastApp:
             Extensions excluded from this list are loaded at startup.
         extensions: List of Extension instances to register
         auto_discover_extensions: Whether to auto-discover extensions via entry points
+        file_store: Custom :class:`~refast.utils.temp_file_store.TempFileStore` instance.
+            Defaults to an in-memory store with a 10 MiB per-file limit.
+        max_upload_files: Maximum number of files accepted per upload request.
+            Defaults to ``20``.
+        max_upload_size: Maximum **total** upload size in bytes per request.
+            ``None`` means no additional total-size cap beyond what the
+            :attr:`file_store` enforces per individual file.  Defaults to
+            ``None`` (rely on the store's per-file limit).
     """
 
     def __init__(
@@ -97,6 +105,8 @@ class RefastApp:
         extensions: list["Extension"] | None = None,
         auto_discover_extensions: bool = True,
         file_store: TempFileStore | None = None,
+        max_upload_files: int = 20,
+        max_upload_size: int | None = None,
     ):
         self.title = title
         self.theme = theme
@@ -134,6 +144,8 @@ class RefastApp:
 
         # File store for upload/download support
         self.file_store: TempFileStore = file_store if file_store is not None else MemoryFileStore()
+        self.max_upload_files: int = max_upload_files
+        self.max_upload_size: int | None = max_upload_size
 
         # Auto-discover extensions via entry points
         if auto_discover_extensions:

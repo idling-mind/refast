@@ -2,6 +2,9 @@
 
 import asyncio
 import json as json_module
+import re
+import unicodedata
+import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -15,6 +18,27 @@ if TYPE_CHECKING:
 
 # Get the static directory path
 STATIC_DIR = Path(__file__).parent / "static"
+
+# MIME types that browsers may execute as active content — never serve these
+# with their declared type; remap to application/octet-stream.
+_UNSAFE_CONTENT_TYPES: frozenset[str] = frozenset(
+    {
+        "text/html",
+        "text/xml",
+        "application/xhtml+xml",
+        "application/xml",
+        "application/javascript",
+        "application/x-javascript",
+        "text/javascript",
+        "image/svg+xml",
+    }
+)
+
+# UUID format for validating file IDs received from URLs.
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 # All known lazy feature-chunk names (must match vite manualChunks keys)
 ALL_FEATURE_CHUNKS = frozenset(
@@ -210,6 +234,12 @@ class RefastRouter:
         """Serve static files, with support for pre-compressed variants."""
         file_path = STATIC_DIR / filename
 
+        # Prevent path traversal: resolved path must stay inside STATIC_DIR.
+        try:
+            file_path.resolve().relative_to(STATIC_DIR.resolve())
+        except ValueError:
+            return HTMLResponse(content="Not Found", status_code=404)
+
         if not file_path.exists() or not file_path.is_file():
             return HTMLResponse(content="Not Found", status_code=404)
 
@@ -311,13 +341,53 @@ class RefastRouter:
                 status_code=400,
             )
 
+        max_files = self.app.max_upload_files
+        if len(files) > max_files:
+            return JSONResponse(
+                content={
+                    "error": f"Too many files: maximum {max_files} per request"
+                },
+                status_code=400,
+            )
+
         results = []
         store = self.app.file_store
+        total_bytes = 0
 
         for upload in files:
             data = await upload.read()
-            filename = upload.filename or "upload"
-            content_type = upload.content_type or "application/octet-stream"
+
+            # Accumulate total upload size to prevent batch-level DoS.
+            total_bytes += len(data)
+            max_total = self.app.max_upload_size
+            if max_total is not None and total_bytes > max_total:
+                return JSONResponse(
+                    content={"error": "Total upload size exceeds the allowed limit"},
+                    status_code=413,
+                )
+
+            # Sanitize filename: take only the basename, remove control chars
+            # and path separators so it is safe for Content-Disposition headers
+            # and log output.
+            raw_name = upload.filename or "upload"
+            # Strip directory components first, then strip control / dangerous chars.
+            sanitized = Path(raw_name).name
+            sanitized = "".join(
+                c
+                for c in sanitized
+                if unicodedata.category(c)[0] != "C" and c not in ("/", "\\", "\0")
+            ).strip(" .")
+            filename = sanitized or "upload"
+
+            # Sanitize content type: never trust the client for active-content
+            # MIME types that browsers can execute.
+            _raw_ct_full = upload.content_type or "application/octet-stream"
+            raw_ct = _raw_ct_full.split(";")[0].strip().lower()
+            content_type = (
+                "application/octet-stream"
+                if raw_ct in _UNSAFE_CONTENT_TYPES
+                else _raw_ct_full
+            )
 
             try:
                 info = await store.store_file(data, filename, content_type, inline=False)
@@ -338,6 +408,10 @@ class RefastRouter:
         The ``Content-Disposition`` header is set to ``inline`` or
         ``attachment`` according to how the file was stored.
         """
+        # Validate file_id format (defense-in-depth; store checks also guard this).
+        if not _UUID_RE.match(file_id):
+            return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+
         store = self.app.file_store
         info = await store.get_file_info(file_id)
         if info is None:
@@ -347,17 +421,31 @@ class RefastRouter:
         if data is None:
             return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
 
-        # Sanitise filename for Content-Disposition header
-        safe_name = info.name.replace('"', "").replace("\n", "").replace("\r", "")
+        # Sanitize content type: remap active-content MIME types to a safe
+        # binary type so browsers cannot execute uploaded payloads as scripts.
+        serve_ct = info.content_type
+        if serve_ct.split(";")[0].strip().lower() in _UNSAFE_CONTENT_TYPES:
+            serve_ct = "application/octet-stream"
+
+        # Build Content-Disposition with both the legacy ASCII-safe filename
+        # (for older clients) and the RFC 5987 percent-encoded filename* parameter.
         disposition = "inline" if info.inline else "attachment"
+        ascii_name = info.name.encode("ascii", errors="replace").decode().replace('"', "'")
+        encoded_name = urllib.parse.quote(info.name, safe="")
+        content_disposition = (
+            f'{disposition}; filename="{ascii_name}"; filename*=UTF-8\'\'{encoded_name}'
+        )
 
         return Response(
             content=data,
-            media_type=info.content_type,
+            media_type=serve_ct,
             headers={
-                "Content-Disposition": f'{disposition}; filename="{safe_name}"',
+                "Content-Disposition": content_disposition,
                 "Content-Length": str(len(data)),
                 "Cache-Control": "private, no-store",
+                # Belt-and-suspenders: even though SecurityMiddleware adds this
+                # globally, add it here too for deployments that skip the middleware.
+                "X-Content-Type-Options": "nosniff",
             },
         )
 

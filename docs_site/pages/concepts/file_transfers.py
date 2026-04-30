@@ -7,7 +7,6 @@ from datetime import datetime
 from refast import Context
 from refast.components import (
     Alert,
-    Badge,
     Button,
     Card,
     CardContent,
@@ -312,6 +311,35 @@ FileUploader(
 | `on_upload_complete` | `{"files": [{id, name, size, content_type}]}` |
 | `on_upload_error` | `{"error": "message", "file": {name, ...}}` |
 | `on_remove` | `{"file": {name, size, ...}}` |
+
+### App-level upload limits
+
+Configure the maximum number of files and the total upload size per request on
+`RefastApp`. These limits are enforced server-side and apply to every upload
+regardless of what the `FileUploader` component allows client-side.
+
+```python
+from refast import RefastApp
+from refast.utils.temp_file_store import MemoryFileStore
+
+ui = RefastApp(
+    title="My App",
+    # Accept at most 5 files per upload request (default: 20)
+    max_upload_files=5,
+    # Reject a request when the combined size of all files exceeds 50 MB
+    # (default: None — no total-size cap; individual files are still
+    #  capped by the file store's max_size_bytes)
+    max_upload_size=50 * 1024 * 1024,
+    # Per-file size limit inside the store
+    file_store=MemoryFileStore(max_size_bytes=10 * 1024 * 1024),
+)
+```
+
+| Setting | Default | Enforced by |
+|---|---|---|
+| `max_upload_files` | `20` | server — returns `400` when exceeded |
+| `max_upload_size` | `None` (no cap) | server — returns `413` when exceeded |
+| `MemoryFileStore(max_size_bytes=…)` | `10 MiB` | store — returns `413` per file |
 
 ### Reading uploaded file contents
 

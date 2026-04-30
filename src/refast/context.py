@@ -380,6 +380,7 @@ class Context(Generic[T]):
         self._session: Session | None = None
         self._event_data: dict[str, Any] | list[Any] | Any = {}
         self._store_sync_future: asyncio.Future[None] | None = None
+        self._current_path: str = "/"
 
     @property
     def event_data(self) -> dict[str, Any] | list[Any] | Any:
@@ -1082,6 +1083,8 @@ class Context(Generic[T]):
                     "path": path,
                 }
             )
+            # Track the new path so ctx.refresh() targets the correct page
+            self._current_path = path
             # Also render the target page and send its component tree
             if self._app:
                 page_func = self._app._pages.get(path)
@@ -1131,8 +1134,8 @@ class Context(Generic[T]):
                        focus loss in unrelated inputs.
         """
         if self._websocket and self._app:
-            # Default to root path if not specified
-            page_path = path or "/"
+            # Use the path explicitly provided, then the tracked current path, then "/"
+            page_path = path or self._current_path or "/"
 
             # Find and render the page
             page_func = self._app._pages.get(page_path)

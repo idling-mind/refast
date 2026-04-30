@@ -68,7 +68,8 @@ def _playground(ctx: Context):
                         ],
                     ),
                     Container(
-                        class_name="border rounded-lg overflow-hidden h-48",
+                        class_name="border rounded-lg overflow-hidden",
+                        style={"height": "300px"},
                         children=[
                             ResizablePanelGroup(
                                 direction=direction,

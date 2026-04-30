@@ -1,4 +1,5 @@
 import React from 'react';
+import { ExternalLink } from 'lucide-react';
 import { cn } from '../../utils';
 
 /**
@@ -166,6 +167,9 @@ export function Link({
       data-refast-id={dataRefastId}
     >
       {children}
+      {external && (
+        <ExternalLink className="inline-block ml-1 align-middle" size={12} />
+      )}
     </a>
   );
 }

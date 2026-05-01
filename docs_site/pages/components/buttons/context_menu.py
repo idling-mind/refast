@@ -38,15 +38,15 @@ async def _select_action(ctx: Context, action: str):
     await ctx.refresh()
 
 
-async def _toggle_bookmarks(ctx: Context, checked: bool):
-    ctx.state.set("cm_show_bookmarks", checked)
-    ctx.state.set("cm_last_action", f"Show bookmarks: {checked}")
+async def _toggle_bookmarks(ctx: Context, value: bool):
+    ctx.state.set("cm_show_bookmarks", value)
+    ctx.state.set("cm_last_action", f"Show bookmarks: {value}")
     await ctx.refresh()
 
 
-async def _toggle_urls(ctx: Context, checked: bool):
-    ctx.state.set("cm_show_urls", checked)
-    ctx.state.set("cm_last_action", f"Show full URLs: {checked}")
+async def _toggle_urls(ctx: Context, value: bool):
+    ctx.state.set("cm_show_urls", value)
+    ctx.state.set("cm_last_action", f"Show full URLs: {value}")
     await ctx.refresh()
 
 

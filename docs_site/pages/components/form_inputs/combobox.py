@@ -29,7 +29,7 @@ def render(ctx: Context):
             Badge("Not Yet Implemented", variant="secondary", class_name="mb-4"),
             Alert(
                 title="Coming Soon",
-                description=(
+                message=(
                     "The Combobox component is planned but not yet implemented. "
                     "It will provide a searchable dropdown with support for both "
                     "freeform text entry and selecting from a predefined list of options."

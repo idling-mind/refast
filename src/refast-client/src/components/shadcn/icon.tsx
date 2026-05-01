@@ -252,6 +252,8 @@ import {
   HandMetal,
   CheckSquare,
   LayoutDashboard,
+  Share,
+  Share2,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -557,6 +559,8 @@ const iconMap: Record<string, LucideIcon> = {
   'hand-metal': HandMetal,
   'check-square': CheckSquare,
   'layout-dashboard': LayoutDashboard,
+  'share': Share,
+  'share-2': Share2,
 };
 
 export interface IconProps {

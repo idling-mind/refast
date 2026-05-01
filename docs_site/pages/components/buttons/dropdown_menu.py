@@ -45,15 +45,15 @@ async def _select_item(ctx: Context, item: str):
     await ctx.refresh()
 
 
-async def _toggle_show_status_bar(ctx: Context, checked: bool):
-    ctx.state.set("dm_show_status_bar", checked)
-    ctx.state.set("dm_last_action", f"Status bar: {'visible' if checked else 'hidden'}")
+async def _toggle_show_status_bar(ctx: Context, value: bool):
+    ctx.state.set("dm_show_status_bar", value)
+    ctx.state.set("dm_last_action", f"Status bar: {'visible' if value else 'hidden'}")
     await ctx.refresh()
 
 
-async def _toggle_show_activity(ctx: Context, checked: bool):
-    ctx.state.set("dm_show_activity", checked)
-    ctx.state.set("dm_last_action", f"Activity bar: {'visible' if checked else 'hidden'}")
+async def _toggle_show_activity(ctx: Context, value: bool):
+    ctx.state.set("dm_show_activity", value)
+    ctx.state.set("dm_last_action", f"Activity bar: {'visible' if value else 'hidden'}")
     await ctx.refresh()
 
 

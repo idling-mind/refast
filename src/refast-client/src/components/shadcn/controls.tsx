@@ -214,7 +214,7 @@ export function Slider({
       onValueCommit={handleValueCommit}
       className={cn(
         'relative flex w-full touch-none select-none items-center',
-        orientation === 'vertical' && 'flex-col h-full w-auto',
+        orientation === 'vertical' && 'flex-col h-full min-h-48 w-auto',
         className
       )}
     >
@@ -224,7 +224,12 @@ export function Slider({
           orientation === 'horizontal' ? 'h-2 w-full' : 'h-full w-2'
         )}
       >
-        <SliderPrimitive.Range className="absolute bg-primary h-full" />
+        <SliderPrimitive.Range
+          className={cn(
+            'absolute bg-primary',
+            orientation === 'horizontal' ? 'h-full' : 'w-full'
+          )}
+        />
       </SliderPrimitive.Track>
       {thumbValues.map((_, index) => (
         <SliderPrimitive.Thumb
@@ -243,8 +248,8 @@ export function Slider({
     ? (
       <div
         className={cn(
-          'flex items-center gap-3',
-          orientation === 'vertical' && 'flex-col items-start'
+          'flex gap-3',
+          orientation === 'vertical' ? 'flex-row items-start h-full' : 'flex-row items-center'
         )}
       >
         {sliderElement}
@@ -270,7 +275,14 @@ export function Slider({
     );
   }
 
-  return <div data-refast-id={dataRefastId}>{sliderContent}</div>;
+  return (
+    <div
+      className={cn(orientation === 'vertical' && 'h-full')}
+      data-refast-id={dataRefastId}
+    >
+      {sliderContent}
+    </div>
+  );
 }
 
 // ============================================================================

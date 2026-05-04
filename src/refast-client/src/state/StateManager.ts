@@ -275,6 +275,15 @@ export function useStateManager(initialTree?: ComponentTree) {
               window.history.pushState({}, '', message.path);
               // Trigger a custom event for navigation
               window.dispatchEvent(new CustomEvent('refast:navigate', { detail: { path: message.path } }));
+              // Handle scroll after navigation
+              if (message.scroll_to != null) {
+                const behavior = (message.scroll_behavior as ScrollBehavior | undefined) ?? 'instant';
+                if (message.scroll_to === 'top') {
+                  window.scrollTo({ top: 0, behavior });
+                } else {
+                  document.getElementById(message.scroll_to)?.scrollIntoView({ behavior });
+                }
+              }
             }
           }
           break;

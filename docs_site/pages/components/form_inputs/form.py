@@ -26,7 +26,8 @@ PAGE_ROUTE = "/docs/components/form"
 # ── Playground callbacks ──────────────────────────────────────────────────
 
 
-async def _on_submit(ctx: Context, form_data: dict):
+async def _on_submit(ctx: Context):
+    form_data = ctx.event_data
     name = (form_data.get("frm_name") or "").strip()
     email = (form_data.get("frm_email") or "").strip()
 

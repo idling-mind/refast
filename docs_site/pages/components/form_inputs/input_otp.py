@@ -2,16 +2,160 @@
 
 from refast import Context
 from refast.components import (
-    Alert,
-    Badge,
+    Card,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    Column,
     Container,
     Heading,
     Markdown,
+    Row,
+    Select,
     Separator,
+    Text,
+)
+from refast.components.shadcn.controls import (
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSeparator,
+    InputOTPSlot,
 )
 
 PAGE_TITLE = "InputOTP"
 PAGE_ROUTE = "/docs/components/input-otp"
+
+
+# ── Playground callbacks ──────────────────────────────────────────────────
+
+
+async def _set_disabled(ctx: Context, value: bool):
+    ctx.state.set("otp_disabled", value)
+    await ctx.refresh()
+
+
+async def _set_required(ctx: Context, value: bool):
+    ctx.state.set("otp_required", value)
+    await ctx.refresh()
+
+
+async def _set_length(ctx: Context, value: str):
+    ctx.state.set("otp_length", value)
+    ctx.state.set("otp_value", "")
+    ctx.state.set("otp_complete", None)
+    await ctx.refresh()
+
+
+async def _on_change(ctx: Context, value: str):
+    ctx.state.set("otp_value", value)
+    ctx.state.set("otp_complete", None)
+    await ctx.refresh()
+
+
+async def _on_complete(ctx: Context, value: str):
+    ctx.state.set("otp_complete", value)
+    await ctx.refresh()
+
+
+# ── Playground builder ────────────────────────────────────────────────────
+
+
+def _playground(ctx: Context):
+    disabled = ctx.state.get("otp_disabled", False)
+    required = ctx.state.get("otp_required", False)
+    length = int(ctx.state.get("otp_length", "6"))
+    current_value = ctx.state.get("otp_value", "")
+    completed = ctx.state.get("otp_complete", None)
+
+    return Card(
+        children=[
+            CardHeader(title="Interactive Playground"),
+            CardContent(
+                children=[
+                    Row(
+                        gap=4,
+                        wrap=True,
+                        class_name="mb-6",
+                        children=[
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("Length", class_name="text-sm font-medium"),
+                                    Select(
+                                        options=[
+                                            {"value": "4", "label": "4 digits"},
+                                            {"value": "6", "label": "6 digits"},
+                                            {"value": "8", "label": "8 digits"},
+                                        ],
+                                        value=str(length),
+                                        on_change=ctx.callback(_set_length),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("disabled", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="disabled",
+                                        checked=disabled,
+                                        on_change=ctx.callback(_set_disabled),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("required", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="required",
+                                        checked=required,
+                                        on_change=ctx.callback(_set_required),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    Container(
+                        class_name="border rounded-lg p-6 bg-muted/30 flex flex-col items-center gap-4",
+                        children=[
+                            InputOTP(
+                                max_length=length,
+                                disabled=disabled,
+                                required=required,
+                                label="Verification Code",
+                                description="Enter the code sent to your device.",
+                                on_change=ctx.callback(_on_change),
+                                on_complete=ctx.callback(_on_complete),
+                            ),
+                            Text(
+                                f"Value: {current_value or '—'}",
+                                class_name="text-sm text-muted-foreground",
+                            ),
+                            *(
+                                [Text(f"✓ Completed: {completed}", class_name="text-sm text-green-600 font-medium")]
+                                if completed and len(completed) == length
+                                else []
+                            ),
+                        ],
+                    ),
+                    Markdown(
+                        content=(
+                            f"```python\n"
+                            f"InputOTP(\n"
+                            f"    max_length={length},\n"
+                            f"    disabled={disabled},\n"
+                            f"    required={required},\n"
+                            f"    on_change=ctx.callback(handle_change),\n"
+                            f"    on_complete=ctx.callback(handle_complete),\n"
+                            f")\n"
+                            f"```"
+                        )
+                    ),
+                ]
+            ),
+        ]
+    )
 
 
 # ── Render ────────────────────────────────────────────────────────────────
@@ -26,17 +170,9 @@ def render(ctx: Context):
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Badge("Not Yet Implemented", variant="secondary", class_name="mb-4"),
-            Alert(
-                title="Coming Soon",
-                message=(
-                    "The InputOTP family of components is planned but not yet implemented. "
-                    "It will provide accessible one-time password / verification code inputs "
-                    "with configurable length, grouping, and separators."
-                ),
-                variant="default",
-            ),
-            Markdown(content=PLANNED),
+            Markdown(content=INTRO),
+            _playground(ctx),
+            Markdown(content=REFERENCE),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
@@ -44,26 +180,24 @@ def render(ctx: Context):
 
 # ── Content ───────────────────────────────────────────────────────────────
 
-PLANNED = """
-## Planned API
-
-The `InputOTP` family follows the shadcn/ui composable pattern — build your OTP
-input from individual slot and group primitives:
+INTRO = """
+Accessible one-time password input composed from individual slot primitives.
+Supports configurable length, custom grouping, and separators.
 
 ```python
-from refast.components.shadcn.input import (  # not yet available
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-    InputOTPSeparator,
+from refast.components.shadcn.controls import (
+    InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator,
 )
 
-# 6-digit OTP with middle separator
+# Simple 6-digit OTP (auto-layout)
 InputOTP(
     max_length=6,
-    value=otp_value,
-    disabled=False,
-    on_change=ctx.callback(handle_otp_change),
+    on_complete=ctx.callback(handle_complete),
+)
+
+# Custom layout: two groups of 3 separated by a dash
+InputOTP(
+    max_length=6,
     children=[
         InputOTPGroup(children=[
             InputOTPSlot(index=0),
@@ -77,56 +211,31 @@ InputOTP(
             InputOTPSlot(index=5),
         ]),
     ],
-)
-
-# 4-digit PIN (no separator)
-InputOTP(
-    max_length=4,
-    on_change=ctx.callback(handle_pin_change),
-    children=[
-        InputOTPGroup(children=[
-            InputOTPSlot(index=0),
-            InputOTPSlot(index=1),
-            InputOTPSlot(index=2),
-            InputOTPSlot(index=3),
-        ]),
-    ],
+    on_complete=ctx.callback(handle_complete),
 )
 ```
+"""
 
-## Planned Component Props
-
-### InputOTP
+REFERENCE = """
+## InputOTP Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `max_length` | `int` | required | Total number of OTP characters |
+| `max_length` | `int` | `6` | Total number of OTP characters |
 | `value` | `str \\| None` | `None` | Controlled value |
 | `disabled` | `bool` | `False` | Disables all slots |
-| `on_change` | `Callback \\| None` | `None` | Fired with the current OTP string |
-| `children` | `list` | required | `InputOTPGroup` / `InputOTPSeparator` children |
-| `class_name` | `str` | `""` | Extra Tailwind classes |
+| `pattern` | `str \\| None` | `None` | Regex pattern to validate each character |
+| `label` | `str \\| None` | `None` | Label text |
+| `description` | `str \\| None` | `None` | Help text below label |
+| `required` | `bool` | `False` | Shows required asterisk |
+| `error` | `str \\| None` | `None` | Error message |
+| `on_change` | `Callback \\| None` | `None` | Fired with the current OTP string on every keystroke |
+| `on_complete` | `Callback \\| None` | `None` | Fired when all slots are filled |
+| `children` | `list \\| None` | `None` | Custom `InputOTPGroup` / `InputOTPSeparator` layout |
 
-### InputOTPGroup
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `list[InputOTPSlot]` | required | `InputOTPSlot` children |
-| `class_name` | `str` | `""` | Extra Tailwind classes |
-
-### InputOTPSlot
+## InputOTPSlot Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `index` | `int` | required | Zero-based position within the OTP string |
-| `class_name` | `str` | `""` | Extra Tailwind classes |
-
-### InputOTPSeparator
-
-A decorative separator between groups. No required props.
-
-## Workaround
-
-Until `InputOTP` is available, use multiple single-character `Input` fields
-managed with component state, or a single `Input` with `maxlength` + formatting.
+| `index` | `int` | required | Zero-based position within the parent `InputOTP` |
 """

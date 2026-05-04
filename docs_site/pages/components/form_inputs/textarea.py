@@ -118,7 +118,7 @@ def _playground(ctx: Context):
                             Textarea(
                                 name="demo",
                                 label="Demo Textarea",
-                                description="Write as much as you like." if not disabled else None,
+                                description="Write as much as you like.",
                                 placeholder="Enter text…",
                                 rows=rows,
                                 disabled=disabled,

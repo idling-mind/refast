@@ -5,8 +5,6 @@ Interactive reference page for the List and ListItem components.
 
 from refast import Context
 from refast.components import (
-    Badge,
-    Button,
     Card,
     CardContent,
     CardHeader,
@@ -17,7 +15,6 @@ from refast.components import (
     List,
     Markdown,
     Row,
-    Select,
     Separator,
     Text,
 )
@@ -34,11 +31,6 @@ async def _set_ordered(ctx: Context, value: bool):
     await ctx.refresh()
 
 
-async def _set_style(ctx: Context, value: str):
-    ctx.state.set("lst_style", value)
-    await ctx.refresh()
-
-
 # ── Playground builder ────────────────────────────────────────────────────
 
 _ITEMS = [
@@ -52,23 +44,8 @@ _ITEMS = [
 
 def _playground(ctx: Context):
     ordered = ctx.state.get("lst_ordered", False)
-    style = ctx.state.get("lst_style", "plain")
 
-    if style == "badges":
-        items = [
-            Row(
-                align="center",
-                gap=2,
-                children=[
-                    Badge(children=[str(i + 1)], variant="secondary"),
-                    Text(item, class_name="text-sm"),
-                ],
-            )
-            for i, item in enumerate(_ITEMS[:4])
-        ]
-        list_children = items
-    else:
-        list_children = _ITEMS[:4]
+    list_children = _ITEMS[:4]
 
     return Card(
         children=[
@@ -88,20 +65,6 @@ def _playground(ctx: Context):
                                         label="numbered list",
                                         checked=ordered,
                                         on_change=ctx.callback(_set_ordered),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Item style", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "plain", "label": "plain strings"},
-                                            {"value": "badges", "label": "badge rows"},
-                                        ],
-                                        value=style,
-                                        on_change=ctx.callback(_set_style),
                                     ),
                                 ],
                             ),

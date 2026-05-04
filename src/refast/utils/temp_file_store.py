@@ -31,6 +31,11 @@ class FileInfo:
             ``Content-Disposition: inline`` so browsers display it
             (images, video, PDF).  When ``False`` (default) it is served
             with ``Content-Disposition: attachment`` to force a download.
+        user_upload: When ``True`` the file originated from a browser upload
+            and its content type must be sanitized before serving.  When
+            ``False`` (default) the file was produced server-side via
+            :meth:`~refast.context.Context.create_file_url` and its content
+            type is developer-controlled, so it is served as-is.
     """
 
     id: str
@@ -38,6 +43,7 @@ class FileInfo:
     size: int
     content_type: str
     inline: bool = False
+    user_upload: bool = False
     _store: Any = field(default=None, repr=False, compare=False)
 
     async def read(self) -> bytes:
@@ -62,6 +68,8 @@ class FileInfo:
             "size": self.size,
             "content_type": self.content_type,
             "inline": self.inline,
+            # user_upload is intentionally excluded — it is an internal flag
+            # and does not need to be exposed to the browser.
         }
 
 
@@ -100,6 +108,7 @@ class TempFileStore(ABC):
         filename: str,
         content_type: str = "application/octet-stream",
         inline: bool = False,
+        user_upload: bool = False,
     ) -> FileInfo:
         """Store *data* and return a :class:`FileInfo` with a unique ID.
 
@@ -108,6 +117,9 @@ class TempFileStore(ABC):
             filename: Original filename.
             content_type: MIME type.
             inline: Serve inline (``True``) or as attachment (``False``).
+            user_upload: ``True`` when the file comes from a browser upload
+                (content type should be sanitized at serve time).  ``False``
+                (default) for server-generated files.
 
         Raises:
             ValueError: If *data* exceeds :attr:`max_size_bytes`.
@@ -192,6 +204,7 @@ class MemoryFileStore(TempFileStore):
         filename: str,
         content_type: str = "application/octet-stream",
         inline: bool = False,
+        user_upload: bool = False,
     ) -> FileInfo:
         self._validate_size(data)
         file_id = str(uuid.uuid4())
@@ -201,6 +214,7 @@ class MemoryFileStore(TempFileStore):
             size=len(data),
             content_type=content_type,
             inline=inline,
+            user_upload=user_upload,
             _store=self,
         )
         expires_at = time.monotonic() + self.ttl_seconds
@@ -322,6 +336,7 @@ class DiskFileStore(TempFileStore):
         filename: str,
         content_type: str = "application/octet-stream",
         inline: bool = False,
+        user_upload: bool = False,
     ) -> FileInfo:
         self._validate_size(data)
         file_id = str(uuid.uuid4())
@@ -332,6 +347,7 @@ class DiskFileStore(TempFileStore):
             size=len(data),
             content_type=content_type,
             inline=inline,
+            user_upload=user_upload,
             _store=self,
         )
         expires_at = time.monotonic() + self.ttl_seconds

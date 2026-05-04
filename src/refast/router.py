@@ -344,9 +344,7 @@ class RefastRouter:
         max_files = self.app.max_upload_files
         if len(files) > max_files:
             return JSONResponse(
-                content={
-                    "error": f"Too many files: maximum {max_files} per request"
-                },
+                content={"error": f"Too many files: maximum {max_files} per request"},
                 status_code=400,
             )
 
@@ -384,13 +382,13 @@ class RefastRouter:
             _raw_ct_full = upload.content_type or "application/octet-stream"
             raw_ct = _raw_ct_full.split(";")[0].strip().lower()
             content_type = (
-                "application/octet-stream"
-                if raw_ct in _UNSAFE_CONTENT_TYPES
-                else _raw_ct_full
+                "application/octet-stream" if raw_ct in _UNSAFE_CONTENT_TYPES else _raw_ct_full
             )
 
             try:
-                info = await store.store_file(data, filename, content_type, inline=False)
+                info = await store.store_file(
+                    data, filename, content_type, inline=False, user_upload=True
+                )
             except ValueError as exc:
                 return JSONResponse(
                     content={"error": str(exc), "file": filename},
@@ -423,8 +421,10 @@ class RefastRouter:
 
         # Sanitize content type: remap active-content MIME types to a safe
         # binary type so browsers cannot execute uploaded payloads as scripts.
+        # Only apply to user-uploaded files — server-generated files (stored
+        # via ctx.create_file_url) are developer-controlled and served as-is.
         serve_ct = info.content_type
-        if serve_ct.split(";")[0].strip().lower() in _UNSAFE_CONTENT_TYPES:
+        if info.user_upload and serve_ct.split(";")[0].strip().lower() in _UNSAFE_CONTENT_TYPES:
             serve_ct = "application/octet-stream"
 
         # Build Content-Disposition with both the legacy ASCII-safe filename
@@ -433,7 +433,7 @@ class RefastRouter:
         ascii_name = info.name.encode("ascii", errors="replace").decode().replace('"', "'")
         encoded_name = urllib.parse.quote(info.name, safe="")
         content_disposition = (
-            f'{disposition}; filename="{ascii_name}"; filename*=UTF-8\'\'{encoded_name}'
+            f"{disposition}; filename=\"{ascii_name}\"; filename*=UTF-8''{encoded_name}"
         )
 
         return Response(

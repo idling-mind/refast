@@ -1066,7 +1066,12 @@ class Context(Generic[T]):
                 }
             )
 
-    async def load(self, path: str) -> None:
+    async def load(
+        self,
+        path: str,
+        scroll_to: str | None = "top",
+        scroll_behavior: str = "instant",
+    ) -> None:
         """Load a different page.
 
         Sends a navigate message to update the browser URL, then renders
@@ -1075,12 +1080,20 @@ class Context(Generic[T]):
 
         Args:
             path: The target page path (e.g. "/docs/getting-started").
+            scroll_to: Where to scroll after navigation. Use ``"top"`` (default)
+                to scroll to the top of the page, an element ID (e.g.
+                ``"hero-section"``) to scroll that element into view, or
+                ``None`` to leave the scroll position unchanged.
+            scroll_behavior: The scroll animation style — ``"instant"``
+                (default, no animation) or ``"smooth"``.
         """
         if self._websocket:
             await self._websocket.send_json(
                 {
                     "type": "navigate",
                     "path": path,
+                    "scroll_to": scroll_to,
+                    "scroll_behavior": scroll_behavior,
                 }
             )
             # Track the new path so ctx.refresh() targets the correct page

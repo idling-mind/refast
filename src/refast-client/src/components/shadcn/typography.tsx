@@ -414,6 +414,14 @@ export function List({
 }: ListProps): React.ReactElement {
   const Tag = ordered ? 'ol' : 'ul';
 
+  // Auto-wrap children that aren't already <li> elements
+  const wrappedChildren = React.Children.map(children, (child) => {
+    if (React.isValidElement(child) && (child.type === 'li' || (child as React.ReactElement<{ className?: string }>).props?.className?.includes('list-item'))) {
+      return child;
+    }
+    return <li>{child}</li>;
+  });
+
   return (
     <Tag
       id={id}
@@ -426,7 +434,7 @@ export function List({
       style={style}
       data-refast-id={dataRefastId}
     >
-      {children}
+      {wrappedChildren}
     </Tag>
   );
 }

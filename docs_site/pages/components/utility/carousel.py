@@ -1,4 +1,5 @@
 """Carousel — /docs/components/carousel."""
+from turtle import st
 
 from refast import Context
 from refast.components import (
@@ -57,7 +58,7 @@ def _playground(ctx: Context):
         CarouselItem(
             children=[
                 Container(
-                    class_name=f"h-40 rounded-lg bg-gradient-to-br {gradient} flex flex-col items-center justify-center gap-2",
+                    class_name=f"rounded-lg bg-gradient-to-br {gradient} flex flex-col items-center justify-center gap-2",
                     children=[
                         Text(emoji, class_name="text-4xl"),
                         Text(label, class_name="text-white font-semibold"),
@@ -111,12 +112,14 @@ def _playground(ctx: Context):
                             Carousel(
                                 orientation=orientation,
                                 loop=loop,
+                                id=f"carousel-demo-{orientation}-{'loop' if loop else 'noloop'}",
                                 class_name="w-full max-w-lg mx-auto",
                                 children=[
                                     CarouselContent(children=items),
                                     CarouselPrevious(),
                                     CarouselNext(),
                                 ],
+                                style={"height": "200px"},
                             ),
                         ],
                     ),

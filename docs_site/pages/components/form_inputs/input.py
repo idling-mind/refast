@@ -126,7 +126,7 @@ def _playground(ctx: Context):
                             Input(
                                 name="demo",
                                 label="Demo Input",
-                                description="Type something here." if not disabled else None,
+                                description="Type something here.",
                                 placeholder="Enter text…",
                                 type=inp_type,
                                 disabled=disabled,

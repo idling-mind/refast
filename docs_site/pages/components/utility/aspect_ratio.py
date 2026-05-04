@@ -81,7 +81,7 @@ def _playground(ctx: Context):
                                 ratio=ratio_val,
                                 children=[
                                     Container(
-                                        class_name="w-full h-full rounded-lg bg-gradient-to-br from-primary/30 to-primary/60 flex items-center justify-center",
+                                        class_name="w-full h-full rounded-lg bg-muted border-2 border-border flex items-center justify-center",
                                         children=[
                                             Text(
                                                 ratio_key.replace("/", " : "),

@@ -1,17 +1,174 @@
 """Combobox — /docs/components/combobox."""
-
 from refast import Context
 from refast.components import (
     Alert,
     Badge,
+    Card,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    Column,
     Container,
     Heading,
     Markdown,
+    Row,
     Separator,
+    Text,
 )
+from refast.components.shadcn.controls import Combobox, ComboboxOption
 
 PAGE_TITLE = "Combobox"
 PAGE_ROUTE = "/docs/components/combobox"
+
+_FRAMEWORK_OPTIONS = [
+    {"value": "next", "label": "Next.js", "description": "The React Framework"},
+    {"value": "react", "label": "React", "description": "A UI library"},
+    {"value": "vue", "label": "Vue", "description": "The Progressive Framework"},
+    {"value": "svelte", "label": "Svelte", "description": "Cybernetically enhanced"},
+    {"value": "astro", "label": "Astro", "description": "Build faster websites"},
+    {"value": "nuxt", "label": "Nuxt", "description": "The Intuitive Vue Framework"},
+    {"value": "remix", "label": "Remix", "description": "Full stack web framework"},
+]
+
+_FRAMEWORK_OPTIONS_ITEMS = [ComboboxOption(**opt) for opt in _FRAMEWORK_OPTIONS]
+
+
+# ── Playground callbacks ──────────────────────────────────────────────────
+
+
+async def _set_disabled(ctx: Context, value: bool):
+    ctx.state.set("cmb_disabled", value)
+    await ctx.refresh()
+
+
+async def _set_required(ctx: Context, value: bool):
+    ctx.state.set("cmb_required", value)
+    await ctx.refresh()
+
+
+async def _set_multiselect(ctx: Context, value: bool):
+    ctx.state.set("cmb_multi", value)
+    ctx.state.set("cmb_value", None)
+    await ctx.refresh()
+
+
+async def _set_error(ctx: Context, value: bool):
+    ctx.state.set("cmb_error", value)
+    await ctx.refresh()
+
+
+async def _on_select(ctx: Context, value):
+    ctx.state.set("cmb_value", value)
+    await ctx.refresh()
+
+
+# ── Playground builder ────────────────────────────────────────────────────
+
+
+def _playground(ctx: Context):
+    disabled = ctx.state.get("cmb_disabled", False)
+    required = ctx.state.get("cmb_required", False)
+    multiselect = ctx.state.get("cmb_multi", False)
+    show_error = ctx.state.get("cmb_error", False)
+    selected = ctx.state.get("cmb_value", None)
+
+    return Card(
+        children=[
+            CardHeader(title="Interactive Playground"),
+            CardContent(
+                children=[
+                    Row(
+                        gap=4,
+                        wrap=True,
+                        class_name="mb-6",
+                        children=[
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("disabled", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="disabled",
+                                        checked=disabled,
+                                        on_change=ctx.callback(_set_disabled),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("required", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="required",
+                                        checked=required,
+                                        on_change=ctx.callback(_set_required),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("multiselect", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="multiselect",
+                                        checked=multiselect,
+                                        on_change=ctx.callback(_set_multiselect),
+                                    ),
+                                ],
+                            ),
+                            Column(
+                                gap=1,
+                                children=[
+                                    Text("error", class_name="text-sm font-medium"),
+                                    Checkbox(
+                                        label="show error",
+                                        checked=show_error,
+                                        on_change=ctx.callback(_set_error),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    Container(
+                        class_name="border rounded-lg p-6 bg-muted/30",
+                        children=[
+                            Combobox(
+                                label="Framework",
+                                description="Choose your primary framework.",
+                                options=_FRAMEWORK_OPTIONS_ITEMS,
+                                value=selected,
+                                placeholder="Select framework\u2026",
+                                search_placeholder="Search frameworks\u2026",
+                                empty_text="No frameworks found.",
+                                multiselect=multiselect,
+                                disabled=disabled,
+                                required=required,
+                                error="Please select an option." if show_error else None,
+                                on_select=ctx.callback(_on_select),
+                            )
+                        ],
+                    ),
+                    Markdown(
+                        content=(
+                            f"```python\n"
+                            f"Combobox(\n"
+                            f'    label="Framework",\n'
+                            f"    options=[\n"
+                            f'        {{"value": "next", "label": "Next.js", "description": "The React Framework"}},\n'
+                            f"        ...\n"
+                            f"    ],\n"
+                            f'    placeholder="Select framework\u2026",\n'
+                            f"    multiselect={multiselect},\n"
+                            f"    disabled={disabled},\n"
+                            f"    required={required},\n"
+                            f"    on_select=ctx.callback(handle_select),\n"
+                            f")\n"
+                            f"```"
+                        )
+                    ),
+                ]
+            ),
+        ]
+    )
 
 
 # ── Render ────────────────────────────────────────────────────────────────
@@ -26,17 +183,9 @@ def render(ctx: Context):
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Badge("Not Yet Implemented", variant="secondary", class_name="mb-4"),
-            Alert(
-                title="Coming Soon",
-                message=(
-                    "The Combobox component is planned but not yet implemented. "
-                    "It will provide a searchable dropdown with support for both "
-                    "freeform text entry and selecting from a predefined list of options."
-                ),
-                variant="default",
-            ),
-            Markdown(content=PLANNED),
+            Markdown(content=INTRO),
+            _playground(ctx),
+            Markdown(content=REFERENCE),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
@@ -44,53 +193,56 @@ def render(ctx: Context):
 
 # ── Content ───────────────────────────────────────────────────────────────
 
-PLANNED = """
-## Planned API
-
-Once implemented, `Combobox` will provide a searchable dropdown that combines
-free-text input with option selection:
+INTRO = """
+A searchable dropdown with type-ahead filtering and optional multi-select.
+Options are dicts with required `value` and `label` keys.
 
 ```python
-from refast.components.shadcn.input import Combobox  # not yet available
+from refast.components.shadcn.controls import Combobox
 
 Combobox(
-    name="framework",
     label="Framework",
-    placeholder="Search frameworks…",
     options=[
+        {"value": "next", "label": "Next.js"},
         {"value": "react", "label": "React"},
         {"value": "vue", "label": "Vue"},
-        {"value": "svelte", "label": "Svelte"},
     ],
-    value=selected_value,
-    disabled=False,
-    on_change=ctx.callback(handle_change),
+    placeholder="Select framework\u2026",
+    on_select=ctx.callback(handle_select),
 )
 ```
+"""
 
-## Planned Props
+REFERENCE = """
+## Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `options` | `list[dict]` | required | List of `{"value": str, "label": str}` dicts |
-| `name` | `str \\| None` | `None` | HTML name attribute |
+| `options` | `list[dict]` | `[]` | Options with required `value` and `label` keys |
+| `value` | `str \\| list[str] \\| None` | `None` | Controlled selected value(s) |
+| `placeholder` | `str` | `"Select..."` | Trigger text when nothing is selected |
+| `search_placeholder` | `str` | `"Search..."` | Placeholder in the search input |
+| `empty_text` | `str` | `"No results found."` | Text when no options match |
+| `multiselect` | `bool` | `False` | Allow selecting multiple values |
+| `disabled` | `bool` | `False` | Disables interaction |
 | `label` | `str \\| None` | `None` | Label text |
 | `description` | `str \\| None` | `None` | Help text below label |
-| `value` | `str \\| None` | `None` | Controlled selected value |
-| `placeholder` | `str` | `"Search…"` | Input placeholder text |
-| `disabled` | `bool` | `False` | Disables interaction |
+| `required` | `bool` | `False` | Shows required asterisk |
 | `error` | `str \\| None` | `None` | Error message |
-| `on_change` | `Callback \\| None` | `None` | Fired when selection changes |
-| `class_name` | `str` | `""` | Extra Tailwind classes |
+| `on_select` | `Callback \\| None` | `None` | Fired when selection changes |
 
-## Use For
+## Rich Options
 
-- Large option sets that benefit from search/filtering
-- User-typed values that map to a canonical option
-- Autocomplete-style inputs
+Options can include optional metadata for richer display:
 
-## Use `Select` Instead When
-
-- The option list is short (< 10 items)
-- Free-text entry is not needed
+```python
+options=[
+    {
+        "value": "python",
+        "label": "Python",
+        "description": "A versatile language",
+        "icon": "Code",
+    },
+]
+```
 """

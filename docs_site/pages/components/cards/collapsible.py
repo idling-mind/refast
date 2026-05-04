@@ -5,7 +5,6 @@ Interactive reference page for the Collapsible component family.
 
 from refast import Context
 from refast.components import (
-    Button,
     Card,
     CardContent,
     CardHeader,
@@ -59,17 +58,6 @@ def _playground(ctx: Context):
                             Column(
                                 gap=1,
                                 children=[
-                                    Text("Open", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="open",
-                                        checked=is_open,
-                                        on_change=ctx.callback(_toggle_open),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
                                     Text("Disabled", class_name="text-sm font-medium"),
                                     Checkbox(
                                         label="disabled",
@@ -80,28 +68,25 @@ def _playground(ctx: Context):
                             ),
                         ],
                     ),
-                    # Live preview — controlled mode
+                    # Live preview — controlled via on_open_change
                     Container(
                         class_name="border rounded-lg p-6 bg-muted/30",
                         children=[
                             Text(
-                                "Controlled collapsible (Python manages open state):",
+                                "Click the button to toggle (Python manages open state via on_open_change):",
                                 class_name="text-sm text-muted-foreground mb-3",
                             ),
                             Collapsible(
                                 open=is_open,
                                 disabled=disabled,
+                                on_open_change=ctx.callback(_toggle_open),
                                 children=[
                                     CollapsibleTrigger(
+                                        as_child=False,
+                                        class_name="flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent cursor-pointer",
                                         children=[
-                                            Button(
-                                                "Toggle section ↕",
-                                                variant="outline",
-                                                on_click=ctx.callback(
-                                                    _toggle_open, value=not is_open
-                                                ),
-                                            )
-                                        ]
+                                            Text("Toggle section \u2195"),
+                                        ],
                                     ),
                                     CollapsibleContent(
                                         children=[

@@ -197,6 +197,7 @@ interface CarouselContextType {
   scrollNext: () => void;
   canScrollPrev: boolean;
   canScrollNext: boolean;
+  orientation: 'horizontal' | 'vertical';
 }
 
 const CarouselContext = React.createContext<CarouselContextType | null>(null);
@@ -212,11 +213,13 @@ function useCarousel() {
 export interface CarouselProps extends BaseProps, ChildrenProp {
   orientation?: 'horizontal' | 'vertical';
   opts?: Parameters<typeof useEmblaCarousel>[0];
+  loop?: boolean;
 }
 
 export function Carousel({
   orientation = 'horizontal',
   opts,
+  loop = false,
   className,
   children,
   ...props
@@ -224,6 +227,7 @@ export function Carousel({
   const [carouselRef, api] = useEmblaCarousel({
     ...opts,
     axis: orientation === 'horizontal' ? 'x' : 'y',
+    loop,
   });
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
@@ -261,10 +265,11 @@ export function Carousel({
         scrollNext,
         canScrollPrev,
         canScrollNext,
+        orientation,
       }}
     >
       <div
-        className={cn('relative', className)}
+        className={cn('relative', orientation === 'vertical' && 'min-h-64', className)}
         role="region"
         aria-roledescription="carousel"
         {...props}
@@ -282,11 +287,11 @@ export function CarouselContent({
   children,
   ...props
 }: CarouselContentProps) {
-  const { carouselRef } = useCarousel();
+  const { carouselRef, orientation } = useCarousel();
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
-      <div className={cn('flex', className)} {...props}>
+    <div ref={carouselRef} className={cn('overflow-hidden h-full')}>
+      <div className={cn('flex h-full', orientation === 'vertical' ? 'flex-col' : '-ml-4', className)} {...props}>
         {children}
       </div>
     </div>
@@ -304,7 +309,11 @@ export function CarouselItem({
     <div
       role="group"
       aria-roledescription="slide"
-      className={cn('min-w-0 shrink-0 grow-0 basis-full', className)}
+      className={cn(
+        'min-w-0 shrink-0 grow-0 basis-full',
+        'h-full flex items-center justify-center',
+        className
+      )}
       {...props}
     >
       {children}
@@ -321,13 +330,16 @@ export function CarouselPrevious({
   onClick,
   ...props
 }: CarouselPreviousProps) {
-  const { scrollPrev, canScrollPrev } = useCarousel();
+  const { scrollPrev, canScrollPrev, orientation } = useCarousel();
 
   return (
     <button
       type="button"
       className={cn(
-        'absolute left-2 top-1/2 -translate-y-1/2 z-10',
+        'absolute z-10',
+        orientation === 'vertical'
+          ? 'top-2 left-1/2 -translate-x-1/2'
+          : 'left-2 top-1/2 -translate-y-1/2',
         'inline-flex h-8 w-8 items-center justify-center rounded-full',
         'border bg-background shadow-sm',
         'disabled:pointer-events-none disabled:opacity-50',
@@ -341,20 +353,15 @@ export function CarouselPrevious({
       }}
       {...props}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-4 w-4"
-      >
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
+      {orientation === 'vertical' ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <polyline points="18 15 12 9 6 15" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      )}
       <span className="sr-only">Previous slide</span>
     </button>
   );
@@ -369,13 +376,16 @@ export function CarouselNext({
   onClick,
   ...props
 }: CarouselNextProps) {
-  const { scrollNext, canScrollNext } = useCarousel();
+  const { scrollNext, canScrollNext, orientation } = useCarousel();
 
   return (
     <button
       type="button"
       className={cn(
-        'absolute right-2 top-1/2 -translate-y-1/2 z-10',
+        'absolute z-10',
+        orientation === 'vertical'
+          ? 'bottom-2 left-1/2 -translate-x-1/2'
+          : 'right-2 top-1/2 -translate-y-1/2',
         'inline-flex h-8 w-8 items-center justify-center rounded-full',
         'border bg-background shadow-sm',
         'disabled:pointer-events-none disabled:opacity-50',
@@ -389,20 +399,15 @@ export function CarouselNext({
       }}
       {...props}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-4 w-4"
-      >
-        <polyline points="9 18 15 12 9 6" />
-      </svg>
+      {orientation === 'vertical' ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      )}
       <span className="sr-only">Next slide</span>
     </button>
   );

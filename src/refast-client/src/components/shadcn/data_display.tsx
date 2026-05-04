@@ -158,10 +158,19 @@ AccordionContent.displayName = 'AccordionContent';
 // Table Components
 // ============================================================================
 
+interface TableContextType {
+  striped: boolean;
+  hoverable: boolean;
+}
+
+const TableContext = React.createContext<TableContextType>({ striped: false, hoverable: true });
+
 interface TableProps {
   id?: string;
   className?: string;
   children?: React.ReactNode;
+  striped?: boolean;
+  hoverable?: boolean;
   'data-refast-id'?: string;
 }
 
@@ -172,9 +181,12 @@ export function Table({
   id,
   className,
   children,
+  striped = false,
+  hoverable = true,
   'data-refast-id': dataRefastId,
 }: TableProps): React.ReactElement {
   return (
+    <TableContext.Provider value={{ striped, hoverable }}>
     <div className="relative w-full overflow-auto" data-refast-id={dataRefastId}>
       <table
         id={id}
@@ -183,6 +195,7 @@ export function Table({
         {children}
       </table>
     </div>
+    </TableContext.Provider>
   );
 }
 
@@ -256,11 +269,14 @@ export function TableRow({
   children,
   'data-refast-id': dataRefastId,
 }: TableRowProps): React.ReactElement {
+  const { striped, hoverable } = React.useContext(TableContext);
   return (
     <tr
       id={id}
       className={cn(
-        'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+        'border-b transition-colors data-[state=selected]:bg-muted',
+        hoverable && 'hover:bg-muted/50',
+        striped && 'even:bg-muted/30',
         className
       )}
       data-refast-id={dataRefastId}

@@ -663,7 +663,10 @@ export function Markdown({
     ),
     // Code with syntax highlighting
     code: ({ className, children }) => {
-      const isInline = !className;
+      // Fenced code blocks (even without a language) always end with a trailing \n;
+      // inline code does not.  Using only !className incorrectly treats no-language
+      // fenced blocks as inline code.
+      const isInline = !className && !String(children).endsWith('\n');
       if (isInline) {
         return (
           <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">

@@ -341,32 +341,32 @@ class TestRadio:
     """Tests for Radio component."""
 
     def test_radio_renders(self):
-        """Test Radio renders correctly."""
-        radio = Radio(name="size", value="small", label="Small")
+        """Test Radio renders correctly with required value and optional label."""
+        radio = Radio(value="small", label="Small")
         rendered = radio.render()
         assert rendered["type"] == "Radio"
-        assert rendered["props"]["name"] == "size"
         assert rendered["props"]["value"] == "small"
         assert rendered["props"]["label"] == "Small"
 
-    def test_radio_without_name(self):
-        """Radio should allow omitting name while still rendering value."""
-        radio = Radio(value="large", label="Large")
+    def test_radio_minimal(self):
+        """Radio should render with only a value."""
+        radio = Radio(value="large")
         rendered = radio.render()
-        assert "name" not in rendered["props"]
+        assert rendered["props"]["value"] == "large"
+        assert rendered["props"]["label"] is None
 
-    def test_radio_checked(self):
-        """Test Radio checked state."""
-        radio = Radio(name="size", value="large", checked=True)
+    def test_radio_disabled(self):
+        """Test Radio disabled state."""
+        radio = Radio(value="large", disabled=True)
         rendered = radio.render()
-        assert rendered["props"]["checked"] is True
+        assert rendered["props"]["disabled"] is True
 
-    def test_radio_with_callback(self):
-        """Test Radio with on_change callback."""
-        cb = MockCallback()
-        radio = Radio(name="test", value="a", on_change=cb)
+    def test_radio_with_children(self):
+        """Radio accepts children for complex option content."""
+        inner = Radio(value="inner", label="Nested")
+        radio = Radio(value="enterprise", children=[inner])
         rendered = radio.render()
-        assert rendered["props"]["on_change"] == {"callbackId": "cb-123"}
+        assert len(rendered["children"]) == 1
 
 
 class TestCheckboxGroup:
@@ -448,9 +448,9 @@ class TestRadioGroup:
     def test_radio_group_renders(self):
         """Test RadioGroup renders correctly."""
         children = [
-            Radio(name="gender", value="male", label="Male"),
-            Radio(name="gender", value="female", label="Female"),
-            Radio(name="gender", value="other", label="Other"),
+            Radio(value="male", label="Male"),
+            Radio(value="female", label="Female"),
+            Radio(value="other", label="Other"),
         ]
         rg = RadioGroup(name="gender", children=children)
         rendered = rg.render()
@@ -469,7 +469,7 @@ class TestRadioGroup:
         rg = RadioGroup(
             name="gender",
             label="Select gender",
-            children=[Radio(name="gender", value="male", label="Male")],
+            children=[Radio(value="male", label="Male")],
         )
         rendered = rg.render()
         assert rendered["props"]["label"] == "Select gender"
@@ -477,8 +477,8 @@ class TestRadioGroup:
     def test_radio_group_with_selected_value(self):
         """Test RadioGroup with pre-selected value."""
         children = [
-            Radio(name="choice", value="a", label="A"),
-            Radio(name="choice", value="b", label="B"),
+            Radio(value="a", label="A"),
+            Radio(value="b", label="B"),
         ]
         rg = RadioGroup(name="choice", children=children, value="b")
         rendered = rg.render()

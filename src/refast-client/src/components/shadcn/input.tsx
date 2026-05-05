@@ -76,12 +76,18 @@ export function InputWrapper({
   );
 }
 
-// Type for options array used in RadioGroup and CheckboxGroup
-interface OptionItem {
-  value: string;
-  label: string;
-  disabled?: boolean;
+// ============================================================================
+// CheckboxGroup context — propagates group state through ComponentRenderer
+// wrappers so Checkbox children can read checked/name/disabled without cloneElement.
+// ============================================================================
+interface CheckboxGroupContextValue {
+  groupValue: string[];
+  onItemChange: (value: string, checked: boolean) => void;
+  groupName: string | null | undefined;
+  groupDisabled: boolean;
 }
+
+const CheckboxGroupContext = React.createContext<CheckboxGroupContextValue | null>(null);
 
 interface InputProps {
   id?: string;
@@ -613,6 +619,10 @@ interface CheckboxProps {
 
 /**
  * Checkbox component - shadcn-styled checkbox with label, description, and error support.
+ *
+ * When rendered inside a CheckboxGroupContext (i.e. as a child of CheckboxGroup,
+ * even through ComponentRenderer wrappers), the group context drives checked
+ * state and change handling. Direct props still work for standalone usage.
  */
 export function Checkbox({
   id,
@@ -633,18 +643,32 @@ export function Checkbox({
   const generatedId = React.useId();
   const checkboxId = id || generatedId;
 
-  const [localChecked, setLocalChecked] = React.useState(checked !== undefined ? checked : (defaultChecked || false));
+  // Consume group context when available
+  const groupCtx = React.useContext(CheckboxGroupContext);
+  const isGrouped = groupCtx !== null && value !== undefined;
+
+  const resolvedChecked = isGrouped ? groupCtx.groupValue.includes(value as string) : checked;
+  const resolvedDisabled = isGrouped ? (groupCtx.groupDisabled || disabled) : disabled;
+  const resolvedName = isGrouped ? (groupCtx.groupName ?? undefined) : (name ?? undefined);
+
+  const [localChecked, setLocalChecked] = React.useState(
+    resolvedChecked !== undefined ? resolvedChecked : (defaultChecked || false)
+  );
 
   React.useEffect(() => {
-    if (checked !== undefined) {
-      setLocalChecked(checked);
+    if (resolvedChecked !== undefined) {
+      setLocalChecked(resolvedChecked);
     }
-  }, [checked]);
+  }, [resolvedChecked]);
 
   const handleCheckedChange = (checkedState: boolean | 'indeterminate') => {
     const newChecked = checkedState === true;
-    setLocalChecked(newChecked);
-    if (onCheckedChange) {
+    if (!isGrouped) {
+      setLocalChecked(newChecked);
+    }
+    if (isGrouped && value !== undefined) {
+      groupCtx.onItemChange(value, newChecked);
+    } else if (onCheckedChange) {
       onCheckedChange(newChecked);
     }
   };
@@ -653,11 +677,11 @@ export function Checkbox({
     <div className="flex items-center space-x-2">
       <CheckboxPrimitive.Root
         id={checkboxId}
-        name={name || undefined}
+        name={resolvedName}
         value={value}
-        checked={localChecked}
-        defaultChecked={defaultChecked}
-        disabled={disabled}
+        checked={isGrouped ? (groupCtx.groupValue.includes(value as string)) : localChecked}
+        defaultChecked={!isGrouped ? defaultChecked : undefined}
+        disabled={resolvedDisabled}
         onCheckedChange={handleCheckedChange}
         className={cn(
           'peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background',
@@ -704,84 +728,91 @@ interface RadioProps {
   id?: string;
   className?: string;
   style?: React.CSSProperties;
-  checked?: boolean;
-  defaultChecked?: boolean;
   disabled?: boolean;
-  name?: string | null;
   value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   description?: string;
   required?: boolean;
   error?: string;
+  children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * Radio component - shadcn-styled radio button.
+ * Radio component — must be placed inside a RadioGroup.
+ *
+ * Uses RadioGroupPrimitive.Item so Radix context owns single-selection.
+ * Pass `children` for complex option content (e.g. a Card); when children
+ * are present the default label/description layout is not rendered.
  */
 export function Radio({
   id,
   className,
   style,
-  checked,
-  defaultChecked,
   disabled = false,
-  name,
-  value,
-  onChange,
+  value = '',
   label,
   description,
   required,
   error,
+  children,
   'data-refast-id': dataRefastId,
 }: RadioProps): React.ReactElement {
-  const [localChecked, setLocalChecked] = React.useState(checked !== undefined ? checked : (defaultChecked || false));
-
-  React.useEffect(() => {
-    if (checked !== undefined) {
-      setLocalChecked(checked);
-    }
-  }, [checked]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalChecked(e.target.checked);
-    if (onChange) {
-      onChange(e);
-    }
-  };
+  const itemId = id || `radio-${value}`;
 
   return (
-    <div className="space-y-1" style={style} data-refast-id={dataRefastId}>
-      <label className={cn('flex items-center space-x-2', className)}>
-        <input
-          id={id}
-          type="radio"
-          checked={localChecked}
-          disabled={disabled}
-          name={name || undefined}
+    <div className={cn('space-y-1', className)} style={style} data-refast-id={dataRefastId}>
+      {children ? (
+        // Complex option: wrap arbitrary children in the Radix item.
+        // w-full h-full lets the item fill whatever size the outer div occupies,
+        // so flex-1 / w-* / h-* on the Radio's class_name drives the final size.
+        <RadioGroupPrimitive.Item
+          id={itemId}
           value={value}
-          onChange={handleChange}
+          disabled={disabled}
           className={cn(
-            'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'group block w-full h-full rounded-md border-2 border-muted bg-popover p-0 ring-offset-background',
+            'hover:border-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:cursor-not-allowed disabled:opacity-50',
+            'data-[state=checked]:border-primary',
             error && 'border-destructive'
           )}
-        />
-        {label && (
-          <span className="text-sm font-medium leading-none">
-            {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </span>
-        )}
-      </label>
-      {(description || error) && (
-        <div className="ml-6">
-          {description && !error && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
-          {error && <p className="text-sm text-destructive">{error}</p>}
+        >
+          {children}
+        </RadioGroupPrimitive.Item>
+      ) : (
+        // Simple option: inline indicator + label
+        <div className="flex items-start space-x-2">
+          <RadioGroupPrimitive.Item
+            id={itemId}
+            value={value}
+            disabled={disabled}
+            className={cn(
+              'mt-0.5 aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              error && 'border-destructive'
+            )}
+          >
+            <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+              <Circle className="h-2.5 w-2.5 fill-current text-current" />
+            </RadioGroupPrimitive.Indicator>
+          </RadioGroupPrimitive.Item>
+          <div className="grid gap-0.5">
+            {label && (
+              <label
+                htmlFor={itemId}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {label}
+                {required && <span className="text-destructive ml-1">*</span>}
+              </label>
+            )}
+            {description && !error && (
+              <p className="text-sm text-muted-foreground">{description}</p>
+            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </div>
         </div>
       )}
     </div>
@@ -801,14 +832,18 @@ interface RadioGroupProps {
   description?: string;
   required?: boolean;
   error?: string;
-  options?: OptionItem[];
   onValueChange?: (value: string) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * RadioGroup component - container for radio buttons using children composition.
+ * RadioGroup component — wraps Radio children in a Radix RadioGroup.Root.
+ *
+ * Radix context propagates through ComponentRenderer wrappers, so
+ * single-selection is enforced even when children are rendered via
+ * the Refast component tree. Each Radio uses RadioGroupPrimitive.Item
+ * internally, so no cloneElement / prop injection is needed.
  */
 export function RadioGroup({
   id,
@@ -823,7 +858,6 @@ export function RadioGroup({
   description,
   required,
   error,
-  options,
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
@@ -858,41 +892,6 @@ export function RadioGroup({
     }
   };
 
-  // Render radio items from options if provided
-  const renderItems = () => {
-    if (options && options.length > 0) {
-      return options.map((option) => (
-        <div key={option.value} className="flex items-center space-x-2">
-          <RadioGroupPrimitive.Item
-            value={option.value}
-            id={`${rootId}-${option.value}`}
-            disabled={option.disabled}
-            className={cn(
-              'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              error && 'border-destructive'
-            )}
-          >
-            <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-              <Circle className="h-2.5 w-2.5 fill-current text-current" />
-            </RadioGroupPrimitive.Indicator>
-          </RadioGroupPrimitive.Item>
-          <label
-            htmlFor={`${rootId}-${option.value}`}
-            className={cn(
-              'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-              option.disabled && 'cursor-not-allowed opacity-70'
-            )}
-          >
-            {option.label}
-          </label>
-        </div>
-      ));
-    }
-    return children;
-  };
-
   return (
     <div className={cn('space-y-1', className)} style={style} data-refast-id={dataRefastId}>
       {label && (
@@ -917,7 +916,7 @@ export function RadioGroup({
         orientation={orientation}
         id={rootId}
       >
-        {renderItems()}
+        {children}
       </RadioGroupPrimitive.Root>
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
@@ -937,14 +936,17 @@ interface CheckboxGroupProps {
   description?: string;
   required?: boolean;
   error?: string;
-  options?: OptionItem[];
   onChange?: (value: string[]) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * CheckboxGroup component - group of checkboxes using children composition.
+ * CheckboxGroup component — wraps Checkbox children in a group context.
+ *
+ * Checked state and change handling are propagated via CheckboxGroupContext
+ * so they reach Checkbox components even through ComponentRenderer wrappers
+ * (React context is immune to the cloneElement problem).
  */
 export function CheckboxGroup({
   id,
@@ -959,7 +961,6 @@ export function CheckboxGroup({
   description,
   required,
   error,
-  options,
   onChange,
   children,
   'data-refast-id': dataRefastId,
@@ -977,105 +978,51 @@ export function CheckboxGroup({
     }
   }, [value]);
 
-  const handleCheckedChange = (optionValue: string, checked: boolean) => {
-    let newValue: string[];
-    if (checked) {
-      if (!localValue.includes(optionValue)) {
-        newValue = [...localValue, optionValue];
-      } else {
-        newValue = localValue;
-      }
-    } else {
-      newValue = localValue.filter((v) => v !== optionValue);
-    }
-    setLocalValue(newValue);
-    if (onChange) {
-      onChange(newValue);
-    }
-  };
-
-  // Render checkbox items from options if provided
-  const renderItems = () => {
-    if (options && options.length > 0) {
-      return options.map((option) => {
-        const checkboxId = `${rootId}-${option.value}`;
-        const isChecked = localValue.includes(option.value);
-        const isDisabled = disabled || option.disabled;
-        return (
-          <div key={option.value} className="flex items-center space-x-2">
-            <CheckboxPrimitive.Root
-              id={checkboxId}
-              name={name || undefined}
-              value={option.value}
-              checked={isChecked}
-              disabled={isDisabled}
-              onCheckedChange={(checked) => handleCheckedChange(option.value, checked === true)}
-              className={cn(
-                'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
-                error && 'border-destructive'
-              )}
-            >
-              <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
-                <Check className="h-4 w-4" />
-              </CheckboxPrimitive.Indicator>
-            </CheckboxPrimitive.Root>
-            <label
-              htmlFor={checkboxId}
-              className={cn(
-                'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-                isDisabled && 'cursor-not-allowed opacity-70'
-              )}
-            >
-              {option.label}
-            </label>
-          </div>
-        );
-      });
-    }
-    // Fall back to children composition
-    return React.Children.map(children, (child) => {
-      if (React.isValidElement(child) && child.props.value) {
-        const childValue = child.props.value as string;
-        return React.cloneElement(child as React.ReactElement<CheckboxProps>, {
-          name,
-          checked: localValue.includes(childValue),
-          disabled: disabled || child.props.disabled,
-          onCheckedChange: (checked: boolean) => handleCheckedChange(childValue, checked),
-        });
-      }
-      return child;
+  const handleItemChange = React.useCallback((itemValue: string, checked: boolean) => {
+    setLocalValue((prev) => {
+      const next = checked
+        ? prev.includes(itemValue) ? prev : [...prev, itemValue]
+        : prev.filter((v) => v !== itemValue);
+      if (onChange) onChange(next);
+      return next;
     });
-  };
+  }, [onChange]);
+
+  const ctxValue = React.useMemo<CheckboxGroupContextValue>(() => ({
+    groupValue: localValue,
+    onItemChange: handleItemChange,
+    groupName: name,
+    groupDisabled: disabled,
+  }), [localValue, handleItemChange, name, disabled]);
 
   return (
-    <div
-      id={rootId}
-      role="group"
-      className={cn('space-y-1', className)}
-      style={style}
-      data-refast-id={dataRefastId}
-    >
-      {label && (
-        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </label>
-      )}
-      {description && !error && (
-        <p className="text-sm text-muted-foreground">{description}</p>
-      )}
+    <CheckboxGroupContext.Provider value={ctxValue}>
       <div
-        className={cn(
-          'flex',
-          orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
-        )}
+        id={rootId}
+        role="group"
+        className={cn('space-y-1', className)}
+        style={style}
+        data-refast-id={dataRefastId}
       >
-        {renderItems()}
+        {label && (
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </label>
+        )}
+        {description && !error && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+        <div
+          className={cn(
+            'flex',
+            orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-row space-x-4'
+          )}
+        >
+          {children}
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
+    </CheckboxGroupContext.Provider>
   );
 }

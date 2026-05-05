@@ -21,7 +21,15 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
     Container,
+    Dialog,
+    DialogContent,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -208,7 +216,7 @@ NAV_SECTIONS = [
     },
     {
         "label": "Core Concepts",
-        "icon": "book-open",
+        "icon": "layers",
         "pages": [
             ("Components", "/docs/concepts/components", "box"),
             ("Callbacks & Events", "/docs/concepts/callbacks", "mouse-pointer-click"),
@@ -233,32 +241,32 @@ NAV_SECTIONS = [
                 "icon": "box",
                 "pages": [
                     ("Base", "/docs/components/base", "box"),
-                    ("Container", "/docs/components/container", "layout-panel-left"),
+                    ("Container", "/docs/components/container", "panel-left"),
                 ],
             },
             {
                 "label": "Layout",
                 "icon": "layout",
                 "pages": [
-                    ("Row", "/docs/components/row", "rows-3"),
-                    ("Column", "/docs/components/column", "columns-3"),
-                    ("Flex", "/docs/components/flex", "unfold-horizontal"),
-                    ("Grid", "/docs/components/grid", "grid-2x2"),
-                    ("Scroll Area", "/docs/components/scroll-area", "scroll"),
-                    ("Resizable", "/docs/components/resizable", "separator-horizontal"),
+                    ("Row", "/docs/components/row", "rows"),
+                    ("Column", "/docs/components/column", "columns"),
+                    ("Flex", "/docs/components/flex", "expand"),
+                    ("Grid", "/docs/components/grid", "layout-grid"),
+                    ("Scroll Area", "/docs/components/scroll-area", "layout-list"),
+                    ("Resizable", "/docs/components/resizable", "grip-horizontal"),
                 ],
             },
             {
                 "label": "Typography",
                 "icon": "type",
                 "pages": [
-                    ("Heading", "/docs/components/heading", "heading-1"),
-                    ("Text & Paragraph", "/docs/components/text", "text"),
-                    ("Code", "/docs/components/code", "code-xml"),
+                    ("Heading", "/docs/components/heading", "type"),
+                    ("Text & Paragraph", "/docs/components/text", "type"),
+                    ("Code", "/docs/components/code", "code"),
                     ("Link", "/docs/components/link", "link"),
                     ("Markdown", "/docs/components/markdown", "file-text"),
                     ("Badge", "/docs/components/badge", "tag"),
-                    ("Kbd", "/docs/components/kbd", "keyboard"),
+                    ("Kbd", "/docs/components/kbd", "terminal"),
                 ],
             },
             {
@@ -267,11 +275,11 @@ NAV_SECTIONS = [
                 "pages": [
                     ("Button", "/docs/components/button", "square"),
                     ("Icon Button", "/docs/components/icon-button", "circle"),
-                    ("Toggle", "/docs/components/toggle", "toggle-left"),
-                    ("Switch", "/docs/components/switch", "toggle-right"),
-                    ("Slider", "/docs/components/slider", "sliders-horizontal"),
+                    ("Toggle", "/docs/components/toggle", "check-square"),
+                    ("Switch", "/docs/components/switch", "check-circle"),
+                    ("Slider", "/docs/components/slider", "sliders"),
                     ("Dropdown Menu", "/docs/components/dropdown-menu", "chevron-down"),
-                    ("Context Menu", "/docs/components/context-menu", "mouse-pointer-2"),
+                    ("Context Menu", "/docs/components/context-menu", "mouse-pointer-click"),
                 ],
             },
             {
@@ -279,14 +287,14 @@ NAV_SECTIONS = [
                 "icon": "text-cursor-input",
                 "pages": [
                     ("Input", "/docs/components/input", "text-cursor-input"),
-                    ("Textarea", "/docs/components/textarea", "align-left"),
-                    ("Select", "/docs/components/select", "chevrons-up-down"),
-                    ("Checkbox", "/docs/components/checkbox", "square-check"),
+                    ("Textarea", "/docs/components/textarea", "edit"),
+                    ("Select", "/docs/components/select", "chevrons-down"),
+                    ("Checkbox", "/docs/components/checkbox", "check-square"),
                     ("Radio", "/docs/components/radio", "circle-dot"),
                     ("Combobox", "/docs/components/combobox", "search"),
                     ("Date Picker", "/docs/components/date-picker", "calendar"),
                     ("Input OTP", "/docs/components/input-otp", "shield-check"),
-                    ("Form", "/docs/components/form", "clipboard-list"),
+                    ("Form", "/docs/components/form", "clipboard"),
                 ],
             },
             {
@@ -294,7 +302,7 @@ NAV_SECTIONS = [
                 "icon": "credit-card",
                 "pages": [
                     ("Card", "/docs/components/card", "credit-card"),
-                    ("Collapsible", "/docs/components/collapsible", "chevron-down-square"),
+                    ("Collapsible", "/docs/components/collapsible", "chevron-down"),
                 ],
             },
             {
@@ -302,20 +310,20 @@ NAV_SECTIONS = [
                 "icon": "table",
                 "pages": [
                     ("Table", "/docs/components/table", "table"),
-                    ("Data Table", "/docs/components/data-table", "table-2"),
-                    ("Tabs", "/docs/components/tabs", "layout-panel-top"),
-                    ("Accordion", "/docs/components/accordion", "list-collapse"),
-                    ("Avatar", "/docs/components/avatar", "circle-user"),
+                    ("Data Table", "/docs/components/data-table", "table"),
+                    ("Tabs", "/docs/components/tabs", "panel-top"),
+                    ("Accordion", "/docs/components/accordion", "layout-list"),
+                    ("Avatar", "/docs/components/avatar", "user"),
                     ("Tooltip", "/docs/components/tooltip", "info"),
-                    ("Hover Card", "/docs/components/hover-card", "id-card"),
-                    ("List", "/docs/components/list", "list"),
+                    ("Hover Card", "/docs/components/hover-card", "credit-card"),
+                    ("List", "/docs/components/list", "layout-list"),
                 ],
             },
             {
                 "label": "Navigation",
                 "icon": "compass",
                 "pages": [
-                    ("Breadcrumb", "/docs/components/breadcrumb", "ellipsis"),
+                    ("Breadcrumb", "/docs/components/breadcrumb", "more-horizontal"),
                     ("Sidebar", "/docs/components/sidebar-nav", "panel-left"),
                     ("Pagination", "/docs/components/pagination", "more-horizontal"),
                     ("Navigation Menu", "/docs/components/navigation-menu", "menu"),
@@ -325,11 +333,11 @@ NAV_SECTIONS = [
                 "label": "Feedback & Overlay",
                 "icon": "message-square",
                 "pages": [
-                    ("Alert", "/docs/components/alert", "triangle-alert"),
+                    ("Alert", "/docs/components/alert", "alert-triangle"),
                     ("Progress & Spinner", "/docs/components/progress", "loader"),
-                    ("Dialog", "/docs/components/dialog", "square-x"),
+                    ("Dialog", "/docs/components/dialog", "x-circle"),
                     ("Sheet", "/docs/components/sheet", "panel-right"),
-                    ("Popover", "/docs/components/popover", "message-square-more"),
+                    ("Popover", "/docs/components/popover", "message-square"),
                 ],
             },
             {
@@ -338,9 +346,9 @@ NAV_SECTIONS = [
                 "pages": [
                     ("Bar Chart", "/docs/components/bar-chart", "bar-chart"),
                     ("Line Chart", "/docs/components/line-chart", "line-chart"),
-                    ("Area Chart", "/docs/components/area-chart", "area-chart"),
+                    ("Area Chart", "/docs/components/area-chart", "activity"),
                     ("Pie Chart", "/docs/components/pie-chart", "pie-chart"),
-                    ("Other Charts", "/docs/components/other-charts", "chart-spline"),
+                    ("Other Charts", "/docs/components/other-charts", "bar-chart-2"),
                 ],
             },
             {
@@ -348,8 +356,8 @@ NAV_SECTIONS = [
                 "icon": "wrench",
                 "pages": [
                     ("Separator", "/docs/components/separator", "minus"),
-                    ("Aspect Ratio", "/docs/components/aspect-ratio", "ratio"),
-                    ("Carousel", "/docs/components/carousel", "gallery-horizontal"),
+                    ("Aspect Ratio", "/docs/components/aspect-ratio", "maximize"),
+                    ("Carousel", "/docs/components/carousel", "image"),
                 ],
             },
         ],
@@ -384,7 +392,98 @@ for _section in NAV_SECTIONS:
 
 async def nav(ctx: Context, path: str = "/"):
     """Navigate to a documentation page."""
+    ctx.state["search_open"] = False
     await ctx.load(path)
+
+
+async def open_search(ctx: Context, current_path: str = "/"):
+    """Open the search dialog."""
+    ctx.state["search_open"] = True
+    await ctx.load(current_path)
+
+
+async def close_search(ctx: Context, current_path: str = "/"):
+    """Close the search dialog."""
+    ctx.state["search_open"] = False
+    await ctx.load(current_path)
+
+
+async def search_navigate(ctx: Context, path: str = "/"):
+    """Navigate from a search result and close the dialog."""
+    ctx.state["search_open"] = False
+    await ctx.load(path)
+
+
+# ── Search helpers ───────────────────────────────────────────────────────
+
+
+def _get_search_items() -> list[dict]:
+    """Flatten NAV_SECTIONS into a list of searchable items grouped by section."""
+    items: list[dict] = []
+    for section in NAV_SECTIONS:
+        group_label = section["label"]
+        if "groups" in section:
+            for group in section["groups"]:
+                for label, route, icon in group["pages"]:
+                    items.append({"label": label, "route": route, "icon": icon, "group": group_label})
+        else:
+            for label, route, icon in section["pages"]:
+                items.append({"label": label, "route": route, "icon": icon, "group": group_label})
+    return items
+
+
+_SEARCH_ITEMS = _get_search_items()
+
+
+def _build_search_dialog(ctx: Context, current_path: str):
+    """Build the CMD+K search dialog overlay."""
+    is_open = ctx.state.get("search_open", False)
+
+    # Group items by section label
+    groups: dict[str, list[dict]] = {}
+    for item in _SEARCH_ITEMS:
+        groups.setdefault(item["group"], []).append(item)
+
+    command_groups = []
+    for group_label, group_items in groups.items():
+        command_groups.append(
+            CommandGroup(
+                heading=group_label,
+                children=[
+                    CommandItem(
+                        label=item["label"],
+                        value=item["label"],
+                        icon=item["icon"],
+                        on_select=ctx.callback(search_navigate, path=item["route"]),
+                    )
+                    for item in group_items
+                ],
+            )
+        )
+
+    return Dialog(
+        open=is_open,
+        on_open_change=ctx.callback(close_search, current_path=current_path),
+        children=[
+            DialogContent(
+                class_name="p-0 overflow-hidden gap-0 max-w-lg",
+                children=[
+                    Command(
+                        class_name="rounded-lg border-0 shadow-none",
+                        children=[
+                            CommandInput(placeholder="Search docs..."),
+                            CommandList(
+                                children=[
+                                    CommandEmpty(message="No pages found."),
+                                    *command_groups,
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 # ── Shared layout ────────────────────────────────────────────────────────
@@ -419,6 +518,7 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
                     _build_footer(ctx, current_path),
                 ],
             ),
+            _build_search_dialog(ctx, current_path),
         ],
     )
 
@@ -440,7 +540,7 @@ def _build_sidebar(ctx: Context, current_path: str):
                                 children=[
                                     SidebarMenuButton(
                                         "Refast Docs",
-                                        icon="book-open",
+                                        icon="layers",
                                         size="lg",
                                         is_active=(current_path == "/"),
                                         on_click=ctx.callback(nav, path="/"),
@@ -652,11 +752,19 @@ def _build_topbar(ctx: Context, current_path: str):
                     ),
                     Row(
                         [
+                            Button(
+                                "Search docs...",
+                                icon="search",
+                                variant="outline",
+                                size="sm",
+                                class_name="text-muted-foreground w-48 justify-start font-normal",
+                                on_click=ctx.callback(open_search, current_path=current_path),
+                            ),
                             ThemeSwitcher(),
                             # Text(
                             #     f"Active users: {len(ui.active_contexts)}",
                             #     class_name="text-sm text-muted-foreground",
-                            # ),
+                            # )
                             theme_switcher(ctx),
                         ],
                         align="center",

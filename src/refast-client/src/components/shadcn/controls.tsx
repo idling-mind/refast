@@ -1324,6 +1324,16 @@ export function Combobox({
   );
 
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (open) {
+      // Use requestAnimationFrame to ensure the input is rendered before focusing
+      requestAnimationFrame(() => searchInputRef.current?.focus());
+    } else {
+      setSearch('');
+    }
+  }, [open]);
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -1441,7 +1451,6 @@ export function Combobox({
       setInternalValue(val);
       if (onSelect) onSelect(val);
       setOpen(false);
-      setSearch('');
     }
   };
 
@@ -1560,6 +1569,7 @@ export function Combobox({
               <path d="m21 21-4.3-4.3" />
             </svg>
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

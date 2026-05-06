@@ -25,6 +25,7 @@ import {
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
   ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
+import { KeyboardShortcut } from './shadcn/keyboard';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ComponentType = React.ComponentType<any>;
@@ -364,6 +365,7 @@ componentRegistry.register('ResizablePanelGroup', ResizablePanelGroup);
 componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
 componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
+componentRegistry.register('KeyboardShortcut', KeyboardShortcut as React.ComponentType);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Register lazy feature chunks

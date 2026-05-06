@@ -209,6 +209,7 @@ from refast.components.shadcn import (
     Tooltip,
     charts,
 )
+from refast.components.shadcn.keyboard import KeyboardShortcut
 from refast.components.slot import Slot
 
 __all__ = [
@@ -435,4 +436,6 @@ __all__ = [
     "Empty",
     "Kbd",
     "LoadingOverlay",
+    # Interaction utilities
+    "KeyboardShortcut",
 ]

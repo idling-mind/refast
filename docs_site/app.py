@@ -58,7 +58,7 @@ from refast.components import (
     SidebarTrigger,
     Tooltip,
 )
-from refast.components.shadcn import ThemeSwitcher
+from refast.components.shadcn import KeyboardShortcut, ThemeSwitcher
 from refast.theme import (
     amber_minimal_theme,
     caffine_theme,
@@ -519,6 +519,11 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
                 ],
             ),
             _build_search_dialog(ctx, current_path),
+            KeyboardShortcut(
+                shortcuts={"ctrl+k": ctx.callback(open_search, current_path=current_path)},
+                priority=10,
+                prevent_default=True,
+            ),
         ],
     )
 

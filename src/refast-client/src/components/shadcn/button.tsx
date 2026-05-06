@@ -104,6 +104,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
   onClick,
   ariaLabel,
   'data-refast-id': dataRefastId,
+  ...props
 }, ref) => {
   const iconSize = size === 'lg' ? 20 : size === 'sm' ? 14 : 16;
 
@@ -118,6 +119,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
       onClick={onClick}
       data-refast-id={dataRefastId}
       aria-label={ariaLabel || icon}
+      {...props}
     >
       <Icon name={icon} size={iconSize} />
     </Button>

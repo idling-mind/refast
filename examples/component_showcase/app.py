@@ -105,6 +105,7 @@ from refast.components import (
     ToggleGroup,
     ToggleGroupItem,
 )
+from refast.components.shadcn import KeyboardShortcut
 from refast.components.shadcn.input import Textarea
 
 # Create the Refast app
@@ -263,6 +264,12 @@ async def on_confirm_delete(ctx: Context):
 async def on_sheet_save(ctx: Context):
     """Handle sheet save."""
     await ctx.show_toast("Settings saved!", variant="success")
+
+
+async def on_shortcut(ctx: Context, key: str = ""):
+    """Handle a keyboard shortcut from the showcase demo."""
+    await ctx.update_text("ks-demo-status", f'Last fired: "{key}"')
+    await ctx.show_toast(f'Shortcut "{key}" triggered', variant="success")
 
 
 # Main page
@@ -1270,6 +1277,69 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                 ],
                                             ),
                                         ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            # Keyboard Shortcut Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Keyboard Shortcut"),
+                            CardDescription(
+                                "Invisible component that captures global keyboard shortcuts"
+                            ),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=4,
+                                children=[
+                                    Text(
+                                        "Press the shortcuts below anywhere on the page:",
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
+                                    Row(
+                                        gap=3,
+                                        wrap=True,
+                                        children=[
+                                            Row(
+                                                gap=2,
+                                                align="center",
+                                                children=[
+                                                    Badge(children="Ctrl + Alt + A"),
+                                                    Text("→ fires callback A", class_name="text-sm text-muted-foreground"),
+                                                ],
+                                            ),
+                                            Row(
+                                                gap=2,
+                                                align="center",
+                                                children=[
+                                                    Badge(children="Ctrl + Alt + B"),
+                                                    Text("→ fires callback B", class_name="text-sm text-muted-foreground"),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Text(
+                                        "Last fired: —",
+                                        id="ks-demo-status",
+                                        class_name="text-sm font-mono text-primary",
+                                    ),
+                                    # The invisible KeyboardShortcut component
+                                    KeyboardShortcut(
+                                        shortcuts={
+                                            "ctrl+alt+a": ctx.callback(on_shortcut, key="Ctrl+Alt+A"),
+                                            "ctrl+alt+b": ctx.callback(on_shortcut, key="Ctrl+Alt+B"),
+                                        },
+                                        priority=5,
+                                        prevent_default=True,
                                     ),
                                 ],
                             ),

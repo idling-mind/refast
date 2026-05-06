@@ -254,6 +254,7 @@ import {
   LayoutDashboard,
   Share,
   Share2,
+  Keyboard,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -561,6 +562,7 @@ const iconMap: Record<string, LucideIcon> = {
   'layout-dashboard': LayoutDashboard,
   'share': Share,
   'share-2': Share2,
+  'keyboard': Keyboard,
 };
 
 export interface IconProps {

@@ -115,6 +115,7 @@ from .pages.components.feedback import (  # noqa: E402
 from .pages.components.utility import (  # noqa: E402
     aspect_ratio as aspect_ratio_page,
     carousel as carousel_page,
+    keyboard_shortcut as keyboard_shortcut_page,
     separator as separator_page,
 )
 from .pages.components.data_display import (  # noqa: E402
@@ -358,6 +359,7 @@ NAV_SECTIONS = [
                     ("Separator", "/docs/components/separator", "minus"),
                     ("Aspect Ratio", "/docs/components/aspect-ratio", "maximize"),
                     ("Carousel", "/docs/components/carousel", "image"),
+                    ("Keyboard Shortcut", "/docs/components/keyboard-shortcut", "keyboard"),
                 ],
             },
         ],
@@ -758,11 +760,12 @@ def _build_topbar(ctx: Context, current_path: str):
                     Row(
                         [
                             Button(
-                                "Search docs...",
+                                "Search docs...(Ctrl+K)",
                                 icon="search",
                                 variant="outline",
                                 size="sm",
-                                class_name="text-muted-foreground w-48 justify-start font-normal",
+                                class_name="text-muted-foreground justify-start font-normal",
+                                style={"width": "180px"},
                                 on_click=ctx.callback(open_search, current_path=current_path),
                             ),
                             ThemeSwitcher(),
@@ -1266,6 +1269,11 @@ def page_components_aspect_ratio(ctx: Context):
 @ui.page("/docs/components/carousel")
 def page_components_carousel(ctx: Context):
     return carousel_page.render(ctx)
+
+
+@ui.page("/docs/components/keyboard-shortcut")
+def page_components_keyboard_shortcut(ctx: Context):
+    return keyboard_shortcut_page.render(ctx)
 
 
 # Advanced

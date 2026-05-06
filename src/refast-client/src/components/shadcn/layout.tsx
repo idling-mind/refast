@@ -24,6 +24,7 @@ export function Row({
   wrap = false,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: RowProps): React.ReactElement {
   const justifyClass = {
     start: 'justify-start',
@@ -54,6 +55,7 @@ export function Row({
       )}
       style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>
@@ -83,6 +85,7 @@ export function Column({
   wrap = false,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: ColumnProps): React.ReactElement {
   const justifyClass = {
     start: 'justify-start',
@@ -107,6 +110,7 @@ export function Column({
       className={cn('flex flex-col', justifyClass, alignClass, wrap && 'flex-wrap', className)}
       style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>
@@ -134,6 +138,7 @@ export function Grid({
   gap = 4,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: GridProps): React.ReactElement {
   return (
     <div
@@ -150,6 +155,7 @@ export function Grid({
         gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap,
       }}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>
@@ -181,6 +187,7 @@ export function Flex({
   wrap = false,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: FlexProps): React.ReactElement {
   const directionClass = {
     row: 'flex-row',
@@ -212,6 +219,7 @@ export function Flex({
       className={cn('flex', directionClass, justifyClass, alignClass, wrap && 'flex-wrap', className)}
       style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>
@@ -233,12 +241,14 @@ export function Center({
   className,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: CenterProps): React.ReactElement {
   return (
     <div
       id={id}
       className={cn('flex items-center justify-center', className)}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>

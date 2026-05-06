@@ -111,6 +111,10 @@ from refast.components.shadcn.input import Textarea
 ui = RefastApp(title="Component Showcase")
 
 
+# Generic callback
+async def generic_callback(ctx: Context, msg=""):
+    await ctx.show_toast(msg, variant="info")
+
 # Callback handlers
 async def on_switch_change(ctx: Context):
     """Handle switch toggle."""
@@ -931,6 +935,9 @@ def home(ctx: Context):
                                                 children=[Text("16:9 Content Area")],
                                             ),
                                         ],
+                                        extra_props={
+                                            "on_click": ctx.callback(generic_callback, msg="Clicked aspect ratio")
+                                        }
                                     ),
                                 ],
                             ),
@@ -943,11 +950,11 @@ def home(ctx: Context):
                                     ),
                                     Code(
                                         code=dedent("""
-                                import datetime
+                                            import datetime
 
-                                now = datetime.datetime.now()
-                                print("Current date and time:", now)
-                            """),
+                                            now = datetime.datetime.now()
+                                            print("Current date and time:", now)
+                                        """),
                                         inline=False,
                                         language="python",
                                     ),
@@ -1331,6 +1338,10 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                     Text(
                         "© 2024 Refast Framework. All rights reserved.",
                         class_name="text-sm text-muted-foreground",
+                        extra_props={
+                            "contenteditable": "true",
+                            "on_key_down": ctx.callback(generic_callback, msg="Please, dont edit that!")
+                        },
                     )
                 ],
             ),

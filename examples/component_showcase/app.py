@@ -1313,16 +1313,16 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                 gap=2,
                                                 align="center",
                                                 children=[
-                                                    Badge(children="Ctrl + Alt + A"),
-                                                    Text("→ fires callback A", class_name="text-sm text-muted-foreground"),
+                                                    Badge(children="Ctrl + Alt + 1"),
+                                                    Text("→ fires callback 1", class_name="text-sm text-muted-foreground"),
                                                 ],
                                             ),
                                             Row(
                                                 gap=2,
                                                 align="center",
                                                 children=[
-                                                    Badge(children="Ctrl + Alt + B"),
-                                                    Text("→ fires callback B", class_name="text-sm text-muted-foreground"),
+                                                    Badge(children="Ctrl + Alt + 2"),
+                                                    Text("→ fires callback 2", class_name="text-sm text-muted-foreground"),
                                                 ],
                                             ),
                                         ],
@@ -1335,8 +1335,8 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                     # The invisible KeyboardShortcut component
                                     KeyboardShortcut(
                                         shortcuts={
-                                            "ctrl+alt+a": ctx.callback(on_shortcut, key="Ctrl+Alt+A"),
-                                            "ctrl+alt+b": ctx.callback(on_shortcut, key="Ctrl+Alt+B"),
+                                            "ctrl+alt+1": ctx.callback(on_shortcut, key="Ctrl+Alt+1"),
+                                            "ctrl+alt+2": ctx.callback(on_shortcut, key="Ctrl+Alt+2"),
                                         },
                                         priority=5,
                                         prevent_default=True,

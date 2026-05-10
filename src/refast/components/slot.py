@@ -40,6 +40,13 @@ class Slot(Component):
         self.add_children(children)
         self.fallback = fallback
 
+    def _traversal_children(self) -> list[Component]:
+        """Include ``fallback`` in tree traversal when present."""
+        children = super()._traversal_children()
+        if isinstance(self.fallback, Component):
+            children = children + [self.fallback]
+        return children
+
     def render(self) -> dict[str, Any]:
         children = self._render_children()
         if not children and self.fallback:

@@ -99,7 +99,7 @@ def _playground(ctx: Context):
                                     Select(
                                         options=[
                                             {"value": v, "label": v}
-                                            for v in ["sm", "md", "lg"]
+                                            for v in ["xs", "sm", "md", "lg", "xl"]
                                         ],
                                         value=size,
                                         on_change=ctx.callback(_set_size),
@@ -207,7 +207,7 @@ REFERENCE = """
 |------|------|---------|-------------|
 | `label` | `str` | *(positional)* | Button text |
 | `variant` | `"default" \\| "secondary" \\| "destructive" \\| "outline" \\| "ghost" \\| "link"` | `"default"` | Visual style |
-| `size` | `"sm" \\| "md" \\| "lg" \\| "icon"` | `"md"` | Button dimensions |
+| `size` | `"sm" \\| "md" \\| "lg" | `"md"` | Button dimensions |
 | `icon` | `str \\| None` | `None` | Lucide icon name (e.g. `"save"`, `"trash"`) |
 | `icon_position` | `"left" \\| "right"` | `"left"` | Icon placement relative to label |
 | `disabled` | `bool` | `False` | Prevents interaction |
@@ -230,10 +230,11 @@ Button("Link", variant="link")
 ## All Sizes
 
 ```python
-Button("Small", size="sm")
-Button("Medium", size="md")
-Button("Large", size="lg")
-Button(icon="settings", size="icon")  # icon-only square button
+Button("Extra Small", size="xs")
+Button("Small",       size="sm")
+Button("Medium",      size="md")
+Button("Large",       size="lg")
+Button("Extra Large", size="xl")
 ```
 
 ## With Icons

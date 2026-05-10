@@ -128,7 +128,7 @@ def _playground(ctx: Context):
                                     Select(
                                         options=[
                                             {"value": v, "label": v}
-                                            for v in ["sm", "md", "lg"]
+                                            for v in ["xs", "sm", "md", "lg", "xl"]
                                         ],
                                         value=size,
                                         on_change=ctx.callback(_set_size),
@@ -225,7 +225,7 @@ REFERENCE = """
 |------|------|---------|-------------|
 | `icon` | `str` | *(required)* | Lucide icon name (e.g. `"trash"`, `"edit"`, `"settings"`) |
 | `variant` | `"ghost" \\| "default" \\| "secondary" \\| "destructive" \\| "outline"` | `"ghost"` | Visual style |
-| `size` | `"sm" \\| "md" \\| "lg"` | `"md"` | Button dimensions (also controls icon size) |
+| `size` | `"xs" \\| "sm" \\| "md" \\| "lg" \\| "xl"` | `"md"` | Button dimensions (also controls icon size) |
 | `disabled` | `bool` | `False` | Prevents interaction |
 | `aria_label` | `str \\| None` | `None` | Accessible label — defaults to icon name if omitted |
 | `on_click` | `Callback \\| None` | `None` | Server callback invoked on click |
@@ -244,9 +244,11 @@ IconButton(icon="settings", variant="outline")
 ## All Sizes
 
 ```python
+IconButton(icon="settings", size="xs")
 IconButton(icon="settings", size="sm")
 IconButton(icon="settings", size="md")
 IconButton(icon="settings", size="lg")
+IconButton(icon="settings", size="xl")
 ```
 
 ## With Accessible Label

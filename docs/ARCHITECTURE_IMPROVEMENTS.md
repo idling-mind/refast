@@ -28,7 +28,7 @@ The app needs no callback state at all.
 
 ---
 
-## 2. WebSocket message dispatcher — TODO
+## 2. WebSocket message dispatcher — ✅ Done
 
 **Files**: `src/refast/router.py` (`_handle_websocket_message`)
 
@@ -50,7 +50,7 @@ with just a function and a dict.
 
 ---
 
-## 3. Action types extracted from context.py — TODO
+## 3. Action types extracted from context.py — ✅ Done
 
 **Files**: `src/refast/context.py`
 
@@ -71,7 +71,7 @@ helper. Re-export from `context.py` for backward compatibility.
 
 ---
 
-## 4. Asset pipeline extracted from router.py — TODO
+## 4. Asset pipeline extracted from router.py — ✅ Done
 
 **Files**: `src/refast/router.py`
 
@@ -92,7 +92,7 @@ template. Neither can be tested without pulling in the router.
 
 ---
 
-## 5. Component tree operations formalized — TODO
+## 5. Component tree operations formalized — ✅ Done
 
 **Files**: `src/refast/utils/component.py`, `src/refast/context.py`
 

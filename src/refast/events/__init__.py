@@ -1,6 +1,6 @@
 """Event handling system."""
 
-from refast.context import Callback
+from refast.events.actions import Callback
 from refast.events.broadcast import BroadcastManager, BroadcastMessage
 from refast.events.manager import EventManager
 from refast.events.stream import EventStream, WebSocketConnection

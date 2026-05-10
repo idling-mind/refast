@@ -64,6 +64,7 @@ from refast.components.shadcn.input import (
     Select,
     Textarea,
 )
+from refast.components.shadcn.keyboard import KeyboardShortcut
 from refast.components.shadcn.layout import (
     Center,
     Column,
@@ -186,7 +187,6 @@ from refast.components.shadcn.overlay import (
     SheetTitle,
     SheetTrigger,
 )
-from refast.components.shadcn.keyboard import KeyboardShortcut
 from refast.components.shadcn.typography import BlockQuote, Code, Heading, Link, Markdown, Paragraph
 from refast.components.shadcn.utility import (
     AspectRatio,

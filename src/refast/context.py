@@ -7,9 +7,6 @@ from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
 from fastapi import Request, WebSocket
 
-from refast.state import State
-from refast.store import Store
-
 # Action types live in events.actions; re-exported here for backward compatibility
 # so that ``from refast.context import Callback`` etc. continue to work.
 from refast.events.actions import (  # noqa: F401
@@ -21,6 +18,8 @@ from refast.events.actions import (  # noqa: F401
     JsCallback,
     SaveProp,
 )
+from refast.state import State
+from refast.store import Store
 
 if TYPE_CHECKING:
     from refast.app import RefastApp

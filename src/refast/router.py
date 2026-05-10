@@ -12,12 +12,11 @@ from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDi
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 from refast.assets import (
-    ALL_FEATURE_CHUNKS,
     STATIC_DIR,
-    UNSAFE_CONTENT_TYPES as _UNSAFE_CONTENT_TYPES,
-    _get_chunk_files,
-    _load_manifest,
     render_html_shell,
+)
+from refast.assets import (
+    UNSAFE_CONTENT_TYPES as _UNSAFE_CONTENT_TYPES,
 )
 
 if TYPE_CHECKING:
@@ -71,7 +70,7 @@ class RefastRouter:
         self.app = app
         self.api_router = APIRouter()
         # Track contexts per WebSocket connection to preserve state
-        self._websocket_contexts: dict[WebSocket, "Context"] = {}
+        self._websocket_contexts: dict[WebSocket, Context] = {}
         # Dispatch table: message type → handler coroutine method
         self._message_dispatch = {
             "callback": self._on_callback,

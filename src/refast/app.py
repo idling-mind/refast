@@ -137,7 +137,6 @@ class RefastApp:
         self._head_tags: list[str] = list(head_tags) if head_tags else []
 
         self._pages: dict[str, Callable] = {}
-        self._callbacks: dict[str, Callable] = {}
         self._event_handlers: dict[str, Callable] = {}
         self._router: RefastRouter | None = None
         self._extensions: dict[str, Extension] = {}
@@ -215,14 +214,6 @@ class RefastApp:
             return func
 
         return decorator
-
-    def register_callback(self, callback_id: str, func: Callable) -> None:
-        """Register a callback function."""
-        self._callbacks[callback_id] = func
-
-    def get_callback(self, callback_id: str) -> Callable | None:
-        """Get a registered callback by ID."""
-        return self._callbacks.get(callback_id)
 
     # Extension methods
 

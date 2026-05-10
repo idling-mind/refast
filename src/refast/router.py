@@ -567,7 +567,7 @@ class RefastRouter:
             callback_data = data.get("data", {})
             event_data_raw = data.get("eventData", {})
 
-            callback = self.app.get_callback(callback_id)
+            callback = ctx.get_callback(callback_id)
             if callback:
                 # Set raw DOM event data on context (accessible via ctx.event_data)
                 ctx.set_event_data(event_data_raw)
@@ -612,6 +612,7 @@ class RefastRouter:
                 page_func = self.app._pages.get("/")  # Fallback to index
 
             if page_func is not None:
+                ctx.clear_callbacks()  # Discard callbacks from any previous render
                 component = page_func(ctx)
                 component_data = component.render() if hasattr(component, "render") else {}
 
@@ -637,6 +638,7 @@ class RefastRouter:
             if page_func is None:
                 page_func = self.app._pages.get("/")  # Fallback to index
             if page_func is not None:
+                ctx.clear_callbacks()  # Discard callbacks from the previous page
                 component = page_func(ctx)
                 component_data = component.render() if hasattr(component, "render") else {}
                 await websocket.send_json(

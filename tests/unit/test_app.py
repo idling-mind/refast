@@ -117,22 +117,54 @@ class TestEventHandlers:
 
 
 class TestCallbacks:
-    """Tests for callback registration."""
+    """Tests for callback registration — callbacks live on Context, not RefastApp."""
 
-    def test_register_callback(self):
-        """Test registering a callback."""
-        app = RefastApp()
+    def test_callback_registers_on_context(self):
+        """Callbacks are registered on the Context that created them."""
+        from refast.context import Context
+
+        ctx = Context()
 
         def my_callback():
             pass
 
-        app.register_callback("cb-123", my_callback)
-        assert app.get_callback("cb-123") == my_callback
+        cb = ctx.callback(my_callback)
+        assert ctx.get_callback(cb.id) == my_callback
+
+    def test_callback_not_visible_on_sibling_context(self):
+        """A callback registered on one Context is not visible on another."""
+        from refast.context import Context
+
+        ctx1 = Context()
+        ctx2 = Context()
+
+        def my_callback():
+            pass
+
+        cb = ctx1.callback(my_callback)
+        assert ctx1.get_callback(cb.id) == my_callback
+        assert ctx2.get_callback(cb.id) is None
+
+    def test_clear_callbacks_removes_all(self):
+        """clear_callbacks discards all registered callbacks."""
+        from refast.context import Context
+
+        ctx = Context()
+
+        def my_callback():
+            pass
+
+        ctx.callback(my_callback)
+        ctx.callback(my_callback)
+        ctx.clear_callbacks()
+        assert ctx._callbacks == {}
 
     def test_get_callback_returns_none_for_unknown(self):
-        """Test get_callback returns None for unknown ID."""
-        app = RefastApp()
-        assert app.get_callback("unknown") is None
+        """get_callback returns None for an unknown ID."""
+        from refast.context import Context
+
+        ctx = Context()
+        assert ctx.get_callback("unknown-id") is None
 
 
 class TestRouter:

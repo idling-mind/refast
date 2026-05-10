@@ -381,6 +381,7 @@ class Context(Generic[T]):
         self._event_data: dict[str, Any] | list[Any] | Any = {}
         self._store_sync_future: asyncio.Future[None] | None = None
         self._current_path: str = "/"
+        self._callbacks: dict[str, Callable[..., Any]] = {}
 
     @property
     def event_data(self) -> dict[str, Any] | list[Any] | Any:
@@ -390,6 +391,14 @@ class Context(Generic[T]):
     def set_event_data(self, data: dict[str, Any] | list[Any] | Any) -> None:
         """Set the event data (called by event manager)."""
         self._event_data = data
+
+    def get_callback(self, callback_id: str) -> Callable[..., Any] | None:
+        """Look up a callback registered during this connection's last page render."""
+        return self._callbacks.get(callback_id)
+
+    def clear_callbacks(self) -> None:
+        """Discard all callbacks from the previous render cycle."""
+        self._callbacks.clear()
 
     @property
     def state(self) -> State:
@@ -485,9 +494,8 @@ class Context(Generic[T]):
             throttle=throttle,
         )
 
-        # Register with app
-        if self._app:
-            self._app.register_callback(callback_id, func)
+        # Register on this context (per-connection, auto-cleared on page render)
+        self._callbacks[callback_id] = func
 
         return cb
 

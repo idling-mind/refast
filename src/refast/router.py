@@ -1,6 +1,7 @@
 """FastAPI router integration for Refast."""
 
 import asyncio
+import inspect
 import json as json_module
 import re
 import unicodedata
@@ -162,6 +163,31 @@ def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | N
     return result
 
 
+def _filter_callback_kwargs(
+    sig: inspect.Signature,
+    event_data_raw: dict[str, Any],
+    callback_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the keyword-argument dict to pass to a callback.
+
+    Merges *event_data_raw* (DOM event fields) and *callback_data* (bound args /
+    prop-store values), then filters down to only the parameters the callback
+    actually declares — unless the callback accepts ``**kwargs``, in which case
+    everything is forwarded.
+
+    ``ctx`` is always excluded because the router passes it as the first
+    positional argument.
+    """
+    params = sig.parameters
+    has_var_keyword = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+    )
+    if has_var_keyword:
+        return {**event_data_raw, **callback_data}
+    combined = {**event_data_raw, **callback_data}
+    return {k: v for k, v in combined.items() if k in params and k != "ctx"}
+
+
 class RefastRouter:
     """
     FastAPI router that serves Refast pages.
@@ -176,7 +202,14 @@ class RefastRouter:
         self.app = app
         self.api_router = APIRouter()
         # Track contexts per WebSocket connection to preserve state
-        self._websocket_contexts: dict[WebSocket, Context] = {}
+        self._websocket_contexts: dict[WebSocket, "Context"] = {}
+        # Dispatch table: message type → handler coroutine method
+        self._message_dispatch = {
+            "callback": self._on_callback,
+            "store_init": self._on_store_init,
+            "navigate": self._on_navigate,
+            "event": self._on_event,
+        }
         self._setup_routes()
 
     def _setup_routes(self) -> None:
@@ -548,9 +581,7 @@ class RefastRouter:
             self._websocket_contexts.pop(websocket, None)
 
     async def _handle_websocket_message(self, websocket: WebSocket, data: dict[str, Any]) -> None:
-        """Process incoming WebSocket messages."""
-        import inspect
-
+        """Dispatch an incoming WebSocket message to the appropriate handler."""
         message_type = data.get("type")
 
         # Get the persistent context for this WebSocket connection
@@ -562,100 +593,73 @@ class RefastRouter:
             ctx = Context(websocket=websocket, app=self.app)
             self._websocket_contexts[websocket] = ctx
 
-        if message_type == "callback":
-            callback_id = data.get("callbackId")
-            callback_data = data.get("data", {})
-            event_data_raw = data.get("eventData", {})
+        handler = self._message_dispatch.get(message_type)
+        if handler is not None:
+            await handler(ctx, websocket, data)
 
-            callback = ctx.get_callback(callback_id)
-            if callback:
-                # Set raw DOM event data on context (accessible via ctx.event_data)
-                ctx.set_event_data(event_data_raw)
+    async def _on_callback(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``callback`` message: invoke a registered Python callback."""
+        callback_id = data.get("callbackId")
+        callback_data = data.get("data", {})
+        event_data_raw = data.get("eventData", {})
 
-                # Filter callback_data to only include parameters the callback accepts
-                sig = inspect.signature(callback)
-                params = sig.parameters
+        callback = ctx.get_callback(callback_id)
+        if callback:
+            ctx.set_event_data(event_data_raw)
+            kwargs = _filter_callback_kwargs(
+                inspect.signature(callback), event_data_raw, callback_data
+            )
+            await callback(ctx, **kwargs)
+            await ctx.sync_store()
 
-                # Check if callback accepts **kwargs
-                has_var_keyword = any(
-                    p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
-                )
+    async def _on_store_init(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``store_init`` message: load browser storage then render the page."""
+        store_data = data.get("data", {})
+        ctx._load_store_from_browser(store_data)
 
-                if has_var_keyword:
-                    # Callback accepts **kwargs, pass all data (event_data merged in)
-                    await callback(ctx, **{**event_data_raw, **callback_data})
-                else:
-                    # Merge event_data into callback_data so component-driven values
-                    # (e.g. Checkbox checked, Select value) reach named parameters.
-                    # callback_data (bound args / props) takes precedence.
-                    combined_data = {**event_data_raw, **callback_data}
-                    accepted_params = {
-                        k: v for k, v in combined_data.items() if k in params and k != "ctx"
-                    }
-                    await callback(ctx, **accepted_params)
+        page_path = data.get("path", "/")
+        ctx._current_path = page_path
 
-                # Sync any pending store updates after callback
-                await ctx.sync_store()
+        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        if page_func is not None:
+            ctx.clear_callbacks()
+            component = page_func(ctx)
+            component_data = component.render() if hasattr(component, "render") else {}
+            await websocket.send_json({"type": "page_render", "component": component_data})
 
-        elif message_type == "store_init":
-            # Browser is sending its current storage state on connect
-            store_data = data.get("data", {})
-            ctx._load_store_from_browser(store_data)
+        await websocket.send_json({"type": "store_ready"})
 
-            # Get the page path from the data (sent by frontend)
-            page_path = data.get("path", "/")
-            ctx._current_path = page_path
+    async def _on_navigate(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``navigate`` message: render the page for the requested path."""
+        page_path = data.get("path", "/")
+        if page_path != "/" and page_path.endswith("/"):
+            page_path = page_path.rstrip("/")
+        ctx._current_path = page_path
 
-            # Find and render the page with the loaded store
-            page_func = self.app._pages.get(page_path)
-            if page_func is None:
-                page_func = self.app._pages.get("/")  # Fallback to index
+        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        if page_func is not None:
+            ctx.clear_callbacks()
+            component = page_func(ctx)
+            component_data = component.render() if hasattr(component, "render") else {}
+            await websocket.send_json({"type": "page_render", "component": component_data})
 
-            if page_func is not None:
-                ctx.clear_callbacks()  # Discard callbacks from any previous render
-                component = page_func(ctx)
-                component_data = component.render() if hasattr(component, "render") else {}
+    async def _on_event(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a custom ``event`` message: invoke the registered event handler."""
+        event_type = data.get("eventType")
+        handler = self.app._event_handlers.get(event_type)
+        if handler:
+            from refast.events.types import Event
 
-                # Send the rendered page via WebSocket
-                await websocket.send_json(
-                    {
-                        "type": "page_render",
-                        "component": component_data,
-                    }
-                )
-
-            # Send acknowledgment so frontend knows store is ready
-            await websocket.send_json({"type": "store_ready"})
-
-        elif message_type == "navigate":
-            # Client requesting page render for a new path
-            # (e.g. browser back/forward via popstate)
-            page_path = data.get("path", "/")
-            if page_path != "/" and page_path.endswith("/"):
-                page_path = page_path.rstrip("/")
-            ctx._current_path = page_path
-            page_func = self.app._pages.get(page_path)
-            if page_func is None:
-                page_func = self.app._pages.get("/")  # Fallback to index
-            if page_func is not None:
-                ctx.clear_callbacks()  # Discard callbacks from the previous page
-                component = page_func(ctx)
-                component_data = component.render() if hasattr(component, "render") else {}
-                await websocket.send_json(
-                    {
-                        "type": "page_render",
-                        "component": component_data,
-                    }
-                )
-
-        elif message_type == "event":
-            event_type = data.get("eventType")
-            handler = self.app._event_handlers.get(event_type)
-            if handler:
-                from refast.events.types import Event
-
-                event = Event(type=event_type, data=data.get("data", {}))
-                await handler(ctx, event)
+            event = Event(type=event_type, data=data.get("data", {}))
+            await handler(ctx, event)
 
     def _render_html_shell(self, component: Any | None, ctx: "Context") -> str:
         """Render the HTML shell.

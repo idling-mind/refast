@@ -145,7 +145,7 @@ def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | N
     return result
 
 
-def render_html_shell(app: "RefastApp") -> str:
+def render_html_shell(app: RefastApp) -> str:
     """Render the full HTML shell for a Refast page.
 
     Resolves the asset chunks from the build manifest, injects feature

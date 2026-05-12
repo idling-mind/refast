@@ -18,6 +18,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.controls import DatePicker
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "DatePicker"
 PAGE_ROUTE = "/docs/components/date-picker"
@@ -35,6 +36,9 @@ async def _set_required(ctx: Context, value: bool):
     ctx.state.set("dp_required", value)
     await ctx.refresh()
 
+async def _set_caption_layout(ctx: Context, value: str):
+    ctx.state.set("dp_caption_layout", value)
+    await ctx.refresh()
 
 async def _set_mode(ctx: Context, value: str):
     ctx.state.set("dp_mode", value)
@@ -56,92 +60,96 @@ def _playground(ctx: Context):
     required = ctx.state.get("dp_required", False)
     mode = ctx.state.get("dp_mode", "single")
     selected = ctx.state.get("dp_value", None)
+    caption_layout = ctx.state.get("dp_caption_layout", "dropdown")
 
     placeholder = "Pick a date range\u2026" if mode == "range" else "Pick a date\u2026"
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Mode", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "single", "label": "single"},
-                                            {"value": "range", "label": "range"},
-                                        ],
-                                        value=mode,
-                                        on_change=ctx.callback(_set_mode),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("required", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="required",
-                                        checked=required,
-                                        on_change=ctx.callback(_set_required),
-                                    ),
-                                ],
-                            ),
+                    Text("Mode", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "single", "label": "single"},
+                            {"value": "range", "label": "range"},
                         ],
+                        value=mode,
+                        on_change=ctx.callback(_set_mode),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            DatePicker(
-                                label="Date",
-                                description="Select a date.",
-                                value=selected,
-                                mode=mode,
-                                placeholder=placeholder,
-                                disabled=disabled,
-                                required=required,
-                                on_change=ctx.callback(_on_change),
-                            ),
-                            Text(
-                                f"Selected value: {selected}",
-                                class_name="text-sm text-muted-foreground mt-2",
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"DatePicker(\n"
-                            f'    label="Date",\n'
-                            f'    mode="{mode}",\n'
-                            f"    disabled={disabled},\n"
-                            f"    required={required},\n"
-                            f"    on_change=ctx.callback(handle_change),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("required", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="required",
+                        checked=required,
+                        on_change=ctx.callback(_set_required),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("caption layout", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "dropdown", "label": "dropdown"},
+                            {"value": "inline", "label": "inline"},
+                        ],
+                        value=caption_layout,
+                        on_change=ctx.callback(_set_caption_layout),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            DatePicker(
+                label="Date",
+                description="Select a date.",
+                value=selected,
+                mode=mode,
+                placeholder=placeholder,
+                disabled=disabled,
+                required=required,
+                on_change=ctx.callback(_on_change),
+                caption_layout=caption_layout,
+            ),
+            Text(
+                f"Selected value: {selected}",
+                class_name="text-sm text-muted-foreground mt-2",
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"DatePicker(\n"
+                f'    label="Date",\n'
+                f'    mode="{mode}",\n'
+                f"    disabled={disabled},\n"
+                f"    required={required},\n"
+                f"    caption_layout='{caption_layout}',\n"
+
+                f"    required={required},\n"
+                f"    on_change=ctx.callback(handle_change),\n"
+                f")\n"
+                f"```"
+            )
+        ),
     )
 
 

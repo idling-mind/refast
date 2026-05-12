@@ -22,6 +22,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "HoverCard"
 PAGE_ROUTE = "/docs/components/hover-card"
@@ -47,129 +48,114 @@ def _playground(ctx: Context):
     side = ctx.state.get("hvc_side", "bottom")
     align = ctx.state.get("hvc_align", "center")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Side", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "top", "label": "top"},
-                                            {"value": "right", "label": "right"},
-                                            {"value": "bottom", "label": "bottom"},
-                                            {"value": "left", "label": "left"},
-                                        ],
-                                        value=side,
-                                        on_change=ctx.callback(_set_side),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Align", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "start", "label": "start"},
-                                            {"value": "center", "label": "center"},
-                                            {"value": "end", "label": "end"},
-                                        ],
-                                        value=align,
-                                        on_change=ctx.callback(_set_align),
-                                    ),
-                                ],
-                            ),
+                    Text("Side", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "top", "label": "top"},
+                            {"value": "right", "label": "right"},
+                            {"value": "bottom", "label": "bottom"},
+                            {"value": "left", "label": "left"},
                         ],
+                        value=side,
+                        on_change=ctx.callback(_set_side),
                     ),
-                    Text(
-                        "Hover over the link below to see the card appear.",
-                        class_name="text-sm text-muted-foreground mb-4",
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Align", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "start", "label": "start"},
+                            {"value": "center", "label": "center"},
+                            {"value": "end", "label": "end"},
+                        ],
+                        value=align,
+                        on_change=ctx.callback(_set_align),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-8 flex items-center justify-center bg-muted/30",
+                ],
+            ),
+        ],
+        preview=[
+            Text(
+                "Hover over the link below to see the card appear.",
+                class_name="text-sm text-muted-foreground mb-4",
+            ),
+            HoverCard(
+                side=side,
+                align=align,
+                children=[
+                    HoverCardTrigger(
+                        children=[Link("@refast_framework", href="#")]
+                    ),
+                    HoverCardContent(
+                        side=side,
+                        align=align,
                         children=[
-                            HoverCard(
-                                side=side,
-                                align=align,
+                            Row(
+                                gap=3,
                                 children=[
-                                    HoverCardTrigger(
-                                        children=[Link("@refast_framework", href="#")]
+                                    Avatar(
+                                        fallback="RF",
+                                        size="md",
                                     ),
-                                    HoverCardContent(
-                                        side=side,
-                                        align=align,
+                                    Column(
+                                        gap=1,
                                         children=[
-                                            Row(
-                                                gap=3,
-                                                children=[
-                                                    Avatar(
-                                                        fallback="RF",
-                                                        size="md",
-                                                    ),
-                                                    Column(
-                                                        gap=1,
-                                                        children=[
-                                                            Text(
-                                                                "@refast_framework",
-                                                                class_name="font-semibold text-sm",
-                                                            ),
-                                                            Text(
-                                                                "Python + React framework for reactive web apps.",
-                                                                class_name="text-xs text-muted-foreground",
-                                                            ),
-                                                            Text(
-                                                                "Joined April 2026",
-                                                                class_name="text-xs text-muted-foreground",
-                                                            ),
-                                                        ],
-                                                    ),
-                                                ],
-                                            )
+                                            Text(
+                                                "@refast_framework",
+                                                class_name="font-semibold text-sm",
+                                            ),
+                                            Text(
+                                                "Python + React framework for reactive web apps.",
+                                                class_name="text-xs text-muted-foreground",
+                                            ),
+                                            Text(
+                                                "Joined April 2026",
+                                                class_name="text-xs text-muted-foreground",
+                                            ),
                                         ],
                                     ),
                                 ],
                             )
                         ],
                     ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "HoverCard(\n"
-                            f'    side="{side}",\n'
-                            f'    align="{align}",\n'
-                            "    children=[\n"
-                            "        HoverCardTrigger(\n"
-                            '            children=[Link("@refast_framework", href="#")]\n'
-                            "        ),\n"
-                            "        HoverCardContent(\n"
-                            "            children=[\n"
-                            "                Row(gap=3, children=[\n"
-                            '                    Avatar(fallback="RF", size="md"),\n'
-                            "                    Column(gap=1, children=[\n"
-                            '                        Text("@refast_framework"),\n'
-                            '                        Text("Python + React framework."),\n'
-                            "                    ]),\n"
-                            "                ])\n"
-                            "            ]\n"
-                            "        ),\n"
-                            "    ],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "HoverCard(\n"
+                f'    side="{side}",\n'
+                f'    align="{align}",\n'
+                "    children=[\n"
+                "        HoverCardTrigger(\n"
+                '            children=[Link("@refast_framework", href="#")]\n'
+                "        ),\n"
+                "        HoverCardContent(\n"
+                "            children=[\n"
+                "                Row(gap=3, children=[\n"
+                '                    Avatar(fallback="RF", size="md"),\n'
+                "                    Column(gap=1, children=[\n"
+                '                        Text("@refast_framework"),\n'
+                '                        Text("Python + React framework."),\n'
+                "                    ]),\n"
+                "                ])\n"
+                "            ]\n"
+                "        ),\n"
+                "    ],\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-8 flex items-center justify-center bg-muted/30",
     )
 
 

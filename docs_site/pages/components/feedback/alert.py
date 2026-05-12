@@ -17,6 +17,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Alert"
 PAGE_ROUTE = "/docs/components/alert"
@@ -53,83 +54,69 @@ def _playground(ctx: Context):
     dismissible = ctx.state.get("alrt_dismissible", False)
     dismissed = ctx.state.get("alrt_dismissed", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Variant", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "default",
-                                                "success",
-                                                "warning",
-                                                "destructive",
-                                                "info",
-                                            ]
-                                        ],
-                                        value=variant,
-                                        on_change=ctx.callback(_set_variant),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Dismissible", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="dismissible",
-                                        checked=dismissible,
-                                        on_change=ctx.callback(_set_dismissible),
-                                    ),
-                                ],
-                            ),
+                    Text("Variant", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "default",
+                                "success",
+                                "warning",
+                                "destructive",
+                                "info",
+                            ]
                         ],
+                        value=variant,
+                        on_change=ctx.callback(_set_variant),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Alert(
-                                title="Heads up!",
-                                message="This is an example alert message.",
-                                variant=variant,
-                                dismissible=dismissible,
-                                on_dismiss=ctx.callback(_dismiss) if dismissible else None,
-                            )
-                            if not dismissed
-                            else Button("Reset", on_click=ctx.callback(_reset_alert))
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Alert(\n"
-                            f'    title="Heads up!",\n'
-                            f'    message="This is an example alert message.",\n'
-                            f'    variant="{variant}",\n'
-                            f"    dismissible={dismissible},\n"
-                            + (
-                                "    on_dismiss=ctx.callback(handle_dismiss),\n"
-                                if dismissible
-                                else ""
-                            )
-                            + ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Dismissible", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="dismissible",
+                        checked=dismissible,
+                        on_change=ctx.callback(_set_dismissible),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Alert(
+                title="Heads up!",
+                message="This is an example alert message.",
+                variant=variant,
+                dismissible=dismissible,
+                on_dismiss=ctx.callback(_dismiss) if dismissible else None,
+            )
+            if not dismissed
+            else Button("Reset", on_click=ctx.callback(_reset_alert))
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Alert(\n"
+                f'    title="Heads up!",\n'
+                f'    message="This is an example alert message.",\n'
+                f'    variant="{variant}",\n'
+                f"    dismissible={dismissible},\n"
+                + (
+                    "    on_dismiss=ctx.callback(handle_dismiss),\n"
+                    if dismissible
+                    else ""
+                )
+                + ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

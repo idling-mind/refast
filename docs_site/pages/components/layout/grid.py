@@ -15,6 +15,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Grid"
 PAGE_ROUTE = "/docs/components/grid"
@@ -40,65 +41,51 @@ def _playground(ctx: Context):
     cols = int(ctx.state.get("gr_cols", "3"))
     gap = int(ctx.state.get("gr_gap", "4"))
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("columns", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["1", "2", "3", "4", "5", "6"]
-                                        ],
-                                        value=str(cols),
-                                        on_change=ctx.callback(_set_cols),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("gap", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["1", "2", "4", "6"]
-                                        ],
-                                        value=str(gap),
-                                        on_change=ctx.callback(_set_gap),
-                                    ),
-                                ],
-                            ),
+                    Text("columns", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["1", "2", "3", "4", "5", "6"]
                         ],
+                        value=str(cols),
+                        on_change=ctx.callback(_set_cols),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Grid(
-                                columns=cols,
-                                gap=gap,
-                                children=[
-                                    Container(
-                                        class_name="border rounded-md p-3 bg-background text-center text-sm font-medium",
-                                        children=[Text(f"Cell {i + 1}")],
-                                    )
-                                    for i in range(cols * 2)
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("gap", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["1", "2", "4", "6"]
+                        ],
+                        value=str(gap),
+                        on_change=ctx.callback(_set_gap),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Grid(
+                columns=cols,
+                gap=gap,
+                children=[
+                    Container(
+                        class_name="border rounded-md p-3 bg-background text-center text-sm font-medium",
+                        children=[Text(f"Cell {i + 1}")],
+                    )
+                    for i in range(cols * 2)
+                ],
+            )
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

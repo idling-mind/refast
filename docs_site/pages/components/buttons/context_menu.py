@@ -25,6 +25,7 @@ from refast.components.shadcn.overlay import (
     ContextMenuSeparator,
     ContextMenuTrigger,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Context Menu"
 PAGE_ROUTE = "/docs/components/context-menu"
@@ -58,111 +59,108 @@ def _playground(ctx: Context):
     show_bookmarks = ctx.state.get("cm_show_bookmarks", True)
     show_urls = ctx.state.get("cm_show_urls", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[],
+        preview=[
+            Text(
+                "Right-click (or long-press) the area below to open the context menu.",
+                class_name="text-sm text-muted-foreground mb-4",
+            ),
+            ContextMenu(
                 children=[
-                    Text(
-                        "Right-click (or long-press) the area below to open the context menu.",
-                        class_name="text-sm text-muted-foreground mb-4",
-                    ),
-                    ContextMenu(
+                    ContextMenuTrigger(
                         children=[
-                            ContextMenuTrigger(
+                            Container(
+                                class_name=(
+                                    "border-2 border-dashed rounded-lg p-10 "
+                                    "flex items-center justify-center "
+                                    "select-none cursor-context-menu "
+                                    "bg-muted/30 text-muted-foreground text-sm"
+                                ),
                                 children=[
-                                    Container(
-                                        class_name=(
-                                            "border-2 border-dashed rounded-lg p-10 "
-                                            "flex items-center justify-center "
-                                            "select-none cursor-context-menu "
-                                            "bg-muted/30 text-muted-foreground text-sm"
-                                        ),
-                                        children=[
-                                            Text("Right-click here"),
-                                        ],
-                                    ),
-                                ]
-                            ),
-                            ContextMenuContent(
-                                children=[
-                                    ContextMenuItem(
-                                        "Back",
-                                        icon="arrow-left",
-                                        shortcut="⌘[",
-                                        on_select=ctx.callback(_select_action, action="Back"),
-                                    ),
-                                    ContextMenuItem(
-                                        "Forward",
-                                        icon="arrow-right",
-                                        shortcut="⌘]",
-                                        disabled=True,
-                                        on_select=ctx.callback(_select_action, action="Forward"),
-                                    ),
-                                    ContextMenuItem(
-                                        "Reload",
-                                        icon="refresh-cw",
-                                        shortcut="⌘R",
-                                        on_select=ctx.callback(_select_action, action="Reload"),
-                                    ),
-                                    ContextMenuSeparator(),
-                                    ContextMenuCheckboxItem(
-                                        "Show Bookmarks Bar",
-                                        checked=show_bookmarks,
-                                        on_checked_change=ctx.callback(_toggle_bookmarks),
-                                    ),
-                                    ContextMenuCheckboxItem(
-                                        "Show Full URLs",
-                                        checked=show_urls,
-                                        on_checked_change=ctx.callback(_toggle_urls),
-                                    ),
-                                    ContextMenuSeparator(),
-                                    ContextMenuItem(
-                                        "Save Page As…",
-                                        icon="save",
-                                        shortcut="⌘S",
-                                        on_select=ctx.callback(_select_action, action="Save Page As…"),
-                                    ),
-                                    ContextMenuItem(
-                                        "Print…",
-                                        icon="printer",
-                                        shortcut="⌘P",
-                                        on_select=ctx.callback(_select_action, action="Print…"),
-                                    ),
-                                ]
+                                    Text("Right-click here"),
+                                ],
                             ),
                         ]
                     ),
-                    Text(
-                        f"Last action: {last_action}",
-                        class_name="text-sm text-muted-foreground mt-4",
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "ContextMenu(\n"
-                            "    children=[\n"
-                            "        ContextMenuTrigger(\n"
-                            '            Container("Right-click here", ...)\n'
-                            "        ),\n"
-                            "        ContextMenuContent(\n"
-                            '            ContextMenuItem("Back", icon="arrow-left",\n'
-                            "                           on_select=ctx.callback(handle_back)),\n"
-                            '            ContextMenuItem("Reload", icon="refresh-cw",\n'
-                            "                           on_select=ctx.callback(handle_reload)),\n"
-                            "            ContextMenuSeparator(),\n"
-                            '            ContextMenuCheckboxItem("Show Bookmarks",\n'
-                            "                checked=show_bookmarks,\n"
-                            "                on_checked_change=ctx.callback(handle_bookmarks)),\n"
-                            "        ),\n"
-                            "    ]\n"
-                            ")\n"
-                            "```"
-                        )
+                    ContextMenuContent(
+                        children=[
+                            ContextMenuItem(
+                                "Back",
+                                icon="arrow-left",
+                                shortcut="⌘[",
+                                on_select=ctx.callback(_select_action, action="Back"),
+                            ),
+                            ContextMenuItem(
+                                "Forward",
+                                icon="arrow-right",
+                                shortcut="⌘]",
+                                disabled=True,
+                                on_select=ctx.callback(_select_action, action="Forward"),
+                            ),
+                            ContextMenuItem(
+                                "Reload",
+                                icon="refresh-cw",
+                                shortcut="⌘R",
+                                on_select=ctx.callback(_select_action, action="Reload"),
+                            ),
+                            ContextMenuSeparator(),
+                            ContextMenuCheckboxItem(
+                                "Show Bookmarks Bar",
+                                checked=show_bookmarks,
+                                on_checked_change=ctx.callback(_toggle_bookmarks),
+                            ),
+                            ContextMenuCheckboxItem(
+                                "Show Full URLs",
+                                checked=show_urls,
+                                on_checked_change=ctx.callback(_toggle_urls),
+                            ),
+                            ContextMenuSeparator(),
+                            ContextMenuItem(
+                                "Save Page As…",
+                                icon="save",
+                                shortcut="⌘S",
+                                on_select=ctx.callback(_select_action, action="Save Page As…"),
+                            ),
+                            ContextMenuItem(
+                                "Print…",
+                                icon="printer",
+                                shortcut="⌘P",
+                                on_select=ctx.callback(_select_action, action="Print…"),
+                            ),
+                        ]
                     ),
                 ]
             ),
-        ]
+            Text(
+                f"Last action: {last_action}",
+                class_name="text-sm text-muted-foreground mt-4",
+            ),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "ContextMenu(\n"
+                "    children=[\n"
+                "        ContextMenuTrigger(\n"
+                '            Container("Right-click here", ...)\n'
+                "        ),\n"
+                "        ContextMenuContent(\n"
+                '            ContextMenuItem("Back", icon="arrow-left",\n'
+                "                           on_select=ctx.callback(handle_back)),\n"
+                '            ContextMenuItem("Reload", icon="refresh-cw",\n'
+                "                           on_select=ctx.callback(handle_reload)),\n"
+                "            ContextMenuSeparator(),\n"
+                '            ContextMenuCheckboxItem("Show Bookmarks",\n'
+                "                checked=show_bookmarks,\n"
+                "                on_checked_change=ctx.callback(handle_bookmarks)),\n"
+                "        ),\n"
+                "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="",
     )
 
 

@@ -20,6 +20,7 @@ from refast.components import (
     Tabs,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Tabs"
 PAGE_ROUTE = "/docs/components/tabs"
@@ -87,78 +88,63 @@ def _playground(ctx: Context):
             children=tab_items,
         )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Tab count", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "2", "label": "2 tabs"},
-                                            {"value": "3", "label": "3 tabs"},
-                                            {"value": "4", "label": "4 tabs"},
-                                        ],
-                                        value=str(tab_count),
-                                        on_change=ctx.callback(_set_tab_count),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Mode", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="controlled (Python manages active tab)",
-                                        checked=controlled,
-                                        on_change=ctx.callback(_set_controlled),
-                                    ),
-                                ],
-                            ),
+                    Text("Tab count", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "2", "label": "2 tabs"},
+                            {"value": "3", "label": "3 tabs"},
+                            {"value": "4", "label": "4 tabs"},
                         ],
+                        value=str(tab_count),
+                        on_change=ctx.callback(_set_tab_count),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[tabs],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            + (
-                                f"# Controlled — Python tracks active tab\n"
-                                f"Tabs(\n"
-                                f'    value="{active_tab}",\n'
-                                f"    on_value_change=ctx.callback(set_active_tab),\n"
-                                f"    children=[\n"
-                                if controlled
-                                else (
-                                    "# Uncontrolled — browser manages state\n"
-                                    "Tabs(\n"
-                                    '    default_value="tab-0",\n'
-                                    "    children=[\n"
-                                )
-                            )
-                            + "".join(
-                                f'        TabItem(value="tab-{i}", label="{_TAB_LABELS[i]}", children=[...]),\n'
-                                for i in range(tab_count)
-                            )
-                            + "    ],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Mode", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="controlled (Python manages active tab)",
+                        checked=controlled,
+                        on_change=ctx.callback(_set_controlled),
+                    ),
+                ],
+            ),
+        ],
+        preview=[tabs],
+        code=Markdown(
+            content=(
+                "```python\n"
+                + (
+                    f"# Controlled — Python tracks active tab\n"
+                    f"Tabs(\n"
+                    f'    value="{active_tab}",\n'
+                    f"    on_value_change=ctx.callback(set_active_tab),\n"
+                    f"    children=[\n"
+                    if controlled
+                    else (
+                        "# Uncontrolled — browser manages state\n"
+                        "Tabs(\n"
+                        '    default_value="tab-0",\n'
+                        "    children=[\n"
+                    )
+                )
+                + "".join(
+                    f'        TabItem(value="tab-{i}", label="{_TAB_LABELS[i]}", children=[...]),\n'
+                    for i in range(tab_count)
+                )
+                + "    ],\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

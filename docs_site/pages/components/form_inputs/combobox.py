@@ -16,6 +16,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.controls import Combobox, ComboboxOption
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Combobox"
 PAGE_ROUTE = "/docs/components/combobox"
@@ -72,102 +73,87 @@ def _playground(ctx: Context):
     show_error = ctx.state.get("cmb_error", False)
     selected = ctx.state.get("cmb_value", None)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("required", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="required",
-                                        checked=required,
-                                        on_change=ctx.callback(_set_required),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("multiselect", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="multiselect",
-                                        checked=multiselect,
-                                        on_change=ctx.callback(_set_multiselect),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("error", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show error",
-                                        checked=show_error,
-                                        on_change=ctx.callback(_set_error),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            Combobox(
-                                label="Framework",
-                                description="Choose your primary framework.",
-                                options=_FRAMEWORK_OPTIONS_ITEMS,
-                                value=selected,
-                                placeholder="Select framework\u2026",
-                                search_placeholder="Search frameworks\u2026",
-                                empty_text="No frameworks found.",
-                                multiselect=multiselect,
-                                disabled=disabled,
-                                required=required,
-                                error="Please select an option." if show_error else None,
-                                on_select=ctx.callback(_on_select),
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Combobox(\n"
-                            f'    label="Framework",\n'
-                            f"    options=[\n"
-                            f'        {{"value": "next", "label": "Next.js", "description": "The React Framework"}},\n'
-                            f"        ...\n"
-                            f"    ],\n"
-                            f'    placeholder="Select framework\u2026",\n'
-                            f"    multiselect={multiselect},\n"
-                            f"    disabled={disabled},\n"
-                            f"    required={required},\n"
-                            f"    on_select=ctx.callback(handle_select),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("required", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="required",
+                        checked=required,
+                        on_change=ctx.callback(_set_required),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("multiselect", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="multiselect",
+                        checked=multiselect,
+                        on_change=ctx.callback(_set_multiselect),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("error", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show error",
+                        checked=show_error,
+                        on_change=ctx.callback(_set_error),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Combobox(
+                label="Framework",
+                description="Choose your primary framework.",
+                options=_FRAMEWORK_OPTIONS_ITEMS,
+                value=selected,
+                placeholder="Select framework\u2026",
+                search_placeholder="Search frameworks\u2026",
+                empty_text="No frameworks found.",
+                multiselect=multiselect,
+                disabled=disabled,
+                required=required,
+                error="Please select an option." if show_error else None,
+                on_select=ctx.callback(_on_select),
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Combobox(\n"
+                f'    label="Framework",\n'
+                f"    options=[\n"
+                f'        {{"value": "next", "label": "Next.js", "description": "The React Framework"}},\n'
+                f"        ...\n"
+                f"    ],\n"
+                f'    placeholder="Select framework\u2026",\n'
+                f"    multiselect={multiselect},\n"
+                f"    disabled={disabled},\n"
+                f"    required={required},\n"
+                f"    on_select=ctx.callback(handle_select),\n"
+                f")\n"
+                f"```"
+            )
+        ),
     )
 
 

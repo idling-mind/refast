@@ -18,6 +18,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Resizable"
 PAGE_ROUTE = "/docs/components/resizable"
@@ -42,89 +43,81 @@ def _playground(ctx: Context):
     else:
         panel_class = "h-24 flex items-center justify-center"
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        class_name="mb-4",
+                    Text("direction", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["horizontal", "vertical"]
+                        ],
+                        value=direction,
+                        on_change=ctx.callback(_set_direction),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Container(
+                class_name="border rounded-lg overflow-hidden",
+                style={"height": "300px"},
+                children=[
+                    ResizablePanelGroup(
+                        direction=direction,
+                        class_name="h-full",
                         children=[
-                            Column(
-                                gap=1,
+                            ResizablePanel(
+                                default_size=50,
+                                min_size=20,
+                                class_name=panel_class,
                                 children=[
-                                    Text("direction", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["horizontal", "vertical"]
+                                    Column(
+                                        gap=1,
+                                        align="center",
+                                        children=[
+                                            Text(
+                                                "Panel A",
+                                                class_name="font-medium text-sm",
+                                            ),
+                                            Text(
+                                                "Drag the handle",
+                                                class_name="text-xs text-muted-foreground",
+                                            ),
                                         ],
-                                        value=direction,
-                                        on_change=ctx.callback(_set_direction),
-                                    ),
+                                    )
+                                ],
+                            ),
+                            ResizableHandle(with_handle=True),
+                            ResizablePanel(
+                                default_size=50,
+                                min_size=20,
+                                class_name=panel_class,
+                                children=[
+                                    Column(
+                                        gap=1,
+                                        align="center",
+                                        children=[
+                                            Text(
+                                                "Panel B",
+                                                class_name="font-medium text-sm",
+                                            ),
+                                            Text(
+                                                "to resize",
+                                                class_name="text-xs text-muted-foreground",
+                                            ),
+                                        ],
+                                    )
                                 ],
                             ),
                         ],
-                    ),
-                    Container(
-                        class_name="border rounded-lg overflow-hidden",
-                        style={"height": "300px"},
-                        children=[
-                            ResizablePanelGroup(
-                                direction=direction,
-                                class_name="h-full",
-                                children=[
-                                    ResizablePanel(
-                                        default_size=50,
-                                        min_size=20,
-                                        class_name=panel_class,
-                                        children=[
-                                            Column(
-                                                gap=1,
-                                                align="center",
-                                                children=[
-                                                    Text(
-                                                        "Panel A",
-                                                        class_name="font-medium text-sm",
-                                                    ),
-                                                    Text(
-                                                        "Drag the handle",
-                                                        class_name="text-xs text-muted-foreground",
-                                                    ),
-                                                ],
-                                            )
-                                        ],
-                                    ),
-                                    ResizableHandle(with_handle=True),
-                                    ResizablePanel(
-                                        default_size=50,
-                                        min_size=20,
-                                        class_name=panel_class,
-                                        children=[
-                                            Column(
-                                                gap=1,
-                                                align="center",
-                                                children=[
-                                                    Text(
-                                                        "Panel B",
-                                                        class_name="font-medium text-sm",
-                                                    ),
-                                                    Text(
-                                                        "to resize",
-                                                        class_name="text-xs text-muted-foreground",
-                                                    ),
-                                                ],
-                                            )
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                    )
+                ],
             ),
-        ]
+        ],
+        preview_class="",
     )
 
 

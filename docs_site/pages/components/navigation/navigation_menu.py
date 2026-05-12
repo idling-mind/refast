@@ -1,6 +1,7 @@
 """NavigationMenu — /docs/components/navigation-menu."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -118,62 +119,48 @@ def _playground(ctx: Context):
         ],
     )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["horizontal", "vertical"]
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
+                    Text("Orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["horizontal", "vertical"]
                         ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 min-h-[80px]",
-                        children=[nav],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"NavigationMenu(\n"
-                            f'    orientation="{orientation}",\n'
-                            f"    children=[\n"
-                            f"        NavigationMenuList(\n"
-                            f"            children=[\n"
-                            f"                NavigationMenuItem(\n"
-                            f"                    children=[\n"
-                            f'                        NavigationMenuTrigger("Getting Started"),\n'
-                            f"                        NavigationMenuContent(\n"
-                            f"                            children=[...],\n"
-                            f"                        ),\n"
-                            f"                    ]\n"
-                            f"                ),\n"
-                            f"            ]\n"
-                            f"        )\n"
-                            f"    ]\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[nav],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"NavigationMenu(\n"
+                f'    orientation="{orientation}",\n'
+                f"    children=[\n"
+                f"        NavigationMenuList(\n"
+                f"            children=[\n"
+                f"                NavigationMenuItem(\n"
+                f"                    children=[\n"
+                f'                        NavigationMenuTrigger("Getting Started"),\n'
+                f"                        NavigationMenuContent(\n"
+                f"                            children=[...],\n"
+                f"                        ),\n"
+                f"                    ]\n"
+                f"                ),\n"
+                f"            ]\n"
+                f"        )\n"
+                f"    ]\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30 min-h-[80px]",
     )
 
 

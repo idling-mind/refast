@@ -1,6 +1,7 @@
 """Pagination — /docs/components/pagination."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -147,62 +148,50 @@ def _playground(ctx: Context):
     total = ctx.state.get("pgn_total", 5)
     current = ctx.state.get("pgn_current", 1)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Total pages", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": str(n), "label": str(n)}
-                                            for n in [5, 10, 20]
-                                        ],
-                                        value=str(total),
-                                        on_change=ctx.callback(_set_total_pages),
-                                    ),
-                                ],
-                            ),
+                    Text("Total pages", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": str(n), "label": str(n)}
+                            for n in [5, 10, 20]
                         ],
+                        value=str(total),
+                        on_change=ctx.callback(_set_total_pages),
                     ),
-                    Text(
-                        f"Page {current} of {total}",
-                        class_name="text-sm text-muted-foreground mb-3",
-                    ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 flex justify-center",
-                        children=[_build_pagination(ctx, current, total)],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Pagination(\n"
-                            "    children=[\n"
-                            "        PaginationContent(\n"
-                            "            children=[\n"
-                            "                PaginationItem(children=[PaginationPrevious(on_click=ctx.callback(go_prev))]),\n"
-                            "                PaginationItem(children=[PaginationLink(\"1\", active=True, on_click=ctx.callback(go_page, page=1))]),\n"
-                            "                PaginationItem(children=[PaginationLink(\"2\", on_click=ctx.callback(go_page, page=2))]),\n"
-                            "                PaginationItem(children=[PaginationEllipsis()]),\n"
-                            "                PaginationItem(children=[PaginationNext(on_click=ctx.callback(go_next))]),\n"
-                            "            ]\n"
-                            "        )\n"
-                            "    ]\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Text(
+                f"Page {current} of {total}",
+                class_name="text-sm text-muted-foreground mb-3",
+            ),
+            _build_pagination(ctx, current, total),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Pagination(\n"
+                "    children=[\n"
+                "        PaginationContent(\n"
+                "            children=[\n"
+                "                PaginationItem(children=[PaginationPrevious(on_click=ctx.callback(go_prev))]),\n"
+                "                PaginationItem(children=[PaginationLink(\"1\", active=True, on_click=ctx.callback(go_page, page=1))]),\n"
+                "                PaginationItem(children=[PaginationLink(\"2\", on_click=ctx.callback(go_page, page=2))]),\n"
+                "                PaginationItem(children=[PaginationEllipsis()]),\n"
+                "                PaginationItem(children=[PaginationNext(on_click=ctx.callback(go_next))]),\n"
+                "            ]\n"
+                "        )\n"
+                "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30 flex flex-col items-center",
     )
 
 

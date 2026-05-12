@@ -4,6 +4,7 @@ Interactive reference page for the Card component family.
 """
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Button,
     Card,
@@ -94,99 +95,80 @@ def _playground(ctx: Context):
             )
         )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Show Header", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show header",
-                                        checked=show_header,
-                                        on_change=ctx.callback(_set_show_header),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Title", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=title,
-                                        placeholder="Card title…",
-                                        on_change=ctx.callback(_set_title),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Description", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=description,
-                                        placeholder="Card description…",
-                                        on_change=ctx.callback(_set_description),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Show Footer", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show footer",
-                                        checked=show_footer,
-                                        on_change=ctx.callback(_set_show_footer),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Show Header", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show header",
+                        checked=show_header,
+                        on_change=ctx.callback(_set_show_header),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            Card(children=card_children),
-                        ],
-                    ),
-                    # Live code snippet
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Card(\n"
-                            "    children=[\n"
-                            + (
-                                f'        CardHeader(\n'
-                                f'            children=[\n'
-                                f'                CardTitle(children=["{title}"]),\n'
-                                f'                CardDescription(children=["{description}"]),\n'
-                                f'            ]\n'
-                                f'        ),\n'
-                                if show_header
-                                else ""
-                            )
-                            + "        CardContent(children=[...]),\n"
-                            + (
-                                "        CardFooter(children=[Button(\"Cancel\"), Button(\"Save\")]),\n"
-                                if show_footer
-                                else ""
-                            )
-                            + "    ]\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Title", class_name="text-sm font-medium"),
+                    Input(
+                        value=title,
+                        placeholder="Card title…",
+                        on_change=ctx.callback(_set_title),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Description", class_name="text-sm font-medium"),
+                    Input(
+                        value=description,
+                        placeholder="Card description…",
+                        on_change=ctx.callback(_set_description),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Show Footer", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show footer",
+                        checked=show_footer,
+                        on_change=ctx.callback(_set_show_footer),
+                    ),
+                ],
+            ),
+        ],
+        preview=[Card(children=card_children)],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Card(\n"
+                "    children=[\n"
+                + (
+                    f'        CardHeader(\n'
+                    f'            children=[\n'
+                    f'                CardTitle(children=["{title}"]),\n'
+                    f'                CardDescription(children=["{description}"]),\n'
+                    f'            ]\n'
+                    f'        ),\n'
+                    if show_header
+                    else ""
+                )
+                + "        CardContent(children=[...]),\n"
+                + (
+                    "        CardFooter(children=[Button(\"Cancel\"), Button(\"Save\")]),\n"
+                    if show_footer
+                    else ""
+                )
+                + "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
     )
 
 

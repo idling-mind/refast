@@ -1,6 +1,7 @@
 """AspectRatio — /docs/components/aspect-ratio."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     AspectRatio,
     Card,
@@ -51,63 +52,49 @@ def _playground(ctx: Context):
     ratio_key = ctx.state.get("ar_ratio", "16/9")
     ratio_val = _RATIO_VALUES.get(ratio_key, 16 / 9)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Ratio", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=_RATIO_OPTIONS,
-                                        value=ratio_key,
-                                        on_change=ctx.callback(_set_ratio),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Ratio", class_name="text-sm font-medium"),
+                    Select(
+                        options=_RATIO_OPTIONS,
+                        value=ratio_key,
+                        on_change=ctx.callback(_set_ratio),
                     ),
+                ],
+            ),
+        ],
+        preview=[
+            AspectRatio(
+                ratio=ratio_val,
+                children=[
                     Container(
-                        class_name="max-w-sm",
+                        class_name="w-full h-full rounded-lg bg-muted border-2 border-border flex items-center justify-center",
                         children=[
-                            AspectRatio(
-                                ratio=ratio_val,
-                                children=[
-                                    Container(
-                                        class_name="w-full h-full rounded-lg bg-muted border-2 border-border flex items-center justify-center",
-                                        children=[
-                                            Text(
-                                                ratio_key.replace("/", " : "),
-                                                class_name="text-lg font-bold text-primary",
-                                            )
-                                        ],
-                                    )
-                                ],
+                            Text(
+                                ratio_key.replace("/", " : "),
+                                class_name="text-lg font-bold text-primary",
                             )
                         ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"AspectRatio(\n"
-                            f"    ratio={ratio_key},\n"
-                            f"    children=[\n"
-                            f"        Image(src=\"photo.jpg\", alt=\"Photo\", class_name=\"w-full h-full object-cover rounded-lg\"),\n"
-                            f"    ]\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
-            ),
-        ]
+                    )
+                ],
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"AspectRatio(\n"
+                f"    ratio={ratio_key},\n"
+                f"    children=[\n"
+                f"        Image(src=\"photo.jpg\", alt=\"Photo\", class_name=\"w-full h-full object-cover rounded-lg\"),\n"
+                f"    ]\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="max-w-sm",
     )
 
 

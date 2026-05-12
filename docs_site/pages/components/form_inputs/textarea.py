@@ -16,6 +16,7 @@ from refast.components import (
     Text,
     Textarea,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Textarea"
 PAGE_ROUTE = "/docs/components/textarea"
@@ -53,98 +54,83 @@ def _playground(ctx: Context):
     required = ctx.state.get("ta_required", False)
     show_error = ctx.state.get("ta_error", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Rows", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": str(r), "label": str(r)}
-                                            for r in [2, 3, 5, 10]
-                                        ],
-                                        value=str(rows),
-                                        on_change=ctx.callback(_set_rows),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("required", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="required",
-                                        checked=required,
-                                        on_change=ctx.callback(_set_required),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("error", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show error",
-                                        checked=show_error,
-                                        on_change=ctx.callback(_set_error),
-                                    ),
-                                ],
-                            ),
+                    Text("Rows", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": str(r), "label": str(r)}
+                            for r in [2, 3, 5, 10]
                         ],
+                        value=str(rows),
+                        on_change=ctx.callback(_set_rows),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            Textarea(
-                                name="demo",
-                                label="Demo Textarea",
-                                description="Write as much as you like.",
-                                placeholder="Enter text…",
-                                rows=rows,
-                                disabled=disabled,
-                                required=required,
-                                error="This field is required." if show_error else None,
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Textarea(\n"
-                            f'    name="demo",\n'
-                            f'    label="Demo Textarea",\n'
-                            f'    placeholder="Enter text…",\n'
-                            f"    rows={rows},\n"
-                            f"    disabled={disabled},\n"
-                            f"    required={required},\n"
-                            f'    error={"None" if not show_error else repr("This field is required.")},\n'
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("required", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="required",
+                        checked=required,
+                        on_change=ctx.callback(_set_required),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("error", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show error",
+                        checked=show_error,
+                        on_change=ctx.callback(_set_error),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Textarea(
+                name="demo",
+                label="Demo Textarea",
+                description="Write as much as you like.",
+                placeholder="Enter text\u2026",
+                rows=rows,
+                disabled=disabled,
+                required=required,
+                error="This field is required." if show_error else None,
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Textarea(\n"
+                f'    name="demo",\n'
+                f'    label="Demo Textarea",\n'
+                f'    placeholder="Enter text\u2026",\n'
+                f"    rows={rows},\n"
+                f"    disabled={disabled},\n"
+                f"    required={required},\n"
+                f'    error={{"None" if not show_error else repr("This field is required.")}},\n'
+                f")\n"
+                f"```"
+            )
+        ),
     )
 
 

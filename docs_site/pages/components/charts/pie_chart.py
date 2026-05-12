@@ -26,6 +26,7 @@ from refast.components.shadcn.charts import (
     Pie,
     PieChart,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Pie Chart"
 PAGE_ROUTE = "/docs/components/pie-chart"
@@ -95,41 +96,37 @@ def _playground(ctx: Context):
         children=cells,
     )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(gap=1, children=[
+                Text("Chart style", class_name="text-sm font-medium"),
+                Select(
+                    options=INNER_RADIUS_OPTIONS,
+                    value=inner_radius_key,
+                    on_change=ctx.callback(_pc_set_inner_radius),
+                ),
+            ]),
+            Column(gap=1, children=[
+                Text("Show labels", class_name="text-sm font-medium"),
+                Checkbox(label="labels", checked=show_labels, on_change=ctx.callback(_pc_set_show_labels)),
+            ]),
+        ],
+        preview=[
+            ChartContainer(
+                config=CHART_CONFIG,
+                class_name="h-72",
                 children=[
-                    Row(gap=4, wrap=True, class_name="mb-4", children=[
-                        Column(gap=1, children=[
-                            Text("Chart style", class_name="text-sm font-medium"),
-                            Select(
-                                options=INNER_RADIUS_OPTIONS,
-                                value=inner_radius_key,
-                                on_change=ctx.callback(_pc_set_inner_radius),
-                            ),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Show labels", class_name="text-sm font-medium"),
-                            Checkbox(label="labels", checked=show_labels, on_change=ctx.callback(_pc_set_show_labels)),
-                        ]),
-                    ]),
-                    ChartContainer(
-                        config=CHART_CONFIG,
-                        class_name="h-72",
+                    PieChart(
                         children=[
-                            PieChart(
-                                children=[
-                                    pie,
-                                    ChartTooltip(content=ChartTooltipContent()),
-                                    ChartLegend(content=ChartLegendContent()),
-                                ],
-                            ),
+                            pie,
+                            ChartTooltip(content=ChartTooltipContent()),
+                            ChartLegend(content=ChartLegendContent()),
                         ],
                     ),
                 ],
             ),
         ],
+        preview_class="",
     )
 
 

@@ -15,6 +15,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Select"
 PAGE_ROUTE = "/docs/components/select"
@@ -70,101 +71,86 @@ def _playground(ctx: Context):
 
     placeholder = "Choose a fruit…" if show_placeholder else ""
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("required", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="required",
-                                        checked=required,
-                                        on_change=ctx.callback(_set_required),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("placeholder", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show placeholder",
-                                        checked=show_placeholder,
-                                        on_change=ctx.callback(_set_placeholder),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("error", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show error",
-                                        checked=show_error,
-                                        on_change=ctx.callback(_set_error),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            Select(
-                                name="fruit",
-                                label="Favourite Fruit",
-                                description="Pick your favourite fruit from the list.",
-                                options=_FRUIT_OPTIONS,
-                                value=selected,
-                                placeholder=placeholder,
-                                disabled=disabled,
-                                required=required,
-                                error="Please select an option." if show_error else None,
-                                on_change=ctx.callback(_on_select),
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Select(\n"
-                            f'    name="fruit",\n'
-                            f'    label="Favourite Fruit",\n'
-                            f"    options=[\n"
-                            f'        {{"value": "apple", "label": "Apple"}},\n'
-                            f"        ...\n"
-                            f"    ],\n"
-                            f'    placeholder="{placeholder}",\n'
-                            f"    disabled={disabled},\n"
-                            f"    required={required},\n"
-                            f'    error={"None" if not show_error else repr("Please select an option.")},\n'
-                            f"    on_change=ctx.callback(handle_change),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("required", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="required",
+                        checked=required,
+                        on_change=ctx.callback(_set_required),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("placeholder", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show placeholder",
+                        checked=show_placeholder,
+                        on_change=ctx.callback(_set_placeholder),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("error", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show error",
+                        checked=show_error,
+                        on_change=ctx.callback(_set_error),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Select(
+                name="fruit",
+                label="Favourite Fruit",
+                description="Pick your favourite fruit from the list.",
+                options=_FRUIT_OPTIONS,
+                value=selected,
+                placeholder=placeholder,
+                disabled=disabled,
+                required=required,
+                error="Please select an option." if show_error else None,
+                on_change=ctx.callback(_on_select),
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Select(\n"
+                f'    name="fruit",\n'
+                f'    label="Favourite Fruit",\n'
+                f"    options=[\n"
+                f'        {{"value": "apple", "label": "Apple"}},\n'
+                f"        ...\n"
+                f"    ],\n"
+                f'    placeholder="{placeholder}",\n'
+                f"    disabled={disabled},\n"
+                f"    required={required},\n"
+                f'    error={"None" if not show_error else repr("Please select an option.")},\n'
+                f"    on_change=ctx.callback(handle_change),\n"
+                f")\n"
+                f"```"
+            )
+        ),
     )
 
 

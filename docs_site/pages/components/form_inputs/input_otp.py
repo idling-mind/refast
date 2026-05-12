@@ -21,6 +21,7 @@ from refast.components.shadcn.controls import (
     InputOTPSeparator,
     InputOTPSlot,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "InputOTP"
 PAGE_ROUTE = "/docs/components/input-otp"
@@ -67,94 +68,80 @@ def _playground(ctx: Context):
     current_value = ctx.state.get("otp_value", "")
     completed = ctx.state.get("otp_complete", None)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Length", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "4", "label": "4 digits"},
-                                            {"value": "6", "label": "6 digits"},
-                                            {"value": "8", "label": "8 digits"},
-                                        ],
-                                        value=str(length),
-                                        on_change=ctx.callback(_set_length),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("required", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="required",
-                                        checked=required,
-                                        on_change=ctx.callback(_set_required),
-                                    ),
-                                ],
-                            ),
+                    Text("Length", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "4", "label": "4 digits"},
+                            {"value": "6", "label": "6 digits"},
+                            {"value": "8", "label": "8 digits"},
                         ],
+                        value=str(length),
+                        on_change=ctx.callback(_set_length),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30 flex flex-col items-center gap-4",
-                        children=[
-                            InputOTP(
-                                max_length=length,
-                                disabled=disabled,
-                                required=required,
-                                label="Verification Code",
-                                description="Enter the code sent to your device.",
-                                on_change=ctx.callback(_on_change),
-                                on_complete=ctx.callback(_on_complete),
-                            ),
-                            Text(
-                                f"Value: {current_value or '—'}",
-                                class_name="text-sm text-muted-foreground",
-                            ),
-                            *(
-                                [Text(f"✓ Completed: {completed}", class_name="text-sm text-green-600 font-medium")]
-                                if completed and len(completed) == length
-                                else []
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"InputOTP(\n"
-                            f"    max_length={length},\n"
-                            f"    disabled={disabled},\n"
-                            f"    required={required},\n"
-                            f"    on_change=ctx.callback(handle_change),\n"
-                            f"    on_complete=ctx.callback(handle_complete),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("required", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="required",
+                        checked=required,
+                        on_change=ctx.callback(_set_required),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            InputOTP(
+                max_length=length,
+                disabled=disabled,
+                required=required,
+                label="Verification Code",
+                description="Enter the code sent to your device.",
+                on_change=ctx.callback(_on_change),
+                on_complete=ctx.callback(_on_complete),
+            ),
+            Text(
+                f"Value: {current_value or '—'}",
+                class_name="text-sm text-muted-foreground",
+            ),
+            *(
+                [Text(f"✓ Completed: {completed}", class_name="text-sm text-green-600 font-medium")]
+                if completed and len(completed) == length
+                else []
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"InputOTP(\n"
+                f"    max_length={length},\n"
+                f"    disabled={disabled},\n"
+                f"    required={required},\n"
+                f"    on_change=ctx.callback(handle_change),\n"
+                f"    on_complete=ctx.callback(handle_complete),\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 bg-muted/30 flex flex-col items-center gap-4",
     )
 
 

@@ -16,6 +16,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Checkbox"
 PAGE_ROUTE = "/docs/components/checkbox"
@@ -59,147 +60,129 @@ def _playground(ctx: Context):
     orientation = ctx.state.get("chk_orientation", "vertical")
     group_value = ctx.state.get("chk_group_value", ["apple"])
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    # Single Checkbox
-                    Text("Single Checkbox", class_name="text-base font-semibold mb-3"),
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("checked", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="toggle checked",
-                                        checked=checked,
-                                        on_change=ctx.callback(_set_checked),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("error", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show error",
-                                        checked=show_error,
-                                        on_change=ctx.callback(_set_error),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("checked", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="toggle checked",
+                        checked=checked,
+                        on_change=ctx.callback(_set_checked),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30 mb-6",
-                        children=[
-                            Checkbox(
-                                name="agree",
-                                value="yes",
-                                label="I agree to the terms of service",
-                                description="You must accept to continue.",
-                                checked=checked,
-                                disabled=disabled,
-                                error="You must accept the terms." if show_error else None,
-                                on_change=ctx.callback(_set_checked),
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Checkbox(\n"
-                            f'    name="agree",\n'
-                            f'    value="yes",\n'
-                            f'    label="I agree to the terms of service",\n'
-                            f"    checked={checked},\n"
-                            f"    disabled={disabled},\n"
-                            f'    error={"None" if not show_error else repr("You must accept the terms.")},\n'
-                            f"    on_change=ctx.callback(handle_toggle),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                    Separator(class_name="my-6"),
-                    # CheckboxGroup
-                    Text("CheckboxGroup", class_name="text-base font-semibold mb-3"),
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "vertical", "label": "vertical"},
-                                            {"value": "horizontal", "label": "horizontal"},
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            CheckboxGroup(
-                                name="fruits",
-                                label="Favourite Fruits",
-                                description="Select all that apply.",
-                                value=group_value,
-                                orientation=orientation,
-                                on_change=ctx.callback(_set_group_value),
-                                children=[
-                                    Checkbox(value="apple", label="Apple"),
-                                    Checkbox(value="banana", label="Banana"),
-                                    Checkbox(value="cherry", label="Cherry"),
-                                    Checkbox(value="mango", label="Mango"),
-                                ],
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"CheckboxGroup(\n"
-                            f'    name="fruits",\n'
-                            f'    label="Favourite Fruits",\n'
-                            f'    value={group_value!r},\n'
-                            f'    orientation="{orientation}",\n'
-                            f"    on_change=ctx.callback(handle_change),\n"
-                            f"    children=[\n"
-                            f'        Checkbox(value="apple", label="Apple"),\n'
-                            f'        Checkbox(value="banana", label="Banana"),\n'
-                            f'        Checkbox(value="cherry", label="Cherry"),\n'
-                            f"    ],\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("error", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show error",
+                        checked=show_error,
+                        on_change=ctx.callback(_set_error),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "vertical", "label": "vertical"},
+                            {"value": "horizontal", "label": "horizontal"},
+                        ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Text("Single Checkbox", class_name="text-base font-semibold mb-3"),
+            Container(
+                class_name="border rounded-lg p-6 bg-muted/30 mb-6",
+                children=[
+                    Checkbox(
+                        name="agree",
+                        value="yes",
+                        label="I agree to the terms of service",
+                        description="You must accept to continue.",
+                        checked=checked,
+                        disabled=disabled,
+                        error="You must accept the terms." if show_error else None,
+                        on_change=ctx.callback(_set_checked),
+                    )
+                ],
+            ),
+            Markdown(
+                content=(
+                    f"```python\n"
+                    f"Checkbox(\n"
+                    f'    name="agree",\n'
+                    f'    value="yes",\n'
+                    f'    label="I agree to the terms of service",\n'
+                    f"    checked={checked},\n"
+                    f"    disabled={disabled},\n"
+                    f'    error={"None" if not show_error else repr("You must accept the terms.")},\n'
+                    f"    on_change=ctx.callback(handle_toggle),\n"
+                    f")\n"
+                    f"```"
+                )
+            ),
+            Separator(class_name="my-6"),
+            Text("CheckboxGroup", class_name="text-base font-semibold mb-3"),
+            Container(
+                class_name="border rounded-lg p-6 bg-muted/30",
+                children=[
+                    CheckboxGroup(
+                        name="fruits",
+                        label="Favourite Fruits",
+                        description="Select all that apply.",
+                        value=group_value,
+                        orientation=orientation,
+                        on_change=ctx.callback(_set_group_value),
+                        children=[
+                            Checkbox(value="apple", label="Apple"),
+                            Checkbox(value="banana", label="Banana"),
+                            Checkbox(value="cherry", label="Cherry"),
+                            Checkbox(value="mango", label="Mango"),
+                        ],
+                    )
+                ],
+            ),
+            Markdown(
+                content=(
+                    f"```python\n"
+                    f"CheckboxGroup(\n"
+                    f'    name="fruits",\n'
+                    f'    label="Favourite Fruits",\n'
+                    f'    value={group_value!r},\n'
+                    f'    orientation="{orientation}",\n'
+                    f"    on_change=ctx.callback(handle_change),\n"
+                    f"    children=[\n"
+                    f'        Checkbox(value="apple", label="Apple"),\n'
+                    f'        Checkbox(value="banana", label="Banana"),\n'
+                    f'        Checkbox(value="cherry", label="Cherry"),\n'
+                    f"    ],\n"
+                    f")\n"
+                    f"```"
+                )
+            ),
+        ],
+        preview_class="",
     )
 
 

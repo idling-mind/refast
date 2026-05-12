@@ -32,6 +32,7 @@ from refast.components.shadcn.overlay import (
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Dropdown Menu"
 PAGE_ROUTE = "/docs/components/dropdown-menu"
@@ -72,124 +73,116 @@ def _playground(ctx: Context):
     show_activity = ctx.state.get("dm_show_activity", False)
     position = ctx.state.get("dm_position", "bottom")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[],
+        preview=[
+            DropdownMenu(
                 children=[
-                    Container(
-                        class_name="border rounded-lg p-6 flex flex-col items-center gap-4 min-h-[120px] bg-muted/30 mb-4",
+                    DropdownMenuTrigger(
                         children=[
-                            DropdownMenu(
+                            Button("Open Menu", variant="outline", icon="chevron-down", icon_position="right"),
+                        ]
+                    ),
+                    DropdownMenuContent(
+                        children=[
+                            DropdownMenuLabel("My Account"),
+                            DropdownMenuSeparator(),
+                            DropdownMenuItem(
+                                "Profile",
+                                icon="user",
+                                shortcut="⇧⌘P",
+                                on_select=ctx.callback(_select_item, item="Profile"),
+                            ),
+                            DropdownMenuItem(
+                                "Billing",
+                                icon="credit-card",
+                                shortcut="⌘B",
+                                on_select=ctx.callback(_select_item, item="Billing"),
+                            ),
+                            DropdownMenuItem(
+                                "Settings",
+                                icon="settings",
+                                shortcut="⌘S",
+                                on_select=ctx.callback(_select_item, item="Settings"),
+                            ),
+                            DropdownMenuSeparator(),
+                            DropdownMenuLabel("Appearance"),
+                            DropdownMenuCheckboxItem(
+                                "Status Bar",
+                                checked=show_status_bar,
+                                on_checked_change=ctx.callback(_toggle_show_status_bar),
+                            ),
+                            DropdownMenuCheckboxItem(
+                                "Activity Bar",
+                                checked=show_activity,
+                                on_checked_change=ctx.callback(_toggle_show_activity),
+                            ),
+                            DropdownMenuSeparator(),
+                            DropdownMenuLabel("Panel Position"),
+                            DropdownMenuRadioGroup(
+                                value=position,
+                                on_value_change=ctx.callback(_set_position),
                                 children=[
-                                    DropdownMenuTrigger(
+                                    DropdownMenuRadioItem("Top", value="top"),
+                                    DropdownMenuRadioItem("Bottom", value="bottom"),
+                                    DropdownMenuRadioItem("Right", value="right"),
+                                ],
+                            ),
+                            DropdownMenuSeparator(),
+                            DropdownMenuSub(
+                                children=[
+                                    DropdownMenuSubTrigger("Share", icon="share"),
+                                    DropdownMenuSubContent(
                                         children=[
-                                            Button("Open Menu", variant="outline", icon="chevron-down", icon_position="right"),
-                                        ]
-                                    ),
-                                    DropdownMenuContent(
-                                        children=[
-                                            DropdownMenuLabel("My Account"),
-                                            DropdownMenuSeparator(),
                                             DropdownMenuItem(
-                                                "Profile",
-                                                icon="user",
-                                                shortcut="⇧⌘P",
-                                                on_select=ctx.callback(_select_item, item="Profile"),
+                                                "Email",
+                                                icon="mail",
+                                                on_select=ctx.callback(_select_item, item="Email"),
                                             ),
                                             DropdownMenuItem(
-                                                "Billing",
-                                                icon="credit-card",
-                                                shortcut="⌘B",
-                                                on_select=ctx.callback(_select_item, item="Billing"),
-                                            ),
-                                            DropdownMenuItem(
-                                                "Settings",
-                                                icon="settings",
-                                                shortcut="⌘S",
-                                                on_select=ctx.callback(_select_item, item="Settings"),
-                                            ),
-                                            DropdownMenuSeparator(),
-                                            DropdownMenuLabel("Appearance"),
-                                            DropdownMenuCheckboxItem(
-                                                "Status Bar",
-                                                checked=show_status_bar,
-                                                on_checked_change=ctx.callback(_toggle_show_status_bar),
-                                            ),
-                                            DropdownMenuCheckboxItem(
-                                                "Activity Bar",
-                                                checked=show_activity,
-                                                on_checked_change=ctx.callback(_toggle_show_activity),
-                                            ),
-                                            DropdownMenuSeparator(),
-                                            DropdownMenuLabel("Panel Position"),
-                                            DropdownMenuRadioGroup(
-                                                value=position,
-                                                on_value_change=ctx.callback(_set_position),
-                                                children=[
-                                                    DropdownMenuRadioItem("Top", value="top"),
-                                                    DropdownMenuRadioItem("Bottom", value="bottom"),
-                                                    DropdownMenuRadioItem("Right", value="right"),
-                                                ],
-                                            ),
-                                            DropdownMenuSeparator(),
-                                            DropdownMenuSub(
-                                                children=[
-                                                    DropdownMenuSubTrigger("Share", icon="share"),
-                                                    DropdownMenuSubContent(
-                                                        children=[
-                                                            DropdownMenuItem(
-                                                                "Email",
-                                                                icon="mail",
-                                                                on_select=ctx.callback(_select_item, item="Email"),
-                                                            ),
-                                                            DropdownMenuItem(
-                                                                "Message",
-                                                                icon="message-circle",
-                                                                on_select=ctx.callback(_select_item, item="Message"),
-                                                            ),
-                                                        ]
-                                                    ),
-                                                ]
-                                            ),
-                                            DropdownMenuSeparator(),
-                                            DropdownMenuItem(
-                                                "Log out",
-                                                icon="log-out",
-                                                shortcut="⇧⌘Q",
-                                                on_select=ctx.callback(_select_item, item="Log out"),
+                                                "Message",
+                                                icon="message-circle",
+                                                on_select=ctx.callback(_select_item, item="Message"),
                                             ),
                                         ]
                                     ),
                                 ]
                             ),
-                            Text(
-                                f"Last action: {last_action}",
-                                class_name="text-sm text-muted-foreground",
+                            DropdownMenuSeparator(),
+                            DropdownMenuItem(
+                                "Log out",
+                                icon="log-out",
+                                shortcut="⇧⌘Q",
+                                on_select=ctx.callback(_select_item, item="Log out"),
                             ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "DropdownMenu(\n"
-                            "    children=[\n"
-                            '        DropdownMenuTrigger(Button("Open Menu")),\n'
-                            "        DropdownMenuContent(\n"
-                            '            DropdownMenuLabel("My Account"),\n'
-                            "            DropdownMenuSeparator(),\n"
-                            '            DropdownMenuItem("Profile", icon="user", shortcut="⇧⌘P",\n'
-                            "                            on_select=ctx.callback(handle_select)),\n"
-                            "            ...\n"
-                            "        ),\n"
-                            "    ]\n"
-                            ")\n"
-                            "```"
-                        )
+                        ]
                     ),
                 ]
             ),
-        ]
+            Text(
+                f"Last action: {last_action}",
+                class_name="text-sm text-muted-foreground",
+            ),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "DropdownMenu(\n"
+                "    children=[\n"
+                '        DropdownMenuTrigger(Button("Open Menu")),\n'
+                "        DropdownMenuContent(\n"
+                '            DropdownMenuLabel("My Account"),\n'
+                "            DropdownMenuSeparator(),\n"
+                '            DropdownMenuItem("Profile", icon="user", shortcut="⇧⌘P",\n'
+                "                            on_select=ctx.callback(handle_select)),\n"
+                "            ...\n"
+                "        ),\n"
+                "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 flex flex-col items-center gap-4 min-h-[120px] bg-muted/30",
     )
 
 

@@ -24,6 +24,7 @@ from refast.components import (
     TableRow,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Table"
 PAGE_ROUTE = "/docs/components/table"
@@ -71,120 +72,105 @@ def _playground(ctx: Context):
 
     rows = _SAMPLE_DATA[:row_count]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Row count", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "2", "label": "2"},
-                                            {"value": "5", "label": "5"},
-                                            {"value": "10", "label": "10"},
-                                        ],
-                                        value=str(row_count),
-                                        on_change=ctx.callback(_set_row_count),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Striped", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="striped rows",
-                                        checked=striped,
-                                        on_change=ctx.callback(_set_striped),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Hoverable", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="row hover",
-                                        checked=hoverable,
-                                        on_change=ctx.callback(_set_hoverable),
-                                    ),
-                                ],
-                            ),
+                    Text("Row count", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "2", "label": "2"},
+                            {"value": "5", "label": "5"},
+                            {"value": "10", "label": "10"},
                         ],
+                        value=str(row_count),
+                        on_change=ctx.callback(_set_row_count),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Table(
-                                striped=striped,
-                                hoverable=hoverable,
-                                children=[
-                                    TableHeader(
-                                        children=[
-                                            TableRow(
-                                                children=[
-                                                    TableHead(children=["Name"]),
-                                                    TableHead(children=["Email"]),
-                                                    TableHead(children=["Role"]),
-                                                ]
-                                            )
-                                        ]
-                                    ),
-                                    TableBody(
-                                        children=[
-                                            TableRow(
-                                                children=[
-                                                    TableCell(children=[row["name"]]),
-                                                    TableCell(children=[row["email"]]),
-                                                    TableCell(children=[row["role"]]),
-                                                ]
-                                            )
-                                            for row in rows
-                                        ]
-                                    ),
-                                ],
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Table(\n"
-                            f"    striped={striped},\n"
-                            f"    hoverable={hoverable},\n"
-                            "    children=[\n"
-                            "        TableHeader(children=[\n"
-                            "            TableRow(children=[\n"
-                            "                TableHead(children=[\"Name\"]),\n"
-                            "                TableHead(children=[\"Email\"]),\n"
-                            "                TableHead(children=[\"Role\"]),\n"
-                            "            ])\n"
-                            "        ]),\n"
-                            "        TableBody(children=[\n"
-                            "            TableRow(children=[\n"
-                            "                TableCell(children=[\"Alice Johnson\"]),\n"
-                            "                TableCell(children=[\"alice@example.com\"]),\n"
-                            "                TableCell(children=[\"Admin\"]),\n"
-                            "            ]),\n"
-                            "            # ... more rows\n"
-                            "        ]),\n"
-                            "    ]\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Striped", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="striped rows",
+                        checked=striped,
+                        on_change=ctx.callback(_set_striped),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Hoverable", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="row hover",
+                        checked=hoverable,
+                        on_change=ctx.callback(_set_hoverable),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Table(
+                striped=striped,
+                hoverable=hoverable,
+                children=[
+                    TableHeader(
+                        children=[
+                            TableRow(
+                                children=[
+                                    TableHead(children=["Name"]),
+                                    TableHead(children=["Email"]),
+                                    TableHead(children=["Role"]),
+                                ]
+                            )
+                        ]
+                    ),
+                    TableBody(
+                        children=[
+                            TableRow(
+                                children=[
+                                    TableCell(children=[row["name"]]),
+                                    TableCell(children=[row["email"]]),
+                                    TableCell(children=[row["role"]]),
+                                ]
+                            )
+                            for row in rows
+                        ]
+                    ),
+                ],
+            )
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Table(\n"
+                f"    striped={striped},\n"
+                f"    hoverable={hoverable},\n"
+                "    children=[\n"
+                "        TableHeader(children=[\n"
+                "            TableRow(children=[\n"
+                "                TableHead(children=[\"Name\"]),\n"
+                "                TableHead(children=[\"Email\"]),\n"
+                "                TableHead(children=[\"Role\"]),\n"
+                "            ])\n"
+                "        ]),\n"
+                "        TableBody(children=[\n"
+                "            TableRow(children=[\n"
+                "                TableCell(children=[\"Alice Johnson\"]),\n"
+                "                TableCell(children=[\"alice@example.com\"]),\n"
+                "                TableCell(children=[\"Admin\"]),\n"
+                "            ]),\n"
+                "            # ... more rows\n"
+                "        ]),\n"
+                "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

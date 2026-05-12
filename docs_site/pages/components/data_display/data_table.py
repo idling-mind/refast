@@ -19,6 +19,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "DataTable"
 PAGE_ROUTE = "/docs/components/data-table"
@@ -77,53 +78,44 @@ def _playground(ctx: Context):
     page_size = int(ctx.state.get("dtb_page_size", "5"))
     current_page = ctx.state.get("dtb_page", 1)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Page size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "3", "label": "3 per page"},
-                                            {"value": "5", "label": "5 per page"},
-                                            {"value": "10", "label": "10 per page"},
-                                        ],
-                                        value=str(page_size),
-                                        on_change=ctx.callback(_set_page_size),
-                                    ),
-                                ],
-                            ),
+                    Text("Page size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "3", "label": "3 per page"},
+                            {"value": "5", "label": "5 per page"},
+                            {"value": "10", "label": "10 per page"},
                         ],
+                        value=str(page_size),
+                        on_change=ctx.callback(_set_page_size),
                     ),
-                    Text(
-                        "Click a row to see the row-click callback in action.",
-                        class_name="text-sm text-muted-foreground mb-3",
-                    ),
-                    DataTable(
-                        columns=_COLUMNS,
-                        data=_SAMPLE_DATA,
-                        sortable=True,
-                        filterable=True,
-                        paginated=True,
-                        page_size=page_size,
-                        current_page=current_page,
-                        on_row_click=ctx.callback(_on_row_click),
-                        on_sort_change=ctx.callback(_on_sort),
-                        on_page_change=ctx.callback(_on_page),
-                        empty_message="No users found.",
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Text(
+                "Click a row to see the row-click callback in action.",
+                class_name="text-sm text-muted-foreground mb-3",
+            ),
+            DataTable(
+                columns=_COLUMNS,
+                data=_SAMPLE_DATA,
+                sortable=True,
+                filterable=True,
+                paginated=True,
+                page_size=page_size,
+                current_page=current_page,
+                on_row_click=ctx.callback(_on_row_click),
+                on_sort_change=ctx.callback(_on_sort),
+                on_page_change=ctx.callback(_on_page),
+                empty_message="No users found.",
+            ),
+        ],
+        preview_class="",
     )
 
 

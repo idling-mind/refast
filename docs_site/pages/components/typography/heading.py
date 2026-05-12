@@ -1,6 +1,7 @@
 """Heading — /docs/components/heading."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -40,52 +41,36 @@ def _playground(ctx: Context):
     level = int(ctx.state.get("hd_level", "1"))
     text = ctx.state.get("hd_text", "The quick brown fox")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("level", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": str(n), "label": f"h{n}"}
-                                            for n in range(1, 7)
-                                        ],
-                                        value=str(level),
-                                        on_change=ctx.callback(_set_level),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                class_name="flex-1 min-w-48",
-                                children=[
-                                    Text("text", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=text,
-                                        placeholder="Heading text...",
-                                        on_change=ctx.callback(_set_text),
-                                        debounce=300,
-                                    ),
-                                ],
-                            ),
+                    Text("level", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": str(n), "label": f"h{n}"}
+                            for n in range(1, 7)
                         ],
+                        value=str(level),
+                        on_change=ctx.callback(_set_level),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[Heading(text or "Heading text", level=level)],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("text", class_name="text-sm font-medium"),
+                    Input(
+                        value=text,
+                        placeholder="Heading text...",
+                        on_change=ctx.callback(_set_text),
+                        debounce=300,
+                    ),
+                ],
+            ),
+        ],
+        preview=[Heading(text or "Heading text", level=level)],
     )
 
 

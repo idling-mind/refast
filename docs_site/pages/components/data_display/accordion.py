@@ -21,6 +21,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Accordion"
 PAGE_ROUTE = "/docs/components/accordion"
@@ -81,80 +82,65 @@ def _playground(ctx: Context):
         for i in range(item_count)
     ]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Type", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "single", "label": "single"},
-                                            {"value": "multiple", "label": "multiple"},
-                                        ],
-                                        value=accordion_type,
-                                        on_change=ctx.callback(_set_type),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Item count", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "2", "label": "2"},
-                                            {"value": "3", "label": "3"},
-                                            {"value": "5", "label": "5"},
-                                        ],
-                                        value=str(item_count),
-                                        on_change=ctx.callback(_set_count),
-                                    ),
-                                ],
-                            ),
+                    Text("Type", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "single", "label": "single"},
+                            {"value": "multiple", "label": "multiple"},
                         ],
+                        value=accordion_type,
+                        on_change=ctx.callback(_set_type),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Accordion(
-                                type=accordion_type,
-                                collapsible=True,
-                                children=items,
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Accordion(\n"
-                            f'    type="{accordion_type}",\n'
-                            "    collapsible=True,\n"
-                            "    children=[\n"
-                            + "".join(
-                                f'        AccordionItem(value="item-{i}", children=[\n'
-                                f'            AccordionTrigger(children=["{_FAQ_ITEMS[i][0]}"]),\n'
-                                f'            AccordionContent(children=[Text("...")]),\n'
-                                f"        ]),\n"
-                                for i in range(item_count)
-                            )
-                            + "    ],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Item count", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "2", "label": "2"},
+                            {"value": "3", "label": "3"},
+                            {"value": "5", "label": "5"},
+                        ],
+                        value=str(item_count),
+                        on_change=ctx.callback(_set_count),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Accordion(
+                type=accordion_type,
+                collapsible=True,
+                children=items,
+            )
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Accordion(\n"
+                f'    type="{accordion_type}",\n'
+                "    collapsible=True,\n"
+                "    children=[\n"
+                + "".join(
+                    f'        AccordionItem(value="item-{i}", children=[\n'
+                    f'            AccordionTrigger(children=["{_FAQ_ITEMS[i][0]}"]),\n'
+                    f'            AccordionContent(children=[Text("...")]),\n'
+                    f"        ]),\n"
+                    for i in range(item_count)
+                )
+                + "    ],\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

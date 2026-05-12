@@ -1,6 +1,7 @@
 """Text & Paragraph — /docs/components/text."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -64,96 +65,83 @@ def _playground(ctx: Context):
     text_class = " ".join(filter(None, [color, size, weight]))
     para_class = " ".join(filter(None, [color, size, weight]))
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground — Text"),
-            CardContent(
+    return playground_card(
+        title="Interactive Playground — Text",
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("color", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": l}
-                                            for v, l in [
-                                                ("", "default"),
-                                                ("text-muted-foreground", "muted"),
-                                                ("text-primary", "primary"),
-                                                ("text-destructive", "destructive"),
-                                                ("text-blue-600", "blue"),
-                                            ]
-                                        ],
-                                        value=color,
-                                        on_change=ctx.callback(_set_color),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "text-xs",
-                                                "text-sm",
-                                                "text-base",
-                                                "text-lg",
-                                                "text-xl",
-                                                "text-2xl",
-                                            ]
-                                        ],
-                                        value=size,
-                                        on_change=ctx.callback(_set_size),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("weight", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "font-light",
-                                                "font-normal",
-                                                "font-medium",
-                                                "font-semibold",
-                                                "font-bold",
-                                            ]
-                                        ],
-                                        value=weight,
-                                        on_change=ctx.callback(_set_weight),
-                                    ),
-                                ],
-                            ),
+                    Text("color", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": l}
+                            for v, l in [
+                                ("", "default"),
+                                ("text-muted-foreground", "muted"),
+                                ("text-primary", "primary"),
+                                ("text-destructive", "destructive"),
+                                ("text-blue-600", "blue"),
+                            ]
                         ],
+                        value=color,
+                        on_change=ctx.callback(_set_color),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Column(
-                                gap=3,
-                                children=[
-                                    Text(
-                                        "Text component: " + _SAMPLE,
-                                        class_name=text_class,
-                                    ),
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "text-xs",
+                                "text-sm",
+                                "text-base",
+                                "text-lg",
+                                "text-xl",
+                                "text-2xl",
+                            ]
+                        ],
+                        value=size,
+                        on_change=ctx.callback(_set_size),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("weight", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "font-light",
+                                "font-normal",
+                                "font-medium",
+                                "font-semibold",
+                                "font-bold",
+                            ]
+                        ],
+                        value=weight,
+                        on_change=ctx.callback(_set_weight),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Column(
+                gap=3,
+                children=[
+                    Text(
+                        "Text component: " + _SAMPLE,
+                        class_name=text_class,
+                    ),
+                ],
+            )
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 
@@ -161,54 +149,42 @@ def _para_playground(ctx: Context):
     lead = ctx.state.get("tx_lead", False)
     muted = ctx.state.get("tx_muted", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground — Paragraph"),
-            CardContent(
+    return playground_card(
+        title="Interactive Playground — Paragraph",
+        options=[
+            Row(
+                gap=2,
+                align="center",
                 children=[
-                    Row(
-                        gap=4,
-                        class_name="mb-4",
-                        children=[
-                            Row(
-                                gap=2,
-                                align="center",
-                                children=[
-                                    Checkbox(
-                                        checked=lead,
-                                        on_change=ctx.callback(_set_lead),
-                                        id="tx-lead-cb",
-                                    ),
-                                    Text("lead (larger intro text)", class_name="text-sm"),
-                                ],
-                            ),
-                            Row(
-                                gap=2,
-                                align="center",
-                                children=[
-                                    Checkbox(
-                                        checked=muted,
-                                        on_change=ctx.callback(_set_muted),
-                                        id="tx-muted-cb",
-                                    ),
-                                    Text("muted (text-muted-foreground)", class_name="text-sm"),
-                                ],
-                            ),
-                        ],
+                    Checkbox(
+                        checked=lead,
+                        on_change=ctx.callback(_set_lead),
+                        id="tx-lead-cb",
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Paragraph(
-                                "Paragraph component: " + _SAMPLE,
-                                lead=lead,
-                                muted=muted,
-                            )
-                        ],
-                    ),
-                ]
+                    Text("lead (larger intro text)", class_name="text-sm"),
+                ],
             ),
-        ]
+            Row(
+                gap=2,
+                align="center",
+                children=[
+                    Checkbox(
+                        checked=muted,
+                        on_change=ctx.callback(_set_muted),
+                        id="tx-muted-cb",
+                    ),
+                    Text("muted (text-muted-foreground)", class_name="text-sm"),
+                ],
+            ),
+        ],
+        preview=[
+            Paragraph(
+                "Paragraph component: " + _SAMPLE,
+                lead=lead,
+                muted=muted,
+            )
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

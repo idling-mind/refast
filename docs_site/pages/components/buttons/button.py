@@ -20,6 +20,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Button"
 PAGE_ROUTE = "/docs/components/button"
@@ -61,107 +62,91 @@ def _playground(ctx: Context):
     disabled = ctx.state.get("btn_disabled", False)
     loading = ctx.state.get("btn_loading", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Variant", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "default",
-                                                "secondary",
-                                                "destructive",
-                                                "outline",
-                                                "ghost",
-                                                "link",
-                                            ]
-                                        ],
-                                        value=variant,
-                                        on_change=ctx.callback(_set_variant),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["xs", "sm", "md", "lg", "xl"]
-                                        ],
-                                        value=size,
-                                        on_change=ctx.callback(_set_size),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Loading", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="loading",
-                                        checked=loading,
-                                        on_change=ctx.callback(_set_loading),
-                                    ),
-                                ],
-                            ),
+                    Text("Variant", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "default",
+                                "secondary",
+                                "destructive",
+                                "outline",
+                                "ghost",
+                                "link",
+                            ]
                         ],
+                        value=variant,
+                        on_change=ctx.callback(_set_variant),
                     ),
-                    # Preview area
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center justify-center min-h-[80px] bg-muted/30",
-                        children=[
-                            Button(
-                                "Click me",
-                                variant=variant,
-                                size=size,
-                                disabled=disabled,
-                                loading=loading,
-                                on_click=ctx.callback(_noop),
-                            )
-                        ],
-                    ),
-                    # Live code snippet
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f'Button(\n'
-                            f'    "Click me",\n'
-                            f'    variant="{variant}",\n'
-                            f'    size="{size}",\n'
-                            f'    disabled={disabled},\n'
-                            f'    loading={loading},\n'
-                            f'    on_click=ctx.callback(handle_click),\n'
-                            f')\n'
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["xs", "sm", "md", "lg", "xl"]
+                        ],
+                        value=size,
+                        on_change=ctx.callback(_set_size),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Loading", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="loading",
+                        checked=loading,
+                        on_change=ctx.callback(_set_loading),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Button(
+                "Click me",
+                variant=variant,
+                size=size,
+                disabled=disabled,
+                loading=loading,
+                on_click=ctx.callback(_noop),
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f'Button(\n'
+                f'    "Click me",\n'
+                f'    variant="{variant}",\n'
+                f'    size="{size}",\n'
+                f'    disabled={disabled},\n'
+                f'    loading={loading},\n'
+                f'    on_click=ctx.callback(handle_click),\n'
+                f')\n'
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 flex items-center justify-center min-h-[80px] bg-muted/30",
     )
 
 

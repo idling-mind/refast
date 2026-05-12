@@ -1,6 +1,7 @@
 """Separator — /docs/components/separator."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -56,46 +57,32 @@ def _playground(ctx: Context):
             ],
         )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["horizontal", "vertical"]
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
+                    Text("Orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["horizontal", "vertical"]
                         ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[preview],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f'Separator(orientation="{orientation}")\n'
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[preview],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f'Separator(orientation="{orientation}")\n'
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 bg-muted/30",
     )
 
 

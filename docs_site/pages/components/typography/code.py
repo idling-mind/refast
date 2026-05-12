@@ -1,6 +1,7 @@
 """Code — /docs/components/code."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -50,66 +51,57 @@ def _playground(ctx: Context):
     language = ctx.state.get("cd_language", "python")
     line_numbers = ctx.state.get("cd_line_numbers", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
+                children=[
+                    Text("language", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "python",
+                                "typescript",
+                                "javascript",
+                                "bash",
+                                "json",
+                                "css",
+                            ]
+                        ],
+                        value=language,
+                        on_change=ctx.callback(_set_language),
+                    ),
+                ],
+            ),
+            Column(
+                gap=2,
+                justify="end",
                 children=[
                     Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
+                        gap=2,
+                        align="center",
                         children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("language", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "python",
-                                                "typescript",
-                                                "javascript",
-                                                "bash",
-                                                "json",
-                                                "css",
-                                            ]
-                                        ],
-                                        value=language,
-                                        on_change=ctx.callback(_set_language),
-                                    ),
-                                ],
+                            Checkbox(
+                                checked=line_numbers,
+                                on_change=ctx.callback(_set_line_numbers),
+                                id="cd-ln-cb",
                             ),
-                            Column(
-                                gap=2,
-                                justify="end",
-                                children=[
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=line_numbers,
-                                                on_change=ctx.callback(_set_line_numbers),
-                                                id="cd-ln-cb",
-                                            ),
-                                            Text("show_line_numbers", class_name="text-sm"),
-                                        ],
-                                    ),
-                                ],
-                            ),
+                            Text("show_line_numbers", class_name="text-sm"),
                         ],
                     ),
-                    Code(
-                        code=_BLOCK_CODE,
-                        language=language,
-                        inline=False,
-                        show_line_numbers=line_numbers,
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Code(
+                code=_BLOCK_CODE,
+                language=language,
+                inline=False,
+                show_line_numbers=line_numbers,
+            ),
+        ],
+        preview_class="",
     )
 
 

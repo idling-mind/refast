@@ -21,6 +21,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.controls import Slider
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Slider"
 PAGE_ROUTE = "/docs/components/slider"
@@ -82,117 +83,108 @@ def _playground(ctx: Context):
     # Clamp value within range
     current = value[0] if value else sl_min
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Min", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=str(int(sl_min) if sl_min == int(sl_min) else sl_min),
-                                        type="number",
-                                        on_change=ctx.callback(_set_min),
-                                        class_name="w-24",
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Max", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=str(int(sl_max) if sl_max == int(sl_max) else sl_max),
-                                        type="number",
-                                        on_change=ctx.callback(_set_max),
-                                        class_name="w-24",
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Step", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=str(int(step) if step == int(step) else step),
-                                        type="number",
-                                        on_change=ctx.callback(_set_step),
-                                        class_name="w-24",
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "horizontal", "label": "horizontal"},
-                                            {"value": "vertical", "label": "vertical"},
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Min", class_name="text-sm font-medium"),
+                    Input(
+                        value=str(int(sl_min) if sl_min == int(sl_min) else sl_min),
+                        type="number",
+                        on_change=ctx.callback(_set_min),
+                        class_name="w-24",
                     ),
-                    Container(
-                        style={"height": "200px"} if orientation == "vertical" else {},
-                        children=[
-                            Slider(
-                                value=value,
-                                min=sl_min,
-                                max=sl_max,
-                                step=step,
-                                orientation=orientation,
-                                disabled=disabled,
-                                show_value=True,
-                                on_value_change=ctx.callback(_set_value),
-                            ),
-                        ],
-                    ),
-                    Text(
-                        f"Current value: {current}",
-                        class_name="text-sm text-muted-foreground mb-2",
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Slider(\n"
-                            f"    value=[{current}],\n"
-                            f"    min={sl_min},\n"
-                            f"    max={sl_max},\n"
-                            f"    step={step},\n"
-                            f'    orientation="{orientation}",\n'
-                            f"    disabled={disabled},\n"
-                            f"    show_value=True,\n"
-                            f"    on_value_change=ctx.callback(handle_change),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Max", class_name="text-sm font-medium"),
+                    Input(
+                        value=str(int(sl_max) if sl_max == int(sl_max) else sl_max),
+                        type="number",
+                        on_change=ctx.callback(_set_max),
+                        class_name="w-24",
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Step", class_name="text-sm font-medium"),
+                    Input(
+                        value=str(int(step) if step == int(step) else step),
+                        type="number",
+                        on_change=ctx.callback(_set_step),
+                        class_name="w-24",
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "horizontal", "label": "horizontal"},
+                            {"value": "vertical", "label": "vertical"},
+                        ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Container(
+                style={"height": "200px"} if orientation == "vertical" else {},
+                children=[
+                    Slider(
+                        value=value,
+                        min=sl_min,
+                        max=sl_max,
+                        step=step,
+                        orientation=orientation,
+                        disabled=disabled,
+                        show_value=True,
+                        on_value_change=ctx.callback(_set_value),
+                    ),
+                ],
+            ),
+            Text(
+                f"Current value: {current}",
+                class_name="text-sm text-muted-foreground mb-2",
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Slider(\n"
+                f"    value=[{current}],\n"
+                f"    min={sl_min},\n"
+                f"    max={sl_max},\n"
+                f"    step={step},\n"
+                f'    orientation="{orientation}",\n'
+                f"    disabled={disabled},\n"
+                f"    show_value=True,\n"
+                f"    on_value_change=ctx.callback(handle_change),\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

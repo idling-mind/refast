@@ -17,6 +17,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Flex"
 PAGE_ROUTE = "/docs/components/flex"
@@ -60,130 +61,116 @@ def _playground(ctx: Context):
     gap = int(ctx.state.get("fx_gap", "2"))
     wrap = ctx.state.get("fx_wrap", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
+                children=[
+                    Text("direction", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "row",
+                                "column",
+                                "row-reverse",
+                                "column-reverse",
+                            ]
+                        ],
+                        value=direction,
+                        on_change=ctx.callback(_set_direction),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("justify", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "start",
+                                "end",
+                                "center",
+                                "between",
+                                "around",
+                                "evenly",
+                            ]
+                        ],
+                        value=justify,
+                        on_change=ctx.callback(_set_justify),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("align", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "start",
+                                "end",
+                                "center",
+                                "stretch",
+                                "baseline",
+                            ]
+                        ],
+                        value=align,
+                        on_change=ctx.callback(_set_align),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("gap", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["1", "2", "4", "6"]
+                        ],
+                        value=str(gap),
+                        on_change=ctx.callback(_set_gap),
+                    ),
+                ],
+            ),
+            Column(
+                gap=2,
+                justify="end",
                 children=[
                     Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
+                        gap=2,
+                        align="center",
                         children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("direction", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "row",
-                                                "column",
-                                                "row-reverse",
-                                                "column-reverse",
-                                            ]
-                                        ],
-                                        value=direction,
-                                        on_change=ctx.callback(_set_direction),
-                                    ),
-                                ],
+                            Checkbox(
+                                checked=wrap,
+                                on_change=ctx.callback(_set_wrap),
+                                id="fx-wrap-cb",
                             ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("justify", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "start",
-                                                "end",
-                                                "center",
-                                                "between",
-                                                "around",
-                                                "evenly",
-                                            ]
-                                        ],
-                                        value=justify,
-                                        on_change=ctx.callback(_set_justify),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("align", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "start",
-                                                "end",
-                                                "center",
-                                                "stretch",
-                                                "baseline",
-                                            ]
-                                        ],
-                                        value=align,
-                                        on_change=ctx.callback(_set_align),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("gap", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["1", "2", "4", "6"]
-                                        ],
-                                        value=str(gap),
-                                        on_change=ctx.callback(_set_gap),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=2,
-                                justify="end",
-                                children=[
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=wrap,
-                                                on_change=ctx.callback(_set_wrap),
-                                                id="fx-wrap-cb",
-                                            ),
-                                            Text("wrap", class_name="text-sm"),
-                                        ],
-                                    ),
-                                ],
-                            ),
+                            Text("wrap", class_name="text-sm"),
                         ],
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 min-h-[120px]",
-                        children=[
-                            Flex(
-                                direction=direction,
-                                justify=justify,
-                                align=align,
-                                gap=gap,
-                                wrap=wrap,
-                                children=[
-                                    Button("Alpha", variant="outline"),
-                                    Button("Beta", variant="outline"),
-                                    Button("Gamma", variant="outline"),
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Flex(
+                direction=direction,
+                justify=justify,
+                align=align,
+                gap=gap,
+                wrap=wrap,
+                children=[
+                    Button("Alpha", variant="outline"),
+                    Button("Beta", variant="outline"),
+                    Button("Gamma", variant="outline"),
+                ],
+            )
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30 min-h-[120px]",
     )
 
 

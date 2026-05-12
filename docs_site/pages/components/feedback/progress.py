@@ -18,6 +18,7 @@ from refast.components import (
     Spinner,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Progress, Spinner & Skeleton"
 PAGE_ROUTE = "/docs/components/progress"
@@ -55,94 +56,80 @@ def _playground(ctx: Context):
     show_value = ctx.state.get("prg_show_value", False)
     striped = ctx.state.get("prg_striped", None)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground — Progress"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Value", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": str(v), "label": f"{v}%"}
-                                            for v in [0, 10, 25, 40, 60, 75, 90, 100]
-                                        ],
-                                        value=str(value),
-                                        on_change=ctx.callback(_set_value),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Striped", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "none", "label": "none"},
-                                            {"value": "static", "label": "static"},
-                                            {"value": "animated", "label": "animated"},
-                                        ],
-                                        value=striped or "none",
-                                        on_change=ctx.callback(_set_striped),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Show value", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="show_value",
-                                        checked=show_value,
-                                        on_change=ctx.callback(_set_show_value),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Indeterminate", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="indeterminate",
-                                        checked=indeterminate,
-                                        on_change=ctx.callback(_set_indeterminate),
-                                    ),
-                                ],
-                            ),
+                    Text("Value", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": str(v), "label": f"{v}%"}
+                            for v in [0, 10, 25, 40, 60, 75, 90, 100]
                         ],
+                        value=str(value),
+                        on_change=ctx.callback(_set_value),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Progress(
-                                value=None if indeterminate else value,
-                                show_value=show_value,
-                                striped=striped,
-                                label="Loading…" if indeterminate else None,
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Progress(\n"
-                            f"    value={None if indeterminate else value},\n"
-                            f"    show_value={show_value},\n"
-                            + (f'    striped="{striped}",\n' if striped else "")
-                            + ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Striped", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "none", "label": "none"},
+                            {"value": "static", "label": "static"},
+                            {"value": "animated", "label": "animated"},
+                        ],
+                        value=striped or "none",
+                        on_change=ctx.callback(_set_striped),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Show value", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="show_value",
+                        checked=show_value,
+                        on_change=ctx.callback(_set_show_value),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Indeterminate", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="indeterminate",
+                        checked=indeterminate,
+                        on_change=ctx.callback(_set_indeterminate),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Progress(
+                value=None if indeterminate else value,
+                show_value=show_value,
+                striped=striped,
+                label="Loading…" if indeterminate else None,
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Progress(\n"
+                f"    value={None if indeterminate else value},\n"
+                f"    show_value={show_value},\n"
+                + (f'    striped="{striped}",\n' if striped else "")
+                + ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

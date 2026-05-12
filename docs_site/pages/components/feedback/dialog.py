@@ -24,6 +24,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Dialog"
 PAGE_ROUTE = "/docs/components/dialog"
@@ -95,87 +96,73 @@ def _playground(ctx: Context):
         "dlg_description", "Make changes to your profile here. Click save when done."
     )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground — Dialog"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
+                class_name="flex-1 min-w-48",
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                class_name="flex-1 min-w-48",
-                                children=[
-                                    Text("Dialog title", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=title,
-                                        on_change=ctx.callback(_set_title),
-                                        placeholder="Dialog title",
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                class_name="flex-1 min-w-48",
-                                children=[
-                                    Text("Description", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=description,
-                                        on_change=ctx.callback(_set_description),
-                                        placeholder="Dialog description",
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Dialog title", class_name="text-sm font-medium"),
+                    Input(
+                        value=title,
+                        on_change=ctx.callback(_set_title),
+                        placeholder="Dialog title",
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 flex flex-col gap-3 items-start",
-                        children=[
-                            Dialog(
-                                open=open_state,
-                                on_open_change=ctx.callback(_set_dialog_open),
-                                children=[
-                                    DialogTrigger(
-                                        children=[
-                                            Button("Open Dialog", on_click=ctx.callback(_open_dialog)),
-                                        ]
-                                    ),
-                                    DialogContent(
-                                        children=[
-                                            DialogHeader(
-                                                children=[
-                                                    DialogTitle(title=title),
-                                                    DialogDescription(description=description),
-                                                ]
-                                            ),
-                                            DialogFooter(
-                                                children=[
-                                                    DialogCancel(
-                                                        label="Cancel",
-                                                        on_click=ctx.callback(_close_dialog),
-                                                    ),
-                                                    DialogAction(
-                                                        label="Save changes",
-                                                        on_click=ctx.callback(_confirm_dialog),
-                                                    ),
-                                                ]
-                                            ),
-                                        ]
-                                    ),
-                                ],
-                            ),
-                            Text(
-                                "Dialog confirmed!" if confirmed else "",
-                                class_name="text-sm text-green-600",
-                            ),
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                class_name="flex-1 min-w-48",
+                children=[
+                    Text("Description", class_name="text-sm font-medium"),
+                    Input(
+                        value=description,
+                        on_change=ctx.callback(_set_description),
+                        placeholder="Dialog description",
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Dialog(
+                open=open_state,
+                on_open_change=ctx.callback(_set_dialog_open),
+                children=[
+                    DialogTrigger(
+                        children=[
+                            Button("Open Dialog", on_click=ctx.callback(_open_dialog)),
+                        ]
+                    ),
+                    DialogContent(
+                        children=[
+                            DialogHeader(
+                                children=[
+                                    DialogTitle(title=title),
+                                    DialogDescription(description=description),
+                                ]
+                            ),
+                            DialogFooter(
+                                children=[
+                                    DialogCancel(
+                                        label="Cancel",
+                                        on_click=ctx.callback(_close_dialog),
+                                    ),
+                                    DialogAction(
+                                        label="Save changes",
+                                        on_click=ctx.callback(_confirm_dialog),
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                ],
+            ),
+            Text(
+                "Dialog confirmed!" if confirmed else "",
+                class_name="text-sm text-green-600",
+            ),
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30 flex flex-col gap-3 items-start",
     )
 
 

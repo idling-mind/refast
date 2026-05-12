@@ -2,6 +2,7 @@
 from turtle import st
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -69,84 +70,70 @@ def _playground(ctx: Context):
         for label, gradient, emoji in _SLIDES
     ]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["horizontal", "vertical"]
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Loop", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="loop continuously",
-                                        checked=loop,
-                                        on_change=ctx.callback(_set_loop),
-                                    ),
-                                ],
-                            ),
+                    Text("Orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["horizontal", "vertical"]
                         ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Carousel(
-                                orientation=orientation,
-                                loop=loop,
-                                id=f"carousel-demo-{orientation}-{'loop' if loop else 'noloop'}",
-                                class_name="w-full max-w-lg mx-auto",
-                                children=[
-                                    CarouselContent(children=items),
-                                    CarouselPrevious(),
-                                    CarouselNext(),
-                                ],
-                                style={"height": "200px"},
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Carousel(\n"
-                            f'    orientation="{orientation}",\n'
-                            f"    loop={loop},\n"
-                            f"    children=[\n"
-                            f"        CarouselContent(\n"
-                            f"            children=[\n"
-                            f"                CarouselItem(children=[Card(title=\"Slide 1\", ...)]),\n"
-                            f"                CarouselItem(children=[Card(title=\"Slide 2\", ...)]),\n"
-                            f"                CarouselItem(children=[Card(title=\"Slide 3\", ...)]),\n"
-                            f"            ]\n"
-                            f"        ),\n"
-                            f"        CarouselPrevious(),\n"
-                            f"        CarouselNext(),\n"
-                            f"    ]\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Loop", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="loop continuously",
+                        checked=loop,
+                        on_change=ctx.callback(_set_loop),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Carousel(
+                orientation=orientation,
+                loop=loop,
+                id=f"carousel-demo-{orientation}-{'loop' if loop else 'noloop'}",
+                class_name="w-full max-w-lg mx-auto",
+                children=[
+                    CarouselContent(children=items),
+                    CarouselPrevious(),
+                    CarouselNext(),
+                ],
+                style={"height": "200px"},
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Carousel(\n"
+                f'    orientation="{orientation}",\n'
+                f"    loop={loop},\n"
+                f"    children=[\n"
+                f"        CarouselContent(\n"
+                f"            children=[\n"
+                f"                CarouselItem(children=[Card(title=\"Slide 1\", ...)]),\n"
+                f"                CarouselItem(children=[Card(title=\"Slide 2\", ...)]),\n"
+                f"                CarouselItem(children=[Card(title=\"Slide 3\", ...)]),\n"
+                f"            ]\n"
+                f"        ),\n"
+                f"        CarouselPrevious(),\n"
+                f"        CarouselNext(),\n"
+                f"    ]\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

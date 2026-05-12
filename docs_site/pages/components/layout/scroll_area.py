@@ -15,6 +15,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "ScrollArea"
 PAGE_ROUTE = "/docs/components/scroll-area"
@@ -52,57 +53,48 @@ def _playground(ctx: Context):
         "Dart",
     ]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("type", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["auto", "always", "scroll", "hover"]
-                                        ],
-                                        value=scroll_type,
-                                        on_change=ctx.callback(_set_type),
-                                    ),
-                                ],
-                            ),
+                    Text("type", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["auto", "always", "scroll", "hover"]
                         ],
+                        value=scroll_type,
+                        on_change=ctx.callback(_set_type),
                     ),
-                    Text(
-                        "Hover over the area or scroll inside it to see the scrollbar:",
-                        class_name="text-sm text-muted-foreground mb-2",
-                    ),
-                    ScrollArea(
-                        type=scroll_type,
-                        class_name="border rounded-lg",
-                        style={"height": "12rem", "width": "16rem"},
-                        children=[
-                            Column(
-                                gap=1,
-                                class_name="p-3",
-                                children=[
-                                    Container(
-                                        class_name="py-1 px-2 rounded text-sm hover:bg-muted cursor-default",
-                                        children=[Text(item)],
-                                    )
-                                    for item in items
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Text(
+                "Hover over the area or scroll inside it to see the scrollbar:",
+                class_name="text-sm text-muted-foreground mb-2",
+            ),
+            ScrollArea(
+                type=scroll_type,
+                class_name="border rounded-lg",
+                style={"height": "12rem", "width": "16rem"},
+                children=[
+                    Column(
+                        gap=1,
+                        class_name="p-3",
+                        children=[
+                            Container(
+                                class_name="py-1 px-2 rounded text-sm hover:bg-muted cursor-default",
+                                children=[Text(item)],
+                            )
+                            for item in items
+                        ],
+                    )
+                ],
+            ),
+        ],
+        preview_class="",
     )
 
 

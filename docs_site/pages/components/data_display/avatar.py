@@ -20,6 +20,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Avatar"
 PAGE_ROUTE = "/docs/components/avatar"
@@ -57,82 +58,67 @@ def _playground(ctx: Context):
         else None
     )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "sm", "label": "sm (32px)"},
-                                            {"value": "md", "label": "md (40px)"},
-                                            {"value": "lg", "label": "lg (48px)"},
-                                        ],
-                                        value=size,
-                                        on_change=ctx.callback(_set_size),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Show image", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="use image src",
-                                        checked=show_image,
-                                        on_change=ctx.callback(_set_show_image),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Fallback text", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=fallback,
-                                        placeholder="JD",
-                                        on_change=ctx.callback(_set_fallback),
-                                    ),
-                                ],
-                            ),
+                    Text("Size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "sm", "label": "sm (32px)"},
+                            {"value": "md", "label": "md (40px)"},
+                            {"value": "lg", "label": "lg (48px)"},
                         ],
+                        value=size,
+                        on_change=ctx.callback(_set_size),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center justify-center gap-4 bg-muted/30",
-                        children=[
-                            Avatar(
-                                src=src,
-                                alt="John Doe",
-                                fallback=fallback or "JD",
-                                size=size,
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Avatar(\n"
-                            + (f'    src="{src}",\n' if src else "    # no src — shows fallback\n")
-                            + '    alt="John Doe",\n'
-                            + f'    fallback="{fallback or "JD"}",\n'
-                            + f'    size="{size}",\n'
-                            + ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Show image", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="use image src",
+                        checked=show_image,
+                        on_change=ctx.callback(_set_show_image),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Fallback text", class_name="text-sm font-medium"),
+                    Input(
+                        value=fallback,
+                        placeholder="JD",
+                        on_change=ctx.callback(_set_fallback),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Avatar(
+                src=src,
+                alt="John Doe",
+                fallback=fallback or "JD",
+                size=size,
+            )
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Avatar(\n"
+                + (f'    src="{src}",\n' if src else "    # no src — shows fallback\n")
+                + '    alt="John Doe",\n'
+                + f'    fallback="{fallback or "JD"}",\n'
+                + f'    size="{size}",\n'
+                + ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 flex items-center justify-center gap-4 bg-muted/30",
     )
 
 

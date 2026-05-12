@@ -17,6 +17,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Container"
 PAGE_ROUTE = "/docs/components/container"
@@ -68,111 +69,96 @@ def _playground(ctx: Context):
         classes.append("bg-primary/10")
     class_name = " ".join(classes)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
+                children=[
+                    Text("Padding", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["p-2", "p-4", "p-6", "p-8"]
+                        ],
+                        value=padding,
+                        on_change=ctx.callback(_set_padding),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Background", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": l}
+                            for v, l in [
+                                ("none", "none"),
+                                ("muted", "bg-muted"),
+                                ("muted/30", "bg-muted/30"),
+                                ("primary/10", "bg-primary/10"),
+                            ]
+                        ],
+                        value=bg,
+                        on_change=ctx.callback(_set_bg),
+                    ),
+                ],
+            ),
+            Column(
+                gap=2,
                 children=[
                     Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
+                        gap=2,
+                        align="center",
                         children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Padding", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["p-2", "p-4", "p-6", "p-8"]
-                                        ],
-                                        value=padding,
-                                        on_change=ctx.callback(_set_padding),
-                                    ),
-                                ],
+                            Checkbox(
+                                checked=border,
+                                on_change=ctx.callback(_set_border),
+                                id="con-border-cb",
                             ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Background", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": l}
-                                            for v, l in [
-                                                ("none", "none"),
-                                                ("muted", "bg-muted"),
-                                                ("muted/30", "bg-muted/30"),
-                                                ("primary/10", "bg-primary/10"),
-                                            ]
-                                        ],
-                                        value=bg,
-                                        on_change=ctx.callback(_set_bg),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=2,
-                                children=[
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=border,
-                                                on_change=ctx.callback(_set_border),
-                                                id="con-border-cb",
-                                            ),
-                                            Text("border", class_name="text-sm"),
-                                        ],
-                                    ),
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=rounded,
-                                                on_change=ctx.callback(_set_rounded),
-                                                id="con-rounded-cb",
-                                            ),
-                                            Text("rounded-lg", class_name="text-sm"),
-                                        ],
-                                    ),
-                                ],
-                            ),
+                            Text("border", class_name="text-sm"),
                         ],
                     ),
-                    # Preview
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
+                    Row(
+                        gap=2,
+                        align="center",
                         children=[
-                            Container(
-                                class_name=class_name,
-                                children=[
-                                    Text("Container content", class_name="text-sm font-medium"),
-                                    Text(
-                                        "This text lives inside the Container.",
-                                        class_name="text-sm text-muted-foreground mt-1",
-                                    ),
-                                    Row(
-                                        gap=2,
-                                        class_name="mt-3",
-                                        children=[
-                                            Button("Action", size="sm"),
-                                            Button("Cancel", size="sm", variant="outline"),
-                                        ],
-                                    ),
-                                ],
-                            )
+                            Checkbox(
+                                checked=rounded,
+                                on_change=ctx.callback(_set_rounded),
+                                id="con-rounded-cb",
+                            ),
+                            Text("rounded-lg", class_name="text-sm"),
                         ],
                     ),
-                    Text(
-                        f'class_name="{class_name}"',
-                        class_name="text-xs text-muted-foreground mt-2 font-mono",
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Container(
+                class_name=class_name,
+                children=[
+                    Text("Container content", class_name="text-sm font-medium"),
+                    Text(
+                        "This text lives inside the Container.",
+                        class_name="text-sm text-muted-foreground mt-1",
+                    ),
+                    Row(
+                        gap=2,
+                        class_name="mt-3",
+                        children=[
+                            Button("Action", size="sm"),
+                            Button("Cancel", size="sm", variant="outline"),
+                        ],
+                    ),
+                ],
+            ),
+            Text(
+                f'class_name="{class_name}"',
+                class_name="text-xs text-muted-foreground mt-2 font-mono",
+            ),
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

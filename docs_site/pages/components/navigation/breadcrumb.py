@@ -1,6 +1,7 @@
 """Breadcrumb — /docs/components/breadcrumb."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Breadcrumb,
     BreadcrumbEllipsis,
@@ -78,71 +79,57 @@ def _playground(ctx: Context):
             else:
                 items.append(BreadcrumbItem(children=[BreadcrumbPage(label)]))
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Number of items", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": str(n), "label": str(n)}
-                                            for n in [2, 3, 4, 5]
-                                        ],
-                                        value=str(item_count),
-                                        on_change=ctx.callback(_set_item_count),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Show ellipsis", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="collapse middle items",
-                                        checked=show_ellipsis,
-                                        on_change=ctx.callback(_set_show_ellipsis),
-                                    ),
-                                ],
-                            ),
+                    Text("Number of items", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": str(n), "label": str(n)}
+                            for n in [2, 3, 4, 5]
                         ],
+                        value=str(item_count),
+                        on_change=ctx.callback(_set_item_count),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
-                        children=[
-                            Breadcrumb(children=[BreadcrumbList(children=items)]),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Breadcrumb(\n"
-                            "    children=[\n"
-                            "        BreadcrumbList(\n"
-                            "            children=[\n"
-                            "                BreadcrumbItem(children=[BreadcrumbLink(\"Home\", href=\"/\")]),\n"
-                            "                BreadcrumbSeparator(),\n"
-                            "                BreadcrumbItem(children=[BreadcrumbLink(\"Docs\", href=\"/docs\")]),\n"
-                            "                BreadcrumbSeparator(),\n"
-                            "                BreadcrumbItem(children=[BreadcrumbPage(\"Components\")]),\n"
-                            "            ]\n"
-                            "        )\n"
-                            "    ]\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Show ellipsis", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="collapse middle items",
+                        checked=show_ellipsis,
+                        on_change=ctx.callback(_set_show_ellipsis),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Breadcrumb(children=[BreadcrumbList(children=items)]),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Breadcrumb(\n"
+                "    children=[\n"
+                "        BreadcrumbList(\n"
+                "            children=[\n"
+                "                BreadcrumbItem(children=[BreadcrumbLink(\"Home\", href=\"/\")]),\n"
+                "                BreadcrumbSeparator(),\n"
+                "                BreadcrumbItem(children=[BreadcrumbLink(\"Docs\", href=\"/docs\")]),\n"
+                "                BreadcrumbSeparator(),\n"
+                "                BreadcrumbItem(children=[BreadcrumbPage(\"Components\")]),\n"
+                "            ]\n"
+                "        )\n"
+                "    ]\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

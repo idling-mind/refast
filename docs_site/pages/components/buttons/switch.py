@@ -18,6 +18,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.controls import Switch
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Switch"
 PAGE_ROUTE = "/docs/components/switch"
@@ -47,57 +48,43 @@ def _playground(ctx: Context):
 
     state_label = "On" if checked else "Off"
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30",
-                        children=[
-                            Switch(
-                                checked=checked,
-                                disabled=disabled,
-                                on_checked_change=ctx.callback(_toggle_switch),
-                            ),
-                            Text(
-                                f"State: {state_label}",
-                                class_name="text-sm text-muted-foreground",
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Switch(\n"
-                            f"    checked={checked},\n"
-                            f"    disabled={disabled},\n"
-                            f"    on_checked_change=ctx.callback(handle_change),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Switch(
+                checked=checked,
+                disabled=disabled,
+                on_checked_change=ctx.callback(_toggle_switch),
+            ),
+            Text(
+                f"State: {state_label}",
+                class_name="text-sm text-muted-foreground",
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Switch(\n"
+                f"    checked={checked},\n"
+                f"    disabled={disabled},\n"
+                f"    on_checked_change=ctx.callback(handle_change),\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30",
     )
 
 

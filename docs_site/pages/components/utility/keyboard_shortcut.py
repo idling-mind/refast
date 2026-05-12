@@ -1,6 +1,7 @@
 """KeyboardShortcut — /docs/components/keyboard-shortcut."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Badge,
     Button,
@@ -53,114 +54,94 @@ def _playground(ctx: Context):
     bubble = ctx.state.get("ks_bubble", False)
     last = ctx.state.get("last_shortcut", "—")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Row(
+                gap=2,
+                align="center",
                 children=[
-                    Column(
-                        gap=6,
+                    Checkbox(
+                        label="Enabled",
+                        checked=enabled,
+                        on_change=ctx.callback(_toggle_enabled),
+                    ),
+                ],
+            ),
+            Row(
+                gap=2,
+                align="center",
+                children=[
+                    Checkbox(
+                        label="Bubble (allow multiple handlers)",
+                        checked=bubble,
+                        on_change=ctx.callback(_toggle_bubble),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Column(
+                gap=3,
+                children=[
+                    Text(
+                        "Registered shortcuts on this page:",
+                        class_name="text-sm font-medium",
+                    ),
+                    Row(
+                        gap=2,
+                        wrap=True,
                         children=[
-                            # Controls row
                             Row(
-                                gap=4,
-                                wrap=True,
+                                gap=2,
+                                align="center",
                                 children=[
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                label="Enabled",
-                                                checked=enabled,
-                                                on_change=ctx.callback(_toggle_enabled),
-                                            ),
-                                        ],
-                                    ),
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                label="Bubble (allow multiple handlers)",
-                                                checked=bubble,
-                                                on_change=ctx.callback(_toggle_bubble),
-                                            ),
-                                        ],
-                                    ),
+                                    Badge(children="Ctrl + Alt + 1", variant="outline"),
+                                    Text("→ fires 'Ctrl+Alt+1'", class_name="text-sm text-muted-foreground"),
                                 ],
                             ),
-                            # Active shortcuts legend
-                            Container(
-                                class_name="border rounded-lg p-4 bg-muted/30",
+                            Row(
+                                gap=2,
+                                align="center",
                                 children=[
-                                    Column(
-                                        gap=3,
-                                        children=[
-                                            Text(
-                                                "Registered shortcuts on this page:",
-                                                class_name="text-sm font-medium",
-                                            ),
-                                            Row(
-                                                gap=2,
-                                                wrap=True,
-                                                children=[
-                                                    Row(
-                                                        gap=2,
-                                                        align="center",
-                                                        children=[
-                                                            Badge(children="Ctrl + Alt + 1", variant="outline"),
-                                                            Text("→ fires 'Ctrl+Alt+1'", class_name="text-sm text-muted-foreground"),
-                                                        ],
-                                                    ),
-                                                    Row(
-                                                        gap=2,
-                                                        align="center",
-                                                        children=[
-                                                            Badge(children="Ctrl + Alt + 2", variant="outline"),
-                                                            Text("→ fires 'Ctrl+Alt+2'", class_name="text-sm text-muted-foreground"),
-                                                        ],
-                                                    ),
-                                                ],
-                                            ),
-                                            Text(
-                                                f'Last fired: "{last}"',
-                                                id="ks-last-fired",
-                                                class_name="text-sm font-mono text-primary mt-1",
-                                            ),
-                                        ],
-                                    ),
+                                    Badge(children="Ctrl + Alt + 2", variant="outline"),
+                                    Text("→ fires 'Ctrl+Alt+2'", class_name="text-sm text-muted-foreground"),
                                 ],
-                            ),
-                            # The invisible shortcut component
-                            KeyboardShortcut(
-                                shortcuts={
-                                    "ctrl+alt+1": ctx.callback(_shortcut_fired, label="Ctrl+Alt+1"),
-                                    "ctrl+alt+2": ctx.callback(_shortcut_fired, label="Ctrl+Alt+2"),
-                                },
-                                priority=10,
-                                bubble=bubble,
-                                enabled=enabled,
-                            ),
-                            Markdown(
-                                content=(
-                                    "```python\n"
-                                    "KeyboardShortcut(\n"
-                                    "    shortcuts={\n"
-                                    '        "ctrl+alt+1": ctx.callback(handle_shortcut),\n'
-                                    '        "ctrl+alt+2": ctx.callback(handle_shortcut),\n'
-                                    "    },\n"
-                                    f"    enabled={enabled},\n"
-                                    f"    bubble={bubble},\n"
-                                    ")\n"
-                                    "```"
-                                )
                             ),
                         ],
-                    )
-                ]
+                    ),
+                    Text(
+                        f'Last fired: "{last}"',
+                        id="ks-last-fired",
+                        class_name="text-sm font-mono text-primary mt-1",
+                    ),
+                ],
             ),
-        ]
+            # The invisible shortcut component
+            KeyboardShortcut(
+                shortcuts={
+                    "ctrl+alt+1": ctx.callback(_shortcut_fired, label="Ctrl+Alt+1"),
+                    "ctrl+alt+2": ctx.callback(_shortcut_fired, label="Ctrl+Alt+2"),
+                },
+                priority=10,
+                bubble=bubble,
+                enabled=enabled,
+            ),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "KeyboardShortcut(\n"
+                "    shortcuts={\n"
+                '        "ctrl+alt+1": ctx.callback(handle_shortcut),\n'
+                '        "ctrl+alt+2": ctx.callback(handle_shortcut),\n'
+                "    },\n"
+                f"    enabled={enabled},\n"
+                f"    bubble={bubble},\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

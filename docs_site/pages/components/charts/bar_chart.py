@@ -27,6 +27,7 @@ from refast.components.shadcn.charts import (
     ChartTooltipContent,
     XAxis,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Bar Chart"
 PAGE_ROUTE = "/docs/components/bar-chart"
@@ -83,38 +84,34 @@ def _playground(ctx: Context):
     chart_children.append(Bar(data_key="desktop", fill="var(--color-desktop)", radius=4, stack_id=stack_id))
     chart_children.append(Bar(data_key="mobile",  fill="var(--color-mobile)",  radius=4, stack_id=stack_id))
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(gap=1, children=[
+                Text("Show grid", class_name="text-sm font-medium"),
+                Checkbox(label="grid", checked=show_grid, on_change=ctx.callback(_bc_set_show_grid)),
+            ]),
+            Column(gap=1, children=[
+                Text("Show legend", class_name="text-sm font-medium"),
+                Checkbox(label="legend", checked=show_legend, on_change=ctx.callback(_bc_set_show_legend)),
+            ]),
+            Column(gap=1, children=[
+                Text("Stacked", class_name="text-sm font-medium"),
+                Checkbox(label="stacked", checked=stacked, on_change=ctx.callback(_bc_set_stacked)),
+            ]),
+        ],
+        preview=[
+            ChartContainer(
+                config=CHART_CONFIG,
+                class_name="h-64",
                 children=[
-                    Row(gap=4, wrap=True, class_name="mb-4", children=[
-                        Column(gap=1, children=[
-                            Text("Show grid", class_name="text-sm font-medium"),
-                            Checkbox(label="grid", checked=show_grid, on_change=ctx.callback(_bc_set_show_grid)),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Show legend", class_name="text-sm font-medium"),
-                            Checkbox(label="legend", checked=show_legend, on_change=ctx.callback(_bc_set_show_legend)),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Stacked", class_name="text-sm font-medium"),
-                            Checkbox(label="stacked", checked=stacked, on_change=ctx.callback(_bc_set_stacked)),
-                        ]),
-                    ]),
-                    ChartContainer(
-                        config=CHART_CONFIG,
-                        class_name="h-64",
-                        children=[
-                            BarChart(
-                                data=SAMPLE_DATA,
-                                children=chart_children,
-                            ),
-                        ],
+                    BarChart(
+                        data=SAMPLE_DATA,
+                        children=chart_children,
                     ),
                 ],
             ),
         ],
+        preview_class="",
     )
 
 

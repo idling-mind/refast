@@ -20,6 +20,7 @@ from refast.components import (
     Text,
     Tooltip,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Tooltip"
 PAGE_ROUTE = "/docs/components/tooltip"
@@ -49,76 +50,61 @@ def _playground(ctx: Context):
     side = ctx.state.get("ttp_side", "top")
     content = ctx.state.get("ttp_content", "This is a helpful tooltip.")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Side", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "top", "label": "top"},
-                                            {"value": "right", "label": "right"},
-                                            {"value": "bottom", "label": "bottom"},
-                                            {"value": "left", "label": "left"},
-                                        ],
-                                        value=side,
-                                        on_change=ctx.callback(_set_side),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Tooltip content", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=content,
-                                        placeholder="Tooltip text…",
-                                        on_change=ctx.callback(_set_content),
-                                    ),
-                                ],
-                            ),
+                    Text("Side", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "top", "label": "top"},
+                            {"value": "right", "label": "right"},
+                            {"value": "bottom", "label": "bottom"},
+                            {"value": "left", "label": "left"},
                         ],
+                        value=side,
+                        on_change=ctx.callback(_set_side),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-8 flex items-center justify-center bg-muted/30",
-                        children=[
-                            Tooltip(
-                                content=content or "Tooltip text",
-                                side=side,
-                                children=[
-                                    Button(
-                                        "Hover over me",
-                                        variant="outline",
-                                        on_click=ctx.callback(_noop),
-                                    )
-                                ],
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Tooltip(\n"
-                            f'    content="{content or "Tooltip text"}",\n'
-                            f'    side="{side}",\n'
-                            "    children=[Button(\"Hover over me\")],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Tooltip content", class_name="text-sm font-medium"),
+                    Input(
+                        value=content,
+                        placeholder="Tooltip text…",
+                        on_change=ctx.callback(_set_content),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Tooltip(
+                content=content or "Tooltip text",
+                side=side,
+                children=[
+                    Button(
+                        "Hover over me",
+                        variant="outline",
+                        on_click=ctx.callback(_noop),
+                    )
+                ],
+            )
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Tooltip(\n"
+                f'    content="{content or "Tooltip text"}",\n'
+                f'    side="{side}",\n'
+                "    children=[Button(\"Hover over me\")],\n"
+                ")\n"
+                "```"
+            )
+        ),
+        preview_class="border rounded-lg p-8 flex items-center justify-center bg-muted/30",
     )
 
 

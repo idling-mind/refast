@@ -18,6 +18,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Popover"
 PAGE_ROUTE = "/docs/components/popover"
@@ -43,104 +44,90 @@ def _playground(ctx: Context):
     side = ctx.state.get("pop_side", "bottom")
     align = ctx.state.get("pop_align", "center")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Side", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["top", "right", "bottom", "left"]
-                                        ],
-                                        value=side,
-                                        on_change=ctx.callback(_set_side),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Align", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["start", "center", "end"]
-                                        ],
-                                        value=align,
-                                        on_change=ctx.callback(_set_align),
-                                    ),
-                                ],
-                            ),
+                    Text("Side", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["top", "right", "bottom", "left"]
                         ],
+                        value=side,
+                        on_change=ctx.callback(_set_side),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-10 bg-muted/30 flex items-center justify-center min-h-[120px]",
-                        children=[
-                            Popover(
-                                side=side,
-                                align=align,
-                                children=[
-                                    PopoverTrigger(
-                                        children=[Button("Open Popover")]
-                                    ),
-                                    PopoverContent(
-                                        side=side,
-                                        align=align,
-                                        children=[
-                                            Column(
-                                                gap=2,
-                                                children=[
-                                                    Text(
-                                                        "Popover Content",
-                                                        class_name="font-semibold text-sm",
-                                                    ),
-                                                    Text(
-                                                        "This is a floating content panel triggered by a button.",
-                                                        class_name="text-sm text-muted-foreground",
-                                                    ),
-                                                    Text(
-                                                        f"side={side!r}, align={align!r}",
-                                                        class_name="text-xs font-mono text-muted-foreground mt-1",
-                                                    ),
-                                                ],
-                                            )
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Popover(\n"
-                            f'    side="{side}",\n'
-                            f'    align="{align}",\n'
-                            f"    children=[\n"
-                            f"        PopoverTrigger(children=[Button(\"Open Popover\")]),\n"
-                            f"        PopoverContent(\n"
-                            f'            side="{side}",\n'
-                            f'            align="{align}",\n'
-                            f"            children=[...],\n"
-                            f"        ),\n"
-                            f"    ]\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Align", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["start", "center", "end"]
+                        ],
+                        value=align,
+                        on_change=ctx.callback(_set_align),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Popover(
+                side=side,
+                align=align,
+                children=[
+                    PopoverTrigger(
+                        children=[Button("Open Popover")]
+                    ),
+                    PopoverContent(
+                        side=side,
+                        align=align,
+                        children=[
+                            Column(
+                                gap=2,
+                                children=[
+                                    Text(
+                                        "Popover Content",
+                                        class_name="font-semibold text-sm",
+                                    ),
+                                    Text(
+                                        "This is a floating content panel triggered by a button.",
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
+                                    Text(
+                                        f"side={side!r}, align={align!r}",
+                                        class_name="text-xs font-mono text-muted-foreground mt-1",
+                                    ),
+                                ],
+                            )
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Popover(\n"
+                f'    side="{side}",\n'
+                f'    align="{align}",\n'
+                f"    children=[\n"
+                f"        PopoverTrigger(children=[Button(\"Open Popover\")]),\n"
+                f"        PopoverContent(\n"
+                f'            side="{side}",\n'
+                f'            align="{align}",\n'
+                f"            children=[...],\n"
+                f"        ),\n"
+                f"    ]\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-10 bg-muted/30 flex items-center justify-center min-h-[120px]",
     )
 
 

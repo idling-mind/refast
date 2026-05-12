@@ -27,6 +27,7 @@ from refast.components.shadcn.charts import (
     ChartTooltipContent,
     XAxis,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Area Chart"
 PAGE_ROUTE = "/docs/components/area-chart"
@@ -98,38 +99,34 @@ def _playground(ctx: Context):
         ),
     ]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(gap=1, children=[
+                Text("Fill type", class_name="text-sm font-medium"),
+                Select(
+                    options=FILL_OPTIONS,
+                    value=fill_type,
+                    on_change=ctx.callback(_ac_set_fill_type),
+                ),
+            ]),
+            Column(gap=1, children=[
+                Text("Stacked", class_name="text-sm font-medium"),
+                Checkbox(label="stacked", checked=stacked, on_change=ctx.callback(_ac_set_stacked)),
+            ]),
+        ],
+        preview=[
+            ChartContainer(
+                config=CHART_CONFIG,
+                class_name="h-64",
                 children=[
-                    Row(gap=4, wrap=True, class_name="mb-4", children=[
-                        Column(gap=1, children=[
-                            Text("Fill type", class_name="text-sm font-medium"),
-                            Select(
-                                options=FILL_OPTIONS,
-                                value=fill_type,
-                                on_change=ctx.callback(_ac_set_fill_type),
-                            ),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Stacked", class_name="text-sm font-medium"),
-                            Checkbox(label="stacked", checked=stacked, on_change=ctx.callback(_ac_set_stacked)),
-                        ]),
-                    ]),
-                    ChartContainer(
-                        config=CHART_CONFIG,
-                        class_name="h-64",
-                        children=[
-                            AreaChart(
-                                data=SAMPLE_DATA,
-                                children=chart_children,
-                            ),
-                        ],
+                    AreaChart(
+                        data=SAMPLE_DATA,
+                        children=chart_children,
                     ),
                 ],
             ),
         ],
+        preview_class="",
     )
 
 

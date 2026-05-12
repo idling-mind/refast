@@ -17,6 +17,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Radio"
 PAGE_ROUTE = "/docs/components/radio"
@@ -48,85 +49,70 @@ def _playground(ctx: Context):
     disabled = ctx.state.get("rad_disabled", False)
     orientation = ctx.state.get("rad_orientation", "vertical")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("orientation", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "vertical", "label": "vertical"},
-                                            {"value": "horizontal", "label": "horizontal"},
-                                        ],
-                                        value=orientation,
-                                        on_change=ctx.callback(_set_orientation),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
+                    Text("orientation", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "vertical", "label": "vertical"},
+                            {"value": "horizontal", "label": "horizontal"},
                         ],
+                        value=orientation,
+                        on_change=ctx.callback(_set_orientation),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            RadioGroup(
-                                name="size",
-                                label="T-Shirt Size",
-                                description="Select your preferred size.",
-                                value=value,
-                                orientation=orientation,
-                                disabled=disabled,
-                                on_change=ctx.callback(_set_value),
-                                children=[
-                                    Radio(value="small", label="Small"),
-                                    Radio(value="medium", label="Medium"),
-                                    Radio(value="large", label="Large"),
-                                    Radio(value="xl", label="Extra Large"),
-                                ],
-                            )
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"RadioGroup(\n"
-                            f'    name="size",\n'
-                            f'    label="T-Shirt Size",\n'
-                            f'    value="{value}",\n'
-                            f'    orientation="{orientation}",\n'
-                            f"    disabled={disabled},\n"
-                            f"    on_change=ctx.callback(handle_change),\n"
-                            f"    children=[\n"
-                            f'        Radio(value="small", label="Small"),\n'
-                            f'        Radio(value="medium", label="Medium"),\n'
-                            f'        Radio(value="large", label="Large"),\n'
-                            f"    ],\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            RadioGroup(
+                name="size",
+                label="T-Shirt Size",
+                description="Select your preferred size.",
+                value=value,
+                orientation=orientation,
+                disabled=disabled,
+                on_change=ctx.callback(_set_value),
+                children=[
+                    Radio(value="small", label="Small"),
+                    Radio(value="medium", label="Medium"),
+                    Radio(value="large", label="Large"),
+                    Radio(value="xl", label="Extra Large"),
+                ],
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"RadioGroup(\n"
+                f'    name="size",\n'
+                f'    label="T-Shirt Size",\n'
+                f'    value="{value}",\n'
+                f'    orientation="{orientation}",\n'
+                f"    disabled={disabled},\n"
+                f"    on_change=ctx.callback(handle_change),\n"
+                f"    children=[\n"
+                f'        Radio(value="small", label="Small"),\n'
+                f'        Radio(value="medium", label="Medium"),\n'
+                f'        Radio(value="large", label="Large"),\n'
+                f"    ],\n"
+                f")\n"
+                f"```"
+            )
+        ),
     )
 
 

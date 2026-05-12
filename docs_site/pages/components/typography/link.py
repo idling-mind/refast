@@ -1,6 +1,7 @@
 """Link — /docs/components/link."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Card,
     CardContent,
@@ -49,91 +50,77 @@ def _playground(ctx: Context):
 
     link_class = "underline underline-offset-4" if underline else ""
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
+                children=[
+                    Text("target", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["_self", "_blank", "_parent", "_top"]
+                        ],
+                        value=target,
+                        on_change=ctx.callback(_set_target),
+                    ),
+                ],
+            ),
+            Column(
+                gap=2,
                 children=[
                     Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
+                        gap=2,
+                        align="center",
                         children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("target", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["_self", "_blank", "_parent", "_top"]
-                                        ],
-                                        value=target,
-                                        on_change=ctx.callback(_set_target),
-                                    ),
-                                ],
+                            Checkbox(
+                                checked=underline,
+                                on_change=ctx.callback(_set_underline),
+                                id="lk-underline-cb",
                             ),
-                            Column(
-                                gap=2,
-                                children=[
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=underline,
-                                                on_change=ctx.callback(_set_underline),
-                                                id="lk-underline-cb",
-                                            ),
-                                            Text("underline (via class_name)", class_name="text-sm"),
-                                        ],
-                                    ),
-                                    Row(
-                                        gap=2,
-                                        align="center",
-                                        children=[
-                                            Checkbox(
-                                                checked=external,
-                                                on_change=ctx.callback(_set_external),
-                                                id="lk-external-cb",
-                                            ),
-                                            Text("external (show icon)", class_name="text-sm"),
-                                        ],
-                                    ),
-                                ],
-                            ),
+                            Text("underline (via class_name)", class_name="text-sm"),
                         ],
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30",
+                    Row(
+                        gap=2,
+                        align="center",
                         children=[
-                            Column(
-                                gap=3,
-                                children=[
-                                    Link(
-                                        text="Visit the Refast repository",
-                                        href="https://github.com",
-                                        target=target,
-                                        external=external,
-                                        class_name=link_class,
-                                    ),
-                                    Link(
-                                        text="Documentation home",
-                                        href="/",
-                                        target=target,
-                                        class_name=link_class,
-                                    ),
-                                ],
-                            )
+                            Checkbox(
+                                checked=external,
+                                on_change=ctx.callback(_set_external),
+                                id="lk-external-cb",
+                            ),
+                            Text("external (show icon)", class_name="text-sm"),
                         ],
                     ),
-                    Text(
-                        f'target="{target}"  external={external}  class_name="{link_class}"',
-                        class_name="text-xs text-muted-foreground mt-2 font-mono",
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Column(
+                gap=3,
+                children=[
+                    Link(
+                        text="Visit the Refast repository",
+                        href="https://github.com",
+                        target=target,
+                        external=external,
+                        class_name=link_class,
+                    ),
+                    Link(
+                        text="Documentation home",
+                        href="/",
+                        target=target,
+                        class_name=link_class,
+                    ),
+                ],
+            ),
+            Text(
+                f'target="{target}"  external={external}  class_name="{link_class}"',
+                class_name="text-xs text-muted-foreground mt-2 font-mono",
+            ),
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30",
     )
 
 

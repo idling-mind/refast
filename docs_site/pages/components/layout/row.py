@@ -15,6 +15,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Row"
 PAGE_ROUTE = "/docs/components/row"
@@ -46,91 +47,77 @@ def _playground(ctx: Context):
     align = ctx.state.get("row_align", "start")
     gap = int(ctx.state.get("row_gap", "2"))
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("justify", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "start",
-                                                "end",
-                                                "center",
-                                                "between",
-                                                "around",
-                                                "evenly",
-                                            ]
-                                        ],
-                                        value=justify,
-                                        on_change=ctx.callback(_set_justify),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("align", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "start",
-                                                "end",
-                                                "center",
-                                                "stretch",
-                                                "baseline",
-                                            ]
-                                        ],
-                                        value=align,
-                                        on_change=ctx.callback(_set_align),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("gap", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["1", "2", "4", "6", "8"]
-                                        ],
-                                        value=str(gap),
-                                        on_change=ctx.callback(_set_gap),
-                                    ),
-                                ],
-                            ),
+                    Text("justify", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "start",
+                                "end",
+                                "center",
+                                "between",
+                                "around",
+                                "evenly",
+                            ]
                         ],
+                        value=justify,
+                        on_change=ctx.callback(_set_justify),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 min-h-[80px]",
-                        children=[
-                            Row(
-                                justify=justify,
-                                align=align,
-                                gap=gap,
-                                children=[
-                                    Button("Item 1", variant="outline"),
-                                    Button("Item 2", variant="outline"),
-                                    Button("Item 3", variant="outline"),
-                                ],
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("align", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "start",
+                                "end",
+                                "center",
+                                "stretch",
+                                "baseline",
+                            ]
+                        ],
+                        value=align,
+                        on_change=ctx.callback(_set_align),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("gap", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["1", "2", "4", "6", "8"]
+                        ],
+                        value=str(gap),
+                        on_change=ctx.callback(_set_gap),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Row(
+                justify=justify,
+                align=align,
+                gap=gap,
+                children=[
+                    Button("Item 1", variant="outline"),
+                    Button("Item 2", variant="outline"),
+                    Button("Item 3", variant="outline"),
+                ],
+            )
+        ],
+        preview_class="border rounded-lg p-4 bg-muted/30 min-h-[80px]",
     )
 
 

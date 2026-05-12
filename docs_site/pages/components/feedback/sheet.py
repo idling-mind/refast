@@ -22,6 +22,7 @@ from refast.components import (
     SheetTrigger,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Sheet"
 PAGE_ROUTE = "/docs/components/sheet"
@@ -57,104 +58,90 @@ def _playground(ctx: Context):
     side = ctx.state.get("sht_side", "right")
     open_state = ctx.state.get("sht_open", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Side", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["top", "right", "bottom", "left"]
-                                        ],
-                                        value=side,
-                                        on_change=ctx.callback(_set_side),
-                                    ),
-                                ],
-                            ),
+                    Text("Side", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["top", "right", "bottom", "left"]
                         ],
+                        value=side,
+                        on_change=ctx.callback(_set_side),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-4 bg-muted/30 flex items-center justify-center min-h-[80px]",
-                        children=[
-                            Sheet(
-                                open=open_state,
-                                on_open_change=ctx.callback(_set_sheet_open),
-                                children=[
-                                    SheetTrigger(
-                                        children=[
-                                            Button(
-                                                f"Open ({side})",
-                                                on_click=ctx.callback(_open_sheet),
-                                            )
-                                        ]
-                                    ),
-                                    SheetContent(
-                                        side=side,
-                                        children=[
-                                            SheetHeader(
-                                                children=[
-                                                    SheetTitle(title="Edit Profile"),
-                                                    SheetDescription(
-                                                        description="Make changes to your profile here. "
-                                                        "Click save when done."
-                                                    ),
-                                                ]
-                                            ),
-                                            Text(
-                                                "Profile form fields would go here.",
-                                                class_name="text-sm text-muted-foreground py-4",
-                                            ),
-                                            SheetFooter(
-                                                children=[
-                                                    Button(
-                                                        "Save changes",
-                                                        on_click=ctx.callback(_close_sheet),
-                                                    ),
-                                                ]
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Sheet(\n"
-                            f"    children=[\n"
-                            f"        SheetTrigger(children=[Button(\"Open\")]),\n"
-                            f"        SheetContent(\n"
-                            f'            side="{side}",\n'
-                            f"            children=[\n"
-                            f"                SheetHeader(\n"
-                            f"                    children=[\n"
-                            f'                        SheetTitle(title="Edit Profile"),\n'
-                            f'                        SheetDescription(description="Make changes here."),\n'
-                            f"                    ]\n"
-                            f"                ),\n"
-                            f"                # content\n"
-                            f"                SheetFooter(children=[Button(\"Save\")]),\n"
-                            f"            ],\n"
-                            f"        ),\n"
-                            f"    ]\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Sheet(
+                open=open_state,
+                on_open_change=ctx.callback(_set_sheet_open),
+                children=[
+                    SheetTrigger(
+                        children=[
+                            Button(
+                                f"Open ({side})",
+                                on_click=ctx.callback(_open_sheet),
+                            )
+                        ]
+                    ),
+                    SheetContent(
+                        side=side,
+                        children=[
+                            SheetHeader(
+                                children=[
+                                    SheetTitle(title="Edit Profile"),
+                                    SheetDescription(
+                                        description="Make changes to your profile here. "
+                                        "Click save when done."
+                                    ),
+                                ]
+                            ),
+                            Text(
+                                "Profile form fields would go here.",
+                                class_name="text-sm text-muted-foreground py-4",
+                            ),
+                            SheetFooter(
+                                children=[
+                                    Button(
+                                        "Save changes",
+                                        on_click=ctx.callback(_close_sheet),
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"Sheet(\n"
+                f"    children=[\n"
+                f"        SheetTrigger(children=[Button(\"Open\")]),\n"
+                f"        SheetContent(\n"
+                f'            side="{side}",\n'
+                f"            children=[\n"
+                f"                SheetHeader(\n"
+                f"                    children=[\n"
+                f'                        SheetTitle(title="Edit Profile"),\n'
+                f'                        SheetDescription(description="Make changes here."),\n'
+                f"                    ]\n"
+                f"                ),\n"
+                f"                # content\n"
+                f"                SheetFooter(children=[Button(\"Save\")]),\n"
+                f"            ],\n"
+                f"        ),\n"
+                f"    ]\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-4 bg-muted/30 flex items-center justify-center min-h-[80px]",
     )
 
 

@@ -28,6 +28,7 @@ from refast.components.shadcn.charts import (
     XAxis,
     YAxis,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Line Chart"
 PAGE_ROUTE = "/docs/components/line-chart"
@@ -105,42 +106,38 @@ def _playground(ctx: Context):
         )
     )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(gap=1, children=[
+                Text("Show dots", class_name="text-sm font-medium"),
+                Checkbox(label="dots", checked=show_dots, on_change=ctx.callback(_lc_set_show_dots)),
+            ]),
+            Column(gap=1, children=[
+                Text("Stroke type", class_name="text-sm font-medium"),
+                Select(
+                    options=STROKE_OPTIONS,
+                    value=stroke_type,
+                    on_change=ctx.callback(_lc_set_stroke_type),
+                ),
+            ]),
+            Column(gap=1, children=[
+                Text("Show grid", class_name="text-sm font-medium"),
+                Checkbox(label="grid", checked=show_grid, on_change=ctx.callback(_lc_set_show_grid)),
+            ]),
+        ],
+        preview=[
+            ChartContainer(
+                config=CHART_CONFIG,
+                class_name="h-64",
                 children=[
-                    Row(gap=4, wrap=True, class_name="mb-4", children=[
-                        Column(gap=1, children=[
-                            Text("Show dots", class_name="text-sm font-medium"),
-                            Checkbox(label="dots", checked=show_dots, on_change=ctx.callback(_lc_set_show_dots)),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Stroke type", class_name="text-sm font-medium"),
-                            Select(
-                                options=STROKE_OPTIONS,
-                                value=stroke_type,
-                                on_change=ctx.callback(_lc_set_stroke_type),
-                            ),
-                        ]),
-                        Column(gap=1, children=[
-                            Text("Show grid", class_name="text-sm font-medium"),
-                            Checkbox(label="grid", checked=show_grid, on_change=ctx.callback(_lc_set_show_grid)),
-                        ]),
-                    ]),
-                    ChartContainer(
-                        config=CHART_CONFIG,
-                        class_name="h-64",
-                        children=[
-                            LineChart(
-                                data=SAMPLE_DATA,
-                                children=chart_children,
-                            ),
-                        ],
+                    LineChart(
+                        data=SAMPLE_DATA,
+                        children=chart_children,
                     ),
                 ],
             ),
         ],
+        preview_class="",
     )
 
 

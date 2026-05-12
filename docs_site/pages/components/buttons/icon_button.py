@@ -19,6 +19,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.button import IconButton
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "IconButton"
 PAGE_ROUTE = "/docs/components/icon-button"
@@ -77,109 +78,93 @@ def _playground(ctx: Context):
         "mail",
     ]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Icon", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in icon_options
-                                        ],
-                                        value=icon,
-                                        on_change=ctx.callback(_set_icon),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Variant", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "ghost",
-                                                "default",
-                                                "secondary",
-                                                "destructive",
-                                                "outline",
-                                            ]
-                                        ],
-                                        value=variant,
-                                        on_change=ctx.callback(_set_variant),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["xs", "sm", "md", "lg", "xl"]
-                                        ],
-                                        value=size,
-                                        on_change=ctx.callback(_set_size),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
+                    Text("Icon", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in icon_options
                         ],
+                        value=icon,
+                        on_change=ctx.callback(_set_icon),
                     ),
-                    # Preview area
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center justify-center min-h-[80px] bg-muted/30",
-                        children=[
-                            IconButton(
-                                icon=icon,
-                                variant=variant,
-                                size=size,
-                                disabled=disabled,
-                                aria_label=icon,
-                                on_click=ctx.callback(_noop),
-                            )
-                        ],
-                    ),
-                    # Live code snippet
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"IconButton(\n"
-                            f'    icon="{icon}",\n'
-                            f'    variant="{variant}",\n'
-                            f'    size="{size}",\n'
-                            f'    disabled={disabled},\n'
-                            f'    aria_label="{icon}",\n'
-                            f"    on_click=ctx.callback(handle_click),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Variant", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "ghost",
+                                "default",
+                                "secondary",
+                                "destructive",
+                                "outline",
+                            ]
+                        ],
+                        value=variant,
+                        on_change=ctx.callback(_set_variant),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["xs", "sm", "md", "lg", "xl"]
+                        ],
+                        value=size,
+                        on_change=ctx.callback(_set_size),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            IconButton(
+                icon=icon,
+                variant=variant,
+                size=size,
+                disabled=disabled,
+                aria_label=icon,
+                on_click=ctx.callback(_noop),
+            )
+        ],
+        code=Markdown(
+            content=(
+                f"```python\n"
+                f"IconButton(\n"
+                f'    icon="{icon}",\n'
+                f'    variant="{variant}",\n'
+                f'    size="{size}",\n'
+                f'    disabled={disabled},\n'
+                f'    aria_label="{icon}",\n'
+                f"    on_click=ctx.callback(handle_click),\n"
+                f")\n"
+                f"```"
+            )
+        ),
+        preview_class="border rounded-lg p-6 flex items-center justify-center min-h-[80px] bg-muted/30",
     )
 
 

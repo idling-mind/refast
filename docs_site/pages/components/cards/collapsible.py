@@ -20,6 +20,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Collapsible"
 PAGE_ROUTE = "/docs/components/collapsible"
@@ -45,91 +46,75 @@ def _playground(ctx: Context):
     is_open = ctx.state.get("cll_open", False)
     disabled = ctx.state.get("cll_disabled", False)
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
                     ),
-                    # Live preview — controlled via on_open_change
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            Text(
-                                "Click the button to toggle (Python manages open state via on_open_change):",
-                                class_name="text-sm text-muted-foreground mb-3",
-                            ),
-                            Collapsible(
-                                open=is_open,
-                                disabled=disabled,
-                                on_open_change=ctx.callback(_toggle_open),
-                                children=[
-                                    CollapsibleTrigger(
-                                        as_child=False,
-                                        class_name="flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent cursor-pointer",
-                                        children=[
-                                            Text("Toggle section \u2195"),
-                                        ],
-                                    ),
-                                    CollapsibleContent(
-                                        children=[
-                                            Container(
-                                                class_name="mt-3 p-3 border rounded bg-background",
-                                                children=[
-                                                    Text(
-                                                        "This content is revealed when the collapsible is open.",
-                                                        class_name="text-sm",
-                                                    ),
-                                                    Text(
-                                                        "You can put any components here.",
-                                                        class_name="text-sm text-muted-foreground",
-                                                    ),
-                                                ],
-                                            )
-                                        ]
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "Collapsible(\n"
-                            f"    open={is_open},\n"
-                            f"    disabled={disabled},\n"
-                            "    children=[\n"
-                            "        CollapsibleTrigger(\n"
-                            "            children=[Button(\"Toggle section\", on_click=ctx.callback(toggle))]\n"
-                            "        ),\n"
-                            "        CollapsibleContent(\n"
-                            "            children=[Text(\"Hidden content\")]\n"
-                            "        ),\n"
-                            "    ],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            Text(
+                "Click the button to toggle (Python manages open state via on_open_change):",
+                class_name="text-sm text-muted-foreground mb-3",
+            ),
+            Collapsible(
+                open=is_open,
+                disabled=disabled,
+                on_open_change=ctx.callback(_toggle_open),
+                children=[
+                    CollapsibleTrigger(
+                        as_child=False,
+                        class_name="flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent cursor-pointer",
+                        children=[
+                            Text("Toggle section \u2195"),
+                        ],
+                    ),
+                    CollapsibleContent(
+                        children=[
+                            Container(
+                                class_name="mt-3 p-3 border rounded bg-background",
+                                children=[
+                                    Text(
+                                        "This content is revealed when the collapsible is open.",
+                                        class_name="text-sm",
+                                    ),
+                                    Text(
+                                        "You can put any components here.",
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
+                                ],
+                            )
+                        ]
+                    ),
+                ],
+            ),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "Collapsible(\n"
+                f"    open={is_open},\n"
+                f"    disabled={disabled},\n"
+                "    children=[\n"
+                "        CollapsibleTrigger(\n"
+                "            children=[Button(\"Toggle section\", on_click=ctx.callback(toggle))]\n"
+                "        ),\n"
+                "        CollapsibleContent(\n"
+                "            children=[Text(\"Hidden content\")]\n"
+                "        ),\n"
+                "    ],\n"
+                ")\n"
+                "```"
+            )
+        ),
     )
 
 

@@ -18,6 +18,7 @@ from refast.components import (
     Separator,
     Text,
 )
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "List"
 PAGE_ROUTE = "/docs/components/list"
@@ -47,51 +48,35 @@ def _playground(ctx: Context):
 
     list_children = _ITEMS[:4]
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-6",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Ordered", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="numbered list",
-                                        checked=ordered,
-                                        on_change=ctx.callback(_set_ordered),
-                                    ),
-                                ],
-                            ),
-                        ],
+                    Text("Ordered", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="numbered list",
+                        checked=ordered,
+                        on_change=ctx.callback(_set_ordered),
                     ),
-                    # Live preview
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[
-                            List(ordered=ordered, children=list_children),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            "```python\n"
-                            "List(\n"
-                            f"    ordered={ordered},\n"
-                            "    children=[\n"
-                            + "".join(f'        "{item}",\n' for item in _ITEMS[:4])
-                            + "    ],\n"
-                            ")\n"
-                            "```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+        ],
+        preview=[
+            List(ordered=ordered, children=list_children),
+        ],
+        code=Markdown(
+            content=(
+                "```python\n"
+                "List(\n"
+                f"    ordered={ordered},\n"
+                "    children=[\n"
+                + "".join(f'        "{item}",\n' for item in _ITEMS[:4])
+                + "    ],\n"
+                ")\n"
+                "```"
+            )
+        ),
     )
 
 

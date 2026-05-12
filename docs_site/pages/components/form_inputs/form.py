@@ -18,6 +18,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.form import Form, FormField, Label
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Form"
 PAGE_ROUTE = "/docs/components/form"
@@ -113,19 +114,10 @@ def _playground(ctx: Context):
             ],
         )
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
-                children=[
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30",
-                        children=[demo_content],
-                    ),
-                    Markdown(content=CODE_EXAMPLE),
-                ]
-            ),
-        ]
+    return playground_card(
+        options=[],
+        preview=[demo_content],
+        code=Markdown(content=CODE_EXAMPLE),
     )
 
 

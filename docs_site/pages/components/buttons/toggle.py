@@ -19,6 +19,7 @@ from refast.components import (
     Text,
 )
 from refast.components.shadcn.controls import Toggle, ToggleGroup, ToggleGroupItem
+from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Toggle"
 PAGE_ROUTE = "/docs/components/toggle"
@@ -82,153 +83,136 @@ def _playground(ctx: Context):
 
     pressed_label = "Pressed" if pressed else "Unpressed"
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    # Toggle controls
-                    Text("Toggle", class_name="text-base font-semibold mb-2"),
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Variant", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["default", "outline"]
-                                        ],
-                                        value=variant,
-                                        on_change=ctx.callback(_set_variant),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Size", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in ["sm", "md", "lg"]
-                                        ],
-                                        value=size,
-                                        on_change=ctx.callback(_set_size),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Disabled", class_name="text-sm font-medium"),
-                                    Checkbox(
-                                        label="disabled",
-                                        checked=disabled,
-                                        on_change=ctx.callback(_set_disabled),
-                                    ),
-                                ],
-                            ),
+                    Text("Variant", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["default", "outline"]
                         ],
+                        value=variant,
+                        on_change=ctx.callback(_set_variant),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30 mb-2",
-                        children=[
-                            Toggle(
-                                label="Bold",
-                                icon="bold",
-                                variant=variant,
-                                size=size,
-                                disabled=disabled,
-                                pressed=pressed,
-                                on_pressed_change=ctx.callback(_toggle_pressed),
-                            ),
-                            Text(
-                                f"State: {pressed_label}",
-                                class_name="text-sm text-muted-foreground",
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f"Toggle(\n"
-                            f'    label="Bold",\n'
-                            f'    icon="bold",\n'
-                            f'    variant="{variant}",\n'
-                            f'    size="{size}",\n'
-                            f'    disabled={disabled},\n'
-                            f'    pressed={pressed},\n'
-                            f"    on_pressed_change=ctx.callback(handle_toggle),\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                    Separator(class_name="my-6"),
-                    # ToggleGroup section
-                    Text("ToggleGroup", class_name="text-base font-semibold mb-2"),
-                    Row(
-                        gap=4,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("Mode", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": "single", "label": "single"},
-                                            {"value": "multiple", "label": "multiple"},
-                                        ],
-                                        value=group_mode,
-                                        on_change=ctx.callback(_set_group_mode),
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    Container(
-                        class_name="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30 mb-2",
-                        children=[
-                            ToggleGroup(
-                                type=group_mode,
-                                on_value_change=ctx.callback(_group_change),
-                                children=[
-                                    ToggleGroupItem("Bold", icon="bold", value="bold"),
-                                    ToggleGroupItem("Italic", icon="italic", value="italic"),
-                                    ToggleGroupItem(
-                                        "Underline", icon="underline", value="underline"
-                                    ),
-                                ],
-                            ),
-                            Text(
-                                f"Selected: {group_value}",
-                                class_name="text-sm text-muted-foreground",
-                            ),
-                        ],
-                    ),
-                    Markdown(
-                        content=(
-                            f"```python\n"
-                            f'ToggleGroup(\n'
-                            f'    type="{group_mode}",\n'
-                            f"    on_value_change=ctx.callback(handle_change),\n"
-                            f"    children=[\n"
-                            f'        ToggleGroupItem("Bold", icon="bold", value="bold"),\n'
-                            f'        ToggleGroupItem("Italic", icon="italic", value="italic"),\n'
-                            f'        ToggleGroupItem("Underline", icon="underline", value="underline"),\n'
-                            f"    ],\n"
-                            f")\n"
-                            f"```"
-                        )
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("Size", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in ["sm", "md", "lg"]
+                        ],
+                        value=size,
+                        on_change=ctx.callback(_set_size),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("Disabled", class_name="text-sm font-medium"),
+                    Checkbox(
+                        label="disabled",
+                        checked=disabled,
+                        on_change=ctx.callback(_set_disabled),
+                    ),
+                ],
+            ),
+            Column(
+                gap=1,
+                children=[
+                    Text("ToggleGroup Mode", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": "single", "label": "single"},
+                            {"value": "multiple", "label": "multiple"},
+                        ],
+                        value=group_mode,
+                        on_change=ctx.callback(_set_group_mode),
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Text("Toggle", class_name="text-base font-semibold mb-2"),
+            Container(
+                class_name="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30",
+                children=[
+                    Toggle(
+                        label="Bold",
+                        icon="bold",
+                        variant=variant,
+                        size=size,
+                        disabled=disabled,
+                        pressed=pressed,
+                        on_pressed_change=ctx.callback(_toggle_pressed),
+                    ),
+                    Text(
+                        f"State: {pressed_label}",
+                        class_name="text-sm text-muted-foreground",
+                    ),
+                ],
+            ),
+            Markdown(
+                content=(
+                    f"```python\n"
+                    f"Toggle(\n"
+                    f'    label="Bold",\n'
+                    f'    icon="bold",\n'
+                    f'    variant="{variant}",\n'
+                    f'    size="{size}",\n'
+                    f'    disabled={disabled},\n'
+                    f'    pressed={pressed},\n'
+                    f"    on_pressed_change=ctx.callback(handle_toggle),\n"
+                    f")\n"
+                    f"```"
+                )
+            ),
+            Separator(class_name="my-6"),
+            Text("ToggleGroup", class_name="text-base font-semibold mb-2"),
+            Container(
+                class_name="border rounded-lg p-6 flex items-center gap-4 min-h-[80px] bg-muted/30",
+                children=[
+                    ToggleGroup(
+                        type=group_mode,
+                        on_value_change=ctx.callback(_group_change),
+                        children=[
+                            ToggleGroupItem("Bold", icon="bold", value="bold"),
+                            ToggleGroupItem("Italic", icon="italic", value="italic"),
+                            ToggleGroupItem(
+                                "Underline", icon="underline", value="underline"
+                            ),
+                        ],
+                    ),
+                    Text(
+                        f"Selected: {group_value}",
+                        class_name="text-sm text-muted-foreground",
+                    ),
+                ],
+            ),
+            Markdown(
+                content=(
+                    f"```python\n"
+                    f'ToggleGroup(\n'
+                    f'    type="{group_mode}",\n'
+                    f"    on_value_change=ctx.callback(handle_change),\n"
+                    f"    children=[\n"
+                    f'        ToggleGroupItem("Bold", icon="bold", value="bold"),\n'
+                    f'        ToggleGroupItem("Italic", icon="italic", value="italic"),\n'
+                    f'        ToggleGroupItem("Underline", icon="underline", value="underline"),\n'
+                    f"    ],\n"
+                    f")\n"
+                    f"```"
+                )
+            ),
+        ],
+        preview_class="",
     )
 
 

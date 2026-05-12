@@ -1,6 +1,7 @@
 """Badge — /docs/components/badge."""
 
 from refast import Context
+from docs_site.pages.components.playground import playground_card
 from refast.components import (
     Badge,
     Card,
@@ -41,64 +42,49 @@ def _playground(ctx: Context):
     variant = ctx.state.get("bg_variant", "default")
     badge_text = ctx.state.get("bg_text", "Badge")
 
-    return Card(
-        children=[
-            CardHeader(title="Interactive Playground"),
-            CardContent(
+    return playground_card(
+        options=[
+            Column(
+                gap=1,
                 children=[
-                    Row(
-                        gap=4,
-                        wrap=True,
-                        class_name="mb-4",
-                        children=[
-                            Column(
-                                gap=1,
-                                children=[
-                                    Text("variant", class_name="text-sm font-medium"),
-                                    Select(
-                                        options=[
-                                            {"value": v, "label": v}
-                                            for v in [
-                                                "default",
-                                                "secondary",
-                                                "destructive",
-                                                "outline",
-                                                "success",
-                                                "warning",
-                                            ]
-                                        ],
-                                        value=variant,
-                                        on_change=ctx.callback(_set_variant),
-                                    ),
-                                ],
-                            ),
-                            Column(
-                                gap=1,
-                                class_name="flex-1 min-w-40",
-                                children=[
-                                    Text("text", class_name="text-sm font-medium"),
-                                    Input(
-                                        value=badge_text,
-                                        placeholder="Badge text...",
-                                        on_change=ctx.callback(_set_text),
-                                        debounce=300,
-                                    ),
-                                ],
-                            ),
+                    Text("variant", class_name="text-sm font-medium"),
+                    Select(
+                        options=[
+                            {"value": v, "label": v}
+                            for v in [
+                                "default",
+                                "secondary",
+                                "destructive",
+                                "outline",
+                                "success",
+                                "warning",
+                            ]
                         ],
+                        value=variant,
+                        on_change=ctx.callback(_set_variant),
                     ),
-                    Container(
-                        class_name="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[80px]",
-                        children=[
-                            Badge(
-                                children=[badge_text or "Badge"],
-                                variant=variant,
-                            )
-                        ],
-                    ),
-                ]
+                ],
             ),
-        ]
+            Column(
+                gap=1,
+                children=[
+                    Text("text", class_name="text-sm font-medium"),
+                    Input(
+                        value=badge_text,
+                        placeholder="Badge text...",
+                        on_change=ctx.callback(_set_text),
+                        debounce=300,
+                    ),
+                ],
+            ),
+        ],
+        preview=[
+            Badge(
+                children=[badge_text or "Badge"],
+                variant=variant,
+            )
+        ],
+        preview_class="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[80px]",
     )
 
 

@@ -24,9 +24,19 @@
  * ```
  */
 
+/**
+ * Minimal interface for the prop store, exposed for dependency injection
+ * in tests and alternative implementations.
+ */
+export interface PropStoreInterface {
+  get(key: string): unknown;
+  set(key: string, value: unknown): void;
+  keys(): string[];
+}
+
 type PropStoreListener = (key: string, value: unknown) => void;
 
-class PropStore {
+class PropStore implements PropStoreInterface {
   private store: Map<string, unknown> = new Map();
   private listeners: Set<PropStoreListener> = new Set();
 

@@ -7,25 +7,27 @@
  *   ComponentRenderer → propStoreUtils (ok)
  *   input → propStoreUtils (ok)
  */
-import { propStore } from '../state/PropStore';
+import { propStore, PropStoreInterface } from '../state/PropStore';
 
 /**
  * Apply a save_prop directive to store event data in the prop store immediately.
  * Used by the action execution engine for SaveProp actions.
- * 
+ *
  * @param saveProp - String key or object mapping event keys to store keys
  * @param eventData - The extracted event data
+ * @param store - Prop store instance (defaults to the global singleton; injectable for tests)
  */
 export function applySaveProp(
   saveProp: string | Record<string, string>,
-  eventData: Record<string, unknown>
+  eventData: Record<string, unknown>,
+  store: PropStoreInterface = propStore,
 ): void {
   if (typeof saveProp === 'string') {
-    propStore.set(saveProp, eventData.value);
+    store.set(saveProp, eventData.value);
   } else if (typeof saveProp === 'object') {
     for (const [eventKey, storeKey] of Object.entries(saveProp)) {
       if (eventKey in eventData) {
-        propStore.set(storeKey, eventData[eventKey]);
+        store.set(storeKey, eventData[eventKey]);
       }
     }
   }

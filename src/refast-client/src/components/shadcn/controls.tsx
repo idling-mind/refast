@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { Button, buttonVariants } from './button';
 import { cn } from '../../utils';
+import { refastBus } from '../../utils/eventBus';
 import { Icon } from './icon';
 import { InputWrapper } from './input';
 
@@ -1387,14 +1388,11 @@ export function Combobox({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setInternalValue(newValue);
+        setInternalValue(newValue as string | string[]);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   // Ensure internalValue is array if multiselect is true
@@ -1712,14 +1710,11 @@ export function InputOTP({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setLocalValue(newValue);
+        setLocalValue(newValue as string);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   const handleChange = (index: number, char: string) => {

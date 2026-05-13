@@ -1,16 +1,10 @@
 import React, { useMemo, Suspense, Component, useEffect, useState } from 'react';
-import { ComponentTree, CallbackRef, JsCallbackRef, BoundMethodCallbackRef, SavePropRef, ChainedActionRef, AnyActionRef } from '../types';
+import { ComponentTree, AnyActionRef } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { componentRegistry } from './registry';
-import {
-  EventManagerInterface,
-  isCallbackRef,
-  isJsCallbackRef,
-  isBoundMethodCallbackRef,
-  isSavePropRef,
-  isChainedActionRef,
-  createSingleActionExecutor,
-} from '../utils/actionExecutor';
+import { EventManagerInterface, createSingleActionExecutor } from '../utils/actionExecutor';
+import { transformProps } from '../utils/propTransformer';
+import { refastBus } from '../utils/eventBus';
 
 /**
  * Error boundary that isolates render failures to a single component subtree.
@@ -111,10 +105,7 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
       setExtensionsReady(true);
       return;
     }
-
-    const onReady = () => setExtensionsReady(true);
-    window.addEventListener('refast:extensions-ready', onReady);
-    return () => window.removeEventListener('refast:extensions-ready', onReady);
+    return refastBus.on('refast:extensions-ready', () => setExtensionsReady(true));
   }, []);
 
   if (!tree) {
@@ -137,9 +128,7 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
   const Component = useMemo(() => componentRegistry.get(type), [type, extensionEpoch]);
 
   useEffect(() => {
-    const onExtensionLoaded = () => setExtensionEpoch((value) => value + 1);
-    window.addEventListener('refast:extension-loaded', onExtensionLoaded);
-    return () => window.removeEventListener('refast:extension-loaded', onExtensionLoaded);
+    return refastBus.on('refast:extension-loaded', () => setExtensionEpoch((v) => v + 1));
   }, []);
 
   useEffect(() => {
@@ -175,35 +164,13 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
     };
   }, [Component, mappedExtension, mappedExtensionLoaded, extensionWindow.__REFAST_LOAD_EXTENSION__]);
 
-  // Process props - convert snake_case to camelCase, handle callbacks and formatters
+  // Normalize props: snake_case → camelCase, resolve action refs → handlers,
+  // convert formatter strings → functions, strip nulls.
   const processedProps = useMemo(() => {
-    const result: Record<string, unknown> = { id };
-
-    for (const [key, value] of Object.entries(props)) {
-      // Convert snake_case keys to camelCase for React/DOM compatibility
-      const camelKey = snakeToCamel(key);
-      
-      if (isCallbackRef(value)) {
-        result[camelKey] = createCallbackHandler(value, eventManager);
-      } else if (isJsCallbackRef(value)) {
-        result[camelKey] = createJsCallbackHandler(value);
-      } else if (isBoundMethodCallbackRef(value)) {
-        result[camelKey] = createBoundMethodCallbackHandler(value);
-      } else if (isSavePropRef(value)) {
-        result[camelKey] = createSavePropHandler(value);
-      } else if (isChainedActionRef(value)) {
-        result[camelKey] = createChainedActionHandler(value, eventManager);
-      } else if (isFormatterString(key, value)) {
-        // Convert formatter strings to functions (e.g., tickFormatter)
-        result[camelKey] = createFormatterFunction(value as string);
-      } else {
-        result[camelKey] = value;
-      }
-    }
-
-    // Remove null values - Recharts expects undefined, not null
-    // for optional props like 'data' to use defaults properly
-    return removeNullValues(result);
+    return transformProps(props, {
+      id,
+      resolveAction: (value) => createActionHandler(value, eventManager),
+    });
   }, [props, id, eventManager]);
 
   // Render children
@@ -223,36 +190,31 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
         // Fall back to normal renderer if it's NOT a charts component (e.g. Tooltip custom content)
         return <ComponentRenderer key={node.id || i} tree={node} onUpdate={onUpdate} />;
       }
-      
-      const nProps: any = { key: node.id || i };
-      for (const [nk, nv] of Object.entries(node.props || {})) {
-        if (isFormatterString(nk, nv)) {
-          nProps[snakeToCamel(nk)] = createFormatterFunction(nv as string);
-        } else if (typeof nv === 'object' && nv !== null && (nv as any).type) {
-          nProps[snakeToCamel(nk)] = <ComponentRenderer tree={nv as any} onUpdate={onUpdate} />;
-        } else {
-          nProps[snakeToCamel(nk)] = nv;
-        }
-      }
-      
-      const nChildren = (node.children || [])
-        .filter((c: any) => c != null && c !== 'None')
-        .map((c: any, ci: number) => buildChartElement(c, ci));
-        
-      return React.createElement(RComp, removeNullValues(nProps), nChildren.length > 0 ? nChildren : undefined);
+
+        const nProps = {
+          key: node.id || i,
+          ...transformProps(node.props || {}, {
+            resolveComponentTree: (value) => (
+              <ComponentRenderer tree={value as ComponentTree} onUpdate={onUpdate} />
+            ),
+          }),
+        };
+
+        const nChildren = (node.children || [])
+          .filter((c: any) => c != null && c !== 'None')
+          .map((c: any, ci: number) => buildChartElement(c, ci));
+
+        return React.createElement(RComp, nProps, nChildren.length > 0 ? nChildren : undefined);
     };
 
-    // Filter out null/undefined values and 'None' strings (defensive check)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return children
       .filter((child: any) => child != null && child !== 'None')
       .map((child: any, index: number) => {
         if (typeof child === 'string') return child;
 
-        // Recharts requires direct elements, not Wrapped by ComponentRenderer/Suspense
-        // Unroll them if their parent is a Recharts parent.
+        // Recharts requires direct elements, not wrapped by ComponentRenderer/Suspense
         if (isChartParent && isChartComponent(child.type)) {
-           return buildChartElement(child, index);
+          return buildChartElement(child, index);
         }
 
         return (
@@ -327,66 +289,8 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
 ComponentObjectRenderer.displayName = 'ComponentObjectRenderer';
 
 /**
- * Check if a prop key/value pair is a formatter string that needs conversion.
- * Checks for both camelCase and snake_case versions.
- */
-function isFormatterString(key: string, value: unknown): boolean {
-  const formatterProps = [
-    'tickFormatter', 'tick_formatter',
-    'labelFormatter', 'label_formatter', 
-    'formatter'
-  ];
-  return formatterProps.includes(key) && typeof value === 'string';
-}
-
-/**
- * Convert snake_case to camelCase.
- */
-function snakeToCamel(str: string): string {
-  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-}
-
-/**
- * Remove null values from props object.
- * Recharts expects undefined (prop not present) rather than null
- * for optional props to properly use their default values.
- */
-function removeNullValues(obj: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value !== null) {
-      result[key] = value;
-    }
-  }
-  return result;
-}
-
-/**
- * Create a formatter function from a string expression.
- * The expression can use 'value' and 'index' variables.
- * For safety, wraps in try-catch to handle null/undefined values.
- */
-function createFormatterFunction(expression: string): (value: unknown, index?: number) => string {
-  return (value: unknown, index?: number): string => {
-    try {
-      // Handle null/undefined values gracefully
-      if (value === null || value === undefined) {
-        return '';
-      }
-      // Create a function that evaluates the expression
-      // eslint-disable-next-line no-new-func
-      const fn = new Function('value', 'index', `return ${expression}`);
-      return fn(value, index);
-    } catch {
-      // If expression evaluation fails, return value as string
-      return String(value);
-    }
-  };
-}
-
-/**
- * Create the top-level event handler for any action ref.
- * This is the function that React event props (onClick, onChange, etc.) call.
+ * Create the top-level React event handler for any action ref.
+ * Called via `resolveAction` in transformProps for every action ref value.
  */
 function createActionHandler(
   ref: AnyActionRef,
@@ -396,57 +300,9 @@ function createActionHandler(
 
   return (...args: unknown[]) => {
     const eventData = extractEventData(args);
-    // Fire-and-forget — we don't await because React event handlers are sync
+    // Fire-and-forget — React event handlers are synchronous
     executor(eventData, args);
   };
-}
-
-/**
- * Create a handler function for a callback reference (Python callback).
- */
-function createCallbackHandler(
-  ref: CallbackRef,
-  eventManager: EventManagerInterface,
-): (...args: unknown[]) => void {
-  return createActionHandler(ref, eventManager);
-}
-
-/**
- * Create a handler function for a JavaScript callback reference.
- */
-function createJsCallbackHandler(
-  ref: JsCallbackRef,
-): (...args: unknown[]) => void {
-  // JsCallback doesn't need eventManager; pass a dummy
-  return createActionHandler(ref, { invokeCallback: () => {} });
-}
-
-/**
- * Create a handler function for a bound method callback reference.
- */
-function createBoundMethodCallbackHandler(
-  ref: BoundMethodCallbackRef,
-): (...args: unknown[]) => void {
-  return createActionHandler(ref, { invokeCallback: () => {} });
-}
-
-/**
- * Create a handler function for a store prop reference.
- */
-function createSavePropHandler(
-  ref: SavePropRef,
-): (...args: unknown[]) => void {
-  return createActionHandler(ref, { invokeCallback: () => {} });
-}
-
-/**
- * Create a handler function for a chained action reference.
- */
-function createChainedActionHandler(
-  ref: ChainedActionRef,
-  eventManager: EventManagerInterface,
-): (...args: unknown[]) => void {
-  return createActionHandler(ref, eventManager);
 }
 
 /**

@@ -3,6 +3,7 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '../../utils';
+import { refastBus } from '../../utils/eventBus';
 
 // ============================================================================
 // InputWrapper - Reusable wrapper for form controls with label, description, error
@@ -168,11 +169,10 @@ export function Input({
   // This handles the edge case where the prop value string hasn't changed
   // (e.g. "" → "") but localValue has drifted due to user typing.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        lastValueRef.current = newValue;
-        setLocalValue(newValue);
+        lastValueRef.current = newValue as string;
+        setLocalValue(newValue as string);
         // Cancel any pending debounced onChange so it doesn't push
         // a stale user-typed value back via save_prop.
         if (debounceTimeout.current !== null) {
@@ -180,9 +180,7 @@ export function Input({
           debounceTimeout.current = null;
         }
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   React.useEffect(() => () => {
@@ -350,19 +348,16 @@ export function Textarea({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        lastValueRef.current = newValue;
-        setLocalValue(newValue);
+        lastValueRef.current = newValue as string;
+        setLocalValue(newValue as string);
         if (debounceTimeout.current !== null) {
           window.clearTimeout(debounceTimeout.current);
           debounceTimeout.current = null;
         }
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   React.useEffect(() => () => {
@@ -510,14 +505,11 @@ export function Select({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setLocalValue(newValue);
+        setLocalValue(newValue as string);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -875,14 +867,11 @@ export function RadioGroup({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setLocalValue(newValue);
+        setLocalValue(newValue as string);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   const handleValueChange = (newValue: string) => {

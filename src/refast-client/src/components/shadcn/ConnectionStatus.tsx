@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../../utils';
 import { ComponentRenderer } from '../ComponentRenderer';
 import { ComponentTree } from '../../types';
+import { refastBus } from '../../utils/eventBus';
 
 interface ConnectionStatusProps {
   id?: string;
@@ -59,16 +60,12 @@ export function ConnectionStatus({
         }
       }
 
-      // Fire Python callback via custom event
+      // Fire Python callback via typed event bus
       if (onDisconnect?.callbackId) {
-        window.dispatchEvent(
-          new CustomEvent('refast:callback', {
-            detail: {
-              callbackId: onDisconnect.callbackId,
-              data: { ...(onDisconnect.boundArgs || {}), event_type: 'disconnect' },
-            },
-          })
-        );
+        refastBus.emit('refast:callback', {
+          callbackId: onDisconnect.callbackId,
+          data: { ...(onDisconnect.boundArgs || {}), event_type: 'disconnect' },
+        });
       }
     };
 
@@ -84,16 +81,12 @@ export function ConnectionStatus({
         }
       }
 
-      // Fire Python callback via custom event
+      // Fire Python callback via typed event bus
       if (onReconnect?.callbackId) {
-        window.dispatchEvent(
-          new CustomEvent('refast:callback', {
-            detail: {
-              callbackId: onReconnect.callbackId,
-              data: { ...(onReconnect.boundArgs || {}), event_type: 'reconnect' },
-            },
-          })
-        );
+        refastBus.emit('refast:callback', {
+          callbackId: onReconnect.callbackId,
+          data: { ...(onReconnect.boundArgs || {}), event_type: 'reconnect' },
+        });
       }
     };
 

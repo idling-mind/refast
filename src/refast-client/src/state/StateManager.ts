@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ComponentTree, UpdateMessage, StateManagerState } from '../types';
 import { propStore } from './PropStore';
+import { refastBus } from '../utils/eventBus';
 
 /**
  * Deep equality check for component props.
@@ -238,11 +239,10 @@ export function useStateManager(initialTree?: ComponentTree) {
               // value string hasn't changed (e.g. "" → "") but the local
               // value has drifted due to user typing.
               if (message.props && 'value' in message.props && message.targetId) {
-                window.dispatchEvent(
-                  new CustomEvent('refast:force-value-sync', {
-                    detail: { targetId: message.targetId, value: message.props.value },
-                  })
-                );
+                refastBus.emit('refast:force-value-sync', {
+                  targetId: message.targetId,
+                  value: message.props.value,
+                });
               }
             } else if (message.operation === 'append_prop' && message.propName !== undefined) {
               // For append_prop, we pass propName and value via props
@@ -273,8 +273,8 @@ export function useStateManager(initialTree?: ComponentTree) {
               }
             } else {
               window.history.pushState({}, '', message.path);
-              // Trigger a custom event for navigation
-              window.dispatchEvent(new CustomEvent('refast:navigate', { detail: { path: message.path } }));
+              // Trigger a typed event for navigation
+              refastBus.emit('refast:navigate', { path: message.path });
               // Handle scroll after navigation
               if (message.scroll_to != null) {
                 const behavior = (message.scroll_behavior as ScrollBehavior | undefined) ?? 'instant';
@@ -289,28 +289,25 @@ export function useStateManager(initialTree?: ComponentTree) {
           break;
 
         case 'toast':
-          // Trigger a custom event for toast notifications
-          // Forward all toast options from the server (snake_case)
+          // Dispatch a typed toast event consumed by ToastManager.
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(
-              new CustomEvent('refast:toast', {
-                detail: {
-                  message: message.message,
-                  variant: message.variant,
-                  duration: message.duration,
-                  description: message.description,
-                  position: message.position,
-                  dismissible: message.dismissible,
-                  close_button: message.close_button,
-                  invert: message.invert,
-                  icon: message.icon,
-                  action: message.action,
-                  cancel: message.cancel,
-                  id: message.id,
-                  component: message.component,
-                },
-              })
-            );
+            refastBus.emit('refast:toast', {
+              message: message.message,
+              variant: message.variant as 'default' | 'success' | 'error' | 'destructive' | 'warning' | 'info' | 'loading' | undefined,
+              duration: message.duration,
+              description: message.description,
+              position: message.position as 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center' | undefined,
+              dismissible: message.dismissible,
+              close_button: message.close_button,
+              invert: message.invert,
+              icon: message.icon,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              action: message.action as any,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              cancel: message.cancel as any,
+              id: message.id,
+              component: message.component,
+            });
           }
           break;
 
@@ -338,7 +335,7 @@ export function useStateManager(initialTree?: ComponentTree) {
               });
             } else {
               // Fallback: trigger a page refresh via HTTP request
-              window.dispatchEvent(new CustomEvent('refast:refresh'));
+              refastBus.emit('refast:refresh', {});
             }
           }
           break;

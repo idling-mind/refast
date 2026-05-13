@@ -6,6 +6,7 @@ import { useWebSocket, buildWebSocketUrl } from './events/WebSocketClient';
 import { useStateManager } from './state/StateManager';
 import { persistentStateManager } from './state/PersistentStateManager';
 import { ComponentTree, UpdateMessage } from './types';
+import { refastBus } from './utils/eventBus';
 
 // Extend Window interface for initial data
 declare global {
@@ -127,14 +128,7 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
 
   // Listen for refresh events
   useEffect(() => {
-    const handleRefresh = () => {
-      fetchPage();
-    };
-
-    window.addEventListener('refast:refresh', handleRefresh);
-    return () => {
-      window.removeEventListener('refast:refresh', handleRefresh);
-    };
+    return refastBus.on('refast:refresh', () => fetchPage());
   }, [fetchPage]);
 
   // Wrapper to match the expected signature

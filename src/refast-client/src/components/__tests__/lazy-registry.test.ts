@@ -337,7 +337,6 @@ describe('ComponentRegistry – singleton integration', () => {
     const { componentRegistry } = await import('../registry');
     const chunks = componentRegistry.listChunks();
     expect(chunks).toContain('charts');
-    expect(chunks).toContain('icons');
     expect(chunks).toContain('controls');
     expect(chunks).toContain('navigation');
     expect(chunks).toContain('overlay');

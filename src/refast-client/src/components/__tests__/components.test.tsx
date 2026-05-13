@@ -178,7 +178,7 @@ describe('Feedback Components', () => {
     const indicator = container.querySelector('[role="progressbar"] > div');
     expect(indicator).toBeTruthy();
     // static stripes should add a background-image inline style
-    expect(indicator).toHaveStyle('background-image');
+    expect((indicator as HTMLElement).style.backgroundImage).not.toBe('');
   });
 
   it('adds animate-stripes class when striped="animated"', () => {

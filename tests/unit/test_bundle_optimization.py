@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from refast import RefastApp
-from refast.router import ALL_FEATURE_CHUNKS, _get_chunk_files, _load_manifest
+from refast.assets import ALL_FEATURE_CHUNKS, _get_chunk_files, _load_manifest
 
 # ── Fixtures ─────────────────────────────────────────────────────────────
 

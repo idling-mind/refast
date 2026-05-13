@@ -570,6 +570,11 @@ class CheckboxGroup(Component):
     """
     Checkbox group component for selecting multiple options.
 
+    Use ``Checkbox`` components as children. The group manages shared state
+    (checked values, name, disabled) and propagates it to each child via
+    React context — it works correctly even through ``ComponentRenderer``
+    wrappers.
+
     Example:
         ```python
         CheckboxGroup(
@@ -592,7 +597,7 @@ class CheckboxGroup(Component):
         name: The name for the checkbox group (used for form submission).
         label: Label text for the entire group.
         description: Description text displayed below the label.
-        children: Checkbox components as children.
+        children: ``Checkbox`` components as children.
         value: List of currently selected values.
         orientation: Layout orientation - "vertical" or "horizontal".
         required: Whether the field is required (shows asterisk).
@@ -611,7 +616,6 @@ class CheckboxGroup(Component):
         description: str | None = None,
         value: list[str] | None = None,
         default_value: list[str] | None = None,
-        options: list[dict[str, Any]] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
         required: bool = False,
         disabled: bool = False,
@@ -636,7 +640,6 @@ class CheckboxGroup(Component):
         self.description = description
         self.value = value or []
         self.default_value = default_value
-        self.options = options
         self.orientation = orientation
         self.required = required
         self.disabled = disabled
@@ -649,7 +652,6 @@ class CheckboxGroup(Component):
             "description": self.description,
             "value": self.value,
             "default_value": self.default_value,
-            "options": self.options,
             "orientation": self.orientation,
             "required": self.required,
             "disabled": self.disabled,
@@ -674,23 +676,40 @@ class CheckboxGroup(Component):
 
 class Radio(Component):
     """
-    Single radio button component, typically used inside a ``RadioGroup``.
+    Single radio button component. Must be used inside a ``RadioGroup``.
 
-    Example:
-        ```python
-        Radio(value="small", label="Small", name="size")
-        ```
+    The ``RadioGroup`` (Radix context) enforces single-selection; standalone
+    ``Radio`` usage outside a group is not supported.
+
+    Pass ``children`` for complex option content (e.g. a ``Card`` layout).
+    When children are supplied the default label/description rendering is
+    skipped; the children are rendered inside the Radix item instead.
+
+    Example::
+
+        RadioGroup(
+            name="plan",
+            value="pro",
+            on_change=ctx.callback(handle_change),
+            children=[
+                Radio(value="free", label="Free"),
+                Radio(value="pro", label="Pro"),
+                # complex option with children:
+                Radio(value="enterprise", children=[
+                    Card(children=[CardHeader(title="Enterprise"), ...]),
+                ]),
+            ],
+        )
 
     Args:
         value: The value emitted when this radio is selected (required).
-        name: HTML ``name`` attribute shared with other radios in the group.
         label: Label text displayed next to the radio button.
-        description: Help text displayed below the radio.
-        checked: Controlled checked state.
-        required: Shows a required asterisk.
-        disabled: Disables this radio button.
+        description: Help text displayed below the label.
+        required: Shows a required asterisk on the label.
+        disabled: Disables this radio item.
         error: Error message displayed below.
-        on_change: Callback fired when this radio is selected.
+        children: Optional child components rendered inside the radio item
+            instead of the default label layout.
         id: Component ID.
         class_name: Additional Tailwind CSS classes.
     """
@@ -700,15 +719,12 @@ class Radio(Component):
     def __init__(
         self,
         value: str,
-        name: str | None = None,
         label: str | None = None,
         description: str | None = None,
-        checked: bool = False,
-        default_checked: bool = False,
         required: bool = False,
         disabled: bool = False,
         error: str | None = None,
-        on_change: Any = None,
+        children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -722,24 +738,19 @@ class Radio(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.name = name
         self.value = value
         self.label = label
         self.description = description
-        self.checked = checked
-        self.default_checked = default_checked
         self.required = required
         self.disabled = disabled
         self.error = error
-        self.on_change = on_change
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
             "value": self.value,
             "label": self.label,
             "description": self.description,
-            "checked": self.checked,
-            "default_checked": self.default_checked,
             "required": self.required,
             "disabled": self.disabled,
             "error": self.error,
@@ -747,23 +758,23 @@ class Radio(Component):
             **self._serialize_extra_props(),
         }
 
-        if self.name is not None:
-            props["name"] = self.name
-
-        if self.on_change:
-            props["on_change"] = self.on_change.serialize()
-
         return {
             "type": self.component_type,
             "id": self.id,
             "props": props,
-            "children": [],
+            "children": self._render_children(),
         }
 
 
 class RadioGroup(Component):
     """
     Radio group component for selecting a single option from multiple choices.
+
+    Use ``Radio`` components as children. The group uses
+    ``@radix-ui/react-radio-group`` so single-selection is enforced by Radix
+    context — even when children are wrapped by ``ComponentRenderer``.
+    Each ``Radio`` child may itself contain arbitrary child components for
+    complex option layouts (e.g. cards).
 
     Example:
         ```python
@@ -788,7 +799,7 @@ class RadioGroup(Component):
         name: The name for the radio group (used for form submission).
         label: Label text for the entire group.
         description: Description text displayed below the label.
-        children: Radio components as children.
+        children: ``Radio`` components as children.
         value: Currently selected value.
         orientation: Layout orientation - "vertical" or "horizontal".
         required: Whether the field is required (shows asterisk).
@@ -807,7 +818,6 @@ class RadioGroup(Component):
         description: str | None = None,
         value: str | None = None,
         default_value: str | None = None,
-        options: list[dict[str, Any]] | None = None,
         orientation: Literal["vertical", "horizontal"] = "vertical",
         required: bool = False,
         disabled: bool = False,
@@ -832,7 +842,6 @@ class RadioGroup(Component):
         self.description = description
         self.value = value
         self.default_value = default_value
-        self.options = options
         self.orientation = orientation
         self.required = required
         self.disabled = disabled
@@ -845,7 +854,6 @@ class RadioGroup(Component):
             "description": self.description,
             "value": self.value,
             "default_value": self.default_value,
-            "options": self.options,
             "orientation": self.orientation,
             "required": self.required,
             "disabled": self.disabled,

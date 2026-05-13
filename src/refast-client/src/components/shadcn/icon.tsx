@@ -227,9 +227,15 @@ import {
   HelpCircle,
   LifeBuoy,
   WifiOff,
+  // Text formatting
+  Bold,
+  Italic,
+  Underline,
   // Additional icons for docs & common use
   Rocket,
   Grid3x3,
+  MousePointer,
+  MousePointer2,
   MousePointerClick,
   Route,
   Radio,
@@ -246,6 +252,9 @@ import {
   HandMetal,
   CheckSquare,
   LayoutDashboard,
+  Share,
+  Share2,
+  Keyboard,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -525,9 +534,16 @@ const iconMap: Record<string, LucideIcon> = {
   'help': HelpCircle,
   'life-buoy': LifeBuoy,
   'support': LifeBuoy,
+  // Text formatting
+  'bold': Bold,
+  'italic': Italic,
+  'underline': Underline,
   // Additional icons for docs & common use
   'rocket': Rocket,
   'grid-3x3': Grid3x3,
+  'mouse-pointer': MousePointer,
+  'cursor': MousePointer,
+  'mouse-pointer-2': MousePointer2,
   'mouse-pointer-click': MousePointerClick,
   'route': Route,
   'radio': Radio,
@@ -544,6 +560,9 @@ const iconMap: Record<string, LucideIcon> = {
   'hand-metal': HandMetal,
   'check-square': CheckSquare,
   'layout-dashboard': LayoutDashboard,
+  'share': Share,
+  'share-2': Share2,
+  'keyboard': Keyboard,
 };
 
 export interface IconProps {

@@ -3,11 +3,21 @@
 import asyncio
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
 from fastapi import Request, WebSocket
 
+# Action types live in events.actions; re-exported here for backward compatibility
+# so that ``from refast.context import Callback`` etc. continue to work.
+from refast.events.actions import (  # noqa: F401
+    ActionType,
+    BoundJsCallback,
+    Callback,
+    ChainedAction,
+    JsAction,
+    JsCallback,
+    SaveProp,
+)
 from refast.state import State
 from refast.store import Store
 
@@ -17,327 +27,6 @@ if TYPE_CHECKING:
     from refast.session.session import Session
 
 T = TypeVar("T")
-
-
-@dataclass
-class Callback:
-    """
-    Represents a callback that can be triggered from the frontend.
-
-    Callbacks are serializable references to Python functions that
-    the frontend can invoke via WebSocket.
-
-    The `props` parameter specifies which prop store values to include:
-    - Only requested props are sent with the callback (not the entire store)
-    - Values are passed as keyword arguments to the callback function
-
-    Example:
-        ```python
-        # Use with ctx.save_prop to capture input and send on submit
-        Input(on_change=ctx.save_prop("email"))
-        Input(on_change=ctx.save_prop("name"))
-
-        # Request specific props - they come as kwargs
-        Button(on_click=ctx.callback(submit, props=["email", "name"]))
-
-        async def submit(ctx, email: str, name: str):
-            print(f"Email: {email}, Name: {name}")
-
-        # With debounce (in milliseconds)
-        Input(on_change=ctx.callback(search, debounce=300))
-        ```
-    """
-
-    id: str
-    func: Callable[..., Any]
-    bound_args: dict[str, Any] = field(default_factory=dict)
-    props: list[str] | None = None
-    debounce: int = 0
-    throttle: int = 0
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        result: dict[str, Any] = {
-            "callbackId": self.id,
-            "boundArgs": self.bound_args,
-        }
-        if self.props is not None:
-            result["props"] = self.props
-        if self.debounce > 0:
-            result["debounce"] = self.debounce
-        if self.throttle > 0:
-            result["throttle"] = self.throttle
-        return result
-
-
-@dataclass
-class JsCallback:
-    """
-    Represents a JavaScript function to be executed on the frontend.
-
-    Unlike regular Callbacks which invoke Python functions via WebSocket,
-    JsCallbacks execute JavaScript code directly in the browser without
-    a server roundtrip.
-
-    The JavaScript function receives an event object with the following structure:
-    - For DOM events: { value, checked, name, target, ... }
-    - For custom callbacks: the data passed to the callback
-
-    Example:
-        ```python
-        # Simple alert
-        Button("Click me", on_click=ctx.js("alert('Hello!')"))
-
-        # Toggle a class
-        Button("Toggle", on_click=ctx.js("document.body.classList.toggle('dark')"))
-
-        # Access event data
-        Input(on_change=ctx.js("console.log('Value:', event.value)"))
-
-        # Call a global function
-        Button("Save", on_click=ctx.js("window.myApp.save()"))
-
-        # With bound arguments
-        Button("Delete", on_click=ctx.js("deleteItem(args.itemId)", item_id=123))
-        ```
-
-    Attributes:
-        code: JavaScript code to execute
-        bound_args: Arguments available as 'args' object in the JS code
-        debounce: Milliseconds to debounce execution
-        throttle: Milliseconds to throttle execution
-    """
-
-    code: str
-    bound_args: dict[str, Any] = field(default_factory=dict)
-    debounce: int = 0
-    throttle: int = 0
-
-    @staticmethod
-    def _serialize_bound_args(bound_args: dict[str, Any]) -> dict[str, Any]:
-        """Serialize bound args, converting Callback objects to their serialized form."""
-        result: dict[str, Any] = {}
-        for key, value in bound_args.items():
-            if hasattr(value, "serialize") and callable(value.serialize):
-                result[key] = value.serialize()
-            else:
-                result[key] = value
-        return result
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        result: dict[str, Any] = {
-            "jsFunction": self.code,
-            "boundArgs": self._serialize_bound_args(self.bound_args),
-        }
-        if self.debounce > 0:
-            result["debounce"] = self.debounce
-        if self.throttle > 0:
-            result["throttle"] = self.throttle
-        return result
-
-
-@dataclass
-class JsAction:
-    """
-    Represents a JavaScript action to be sent to the frontend for execution.
-
-    Used by ctx.call_js() to execute JavaScript code on the client.
-
-    Attributes:
-        code: JavaScript code to execute
-        args: Arguments passed to the JavaScript code
-    """
-
-    code: str
-    args: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class BoundJsCallback:
-    """
-    Represents a bound method call to be executed on a component in the frontend.
-
-    Unlike JsCallback which executes arbitrary JavaScript code,
-    BoundJsCallback calls a specific method on a component identified by its ID.
-    This is useful for calling component methods without a server roundtrip.
-
-    Example:
-        ```python
-        # Call clearCanvas method on a SketchCanvas component
-        Button("Clear", on_click=ctx.bound_js("my-canvas", "clearCanvas"))
-
-        # Call a method with positional arguments
-        Button("Set Size", on_click=ctx.bound_js("my-canvas", "setSize", 800, 600))
-
-        # Call a method with keyword arguments
-        Button("Load", on_click=ctx.bound_js("my-canvas", "loadPaths", paths=my_paths))
-
-        # Call a method with both positional and keyword arguments
-        Button("Draw", on_click=ctx.bound_js("my-canvas", "draw", "circle", x=100, y=200))
-
-        # Toggle eraser mode
-        Button("Eraser", on_click=ctx.bound_js("my-canvas", "eraseMode", True))
-        ```
-
-    Attributes:
-        target_id: ID of the target component
-        method_name: Name of the method to call on the component
-        args: Positional arguments to pass to the method
-        kwargs: Keyword arguments to pass to the method
-        debounce: Milliseconds to debounce execution
-        throttle: Milliseconds to throttle execution
-    """
-
-    target_id: str
-    method_name: str
-    args: tuple[Any, ...] = field(default_factory=tuple)
-    kwargs: dict[str, Any] = field(default_factory=dict)
-    debounce: int = 0
-    throttle: int = 0
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        result: dict[str, Any] = {
-            "boundMethod": {
-                "targetId": self.target_id,
-                "methodName": self.method_name,
-                "args": list(self.args),
-                "kwargs": self.kwargs,
-            }
-        }
-        if self.debounce > 0:
-            result["debounce"] = self.debounce
-        if self.throttle > 0:
-            result["throttle"] = self.throttle
-        return result
-
-
-@dataclass
-class SaveProp:
-    """
-    Stores event data in the frontend prop store without a server roundtrip.
-
-    This is a first-class action that captures event values on the frontend.
-    Use it to collect input values that can later be sent with a Callback
-    via the ``props`` parameter.
-
-    Args:
-        name: Store key or mapping. Can be:
-            - str: Store the event's "value" under this key
-            - dict: Map event data keys to store keys
-              (e.g., {"value": "email", "name": "field_name"})
-        debounce: Milliseconds to debounce the store write
-        throttle: Milliseconds to throttle the store write
-
-    Example:
-        ```python
-        # Store input value as "email" in prop store
-        Input(on_change=ctx.save_prop("email"))
-
-        # Map multiple event fields to store keys
-        Input(on_change=ctx.save_prop({"value": "email", "name": "field"}))
-
-        # Combine with a callback using ctx.chain
-        Input(
-            on_change=ctx.chain([
-                ctx.save_prop("email"),
-                ctx.callback(validate_email, props=["email"]),
-            ])
-        )
-        ```
-    """
-
-    name: str | dict[str, str]
-    debounce: int = 0
-    throttle: int = 0
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        result: dict[str, Any] = {
-            "saveProp": self.name,
-        }
-        if self.debounce > 0:
-            result["debounce"] = self.debounce
-        if self.throttle > 0:
-            result["throttle"] = self.throttle
-        return result
-
-
-@dataclass
-class ChainedAction:
-    """
-    Composes multiple actions to fire on a single event.
-
-    Actions are executed in order (serial) or simultaneously (parallel).
-    Chains can be nested — a ChainedAction can contain other ChainedActions.
-
-    Args:
-        actions: List of actions to execute. Each must be a Callback,
-            JsCallback, BoundJsCallback, SaveProp, or another ChainedAction.
-        mode: Execution mode — "serial" (default) or "parallel".
-            - "serial": Each action completes before the next starts.
-            - "parallel": All actions fire simultaneously.
-
-    Example:
-        ```python
-        # Store value AND call a server function
-        Input(
-            on_change=ctx.chain([
-                ctx.save_prop("search"),
-                ctx.callback(do_search, props=["search"], debounce=300),
-            ])
-        )
-
-        # Mix JS and Python actions
-        Button(
-            "Submit",
-            on_click=ctx.chain([
-                ctx.js("showSpinner()"),
-                ctx.callback(handle_submit, props=["email", "name"]),
-            ])
-        )
-
-        # Nested chains with different modes
-        Button(
-            "Save All",
-            on_click=ctx.chain([
-                ctx.js("showLoading()"),
-                ctx.chain([
-                    ctx.callback(save_draft),
-                    ctx.callback(save_settings),
-                ], mode="parallel"),
-            ])
-        )
-        ```
-    """
-
-    actions: list[Any]  # list of Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
-    mode: str = "serial"  # "serial" or "parallel"
-
-    def __post_init__(self) -> None:
-        """Validate actions and mode."""
-        valid_types = (Callback, JsCallback, BoundJsCallback, SaveProp, ChainedAction)
-        for i, action in enumerate(self.actions):
-            if not isinstance(action, valid_types):
-                raise TypeError(
-                    f"Action at index {i} is {type(action).__name__}, "
-                    f"expected one of: Callback, JsCallback, BoundJsCallback, "
-                    f"SaveProp, ChainedAction"
-                )
-        if self.mode not in ("serial", "parallel"):
-            raise ValueError(f"mode must be 'serial' or 'parallel', got {self.mode!r}")
-
-    def serialize(self) -> dict[str, Any]:
-        """Serialize for sending to frontend."""
-        return {
-            "chain": [action.serialize() for action in self.actions],
-            "mode": self.mode,
-        }
-
-
-# Union type for all action types that can be used in event handlers
-ActionType = Callback | JsCallback | BoundJsCallback | SaveProp | ChainedAction
 
 
 class Context(Generic[T]):
@@ -380,6 +69,8 @@ class Context(Generic[T]):
         self._session: Session | None = None
         self._event_data: dict[str, Any] | list[Any] | Any = {}
         self._store_sync_future: asyncio.Future[None] | None = None
+        self._current_path: str = "/"
+        self._callbacks: dict[str, Callable[..., Any]] = {}
 
     @property
     def event_data(self) -> dict[str, Any] | list[Any] | Any:
@@ -389,6 +80,14 @@ class Context(Generic[T]):
     def set_event_data(self, data: dict[str, Any] | list[Any] | Any) -> None:
         """Set the event data (called by event manager)."""
         self._event_data = data
+
+    def get_callback(self, callback_id: str) -> Callable[..., Any] | None:
+        """Look up a callback registered during this connection's last page render."""
+        return self._callbacks.get(callback_id)
+
+    def clear_callbacks(self) -> None:
+        """Discard all callbacks from the previous render cycle."""
+        self._callbacks.clear()
 
     @property
     def state(self) -> State:
@@ -484,9 +183,8 @@ class Context(Generic[T]):
             throttle=throttle,
         )
 
-        # Register with app
-        if self._app:
-            self._app.register_callback(callback_id, func)
+        # Register on this context (per-connection, auto-cleared on page render)
+        self._callbacks[callback_id] = func
 
         return cb
 
@@ -1065,7 +763,12 @@ class Context(Generic[T]):
                 }
             )
 
-    async def load(self, path: str) -> None:
+    async def load(
+        self,
+        path: str,
+        scroll_to: str | None = "top",
+        scroll_behavior: str = "instant",
+    ) -> None:
         """Load a different page.
 
         Sends a navigate message to update the browser URL, then renders
@@ -1074,14 +777,24 @@ class Context(Generic[T]):
 
         Args:
             path: The target page path (e.g. "/docs/getting-started").
+            scroll_to: Where to scroll after navigation. Use ``"top"`` (default)
+                to scroll to the top of the page, an element ID (e.g.
+                ``"hero-section"``) to scroll that element into view, or
+                ``None`` to leave the scroll position unchanged.
+            scroll_behavior: The scroll animation style — ``"instant"``
+                (default, no animation) or ``"smooth"``.
         """
         if self._websocket:
             await self._websocket.send_json(
                 {
                     "type": "navigate",
                     "path": path,
+                    "scroll_to": scroll_to,
+                    "scroll_behavior": scroll_behavior,
                 }
             )
+            # Track the new path so ctx.refresh() targets the correct page
+            self._current_path = path
             # Also render the target page and send its component tree
             if self._app:
                 page_func = self._app._pages.get(path)
@@ -1131,8 +844,8 @@ class Context(Generic[T]):
                        focus loss in unrelated inputs.
         """
         if self._websocket and self._app:
-            # Default to root path if not specified
-            page_path = path or "/"
+            # Use the path explicitly provided, then the tracked current path, then "/"
+            page_path = path or self._current_path or "/"
 
             # Find and render the page
             page_func = self._app._pages.get(page_path)

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useCallback, useMemo, useRef, useEffe
 import { EventMessage, UpdateMessage, ComponentTree, ThemePayload } from '../types';
 import { persistentStateManager } from '../state/PersistentStateManager';
 import { refastJsHelper } from '../utils/refastJsHelper';
+import { refastBus } from '../utils/eventBus';
 
 /**
  * CSS variable names that may be set as inline styles by a previous
@@ -86,6 +87,16 @@ interface EventManagerContextValue {
   subscribe: (channel: string) => void;
   unsubscribe: (channel: string) => void;
   onUpdate: (handler: (message: UpdateMessage) => void) => () => void;
+  /**
+   * Register a handler for a specific WebSocket message type.
+   * Built-in types (js_exec, bound_method_call, theme_update, etc.) already
+   * have default handlers; additional handlers are additive.
+   * Returns an unsubscribe function for cleanup.
+   */
+  registerMessageHandler: (
+    type: UpdateMessage['type'],
+    handler: (msg: UpdateMessage) => void,
+  ) => () => void;
 }
 
 const EventManagerContext = createContext<EventManagerContextValue | null>(null);
@@ -102,46 +113,118 @@ interface EventManagerProviderProps {
 export function EventManagerProvider({
   children,
   websocket,
-  onComponentUpdate,
+  onComponentUpdate: _onComponentUpdate,
 }: EventManagerProviderProps): React.ReactElement {
   const updateHandlers = useRef<Set<(message: UpdateMessage) => void>>(new Set());
   const websocketRef = useRef<WebSocket | null>(websocket);
-  
+  const messageHandlerRegistry = useRef<Map<string, Set<(msg: UpdateMessage) => void>>>(new Map());
+
   // Keep websocket ref updated
   useEffect(() => {
     websocketRef.current = websocket;
   }, [websocket]);
 
-  // Listen for custom refast:callback events from components
+  // Stable handler registration — operates on a ref so it never causes re-renders.
+  const registerMessageHandler = useCallback(
+    (type: UpdateMessage['type'], handler: (msg: UpdateMessage) => void): (() => void) => {
+      const registry = messageHandlerRegistry.current;
+      if (!registry.has(type)) registry.set(type, new Set());
+      registry.get(type)!.add(handler);
+      return () => registry.get(type)?.delete(handler);
+    },
+    [], // stable
+  );
+
+  // Register built-in message handlers.
+  // These cover the side-effecting message types that were previously
+  // hardcoded inside the WebSocket message loop.
   useEffect(() => {
-    const handleCallbackEvent = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        callbackId: string;
-        data: Record<string, unknown>;
-      }>;
-      
-      const { callbackId, data } = customEvent.detail;
-      
+    const unregister: (() => void)[] = [];
+
+    unregister.push(
+      registerMessageHandler('store_update', (msg) => {
+        if (msg.updates) persistentStateManager.handleUpdates(msg.updates);
+      }),
+    );
+
+    unregister.push(
+      registerMessageHandler('store_ready', () => {
+        persistentStateManager.handleStoreReady();
+      }),
+    );
+
+    unregister.push(
+      registerMessageHandler('js_exec', (msg) => {
+        if (!msg.code) return;
+        try {
+          // eslint-disable-next-line no-new-func
+          const fn = new Function('args', 'refast', msg.code);
+          fn(msg.args || {}, refastJsHelper);
+        } catch (error) {
+          console.error('[Refast] Error executing JavaScript from server:', error);
+          console.error('[Refast] Code:', msg.code);
+        }
+      }),
+    );
+
+    unregister.push(
+      registerMessageHandler('bound_method_call', (msg) => {
+        if (!msg.targetId || !msg.methodName) return;
+        try {
+          const element = document.getElementById(msg.targetId);
+          if (element) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const method = (element as any)[msg.methodName];
+            if (typeof method === 'function') {
+              const positionalArgs = (Array.isArray(msg.args) ? msg.args : []) as unknown[];
+              const kwargs = msg.kwargs || {};
+              const hasKwargs = Object.keys(kwargs).length > 0;
+              const allArgs = hasKwargs ? [...positionalArgs, kwargs] : positionalArgs;
+              if (allArgs.length === 0) method.call(element);
+              else if (allArgs.length === 1) method.call(element, allArgs[0]);
+              else method.apply(element, allArgs);
+            } else {
+              console.warn(`[Refast] Method '${msg.methodName}' not found on element '${msg.targetId}'`);
+            }
+          } else {
+            console.warn(`[Refast] Element with id '${msg.targetId}' not found`);
+          }
+        } catch (error) {
+          console.error('[Refast] Error calling bound method:', error);
+          console.error('[Refast] Target:', msg.targetId, 'Method:', msg.methodName);
+        }
+      }),
+    );
+
+    unregister.push(
+      registerMessageHandler('resync_store', () => {
+        persistentStateManager.resyncStore();
+      }),
+    );
+
+    unregister.push(
+      registerMessageHandler('theme_update', (msg) => {
+        if (msg.theme) applyThemeUpdate(msg.theme);
+      }),
+    );
+
+    return () => unregister.forEach((f) => f());
+  }, [registerMessageHandler]);
+
+  // Listen for refast:callback events dispatched by refastJsHelper and ConnectionStatus.
+  useEffect(() => {
+    return refastBus.on('refast:callback', ({ callbackId, data }) => {
       if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-        // Note: requested props should already be merged into data
-        const message = {
-          type: 'callback',
-          callbackId,
-          data,
-        };
-        websocketRef.current.send(JSON.stringify(message));
+        websocketRef.current.send(
+          JSON.stringify({ type: 'callback', callbackId, data }),
+        );
       } else {
         console.warn('WebSocket not connected, cannot invoke callback');
       }
-    };
-
-    window.addEventListener('refast:callback', handleCallbackEvent);
-    return () => {
-      window.removeEventListener('refast:callback', handleCallbackEvent);
-    };
+    });
   }, []);
 
-  // Handle incoming messages
+  // Handle incoming messages — route to update handlers then to the registry.
   useEffect(() => {
     if (!websocket) return;
 
@@ -149,81 +232,11 @@ export function EventManagerProvider({
       try {
         const message: UpdateMessage = JSON.parse(event.data);
 
-        // Notify all handlers
+        // Notify all registered update handlers (StateManager, ToastManager, etc.)
         updateHandlers.current.forEach((handler) => handler(message));
 
-        // Handle store updates
-        if (message.type === 'store_update' && message.updates) {
-          persistentStateManager.handleUpdates(message.updates);
-        }
-
-        // Handle store ready (after store_init is acknowledged)
-        if (message.type === 'store_ready') {
-          persistentStateManager.handleStoreReady();
-        }
-
-        // Note: Component updates (message.type === 'update') are handled by the 
-        // registered update handlers via handleUpdate in StateManager.
-        // We don't call onComponentUpdate here to avoid processing updates twice.
-
-        // Handle JavaScript execution from backend
-        if (message.type === 'js_exec' && message.code) {
-          try {
-            // eslint-disable-next-line no-new-func
-            const fn = new Function('args', 'refast', message.code);
-            fn(message.args || {}, refastJsHelper);
-          } catch (error) {
-            console.error('[Refast] Error executing JavaScript from server:', error);
-            console.error('[Refast] Code:', message.code);
-          }
-        }
-
-        // Handle bound method calls from backend
-        if (message.type === 'bound_method_call' && message.targetId && message.methodName) {
-          try {
-            const element = document.getElementById(message.targetId);
-            if (element) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const method = (element as any)[message.methodName];
-              if (typeof method === 'function') {
-                // Call the method with the provided arguments
-                // For bound_method_call, args is always an array
-                const positionalArgs = (Array.isArray(message.args) ? message.args : []) as unknown[];
-                const kwargs = message.kwargs || {};
-                
-                // Combine positional args and kwargs
-                // If there are kwargs, pass them as the last argument (as an object)
-                const hasKwargs = Object.keys(kwargs).length > 0;
-                const allArgs = hasKwargs ? [...positionalArgs, kwargs] : positionalArgs;
-                
-                if (allArgs.length === 0) {
-                  method.call(element);
-                } else if (allArgs.length === 1) {
-                  method.call(element, allArgs[0]);
-                } else {
-                  method.apply(element, allArgs);
-                }
-              } else {
-                console.warn(`[Refast] Method '${message.methodName}' not found on element '${message.targetId}'`);
-              }
-            } else {
-              console.warn(`[Refast] Element with id '${message.targetId}' not found`);
-            }
-          } catch (error) {
-            console.error('[Refast] Error calling bound method:', error);
-            console.error('[Refast] Target:', message.targetId, 'Method:', message.methodName);
-          }
-        }
-
-        // Handle resync_store request from backend
-        if (message.type === 'resync_store') {
-          persistentStateManager.resyncStore();
-        }
-
-        // Handle runtime theme updates from backend
-        if (message.type === 'theme_update' && message.theme) {
-          applyThemeUpdate(message.theme);
-        }
+        // Dispatch to type-specific registered handlers.
+        messageHandlerRegistry.current.get(message.type)?.forEach((handler) => handler(message));
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
@@ -231,7 +244,7 @@ export function EventManagerProvider({
 
     websocket.addEventListener('message', handleMessage);
     return () => websocket.removeEventListener('message', handleMessage);
-  }, [websocket, onComponentUpdate]);
+  }, [websocket]);
 
   const invokeCallback = useCallback(
     (callbackId: string, data: Record<string, unknown>, eventData?: Record<string, unknown>) => {
@@ -317,8 +330,9 @@ export function EventManagerProvider({
       subscribe,
       unsubscribe,
       onUpdate,
+      registerMessageHandler,
     }),
-    [invokeCallback, emitEvent, subscribe, unsubscribe, onUpdate]
+    [invokeCallback, emitEvent, subscribe, unsubscribe, onUpdate, registerMessageHandler]
   );
 
   return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ExternalLink } from 'lucide-react';
 import { cn } from '../../utils';
 
 /**
@@ -166,6 +167,9 @@ export function Link({
       data-refast-id={dataRefastId}
     >
       {children}
+      {external && (
+        <ExternalLink className="inline-block ml-1 align-middle" size={12} />
+      )}
     </a>
   );
 }
@@ -410,6 +414,14 @@ export function List({
 }: ListProps): React.ReactElement {
   const Tag = ordered ? 'ol' : 'ul';
 
+  // Auto-wrap children that aren't already <li> elements
+  const wrappedChildren = React.Children.map(children, (child) => {
+    if (React.isValidElement(child) && (child.type === 'li' || (child as React.ReactElement<{ className?: string }>).props?.className?.includes('list-item'))) {
+      return child;
+    }
+    return <li>{child}</li>;
+  });
+
   return (
     <Tag
       id={id}
@@ -422,7 +434,7 @@ export function List({
       style={style}
       data-refast-id={dataRefastId}
     >
-      {children}
+      {wrappedChildren}
     </Tag>
   );
 }
@@ -651,7 +663,10 @@ export function Markdown({
     ),
     // Code with syntax highlighting
     code: ({ className, children }) => {
-      const isInline = !className;
+      // Fenced code blocks (even without a language) always end with a trailing \n;
+      // inline code does not.  Using only !className incorrectly treats no-language
+      // fenced blocks as inline code.
+      const isInline = !className && !String(children).endsWith('\n');
       if (isInline) {
         return (
           <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
@@ -782,5 +797,38 @@ export function Markdown({
         {content}
       </ReactMarkdown>
     </div>
+  );
+}
+
+interface KbdProps {
+  id?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+}
+
+/**
+ * Kbd component - renders a keyboard key in a styled <kbd> element.
+ */
+export function Kbd({
+  id,
+  className,
+  style,
+  children,
+  'data-refast-id': dataRefastId,
+}: KbdProps): React.ReactElement {
+  return (
+    <kbd
+      id={id}
+      className={cn(
+        'pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground',
+        className
+      )}
+      style={style}
+      data-refast-id={dataRefastId}
+    >
+      {children}
+    </kbd>
   );
 }

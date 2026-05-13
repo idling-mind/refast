@@ -18,6 +18,7 @@ export function Container({
   style,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: ContainerProps): React.ReactElement {
   return (
     <div
@@ -25,6 +26,7 @@ export function Container({
       className={cn('', className)}
       style={style}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </div>
@@ -48,6 +50,7 @@ export function Text({
   style,
   children,
   'data-refast-id': dataRefastId,
+  ...props
 }: TextProps): React.ReactElement {
   return (
     <span
@@ -55,6 +58,7 @@ export function Text({
       className={cn('', className)}
       style={style}
       data-refast-id={dataRefastId}
+      {...props}
     >
       {children}
     </span>

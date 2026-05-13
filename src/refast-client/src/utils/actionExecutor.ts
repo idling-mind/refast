@@ -13,8 +13,8 @@ import {
   SavePropRef,
   ChainedActionRef,
 } from '../types';
-import { debounce, throttle } from '../utils';
-import { propStore } from '../state/PropStore';
+import { debounce, throttle, assertNever } from '../utils';
+import { propStore, PropStoreInterface } from '../state/PropStore';
 import { applySaveProp } from './propStoreUtils';
 import { refastJsHelper } from './refastJsHelper';
 
@@ -34,14 +34,23 @@ export interface EventManagerInterface {
 // Type guards
 // ---------------------------------------------------------------------------
 
+// Overload accepting AnyActionRef enables TypeScript to narrow the false
+// branch when these guards are used in if/else chains, giving compile-time
+// exhaustiveness without requiring a discriminant field on the types.
+export function isCallbackRef(value: AnyActionRef): value is CallbackRef;
+export function isCallbackRef(value: unknown): value is CallbackRef;
 export function isCallbackRef(value: unknown): value is CallbackRef {
   return typeof value === 'object' && value !== null && 'callbackId' in value;
 }
 
+export function isJsCallbackRef(value: AnyActionRef): value is JsCallbackRef;
+export function isJsCallbackRef(value: unknown): value is JsCallbackRef;
 export function isJsCallbackRef(value: unknown): value is JsCallbackRef {
   return typeof value === 'object' && value !== null && 'jsFunction' in value;
 }
 
+export function isBoundMethodCallbackRef(value: AnyActionRef): value is BoundMethodCallbackRef;
+export function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCallbackRef;
 export function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCallbackRef {
   return (
     typeof value === 'object' &&
@@ -53,10 +62,14 @@ export function isBoundMethodCallbackRef(value: unknown): value is BoundMethodCa
   );
 }
 
+export function isSavePropRef(value: AnyActionRef): value is SavePropRef;
+export function isSavePropRef(value: unknown): value is SavePropRef;
 export function isSavePropRef(value: unknown): value is SavePropRef {
   return typeof value === 'object' && value !== null && 'saveProp' in value;
 }
 
+export function isChainedActionRef(value: AnyActionRef): value is ChainedActionRef;
+export function isChainedActionRef(value: unknown): value is ChainedActionRef;
 export function isChainedActionRef(value: unknown): value is ChainedActionRef {
   return (
     typeof value === 'object' &&
@@ -74,9 +87,19 @@ export function isChainedActionRef(value: unknown): value is ChainedActionRef {
  * Resolve prop store values for a callback's `props` list.
  * Supports exact key matches and regex patterns.
  */
-export function resolveProps(props: string[]): Record<string, unknown> {
+/**
+ * Resolve prop store values for a callback's `props` list.
+ * Supports exact key matches and regex patterns.
+ *
+ * @param props   - List of prop store keys or regex patterns.
+ * @param store   - Prop store instance (defaults to the global singleton; injectable for tests).
+ */
+export function resolveProps(
+  props: string[],
+  store: PropStoreInterface = propStore,
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  const allStoreKeys = propStore.keys();
+  const allStoreKeys = store.keys();
 
   for (const pattern of props) {
     const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
@@ -85,7 +108,7 @@ export function resolveProps(props: string[]): Record<string, unknown> {
         const regex = new RegExp(`^${pattern}$`);
         for (const key of allStoreKeys) {
           if (regex.test(key)) {
-            const value = propStore.get(key);
+            const value = store.get(key);
             if (value !== undefined) {
               result[key] = value;
             }
@@ -93,13 +116,13 @@ export function resolveProps(props: string[]): Record<string, unknown> {
         }
       } catch {
         console.warn(`[Refast] Invalid regex pattern in props: ${pattern}`);
-        const value = propStore.get(pattern);
+        const value = store.get(pattern);
         if (value !== undefined) {
           result[pattern] = value;
         }
       }
     } else {
-      const value = propStore.get(pattern);
+      const value = store.get(pattern);
       if (value !== undefined) {
         result[pattern] = value;
       }
@@ -134,19 +157,24 @@ export function applyTimingControls<T extends (...args: any[]) => any>(
 /**
  * Create an executor for a single action ref.
  * Returns an async function that receives pre-extracted eventData and raw args.
+ *
+ * @param ref          - The action ref to execute.
+ * @param eventManager - Event manager used to invoke Python callbacks.
+ * @param store        - Prop store instance (defaults to the global singleton; injectable for tests).
  */
 export function createSingleActionExecutor(
   ref: AnyActionRef,
   eventManager: EventManagerInterface,
+  store: PropStoreInterface = propStore,
 ): (eventData: Record<string, unknown>, rawArgs: unknown[]) => Promise<void> {
   if (isChainedActionRef(ref)) {
-    return createChainedActionExecutor(ref, eventManager);
+    return createChainedActionExecutor(ref, eventManager, store);
   }
 
   if (isSavePropRef(ref)) {
     const { saveProp, debounce: d, throttle: t } = ref;
     let exec = (eventData: Record<string, unknown>) => {
-      applySaveProp(saveProp, eventData);
+      applySaveProp(saveProp, eventData, store);
     };
     exec = applyTimingControls(exec, d, t) as typeof exec;
     return async (eventData) => {
@@ -159,7 +187,7 @@ export function createSingleActionExecutor(
     let invoke = (eventData: Record<string, unknown>) => {
       let propsData: Record<string, unknown> = {};
       if (props && props.length > 0) {
-        propsData = resolveProps(props);
+        propsData = resolveProps(props, store);
       }
       eventManager.invokeCallback(callbackId, { ...propsData, ...boundArgs }, eventData);
     };
@@ -227,18 +255,25 @@ export function createSingleActionExecutor(
     };
   }
 
-  // Unknown action type — no-op
-  return async () => {};
+  // Every member of AnyActionRef is handled above. TypeScript sees `ref: never`
+  // here thanks to the AnyActionRef overloads on the type guards above.
+  // At runtime this throws instead of silently returning a no-op.
+  assertNever(ref);
 }
 
 /**
  * Create an executor for a chained action (serial or parallel).
+ *
+ * @param store - Prop store instance forwarded to each sub-executor.
  */
 export function createChainedActionExecutor(
   ref: ChainedActionRef,
   eventManager: EventManagerInterface,
+  store: PropStoreInterface = propStore,
 ): (eventData: Record<string, unknown>, rawArgs: unknown[]) => Promise<void> {
-  const executors = ref.chain.map((action) => createSingleActionExecutor(action, eventManager));
+  const executors = ref.chain.map((action) =>
+    createSingleActionExecutor(action, eventManager, store),
+  );
   const mode = ref.mode || 'serial';
 
   return async (eventData, rawArgs) => {

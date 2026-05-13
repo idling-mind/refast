@@ -23,6 +23,8 @@
  * ```
  */
 
+import { refastBus } from './eventBus';
+
 /**
  * Shape of a serialized callback reference passed as a bound arg.
  */
@@ -69,12 +71,9 @@ export const refastJsHelper: RefastJsHelper = {
       return;
     }
 
-    const event = new CustomEvent('refast:callback', {
-      detail: {
-        callbackId: callback.callbackId,
-        data: { ...(callback.boundArgs || {}), ...data },
-      },
+    refastBus.emit('refast:callback', {
+      callbackId: callback.callbackId,
+      data: { ...(callback.boundArgs || {}), ...data },
     });
-    window.dispatchEvent(event);
   },
 };

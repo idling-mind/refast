@@ -154,17 +154,16 @@ class TestContextCallback:
         assert cb2.id != cb3.id
         assert cb1.id != cb3.id
 
-    def test_callback_registers_with_app(self):
-        """Test callback is registered with app."""
-        app = RefastApp()
-        ctx = Context(app=app)
+    def test_callback_registers_on_context(self):
+        """Test callback is registered on the context itself."""
+        ctx = Context()
 
         def my_handler():
             pass
 
         cb = ctx.callback(my_handler)
 
-        assert app.get_callback(cb.id) == my_handler
+        assert ctx.get_callback(cb.id) == my_handler
 
 
 class TestContextWithoutWebSocket:

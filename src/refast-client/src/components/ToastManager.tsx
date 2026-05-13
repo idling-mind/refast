@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast, type ExternalToast } from 'sonner';
-import { AnyActionRef, ComponentTree } from '../types';
+import { ComponentTree } from '../types';
 import { useEventManager } from '../events/EventManager';
 import { createSingleActionExecutor } from '../utils/actionExecutor';
 import { ComponentRenderer } from './ComponentRenderer';
 import { applyUpdate } from '../state/StateManager';
+import { refastBus } from '../utils/eventBus';
 
 function DynamicToastContent({ initialTree }: { initialTree: ComponentTree }) {
   const [tree, setTree] = useState<ComponentTree>(initialTree);
@@ -36,21 +37,6 @@ function DynamicToastContent({ initialTree }: { initialTree: ComponentTree }) {
   }, [eventManager]);
 
   return <ComponentRenderer tree={tree} />;
-}
-
-interface ToastEventDetail {
-  message?: string;
-  component?: ComponentTree;
-  variant?: 'default' | 'success' | 'error' | 'destructive' | 'warning' | 'info' | 'loading';
-  description?: string;
-  duration?: number;
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
-  dismissible?: boolean;
-  close_button?: boolean;
-  invert?: boolean;
-  action?: { label: string; callback: AnyActionRef };
-  cancel?: { label: string; callback: AnyActionRef };
-  id?: string;
 }
 
 interface ToastManagerProps {
@@ -133,7 +119,7 @@ export function ToastManager({
 
   // Listen for refast:toast events
   useEffect(() => {
-    const handleToastEvent = (event: CustomEvent<ToastEventDetail>) => {
+    return refastBus.on('refast:toast', (detail) => {
       const {
         message,
         component,
@@ -147,7 +133,7 @@ export function ToastManager({
         action,
         cancel,
         id,
-      } = event.detail;
+      } = detail;
 
       // Build toast options
       const options: ExternalToast = {
@@ -209,12 +195,7 @@ export function ToastManager({
           toast(content as any, options);
           break;
       }
-    };
-
-    window.addEventListener('refast:toast', handleToastEvent as EventListener);
-    return () => {
-      window.removeEventListener('refast:toast', handleToastEvent as EventListener);
-    };
+    });
   }, [eventManager]);
 
   return (

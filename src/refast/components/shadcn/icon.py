@@ -332,4 +332,5 @@ ICON_NAMES = Literal[
     "hand-metal",
     "check-square",
     "layout-dashboard",
+    "keyboard",
 ]

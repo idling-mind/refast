@@ -27,6 +27,7 @@ from refast.components import (
     CommandInput,
     CommandItem,
     CommandList,
+    ConnectionStatus,
     Container,
     Dialog,
     DialogContent,
@@ -526,6 +527,7 @@ def docs_layout(ctx: Context, content, current_path: str = "/"):
                 priority=10,
                 prevent_default=True,
             ),
+            ConnectionStatus(),
         ],
     )
 

@@ -2,8 +2,6 @@
 
 Interactive reference page for the Slider component.
 """
-from turtle import st
-
 from refast import Context
 from refast.components import (
     Card,

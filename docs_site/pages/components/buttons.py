@@ -52,11 +52,21 @@ Button("Submit Form", size="lg", type="submit")
 Button("Processing…", loading=True)
 ```
 
+### Sizes
+
+```python
+Button("Extra Small", size="xs")   # h-7  — compact inline actions
+Button("Small",       size="sm")   # h-9
+Button("Medium",      size="md")   # h-10 (default)
+Button("Large",       size="lg")   # h-11
+Button("Extra Large", size="xl")   # h-12 — hero / prominent CTAs
+```
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `label` | `str` | *(positional)* | Button text |
 | `variant` | `"default" \| "secondary" \| "destructive" \| "outline" \| "ghost" \| "link"` | `"default"` | Visual style. `"default"` is the primary filled style. |
-| `size` | `"sm" \| "md" \| "lg" \| "icon"` | `"md"` | Button dimensions. `"icon"` renders a square with no padding. |
+| `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"md"` | Button dimensions. |
 | `icon` | `str \| None` | `None` | Lucide icon name (e.g. `"save"`, `"trash"`, `"settings"`). |
 | `icon_position` | `"left" \| "right"` | `"left"` | Icon placement relative to the label. |
 | `disabled` | `bool` | `False` | Prevents interaction. |
@@ -90,11 +100,21 @@ IconButton(icon="settings", variant="outline", size="lg")
 IconButton(icon="x", aria_label="Close dialog")
 ```
 
+### Sizes
+
+```python
+IconButton(icon="star", size="xs")  # 28 × 28 px — 12 px icon
+IconButton(icon="star", size="sm")  # 36 × 36 px — 14 px icon
+IconButton(icon="star", size="md")  # 40 × 40 px — 16 px icon (default)
+IconButton(icon="star", size="lg")  # 44 × 44 px — 20 px icon
+IconButton(icon="star", size="xl")  # 48 × 48 px — 24 px icon
+```
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `icon` | `str` | *(required)* | Lucide icon name. |
 | `variant` | `"default" \| "secondary" \| "destructive" \| "outline" \| "ghost"` | `"ghost"` | Visual style. |
-| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Controls icon and button size. |
+| `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"md"` | Controls button dimensions and icon size. |
 | `disabled` | `bool` | `False` | Prevents interaction. |
 | `aria_label` | `str \| None` | `None` | Accessible label — defaults to the icon name if omitted. |
 | `on_click` | `Callback \| None` | `None` | Server callback invoked on click. |

@@ -83,3 +83,23 @@ export function deepMerge<
 
   return result;
 }
+
+/**
+ * Compile-time exhaustiveness check for discriminated union switch / if-else
+ * chains.
+ *
+ * Pass the "impossible" value in the default / else branch.  TypeScript will
+ * flag any unhandled union member as a type error before the build completes.
+ * At runtime it throws, turning silent no-ops into loud, traceable failures.
+ *
+ * @example
+ * function handle(ref: AnyActionRef) {
+ *   if (isCallbackRef(ref)) { ... }
+ *   else if (isSavePropRef(ref)) { ... }
+ *   // …all branches covered…
+ *   else { assertNever(ref); }
+ * }
+ */
+export function assertNever(x: never, message?: string): never {
+  throw new Error(message ?? `[Refast] Unhandled case: ${JSON.stringify(x)}`);
+}

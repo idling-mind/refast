@@ -115,6 +115,8 @@ export interface UpdateMessage {
   path?: string;
   redirect?: boolean;
   target?: string;
+  scroll_to?: string | null;
+  scroll_behavior?: string;
   message?: string;
   variant?: string;
   duration?: number;

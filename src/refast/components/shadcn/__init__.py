@@ -64,6 +64,7 @@ from refast.components.shadcn.input import (
     Select,
     Textarea,
 )
+from refast.components.shadcn.keyboard import KeyboardShortcut
 from refast.components.shadcn.layout import (
     Center,
     Column,
@@ -424,4 +425,6 @@ __all__ = [
     "LoadingOverlay",
     "ThemeSwitcher",
     "Toaster",
+    # Interaction utilities
+    "KeyboardShortcut",
 ]

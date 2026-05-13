@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from refast import RefastApp
-from refast.router import ALL_FEATURE_CHUNKS, _get_chunk_files, _load_manifest
+from refast.assets import ALL_FEATURE_CHUNKS, _get_chunk_files, _load_manifest
 
 # ── Fixtures ─────────────────────────────────────────────────────────────
 
@@ -201,14 +201,14 @@ class TestLoadManifest:
     """Tests for _load_manifest file reading."""
 
     def test_returns_empty_when_no_file(self, tmp_path):
-        with patch("refast.router.STATIC_DIR", tmp_path):
+        with patch("refast.assets.STATIC_DIR", tmp_path):
             assert _load_manifest() == {}
 
     def test_reads_manifest_json(self, tmp_path):
         data = {"src/index.tsx": {"file": "refast-client.js"}}
         (tmp_path / "manifest.json").write_text(json.dumps(data))
 
-        with patch("refast.router.STATIC_DIR", tmp_path):
+        with patch("refast.assets.STATIC_DIR", tmp_path):
             result = _load_manifest()
         assert result == data
 

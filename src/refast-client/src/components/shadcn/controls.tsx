@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { Button, buttonVariants } from './button';
 import { cn } from '../../utils';
+import { refastBus } from '../../utils/eventBus';
 import { Icon } from './icon';
 import { InputWrapper } from './input';
 
@@ -214,7 +215,7 @@ export function Slider({
       onValueCommit={handleValueCommit}
       className={cn(
         'relative flex w-full touch-none select-none items-center',
-        orientation === 'vertical' && 'flex-col h-full w-auto',
+        orientation === 'vertical' && 'flex-col h-full min-h-48 w-auto',
         className
       )}
     >
@@ -224,7 +225,12 @@ export function Slider({
           orientation === 'horizontal' ? 'h-2 w-full' : 'h-full w-2'
         )}
       >
-        <SliderPrimitive.Range className="absolute bg-primary h-full" />
+        <SliderPrimitive.Range
+          className={cn(
+            'absolute bg-primary',
+            orientation === 'horizontal' ? 'h-full' : 'w-full'
+          )}
+        />
       </SliderPrimitive.Track>
       {thumbValues.map((_, index) => (
         <SliderPrimitive.Thumb
@@ -243,8 +249,8 @@ export function Slider({
     ? (
       <div
         className={cn(
-          'flex items-center gap-3',
-          orientation === 'vertical' && 'flex-col items-start'
+          'flex gap-3',
+          orientation === 'vertical' ? 'flex-row items-start h-full' : 'flex-row items-center'
         )}
       >
         {sliderElement}
@@ -270,7 +276,14 @@ export function Slider({
     );
   }
 
-  return <div data-refast-id={dataRefastId}>{sliderContent}</div>;
+  return (
+    <div
+      className={cn(orientation === 'vertical' && 'h-full')}
+      data-refast-id={dataRefastId}
+    >
+      {sliderContent}
+    </div>
+  );
 }
 
 // ============================================================================
@@ -891,7 +904,7 @@ function CalendarDayButton({
     <Button
       ref={ref}
       variant="ghost"
-      size="icon"
+      size="md"
       data-day={day.date.toLocaleDateString()}
       data-selected-single={
         modifiers.selected &&
@@ -1312,6 +1325,16 @@ export function Combobox({
   );
 
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (open) {
+      // Use requestAnimationFrame to ensure the input is rendered before focusing
+      requestAnimationFrame(() => searchInputRef.current?.focus());
+    } else {
+      setSearch('');
+    }
+  }, [open]);
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -1365,14 +1388,11 @@ export function Combobox({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setInternalValue(newValue);
+        setInternalValue(newValue as string | string[]);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   // Ensure internalValue is array if multiselect is true
@@ -1429,7 +1449,6 @@ export function Combobox({
       setInternalValue(val);
       if (onSelect) onSelect(val);
       setOpen(false);
-      setSearch('');
     }
   };
 
@@ -1548,6 +1567,7 @@ export function Combobox({
               <path d="m21 21-4.3-4.3" />
             </svg>
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -1690,14 +1710,11 @@ export function InputOTP({
 
   // Listen for force-value-sync events from update_props.
   React.useEffect(() => {
-    const handleForceSync = (e: Event) => {
-      const { targetId, value: newValue } = (e as CustomEvent).detail;
+    return refastBus.on('refast:force-value-sync', ({ targetId, value: newValue }) => {
       if (targetId === id && newValue !== undefined) {
-        setLocalValue(newValue);
+        setLocalValue(newValue as string);
       }
-    };
-    window.addEventListener('refast:force-value-sync', handleForceSync);
-    return () => window.removeEventListener('refast:force-value-sync', handleForceSync);
+    });
   }, [id]);
 
   const handleChange = (index: number, char: string) => {

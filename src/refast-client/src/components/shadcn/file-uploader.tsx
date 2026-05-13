@@ -45,7 +45,6 @@ interface FileUploaderProps {
   className?: string;
   onSelect?: (eventData: { files: PendingFileInfo[] }) => void;
   onUploadStart?: (eventData: { files: PendingFileInfo[] }) => void;
-  onUploadProgress?: (eventData: { file: PendingFileInfo; percent: number; loaded: number; total: number }) => void;
   onUploadComplete?: (eventData: { files: UploadedFileInfo[] }) => void;
   onUploadError?: (eventData: { error: string; file: PendingFileInfo }) => void;
   onRemove?: (eventData: { file: PendingFileInfo }) => void;
@@ -69,6 +68,27 @@ function toPendingFileInfo(file: File): PendingFileInfo {
 let localIdCounter = 0;
 function nextLocalId(): string {
   return `fu-${++localIdCounter}`;
+}
+
+/** Read a cookie value by name, returning null when absent. */
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Validate that an upload URL is safe to use.
+ * Rejects javascript: and data: schemes; only same-origin or relative paths
+ * are accepted.
+ */
+function isSafeUploadUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    // Only allow same-origin URLs (relative or explicitly same origin)
+    return parsed.origin === window.location.origin;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -171,7 +191,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   className,
   onSelect,
   onUploadStart,
-  onUploadProgress,
   onUploadComplete,
   onUploadError,
   onRemove,
@@ -185,13 +204,20 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   // ── File validation ──────────────────────────────────────────────────────
 
   const validateFiles = useCallback(
-    (files: File[]): { valid: File[]; errors: string[] } => {
+    (files: File[], currentCount = 0): { valid: File[]; errors: string[] } => {
       const errors: string[] = [];
       let valid = files;
 
-      if (maxFiles !== undefined && files.length > maxFiles) {
-        errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
-        valid = files.slice(0, maxFiles);
+      if (maxFiles !== undefined) {
+        const remaining = maxFiles - currentCount;
+        if (remaining <= 0) {
+          errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
+          return { valid: [], errors };
+        }
+        if (files.length > remaining) {
+          errors.push(`Maximum ${maxFiles} file${maxFiles !== 1 ? 's' : ''} allowed.`);
+          valid = files.slice(0, remaining);
+        }
       }
 
       if (maxSize !== undefined) {
@@ -224,12 +250,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             setEntries((prev) =>
               prev.map((en) => (en.localId === entry.localId ? { ...en, progress: percent } : en)),
             );
-            onUploadProgress?.({
-              file: toPendingFileInfo(entry.file),
-              percent,
-              loaded: e.loaded,
-              total: e.total,
-            });
           }
         };
 
@@ -237,6 +257,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
               const resp: { files: UploadedFileInfo[] } = JSON.parse(xhr.responseText);
+              if (!Array.isArray(resp.files) || resp.files.length === 0) {
+                throw new Error('Empty files array in server response');
+              }
               const uploaded = resp.files[0];
               setEntries((prev) =>
                 prev.map((en) =>
@@ -283,10 +306,17 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         };
 
         xhr.open('POST', uploadUrl);
+
+        // Forward the CSRF token when the security middleware has set the cookie.
+        const csrfToken = getCookie('csrf_token');
+        if (csrfToken) {
+          xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+        }
+
         xhr.send(formData);
       });
     },
-    [uploadUrl, onUploadProgress],
+    [uploadUrl],
   );
 
   // ── Handle file selection ────────────────────────────────────────────────
@@ -296,8 +326,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       if (disabled) return;
       setLocalError(null);
 
+      // Reject uploads to URLs that are not same-origin to prevent data exfiltration.
+      if (!isSafeUploadUrl(uploadUrl)) {
+        setLocalError('Upload URL is not allowed.');
+        return;
+      }
+
       const fileArr = Array.from(rawFiles);
-      const { valid, errors } = validateFiles(fileArr);
+      const { valid, errors } = validateFiles(fileArr, entries.length);
 
       if (errors.length > 0) {
         setLocalError(errors.join(' '));

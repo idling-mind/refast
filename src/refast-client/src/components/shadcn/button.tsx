@@ -5,7 +5,7 @@ import { Icon } from './icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
-  size?: 'sm' | 'md' | 'lg' | 'icon';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   loading?: boolean;
   icon?: string;
   iconPosition?: 'left' | 'right';
@@ -38,14 +38,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     link: 'text-primary underline-offset-4 hover:underline',
   };
 
-  const sizeClasses = {
+  const sizeClasses: Record<string, string> = {
+    xs: 'h-7 px-2 text-xs',
     sm: 'h-9 px-3 text-sm',
     md: 'h-10 px-4 py-2',
     lg: 'h-11 px-8 text-lg',
-    icon: 'h-10 w-10',
+    xl: 'h-12 px-10 text-xl',
   };
 
-  const iconSize = size === 'lg' ? 20 : size === 'sm' ? 14 : 16;
+  const iconSizeMap: Record<string, number> = { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 };
+  const iconSize = iconSizeMap[size ?? 'md'] ?? 16;
   const hasChildren = React.Children.count(children) > 0 || (typeof children === 'string' && children.length > 0);
 
   return (
@@ -83,7 +85,7 @@ interface IconButtonProps {
   className?: string;
   icon: string;
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   disabled?: boolean;
   onClick?: () => void;
   ariaLabel?: string;
@@ -104,23 +106,46 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
   onClick,
   ariaLabel,
   'data-refast-id': dataRefastId,
+  ...props
 }, ref) => {
-  const iconSize = size === 'lg' ? 20 : size === 'sm' ? 14 : 16;
+  const variantClasses: Record<string, string> = {
+    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+    ghost: 'hover:bg-accent hover:text-accent-foreground',
+  };
+
+  const buttonSizeClasses: Record<string, string> = {
+    xs: 'h-7 w-7',
+    sm: 'h-9 w-9',
+    md: 'h-10 w-10',
+    lg: 'h-11 w-11',
+    xl: 'h-12 w-12',
+  };
+
+  const iconSizeMap: Record<string, number> = { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 };
 
   return (
-    <Button
+    <button
       ref={ref}
       id={id}
-      className={className}
-      variant={variant}
-      size="icon"
       disabled={disabled}
       onClick={onClick}
       data-refast-id={dataRefastId}
       aria-label={ariaLabel || icon}
+      className={cn(
+        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'disabled:pointer-events-none disabled:opacity-50',
+        variantClasses[variant],
+        buttonSizeClasses[size],
+        className
+      )}
+      {...props}
     >
-      <Icon name={icon} size={iconSize} />
-    </Button>
+      <Icon name={icon} size={iconSizeMap[size] ?? 16} />
+    </button>
   );
 });
 IconButton.displayName = 'IconButton';

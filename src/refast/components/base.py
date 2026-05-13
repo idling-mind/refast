@@ -109,6 +109,18 @@ class Component(ABC):
 
         return self
 
+    def _traversal_children(self) -> "list[Component]":
+        """Return direct child :class:`Component` instances for tree traversal.
+
+        Override this in subclasses that carry extra component references
+        (e.g. a ``fallback`` field) that should be included in traversals.
+        """
+        if not isinstance(self._children, list):
+            children_seq = [self._children] if self._children else []
+        else:
+            children_seq = self._children
+        return [c for c in children_seq if isinstance(c, Component)]
+
     def _render_children(self) -> list[dict[str, Any] | str]:
         """Render all children to dicts, filtering out None values."""
         result = []

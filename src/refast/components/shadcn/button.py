@@ -44,7 +44,7 @@ class Button(Component):
         variant: Literal[
             "default", "secondary", "destructive", "outline", "ghost", "link"
         ] = "default",
-        size: Literal["sm", "md", "lg", "icon"] = "md",
+        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
         icon: str | None = None,
         icon_position: Literal["left", "right"] = "left",
         disabled: bool = False,
@@ -124,7 +124,7 @@ class IconButton(Component):
         self,
         icon: str,
         variant: Literal["default", "secondary", "destructive", "outline", "ghost"] = "ghost",
-        size: Literal["sm", "md", "lg"] = "md",
+        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
         disabled: bool = False,
         on_click: Any = None,
         aria_label: str | None = None,

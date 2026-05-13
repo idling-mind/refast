@@ -2,10 +2,9 @@
 
 Demonstrates:
 1. Dropzone uploader – upload an image, display it inline after upload
-2. Button-variant multi-file uploader with progress & validation feedback
+2. Button-variant multi-file uploader with per-file progress bars (shown natively)
 3. Dynamic CSV generation + programmatic download via ctx.trigger_download()
 4. Inline image generation + display via ctx.create_file_url(inline=True)
-5. on_upload_progress with throttle to avoid flooding the server
 """
 
 import csv
@@ -73,19 +72,6 @@ async def on_files_selected(ctx: Context):
     """Record how many files were selected."""
     files = ctx.event_data.get("files", [])
     ctx.state.set("selected_count", len(files))
-    await ctx.refresh()
-
-
-async def on_files_progress(ctx: Context):
-    """Update progress display for multi-file uploader (throttled)."""
-    data = ctx.event_data
-    ctx.state.set(
-        "upload_progress",
-        {
-            "file": data.get("file", {}).get("name", ""),
-            "percent": data.get("percent", 0),
-        },
-    )
     await ctx.refresh()
 
 
@@ -173,7 +159,6 @@ def main_page(ctx: Context):
     image_name: str | None = ctx.state.get("uploaded_image_name")
     image_error: str | None = ctx.state.get("image_error")
     selected_count: int = ctx.state.get("selected_count", 0)
-    upload_progress: dict | None = ctx.state.get("upload_progress")
     completed_files: list[dict] = ctx.state.get("completed_files", [])
     swatch_url: str | None = ctx.state.get("swatch_url")
     swatch_label: str | None = ctx.state.get("swatch_label")
@@ -224,7 +209,7 @@ def main_page(ctx: Context):
             Card(children=[
                 CardHeader(children=[
                     CardTitle("2. Multi-file Uploader (button variant)"),
-                    CardDescription("Supports multiple files, progress reporting, and remove."),
+                    CardDescription("Supports multiple files with per-file progress bars, validation, and remove."),
                 ]),
                 CardContent(
                     class_name="space-y-4",
@@ -237,19 +222,10 @@ def main_page(ctx: Context):
                             max_size=10 * 1024 * 1024,
                             drag_drop=True,
                             on_select=ctx.callback(on_files_selected),
-                            # Throttle progress events to max 1 per 300 ms
-                            on_upload_progress=ctx.callback(on_files_progress, throttle=300),
                             on_upload_complete=ctx.callback(on_files_complete),
                             on_remove=ctx.callback(on_file_removed),
                         ),
                         *([Text(f"Files selected: {selected_count}", class_name="text-sm")] if selected_count else []),
-                        *(
-                            [Text(
-                                f"Uploading {upload_progress['file']}: {upload_progress['percent']}%",
-                                class_name="text-sm text-muted-foreground",
-                            )]
-                            if upload_progress else []
-                        ),
                         *([
                             Column(
                                 class_name="gap-1",

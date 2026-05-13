@@ -35,6 +35,7 @@ from refast.components import (
     CardDescription,
     CardHeader,
     CardTitle,
+    Checkbox,
     CheckboxGroup,
     Code,
     Collapsible,
@@ -63,6 +64,7 @@ from refast.components import (
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
+    Icon,
     Image,
     Input,
     InputWrapper,
@@ -78,6 +80,7 @@ from refast.components import (
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Radio,
     RadioGroup,
     ResizableHandle,
     ResizablePanel,
@@ -102,11 +105,16 @@ from refast.components import (
     ToggleGroup,
     ToggleGroupItem,
 )
+from refast.components.shadcn import KeyboardShortcut
 from refast.components.shadcn.input import Textarea
 
 # Create the Refast app
 ui = RefastApp(title="Component Showcase")
 
+
+# Generic callback
+async def generic_callback(ctx: Context, msg=""):
+    await ctx.show_toast(msg, variant="info")
 
 # Callback handlers
 async def on_switch_change(ctx: Context):
@@ -159,6 +167,13 @@ async def on_radio_group_change(ctx: Context):
     selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else ""
     ctx.state.set("selected_size", selected)
     await ctx.show_toast(f"Selected size: {selected}", variant="info")
+
+
+async def on_plan_select(ctx: Context):
+    """Handle card radio group plan selection."""
+    selected = ctx.event_data["value"] if isinstance(ctx.event_data, dict) else ""
+    ctx.state.set("selected_plan", selected)
+    await ctx.show_toast(f"Plan selected: {selected.title()}", variant="success")
 
 
 async def dropdown_select(ctx: Context):
@@ -249,6 +264,12 @@ async def on_confirm_delete(ctx: Context):
 async def on_sheet_save(ctx: Context):
     """Handle sheet save."""
     await ctx.show_toast("Settings saved!", variant="success")
+
+
+async def on_shortcut(ctx: Context, key: str = ""):
+    """Handle a keyboard shortcut from the showcase demo."""
+    await ctx.update_text("ks-demo-status", f'Last fired: "{key}"')
+    await ctx.show_toast(f'Shortcut "{key}" triggered', variant="success")
 
 
 # Main page
@@ -897,6 +918,7 @@ def home(ctx: Context):
                                             Label("Scroll Area Example"),
                                             ScrollArea(
                                                 class_name="rounded-md border p-4",
+                                                style={"height": "200px"},
                                                 children=[
                                                     Column(
                                                         gap=2,
@@ -920,6 +942,9 @@ def home(ctx: Context):
                                                 children=[Text("16:9 Content Area")],
                                             ),
                                         ],
+                                        extra_props={
+                                            "on_click": ctx.callback(generic_callback, msg="Clicked aspect ratio")
+                                        }
                                     ),
                                 ],
                             ),
@@ -932,11 +957,11 @@ def home(ctx: Context):
                                     ),
                                     Code(
                                         code=dedent("""
-                                import datetime
+                                            import datetime
 
-                                now = datetime.datetime.now()
-                                print("Current date and time:", now)
-                            """),
+                                            now = datetime.datetime.now()
+                                            print("Current date and time:", now)
+                                        """),
                                         inline=False,
                                         language="python",
                                     ),
@@ -1100,24 +1125,11 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                     CheckboxGroup(
                                                         name="toppings",
                                                         label="Pizza Toppings",
-                                                        options=[
-                                                            {
-                                                                "value": "cheese",
-                                                                "label": "Extra Cheese",
-                                                            },
-                                                            {
-                                                                "value": "pepperoni",
-                                                                "label": "Pepperoni",
-                                                            },
-                                                            {
-                                                                "value": "mushrooms",
-                                                                "label": "Mushrooms",
-                                                            },
-                                                            {
-                                                                "value": "olives",
-                                                                "label": "Olives",
-                                                                "disabled": True,
-                                                            },
+                                                        children=[
+                                                            Checkbox(value="cheese", label="Extra Cheese"),
+                                                            Checkbox(value="pepperoni", label="Pepperoni"),
+                                                            Checkbox(value="mushrooms", label="Mushrooms"),
+                                                            Checkbox(value="olives", label="Olives", disabled=True),
                                                         ],
                                                         value=["cheese"],
                                                         orientation="vertical",
@@ -1139,24 +1151,11 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                     RadioGroup(
                                                         name="size",
                                                         label="Pizza Size",
-                                                        options=[
-                                                            {
-                                                                "value": "small",
-                                                                "label": 'Small (10")',
-                                                            },
-                                                            {
-                                                                "value": "medium",
-                                                                "label": 'Medium (12")',
-                                                            },
-                                                            {
-                                                                "value": "large",
-                                                                "label": 'Large (14")',
-                                                            },
-                                                            {
-                                                                "value": "xlarge",
-                                                                "label": 'X-Large (16")',
-                                                                "disabled": True,
-                                                            },
+                                                        children=[
+                                                            Radio(value="small", label='Small (10")'),
+                                                            Radio(value="medium", label='Medium (12")'),
+                                                            Radio(value="large", label='Large (14")'),
+                                                            Radio(value="xlarge", label='X-Large (16")', disabled=True),
                                                         ],
                                                         value="medium",
                                                         orientation="vertical",
@@ -1178,10 +1177,10 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                     RadioGroup(
                                                         name="priority",
                                                         label="Priority Level",
-                                                        options=[
-                                                            {"value": "low", "label": "Low"},
-                                                            {"value": "medium", "label": "Medium"},
-                                                            {"value": "high", "label": "High"},
+                                                        children=[
+                                                            Radio(value="low", label="Low"),
+                                                            Radio(value="medium", label="Medium"),
+                                                            Radio(value="high", label="High"),
                                                         ],
                                                         value="medium",
                                                         orientation="horizontal",
@@ -1189,6 +1188,158 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                 ],
                                             ),
                                         ],
+                                    ),
+                                    # Card-style RadioGroup
+                                    Column(
+                                        gap=2,
+                                        class_name="mt-6",
+                                        children=[
+                                            Label("Card RadioGroup"),
+                                            Text(
+                                                "Rich card options with icon, title, description and a badge",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            RadioGroup(
+                                                name="plan",
+                                                label="Choose a plan",
+                                                value=ctx.state.get("selected_plan", "pro"),
+                                                orientation="horizontal",
+                                                class_name="w-full",
+                                                on_change=ctx.callback(on_plan_select),
+                                                children=[
+                                                    Radio(
+                                                        value="free",
+                                                        class_name="flex-1",
+                                                        children=[
+                                                            Column(
+                                                                class_name="p-4 w-full",
+                                                                children=[
+                                                                    Row(
+                                                                        justify="between",
+                                                                        class_name="mb-2",
+                                                                        children=[
+                                                                            Text("Free", class_name="font-semibold text-sm"),
+                                                                            Icon("money"),
+                                                                        ],
+                                                                    ),
+                                                                    Text("$0 / mo", class_name="text-2xl font-bold mr-1"),
+                                                                    Text("5 projects", class_name="text-xs text-muted-foreground mr-1"),
+                                                                    Text("1 GB storage", class_name="text-xs text-muted-foreground"),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Radio(
+                                                        value="pro",
+                                                        class_name="flex-1",
+                                                        children=[
+                                                            Column(
+                                                                class_name="p-4 w-full",
+                                                                children=[
+                                                                    Row(
+                                                                        justify="between",
+                                                                        class_name="mb-2",
+                                                                        children=[
+                                                                            Text("Pro", class_name="font-semibold text-sm"),
+                                                                            Icon("star"),
+                                                                        ],
+                                                                    ),
+                                                                    Text("$12 / mo", class_name="text-2xl font-bold"),
+                                                                    Text("Unlimited projects", class_name="text-xs text-muted-foreground mt-1"),
+                                                                    Text("50 GB storage", class_name="text-xs text-muted-foreground"),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    Radio(
+                                                        value="enterprise",
+                                                        disabled=True,
+                                                        class_name="flex-1",
+                                                        children=[
+                                                            Column(
+                                                                class_name="p-4 w-full",
+                                                                children=[
+                                                                    Row(
+                                                                        justify="between",
+                                                                        class_name="mb-2",
+                                                                        children=[
+                                                                            Text("Enterprise", class_name="font-semibold text-sm"),
+                                                                            Icon("building"),
+                                                                        ],
+                                                                    ),
+                                                                    Text("Custom", class_name="text-2xl font-bold"),
+                                                                    Text("Unlimited everything", class_name="text-xs text-muted-foreground mt-1"),
+                                                                    Text("Contact sales", class_name="text-xs text-muted-foreground"),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            # Keyboard Shortcut Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Keyboard Shortcut"),
+                            CardDescription(
+                                "Invisible component that captures global keyboard shortcuts"
+                            ),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=4,
+                                children=[
+                                    Text(
+                                        "Press the shortcuts below anywhere on the page:",
+                                        class_name="text-sm text-muted-foreground",
+                                    ),
+                                    Row(
+                                        gap=3,
+                                        wrap=True,
+                                        children=[
+                                            Row(
+                                                gap=2,
+                                                align="center",
+                                                children=[
+                                                    Badge(children="Ctrl + Alt + 1"),
+                                                    Text("→ fires callback 1", class_name="text-sm text-muted-foreground"),
+                                                ],
+                                            ),
+                                            Row(
+                                                gap=2,
+                                                align="center",
+                                                children=[
+                                                    Badge(children="Ctrl + Alt + 2"),
+                                                    Text("→ fires callback 2", class_name="text-sm text-muted-foreground"),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Text(
+                                        "Last fired: —",
+                                        id="ks-demo-status",
+                                        class_name="text-sm font-mono text-primary",
+                                    ),
+                                    # The invisible KeyboardShortcut component
+                                    KeyboardShortcut(
+                                        shortcuts={
+                                            "ctrl+alt+1": ctx.callback(on_shortcut, key="Ctrl+Alt+1"),
+                                            "ctrl+alt+2": ctx.callback(on_shortcut, key="Ctrl+Alt+2"),
+                                        },
+                                        priority=5,
+                                        prevent_default=True,
                                     ),
                                 ],
                             ),
@@ -1257,6 +1408,10 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                     Text(
                         "© 2024 Refast Framework. All rights reserved.",
                         class_name="text-sm text-muted-foreground",
+                        extra_props={
+                            "contenteditable": "true",
+                            "on_key_down": ctx.callback(generic_callback, msg="Please, dont edit that!")
+                        },
                     )
                 ],
             ),

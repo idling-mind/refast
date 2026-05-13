@@ -1,141 +1,59 @@
 """FastAPI router integration for Refast."""
 
 import asyncio
-import json as json_module
+import inspect
+import re
+import unicodedata
+import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
+from refast.assets import (
+    STATIC_DIR,
+    render_html_shell,
+)
+from refast.assets import (
+    UNSAFE_CONTENT_TYPES as _UNSAFE_CONTENT_TYPES,
+)
+
 if TYPE_CHECKING:
     from refast.app import RefastApp
     from refast.context import Context
 
 
-# Get the static directory path
-STATIC_DIR = Path(__file__).parent / "static"
-
-# All known lazy feature-chunk names (must match vite manualChunks keys)
-ALL_FEATURE_CHUNKS = frozenset(
-    {
-        "charts",
-        "markdown",
-        "icons",
-        "navigation",
-        "overlay",
-        "controls",
-    }
+# UUID format for validating file IDs received from URLs.
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
 )
 
 
-def _load_manifest() -> dict[str, Any]:
-    """Load the Vite build manifest from static/manifest.json.
+def _filter_callback_kwargs(
+    sig: inspect.Signature,
+    event_data_raw: dict[str, Any],
+    callback_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the keyword-argument dict to pass to a callback.
 
-    Returns an empty dict if the file doesn't exist (pre-built assets
-    may not include a manifest in development).
+    Merges *event_data_raw* (DOM event fields) and *callback_data* (bound args /
+    prop-store values), then filters down to only the parameters the callback
+    actually declares — unless the callback accepts ``**kwargs``, in which case
+    everything is forwarded.
+
+    ``ctx`` is always excluded because the router passes it as the first
+    positional argument.
     """
-    manifest_path = STATIC_DIR / "manifest.json"
-    if manifest_path.is_file():
-        return json_module.loads(manifest_path.read_text(encoding="utf-8"))
-    return {}
-
-
-def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
-    """Infer which feature bucket a manifest entry belongs to.
-
-    Returns ``None`` for non-feature (shared/vendor/core) chunks.
-    """
-    name = entry.get("name")
-    if isinstance(name, str) and name in ALL_FEATURE_CHUNKS:
-        return name
-
-    src = str(entry.get("src", ""))
-    if "src/components/charts/" in src:
-        return "charts"
-    if src.endswith("/shadcn/navigation.tsx"):
-        return "navigation"
-    if src.endswith("/shadcn/overlay.tsx"):
-        return "overlay"
-    if src.endswith("/shadcn/controls.tsx"):
-        return "controls"
-    if src.endswith("/shadcn/icon.tsx"):
-        return "icons"
-    if "markdown" in src:
-        return "markdown"
-
-    for feature in ALL_FEATURE_CHUNKS:
-        if file_name.startswith(f"refast-{feature}-"):
-            return feature
-    return None
-
-
-def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | None) -> list[str]:
-    """Derive the list of JS chunk filenames to include from the manifest.
-
-    Args:
-        manifest: Parsed Vite manifest.json contents.
-        preloaded_features: Which feature chunks should be hinted with
-            ``modulepreload``. ``None`` means no feature chunks are preloaded.
-
-    Returns:
-        List of JS filenames (relative to /static/) in load order.
-        The entry chunk (``refast-client.js``) is always first.
-    """
-    if not manifest:
-        # Fallback: no manifest, just return the entry file
-        return ["refast-client.js"]
-
-    # Determine which feature chunks to include
-    allowed = set(preloaded_features or [])
-
-    # Prefer explicit manifest entry; keep stable fallback for dev/test.
-    entry_key: str | None = None
-    entry_file = "refast-client.js"
-    for key, entry in manifest.items():
-        if entry.get("isEntry") is True:
-            entry_key = key
-            entry_file = str(entry.get("file", entry_file))
-            break
-
-    if entry_key is None:
-        return [entry_file]
-
-    result: list[str] = []
-    seen_files: set[str] = set()
-    visited_keys: set[str] = set()
-
-    def _add_file(file_name: str) -> None:
-        if file_name.endswith(".js") and file_name not in seen_files:
-            seen_files.add(file_name)
-            result.append(file_name)
-
-    def _walk(key: str) -> None:
-        if key in visited_keys:
-            return
-        visited_keys.add(key)
-
-        entry = manifest.get(key, {})
-        file_name = str(entry.get("file", ""))
-        if not file_name:
-            return
-
-        feature = _chunk_feature(file_name, entry)
-        if feature is not None and feature not in allowed:
-            return
-
-        _add_file(file_name)
-        for imported_key in entry.get("imports", []):
-            if isinstance(imported_key, str):
-                _walk(imported_key)
-
-    # Entry chunk is always first.
-    _add_file(entry_file)
-    for imported_key in manifest.get(entry_key, {}).get("imports", []):
-        if isinstance(imported_key, str):
-            _walk(imported_key)
-
-    return result
+    params = sig.parameters
+    has_var_keyword = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+    )
+    if has_var_keyword:
+        return {**event_data_raw, **callback_data}
+    combined = {**event_data_raw, **callback_data}
+    return {k: v for k, v in combined.items() if k in params and k != "ctx"}
 
 
 class RefastRouter:
@@ -153,6 +71,13 @@ class RefastRouter:
         self.api_router = APIRouter()
         # Track contexts per WebSocket connection to preserve state
         self._websocket_contexts: dict[WebSocket, Context] = {}
+        # Dispatch table: message type → handler coroutine method
+        self._message_dispatch = {
+            "callback": self._on_callback,
+            "store_init": self._on_store_init,
+            "navigate": self._on_navigate,
+            "event": self._on_event,
+        }
         self._setup_routes()
 
     def _setup_routes(self) -> None:
@@ -209,6 +134,12 @@ class RefastRouter:
     async def _static_handler(self, request: Request, filename: str) -> Response:
         """Serve static files, with support for pre-compressed variants."""
         file_path = STATIC_DIR / filename
+
+        # Prevent path traversal: resolved path must stay inside STATIC_DIR.
+        try:
+            file_path.resolve().relative_to(STATIC_DIR.resolve())
+        except ValueError:
+            return HTMLResponse(content="Not Found", status_code=404)
 
         if not file_path.exists() or not file_path.is_file():
             return HTMLResponse(content="Not Found", status_code=404)
@@ -311,16 +242,54 @@ class RefastRouter:
                 status_code=400,
             )
 
+        max_files = self.app.max_upload_files
+        if len(files) > max_files:
+            return JSONResponse(
+                content={"error": f"Too many files: maximum {max_files} per request"},
+                status_code=400,
+            )
+
         results = []
         store = self.app.file_store
+        total_bytes = 0
 
         for upload in files:
             data = await upload.read()
-            filename = upload.filename or "upload"
-            content_type = upload.content_type or "application/octet-stream"
+
+            # Accumulate total upload size to prevent batch-level DoS.
+            total_bytes += len(data)
+            max_total = self.app.max_upload_size
+            if max_total is not None and total_bytes > max_total:
+                return JSONResponse(
+                    content={"error": "Total upload size exceeds the allowed limit"},
+                    status_code=413,
+                )
+
+            # Sanitize filename: take only the basename, remove control chars
+            # and path separators so it is safe for Content-Disposition headers
+            # and log output.
+            raw_name = upload.filename or "upload"
+            # Strip directory components first, then strip control / dangerous chars.
+            sanitized = Path(raw_name).name
+            sanitized = "".join(
+                c
+                for c in sanitized
+                if unicodedata.category(c)[0] != "C" and c not in ("/", "\\", "\0")
+            ).strip(" .")
+            filename = sanitized or "upload"
+
+            # Sanitize content type: never trust the client for active-content
+            # MIME types that browsers can execute.
+            _raw_ct_full = upload.content_type or "application/octet-stream"
+            raw_ct = _raw_ct_full.split(";")[0].strip().lower()
+            content_type = (
+                "application/octet-stream" if raw_ct in _UNSAFE_CONTENT_TYPES else _raw_ct_full
+            )
 
             try:
-                info = await store.store_file(data, filename, content_type, inline=False)
+                info = await store.store_file(
+                    data, filename, content_type, inline=False, user_upload=True
+                )
             except ValueError as exc:
                 return JSONResponse(
                     content={"error": str(exc), "file": filename},
@@ -338,6 +307,10 @@ class RefastRouter:
         The ``Content-Disposition`` header is set to ``inline`` or
         ``attachment`` according to how the file was stored.
         """
+        # Validate file_id format (defense-in-depth; store checks also guard this).
+        if not _UUID_RE.match(file_id):
+            return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+
         store = self.app.file_store
         info = await store.get_file_info(file_id)
         if info is None:
@@ -347,17 +320,33 @@ class RefastRouter:
         if data is None:
             return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
 
-        # Sanitise filename for Content-Disposition header
-        safe_name = info.name.replace('"', "").replace("\n", "").replace("\r", "")
+        # Sanitize content type: remap active-content MIME types to a safe
+        # binary type so browsers cannot execute uploaded payloads as scripts.
+        # Only apply to user-uploaded files — server-generated files (stored
+        # via ctx.create_file_url) are developer-controlled and served as-is.
+        serve_ct = info.content_type
+        if info.user_upload and serve_ct.split(";")[0].strip().lower() in _UNSAFE_CONTENT_TYPES:
+            serve_ct = "application/octet-stream"
+
+        # Build Content-Disposition with both the legacy ASCII-safe filename
+        # (for older clients) and the RFC 5987 percent-encoded filename* parameter.
         disposition = "inline" if info.inline else "attachment"
+        ascii_name = info.name.encode("ascii", errors="replace").decode().replace('"', "'")
+        encoded_name = urllib.parse.quote(info.name, safe="")
+        content_disposition = (
+            f"{disposition}; filename=\"{ascii_name}\"; filename*=UTF-8''{encoded_name}"
+        )
 
         return Response(
             content=data,
-            media_type=info.content_type,
+            media_type=serve_ct,
             headers={
-                "Content-Disposition": f'{disposition}; filename="{safe_name}"',
+                "Content-Disposition": content_disposition,
                 "Content-Length": str(len(data)),
                 "Cache-Control": "private, no-store",
+                # Belt-and-suspenders: even though SecurityMiddleware adds this
+                # globally, add it here too for deployments that skip the middleware.
+                "X-Content-Type-Options": "nosniff",
             },
         )
 
@@ -460,9 +449,7 @@ class RefastRouter:
             self._websocket_contexts.pop(websocket, None)
 
     async def _handle_websocket_message(self, websocket: WebSocket, data: dict[str, Any]) -> None:
-        """Process incoming WebSocket messages."""
-        import inspect
-
+        """Dispatch an incoming WebSocket message to the appropriate handler."""
         message_type = data.get("type")
 
         # Get the persistent context for this WebSocket connection
@@ -474,359 +461,74 @@ class RefastRouter:
             ctx = Context(websocket=websocket, app=self.app)
             self._websocket_contexts[websocket] = ctx
 
-        if message_type == "callback":
-            callback_id = data.get("callbackId")
-            callback_data = data.get("data", {})
-            event_data_raw = data.get("eventData", {})
+        handler = self._message_dispatch.get(message_type)
+        if handler is not None:
+            await handler(ctx, websocket, data)
 
-            callback = self.app.get_callback(callback_id)
-            if callback:
-                # Set raw DOM event data on context (accessible via ctx.event_data)
-                ctx.set_event_data(event_data_raw)
+    async def _on_callback(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``callback`` message: invoke a registered Python callback."""
+        callback_id = data.get("callbackId")
+        callback_data = data.get("data", {})
+        event_data_raw = data.get("eventData", {})
 
-                # Filter callback_data to only include parameters the callback accepts
-                sig = inspect.signature(callback)
-                params = sig.parameters
-
-                # Check if callback accepts **kwargs
-                has_var_keyword = any(
-                    p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
-                )
-
-                if has_var_keyword:
-                    # Callback accepts **kwargs, pass all data
-                    await callback(ctx, **callback_data)
-                else:
-                    # Filter to only accepted parameters (excluding 'ctx')
-                    accepted_params = {
-                        k: v for k, v in callback_data.items() if k in params and k != "ctx"
-                    }
-                    await callback(ctx, **accepted_params)
-
-                # Sync any pending store updates after callback
-                await ctx.sync_store()
-
-        elif message_type == "store_init":
-            # Browser is sending its current storage state on connect
-            store_data = data.get("data", {})
-            ctx._load_store_from_browser(store_data)
-
-            # Get the page path from the data (sent by frontend)
-            page_path = data.get("path", "/")
-
-            # Find and render the page with the loaded store
-            page_func = self.app._pages.get(page_path)
-            if page_func is None:
-                page_func = self.app._pages.get("/")  # Fallback to index
-
-            if page_func is not None:
-                component = page_func(ctx)
-                component_data = component.render() if hasattr(component, "render") else {}
-
-                # Send the rendered page via WebSocket
-                await websocket.send_json(
-                    {
-                        "type": "page_render",
-                        "component": component_data,
-                    }
-                )
-
-            # Send acknowledgment so frontend knows store is ready
-            await websocket.send_json({"type": "store_ready"})
-
-        elif message_type == "navigate":
-            # Client requesting page render for a new path
-            # (e.g. browser back/forward via popstate)
-            page_path = data.get("path", "/")
-            if page_path != "/" and page_path.endswith("/"):
-                page_path = page_path.rstrip("/")
-            page_func = self.app._pages.get(page_path)
-            if page_func is None:
-                page_func = self.app._pages.get("/")  # Fallback to index
-            if page_func is not None:
-                component = page_func(ctx)
-                component_data = component.render() if hasattr(component, "render") else {}
-                await websocket.send_json(
-                    {
-                        "type": "page_render",
-                        "component": component_data,
-                    }
-                )
-
-        elif message_type == "event":
-            event_type = data.get("eventType")
-            handler = self.app._event_handlers.get(event_type)
-            if handler:
-                from refast.events.types import Event
-
-                event = Event(type=event_type, data=data.get("data", {}))
-                await handler(ctx, event)
-
-    def _render_html_shell(self, component: Any | None, ctx: "Context") -> str:
-        """Render the HTML shell.
-
-        ``component`` is accepted for backwards compatibility but is intentionally
-        ignored — component creation is deferred until the WebSocket connection
-        is established (``store_init`` → ``page_render`` flow).  Passing ``None``
-        is the expected value from ``_page_handler``.
-
-        The shell uses ``<script type="module">`` for the ESM entry chunk
-        and any additional feature chunks determined by the build manifest
-        and the app's ``preloaded_features`` configuration.
-
-        Extension scripts are loaded *after* the core module fires
-        ``refast:ready``, ensuring ``window.RefastClient`` is available.
-        """
-        import json
-
-        # Check if React client CSS exists
-        client_css_path = STATIC_DIR / "refast-client.css"
-        has_client_css = client_css_path.exists()
-
-        # Resolve chunk files from the build manifest
-        manifest = _load_manifest()
-        lazy_features = (
-            set(self.app.lazy_features)
-            if self.app.lazy_features is not None
-            else set(ALL_FEATURE_CHUNKS)
-        )
-        startup_features = sorted(
-            set(self.app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features)
-        )
-        chunk_files = _get_chunk_files(manifest, startup_features)
-
-        # Build script tags — entry is type="module", chunks are modulepreload
-        client_css = (
-            '<link rel="stylesheet" href="/static/refast-client.css">' if has_client_css else ""
-        )
-
-        # The entry module + feature chunks
-        script_tags: list[str] = []
-        preload_tags: list[str] = []
-        for f in chunk_files:
-            path = f"/static/{f}"
-            if f == "refast-client.js":
-                script_tags.append(f'<script type="module" src="{path}"></script>')
-            else:
-                # Preload hints let the browser fetch chunks early
-                preload_tags.append(f'<link rel="modulepreload" href="{path}">')
-
-        # Collect extension assets and metadata
-        extension_styles = []
-        extension_script_map: dict[str, list[str]] = {}
-        extension_component_map: dict[str, str] = {}
-        for ext in self.app._extensions.values():
-            extension_styles.extend(
-                f'<link rel="stylesheet" href="{url}">' for url in ext.get_style_urls()
+        callback = ctx.get_callback(callback_id)
+        if callback:
+            ctx.set_event_data(event_data_raw)
+            kwargs = _filter_callback_kwargs(
+                inspect.signature(callback), event_data_raw, callback_data
             )
-            extension_script_map[ext.name] = ext.get_script_urls()
-            for component in ext.components:
-                component_type = getattr(component, "component_type", component.__name__)
-                extension_component_map[component_type] = ext.name
+            await callback(ctx, **kwargs)
+            await ctx.sync_store()
 
-        extension_names = set(extension_script_map.keys())
-        lazy_extensions = (
-            set(self.app.lazy_extensions)
-            if self.app.lazy_extensions is not None
-            else set(extension_names)
-        )
-        startup_extensions = sorted(
-            (set(self.app.preloaded_extensions or []) | (extension_names - lazy_extensions))
-            & extension_names
-        )
+    async def _on_store_init(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``store_init`` message: load browser storage then render the page."""
+        store_data = data.get("data", {})
+        ctx._load_store_from_browser(store_data)
 
-        scripts_html = "\n    ".join(script_tags)
-        preloads_html = "\n    ".join(preload_tags)
-        preload_config_html = (
-            "<script>window.__REFAST_PRELOADED_FEATURES__ = "
-            f"{json.dumps(startup_features)};"
-            "window.__REFAST_STARTUP_FEATURES__ = "
-            f"{json.dumps(startup_features)};"
-            "window.__REFAST_LAZY_FEATURES__ = "
-            f"{json.dumps(sorted(lazy_features))};"
-            "window.__REFAST_EXTENSIONS_READY__ = "
-            f"{str(not bool(extension_script_map)).lower()};"
-            "window.__REFAST_EXTENSION_SCRIPT_MAP__ = "
-            f"{json.dumps(extension_script_map)};"
-            "window.__REFAST_EXTENSION_COMPONENT_MAP__ = "
-            f"{json.dumps(extension_component_map)};"
-            "window.__REFAST_EXTENSION_LOADED__ = "
-            "window.__REFAST_EXTENSION_LOADED__ || {};"
-            "</script>"
-        )
+        page_path = data.get("path", "/")
+        ctx._current_path = page_path
 
-        ext_styles_html = "\n    ".join(extension_styles)
+        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        if page_func is not None:
+            ctx.clear_callbacks()
+            component = page_func(ctx)
+            component_data = component.render() if hasattr(component, "render") else {}
+            await websocket.send_json({"type": "page_render", "component": component_data})
 
-        # Extensions are IIFE scripts that need window.RefastClient.
-        # We inject a runtime loader that can preload startup extensions and
-        # lazily load the rest on demand by component type.
-        ext_loader_html = ""
-        if extension_script_map:
-            script_map_json = json.dumps(extension_script_map)
-            component_map_json = json.dumps(extension_component_map)
-            startup_extensions_json = json.dumps(startup_extensions)
-            ext_loader_html = f"""<script type="module">
-        window.__REFAST_EXTENSIONS_READY__ = false;
-        window.__REFAST_EXTENSION_SCRIPT_MAP__ = {script_map_json};
-        window.__REFAST_EXTENSION_COMPONENT_MAP__ = {component_map_json};
-        window.__REFAST_EXTENSION_LOADED__ = window.__REFAST_EXTENSION_LOADED__ || {{}};
+        await websocket.send_json({"type": "store_ready"})
 
-        const startupExtensions = {startup_extensions_json};
-        const extensionPromises = {{}};
+    async def _on_navigate(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a ``navigate`` message: render the page for the requested path."""
+        page_path = data.get("path", "/")
+        if page_path != "/" and page_path.endswith("/"):
+            page_path = page_path.rstrip("/")
+        ctx._current_path = page_path
 
-        function loadScript(url, extName) {{
-            return new Promise((resolve) => {{
-                const existing = document.querySelector('script[data-refast-ext="' + extName + '"][src="' + url + '"]');
-                if (existing) {{
-                    if (existing.dataset.refastLoaded === '1') {{
-                        resolve(true);
-                        return;
-                    }}
+        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        if page_func is not None:
+            ctx.clear_callbacks()
+            component = page_func(ctx)
+            component_data = component.render() if hasattr(component, "render") else {}
+            await websocket.send_json({"type": "page_render", "component": component_data})
 
-                    const onLoad = () => resolve(true);
-                    const onError = () => resolve(false);
-                    existing.addEventListener('load', onLoad, {{ once: true }});
-                    existing.addEventListener('error', onError, {{ once: true }});
-                    return;
-                }}
-                const s = document.createElement('script');
-                s.src = url;
-                s.async = true;
-                s.setAttribute('data-refast-ext', extName);
-                s.onload = () => {{
-                    s.dataset.refastLoaded = '1';
-                    resolve(true);
-                }};
-                s.onerror = () => resolve(false);
-                document.body.appendChild(s);
-            }});
-        }}
+    async def _on_event(
+        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+    ) -> None:
+        """Handle a custom ``event`` message: invoke the registered event handler."""
+        event_type = data.get("eventType")
+        handler = self.app._event_handlers.get(event_type)
+        if handler:
+            from refast.events.types import Event
 
-        window.__REFAST_LOAD_EXTENSION__ = function(name) {{
-            if (window.__REFAST_EXTENSION_LOADED__[name]) {{
-                window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
-                return Promise.resolve();
-            }}
+            event = Event(type=event_type, data=data.get("data", {}))
+            await handler(ctx, event)
 
-            if (extensionPromises[name]) {{
-                return extensionPromises[name];
-            }}
-
-            const urls = (window.__REFAST_EXTENSION_SCRIPT_MAP__ || {{}})[name] || [];
-            extensionPromises[name] = Promise.all(urls.map((url) => loadScript(url, name))).then((results) => {{
-                const loaded = results.every(Boolean);
-                if (loaded) {{
-                    window.__REFAST_EXTENSION_LOADED__[name] = true;
-                    window.dispatchEvent(new CustomEvent('refast:extension-loaded', {{ detail: {{ name }} }}));
-                    return;
-                }}
-
-                delete extensionPromises[name];
-            }});
-            return extensionPromises[name];
-        }};
-
-        function loadStartupExtensions() {{
-            if (startupExtensions.length === 0) {{
-                window.__REFAST_EXTENSIONS_READY__ = true;
-                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
-                return;
-            }}
-
-            Promise.all(startupExtensions.map((name) => window.__REFAST_LOAD_EXTENSION__(name))).finally(() => {{
-                window.__REFAST_EXTENSIONS_READY__ = true;
-                window.dispatchEvent(new CustomEvent('refast:extensions-ready'));
-            }});
-        }}
-
-        if (window.RefastClient) {{
-            loadStartupExtensions();
-        }} else {{
-            window.addEventListener('refast:ready', loadStartupExtensions, {{ once: true }});
-        }}
-    </script>"""  # noqa: E501
-
-        # --- Theme CSS variable overrides ---
-        theme_style = ""
-        if self.app.theme is not None:
-            css_vars = self.app.theme.to_css_variables()
-            if css_vars:
-                theme_style = f"<style data-refast-theme>\n{css_vars}\n</style>"
-
-        # --- Favicon ---
-        favicon_tag = ""
-        if self.app.favicon:
-            favicon_tag = f'<link rel="icon" href="{self.app.favicon}">'
-
-        # --- Extra <head> tags ---
-        head_tags_html = "\n    ".join(self.app._head_tags) if self.app._head_tags else ""
-
-        # --- Custom CSS (after extension CSS so user overrides win) ---
-        custom_css_parts: list[str] = []
-        for entry in self.app._custom_css:
-            if entry.startswith("http") or entry.startswith("/"):
-                custom_css_parts.append(f'<link rel="stylesheet" href="{entry}">')
-            else:
-                custom_css_parts.append(f"<style>{entry}</style>")
-        custom_css_html = "\n    ".join(custom_css_parts)
-
-        # --- Custom JS (after client + extension scripts so globals exist) ---
-        custom_js_parts: list[str] = []
-        for entry in self.app._custom_js:
-            if entry.startswith("http") or entry.startswith("/"):
-                custom_js_parts.append(f'<script src="{entry}"></script>')
-            else:
-                custom_js_parts.append(f"<script>{entry}</script>")
-        custom_js_html = "\n    ".join(custom_js_parts)
-
-        return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{self.app.title}</title>
-    {favicon_tag}
-    {client_css}
-    {preloads_html}
-    {theme_style}
-    {ext_styles_html}
-    {custom_css_html}
-    {head_tags_html}
-    <style>
-        @keyframes refast-spin {{ to {{ transform: rotate(360deg); }} }}
-        #refast-loading-overlay {{
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #ffffff;
-            z-index: 9999;
-        }}
-        @media (prefers-color-scheme: dark) {{
-            #refast-loading-overlay {{ background: #09090b; }}
-        }}
-        #refast-loading-spinner {{
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            border: 4px solid #e2e8f0;
-            border-top-color: #3b82f6;
-            animation: refast-spin 0.7s linear infinite;
-        }}
-        @media (prefers-color-scheme: dark) {{
-            #refast-loading-spinner {{ border-color: #27272a; border-top-color: #3b82f6; }}
-        }}
-    </style>
-</head>
-<body>
-    <div id="refast-loading-overlay" aria-label="Loading" role="status">
-        <div id="refast-loading-spinner"></div>
-    </div>
-    <div id="refast-root"></div>
-    {preload_config_html}
-    {scripts_html}
-    {ext_loader_html}
-    {custom_js_html}
-</body>
-</html>"""
+    def _render_html_shell(self, component, ctx):
+        """Render the HTML shell. Delegates to render_html_shell(self.app)."""
+        return render_html_shell(self.app)

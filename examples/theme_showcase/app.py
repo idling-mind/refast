@@ -36,6 +36,7 @@ from refast.components import (
     CardDescription,
     CardHeader,
     CardTitle,
+    Checkbox,
     CheckboxGroup,
     Code,
     Collapsible,
@@ -79,6 +80,7 @@ from refast.components import (
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Radio,
     RadioGroup,
     ResizableHandle,
     ResizablePanel,
@@ -1115,19 +1117,10 @@ def home(ctx: Context):
                                                                     CheckboxGroup(
                                                                         name="toppings",
                                                                         label="Pizza Toppings",
-                                                                        options=[
-                                                                            {
-                                                                                "value": "cheese",
-                                                                                "label": "Extra Cheese",
-                                                                            },
-                                                                            {
-                                                                                "value": "pepperoni",
-                                                                                "label": "Pepperoni",
-                                                                            },
-                                                                            {
-                                                                                "value": "mushrooms",
-                                                                                "label": "Mushrooms",
-                                                                            },
+                                                                        children=[
+                                                                            Checkbox(value="cheese", label="Extra Cheese"),
+                                                                            Checkbox(value="pepperoni", label="Pepperoni"),
+                                                                            Checkbox(value="mushrooms", label="Mushrooms"),
                                                                         ],
                                                                         value=["cheese"],
                                                                         orientation="vertical",
@@ -1143,19 +1136,10 @@ def home(ctx: Context):
                                                                     RadioGroup(
                                                                         name="size",
                                                                         label="Pizza Size",
-                                                                        options=[
-                                                                            {
-                                                                                "value": "small",
-                                                                                "label": 'Small (10")',
-                                                                            },
-                                                                            {
-                                                                                "value": "medium",
-                                                                                "label": 'Medium (12")',
-                                                                            },
-                                                                            {
-                                                                                "value": "large",
-                                                                                "label": 'Large (14")',
-                                                                            },
+                                                                        children=[
+                                                                            Radio(value="small", label='Small (10")'),
+                                                                            Radio(value="medium", label='Medium (12")'),
+                                                                            Radio(value="large", label='Large (14")'),
                                                                         ],
                                                                         value="medium",
                                                                         orientation="vertical",

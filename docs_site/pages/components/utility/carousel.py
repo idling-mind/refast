@@ -1,6 +1,4 @@
 """Carousel — /docs/components/carousel."""
-from turtle import st
-
 from refast import Context
 from docs_site.pages.components.playground import playground_card
 from refast.components import (

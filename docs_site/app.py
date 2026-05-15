@@ -74,7 +74,6 @@ from .pages.advanced import (  # noqa: E402
     extension_dev,
     security,
     sessions,
-    styling,
 )
 from .pages.components import (  # noqa: E402
     base,
@@ -238,6 +237,7 @@ from .pages.concepts import (  # noqa: E402
     routing,
     state,
     streaming,
+    styling,
     theming,
     toasts,
     updates,
@@ -290,6 +290,7 @@ NAV_SECTIONS = [
             ("Streaming", "/docs/concepts/streaming", "radio"),
             ("Background Jobs", "/docs/concepts/background", "clock"),
             ("Theming", "/docs/concepts/theming", "palette"),
+            ("Styling", "/docs/concepts/styling", "paintbrush"),
             ("Toast Notifications", "/docs/concepts/toasts", "bell"),
             ("JavaScript Interop", "/docs/concepts/js-interop", "code"),
             ("File Uploads & Downloads", "/docs/concepts/file-transfers", "upload"),
@@ -435,7 +436,6 @@ NAV_SECTIONS = [
             ("Building Extensions", "/docs/advanced/extension-dev", "puzzle"),
             ("Security", "/docs/advanced/security", "shield"),
             ("Sessions", "/docs/advanced/sessions", "key"),
-            ("Styling", "/docs/advanced/styling", "paintbrush"),
         ],
     },
 ]
@@ -1361,8 +1361,8 @@ def page_advanced_sessions(ctx: Context):
     return sessions.render(ctx)
 
 
-@ui.page("/docs/advanced/styling")
-def page_advanced_styling(ctx: Context):
+@ui.page("/docs/concepts/styling")
+def page_concepts_styling(ctx: Context):
     return styling.render(ctx)
 
 

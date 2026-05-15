@@ -24,6 +24,8 @@ const CHUNK_GROUPS: Record<string, string[]> = {
   // Heavy third-party libraries get their own chunks
   charts: ['recharts'],
   markdown: ['react-markdown', 'remark-gfm', 'rehype-raw', 'react-syntax-highlighter'],
+  mermaid: ['mermaid'],
+  katex: ['katex', 'remark-math', 'rehype-katex', 'micromark-extension-math', 'mdast-util-math'],
   icons: ['lucide-react'],
   // Component group chunks
   navigation: ['/shadcn/navigation'],

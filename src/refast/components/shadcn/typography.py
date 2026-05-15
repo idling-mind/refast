@@ -225,9 +225,11 @@ class Markdown(Component):
 
     Args:
         content: The Markdown content to render.
-        allow_latex: Deprecated — LaTeX is now rendered server-side. Kept
-            for backward compatibility; this parameter is ignored.
         allow_html: Whether to allow raw HTML in markdown (default False for security).
+        enable_mermaid: Enable Mermaid diagram rendering for fenced ```mermaid blocks.
+            The Mermaid library is loaded on demand only when this is True.
+        enable_latex: Enable LaTeX / KaTeX math rendering ($..$ and $$..$$).
+            The KaTeX library is loaded on demand only when this is True.
     """
 
     component_type: str = "Markdown"
@@ -235,8 +237,9 @@ class Markdown(Component):
     def __init__(
         self,
         content: str,
-        allow_latex: bool = True,
         allow_html: bool = False,
+        enable_mermaid: bool = False,
+        enable_latex: bool = False,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -251,8 +254,9 @@ class Markdown(Component):
             extra_props=extra_props,
         )
         self.content = content
-        self.allow_latex = allow_latex
         self.allow_html = allow_html
+        self.enable_mermaid = enable_mermaid
+        self.enable_latex = enable_latex
         self.style = style
 
     def render(self) -> dict[str, Any]:
@@ -261,8 +265,9 @@ class Markdown(Component):
             "id": self.id,
             "props": {
                 "content": self.content,
-                "allow_latex": self.allow_latex,
                 "allow_html": self.allow_html,
+                "enable_mermaid": self.enable_mermaid,
+                "enable_latex": self.enable_latex,
                 "class_name": self.class_name,
                 "style": self.style,
                 **self._serialize_extra_props(),

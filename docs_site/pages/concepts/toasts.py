@@ -1,21 +1,109 @@
 """Toast Notifications — /docs/concepts/toasts."""
 
-from refast.components import Container, Heading, Markdown, Separator
+from refast import Context
+from refast.components import Button, Column, Container, Heading, Row, Separator, Text
+
+from docs_site.pages.utils import render_markdown_with_demo_apps
 
 PAGE_TITLE = "Toast Notifications"
 PAGE_ROUTE = "/docs/concepts/toasts"
+
+
+# ── Variant demo callbacks ────────────────────────────────────────────────
+
+
+async def _toast_default(ctx: Context) -> None:
+    await ctx.show_toast("This is a default toast notification.")
+
+
+async def _toast_success(ctx: Context) -> None:
+    await ctx.show_toast("Changes saved successfully!", variant="success")
+
+
+async def _toast_error(ctx: Context) -> None:
+    await ctx.show_toast(
+        "Something went wrong",
+        variant="error",
+        description="Please try again or contact support.",
+    )
+
+
+async def _toast_warning(ctx: Context) -> None:
+    await ctx.show_toast("Please review your input before continuing.", variant="warning")
+
+
+async def _toast_info(ctx: Context) -> None:
+    await ctx.show_toast("New features are available in this release.", variant="info")
+
+
+async def _toast_loading(ctx: Context) -> None:
+    await ctx.show_toast("Processing your request...", variant="loading", duration=3000)
+
+
+# ── Demo builder ──────────────────────────────────────────────────────────
+
+
+def _variants_demo(ctx: Context):
+    return Column(
+        gap=3,
+        children=[
+            Heading("Live demo: toast variants", level=3, class_name="text-lg font-semibold"),
+            Text(
+                "Click each button to trigger the corresponding toast variant.",
+                class_name="text-sm text-muted-foreground",
+            ),
+            Row(
+                gap=2,
+                wrap=True,
+                children=[
+                    Button(
+                        "Default",
+                        on_click=ctx.callback(_toast_default),
+                        variant="secondary",
+                    ),
+                    Button(
+                        "Success",
+                        on_click=ctx.callback(_toast_success),
+                        variant="default",
+                    ),
+                    Button(
+                        "Error",
+                        on_click=ctx.callback(_toast_error),
+                        variant="destructive",
+                    ),
+                    Button(
+                        "Warning",
+                        on_click=ctx.callback(_toast_warning),
+                        variant="outline",
+                    ),
+                    Button(
+                        "Info",
+                        on_click=ctx.callback(_toast_info),
+                        variant="ghost",
+                    ),
+                    Button(
+                        "Loading",
+                        on_click=ctx.callback(_toast_loading),
+                        variant="secondary",
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 def render(ctx):
     """Render the toasts concept page."""
     from docs_site.app import docs_layout
 
+    variants_demo = _variants_demo(ctx)
+
     content = Container(
         class_name="max-w-4xl mx-auto p-6",
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Markdown(content=CONTENT),
+            render_markdown_with_demo_apps(CONTENT, locals()),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)
@@ -50,6 +138,8 @@ Six built-in variants cover all common notification needs:
 | `"warning"` | Warnings and cautions |
 | `"info"` | Informational messages |
 | `"loading"` | In-progress operations (shows a spinner) |
+
+{{ variants_demo }}
 
 ```python
 await ctx.show_toast("All done!", variant="success")

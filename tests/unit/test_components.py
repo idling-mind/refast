@@ -1,6 +1,9 @@
 """Tests for base component classes."""
 
+import pytest
+
 from refast.components.base import Container, Fragment, Text
+from refast.components.shadcn.timer import Timer
 
 
 class TestComponent:
@@ -191,3 +194,67 @@ class TestRenderChildren:
         rendered = container.render()
         assert len(rendered["children"]) == 1
         assert rendered["children"][0]["children"] == ["Always shown"]
+
+
+class TestTimer:
+    """Tests for the Timer component."""
+
+    def test_timer_defaults(self):
+        """Timer renders with default props."""
+        timer = Timer()
+        rendered = timer.render()
+        assert rendered["type"] == "Timer"
+        assert rendered["props"]["interval"] == 1000
+        assert rendered["props"]["enabled"] is True
+        assert "on_tick" not in rendered["props"]
+        assert rendered["children"] == []
+
+    def test_timer_custom_interval(self):
+        """Timer accepts a custom interval."""
+        timer = Timer(interval=5000)
+        assert timer.interval == 5000
+        assert timer.render()["props"]["interval"] == 5000
+
+    def test_timer_enabled_false(self):
+        """Timer can be created in disabled state."""
+        timer = Timer(enabled=False)
+        assert timer.render()["props"]["enabled"] is False
+
+    def test_timer_interval_too_small_raises(self):
+        """Timer rejects intervals below 100 ms."""
+        with pytest.raises(ValueError, match="interval"):
+            Timer(interval=50)
+
+    def test_timer_interval_minimum_allowed(self):
+        """Exact minimum interval of 100 ms is accepted."""
+        timer = Timer(interval=100)
+        assert timer.render()["props"]["interval"] == 100
+
+    def test_timer_has_id(self):
+        """Timer generates a unique id."""
+        t1 = Timer()
+        t2 = Timer()
+        assert t1.id is not None
+        assert t1.id != t2.id
+
+    def test_timer_custom_id(self):
+        """Timer accepts a custom id."""
+        timer = Timer(id="my-timer")
+        assert timer.render()["id"] == "my-timer"
+
+    def test_timer_with_on_tick_serialized(self):
+        """on_tick is serialized into the rendered props when provided."""
+
+        class FakeCallback:
+            def serialize(self):
+                return {"type": "callback", "callbackId": "abc123"}
+
+        timer = Timer(on_tick=FakeCallback())
+        rendered = timer.render()
+        assert rendered["props"]["on_tick"] == {"type": "callback", "callbackId": "abc123"}
+
+    def test_timer_exported_from_components(self):
+        """Timer is importable from the top-level components package."""
+        from refast.components import Timer as ImportedTimer  # noqa: PLC0415
+
+        assert ImportedTimer is Timer

@@ -228,6 +228,9 @@ from .pages.components.utility import (
 from .pages.components.utility import (
     separator as separator_page,
 )
+from .pages.components.utility import (
+    timer as timer_page,
+)
 from .pages.concepts import (  # noqa: E402
     background,
     bundle_splitting,
@@ -424,6 +427,7 @@ NAV_SECTIONS = [
                     ("Aspect Ratio", "/docs/components/aspect-ratio", "maximize"),
                     ("Carousel", "/docs/components/carousel", "image"),
                     ("Keyboard Shortcut", "/docs/components/keyboard-shortcut", "keyboard"),
+                    ("Timer", "/docs/components/timer", "timer"),
                 ],
             },
         ],
@@ -1338,6 +1342,11 @@ def page_components_carousel(ctx: Context):
 @ui.page("/docs/components/keyboard-shortcut")
 def page_components_keyboard_shortcut(ctx: Context):
     return keyboard_shortcut_page.render(ctx)
+
+
+@ui.page("/docs/components/timer")
+def page_components_timer(ctx: Context):
+    return timer_page.render(ctx)
 
 
 # Advanced

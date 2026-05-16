@@ -26,6 +26,7 @@ import {
   ResizablePanelGroup, ResizablePanel, ResizableHandle, ThemeSwitcher
 } from './shadcn/utility';
 import { KeyboardShortcut } from './shadcn/keyboard';
+import { Timer } from './shadcn/timer';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ComponentType = React.ComponentType<any>;
@@ -366,6 +367,7 @@ componentRegistry.register('ResizablePanel', ResizablePanel);
 componentRegistry.register('ResizableHandle', ResizableHandle);
 componentRegistry.register('ThemeSwitcher', ThemeSwitcher);
 componentRegistry.register('KeyboardShortcut', KeyboardShortcut as React.ComponentType);
+componentRegistry.register('Timer', Timer as React.ComponentType);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Register lazy feature chunks

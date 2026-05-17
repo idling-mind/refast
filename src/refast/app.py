@@ -196,16 +196,18 @@ class RefastApp:
         """
 
         # Check whether this is a parameterised path
-        _PARAM_RE = re.compile(r"\{(\w+)(?::(\w+))?\}")
+        _PARAM_RE = re.compile(r"\{(\w+)(?::(\w+))?\}")  # noqa: N806
         if _PARAM_RE.search(path):
             # Build a regex pattern by escaping static segments individually
             # so we never call re.escape on the {name:type} tokens themselves.
-            _TYPE_MAP: dict[str, type] = {"int": int, "float": float, "str": str, "uuid": str}
-            _REGEX_MAP: dict[str, str] = {
+            _TYPE_MAP: dict[str, type] = {"int": int, "float": float, "str": str, "uuid": str}  # noqa: N806
+            _REGEX_MAP: dict[str, str] = {  # noqa: N806
                 "int": r"\d+",
                 "float": r"[\d.]+",
                 "str": r"[^/]+",
-                "uuid": r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+                "uuid": (
+                    r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+                ),
             }
             param_types: dict[str, type] = {}
             parts: list[str] = []

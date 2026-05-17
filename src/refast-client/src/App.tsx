@@ -94,7 +94,7 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
   // Fetch page data from server (used for refresh events)
   const fetchPage = useCallback(async () => {
     try {
-      const path = window.location.pathname;
+      const path = window.location.pathname + window.location.search;
       const response = await fetch(`/api/page?path=${encodeURIComponent(path)}`);
       if (response.ok) {
         const data = await response.json();
@@ -114,7 +114,7 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
         socket.send(
           JSON.stringify({
             type: 'navigate',
-            path: window.location.pathname,
+            path: window.location.pathname + window.location.search,
           })
         );
       }

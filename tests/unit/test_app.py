@@ -1,5 +1,7 @@
 """Tests for RefastApp class."""
 
+import pytest
+
 from refast import RefastApp
 
 
@@ -202,3 +204,180 @@ class TestActiveContexts:
         # Access router to initialize it
         _ = app.router
         assert app.active_contexts == []
+
+
+class TestRouteMatching:
+    """Tests for RefastApp.match_route() and path-parameter routing."""
+
+    # ------------------------------------------------------------------ #
+    # Exact (static) routes                                                #
+    # ------------------------------------------------------------------ #
+
+    def test_exact_route_matched(self):
+        """Exact-path routes are returned by match_route."""
+        app = RefastApp()
+
+        @app.page("/")
+        def home(ctx):
+            pass
+
+        func, params = app.match_route("/")
+        assert func is home
+        assert params == {}
+
+    def test_exact_route_unmatched_returns_none(self):
+        """match_route returns (None, {}) for unknown paths."""
+        app = RefastApp()
+        func, params = app.match_route("/does-not-exist")
+        assert func is None
+        assert params == {}
+
+    def test_exact_has_priority_over_pattern(self):
+        """Exact routes take priority over parameterised ones with same structure."""
+        app = RefastApp()
+
+        @app.page("/users/me")
+        def me(ctx):
+            pass
+
+        @app.page("/users/{id}")
+        def user(ctx):
+            pass
+
+        func, params = app.match_route("/users/me")
+        assert func is me
+        assert params == {}
+
+    # ------------------------------------------------------------------ #
+    # Path parameters — basic                                              #
+    # ------------------------------------------------------------------ #
+
+    def test_single_str_param(self):
+        """Single string path parameter is extracted."""
+        app = RefastApp()
+
+        @app.page("/users/{username}")
+        def user(ctx):
+            pass
+
+        func, params = app.match_route("/users/alice")
+        assert func is user
+        assert params == {"username": "alice"}
+
+    def test_multiple_str_params(self):
+        """Multiple string path parameters are all extracted."""
+        app = RefastApp()
+
+        @app.page("/posts/{year}/{slug}")
+        def post(ctx):
+            pass
+
+        func, params = app.match_route("/posts/2025/hello-world")
+        assert func is post
+        assert params == {"year": "2025", "slug": "hello-world"}
+
+    def test_pattern_does_not_match_wrong_path(self):
+        """A parameterised pattern does not match a path with wrong prefix."""
+        app = RefastApp()
+
+        @app.page("/users/{id}")
+        def user(ctx):
+            pass
+
+        func, params = app.match_route("/posts/42")
+        assert func is None
+
+    def test_param_does_not_match_extra_segments(self):
+        """A single-segment param does not swallow extra slashes."""
+        app = RefastApp()
+
+        @app.page("/users/{id}")
+        def user(ctx):
+            pass
+
+        func, params = app.match_route("/users/42/extra")
+        assert func is None
+
+    # ------------------------------------------------------------------ #
+    # Type coercion                                                         #
+    # ------------------------------------------------------------------ #
+
+    def test_int_param_coerced(self):
+        """An {id:int} parameter is coerced to an int."""
+        app = RefastApp()
+
+        @app.page("/items/{id:int}")
+        def item(ctx):
+            pass
+
+        func, params = app.match_route("/items/99")
+        assert func is item
+        assert params["id"] == 99
+        assert isinstance(params["id"], int)
+
+    def test_int_param_only_matches_digits(self):
+        """An {id:int} route does not match a non-numeric segment."""
+        app = RefastApp()
+
+        @app.page("/items/{id:int}")
+        def item(ctx):
+            pass
+
+        func, params = app.match_route("/items/abc")
+        assert func is None
+
+    def test_float_param_coerced(self):
+        """A {value:float} parameter is coerced to a float."""
+        app = RefastApp()
+
+        @app.page("/data/{value:float}")
+        def data(ctx):
+            pass
+
+        func, params = app.match_route("/data/3.14")
+        assert func is data
+        assert params["value"] == pytest.approx(3.14)
+        assert isinstance(params["value"], float)
+
+    def test_uuid_param_matched(self):
+        """A {id:uuid} param matches a valid UUID string."""
+        app = RefastApp()
+        uid = "123e4567-e89b-12d3-a456-426614174000"
+
+        @app.page("/docs/{id:uuid}")
+        def doc(ctx):
+            pass
+
+        func, params = app.match_route(f"/docs/{uid}")
+        assert func is doc
+        assert params["id"] == uid
+
+    def test_uuid_param_rejects_non_uuid(self):
+        """A {id:uuid} route does not match a non-UUID string."""
+        app = RefastApp()
+
+        @app.page("/docs/{id:uuid}")
+        def doc(ctx):
+            pass
+
+        func, params = app.match_route("/docs/not-a-uuid")
+        assert func is None
+
+    # ------------------------------------------------------------------ #
+    # Registration order                                                   #
+    # ------------------------------------------------------------------ #
+
+    def test_first_registered_pattern_wins(self):
+        """When two patterns match, the first registered is returned."""
+        app = RefastApp()
+
+        @app.page("/a/{x}")
+        def first(ctx):
+            pass
+
+        @app.page("/a/{y}")
+        def second(ctx):
+            pass
+
+        func, _ = app.match_route("/a/hello")
+        assert func is first

@@ -35,6 +35,7 @@ class TestContextRefresh:
         component = MockComponent(id="page-root")
         mock_page_func = MagicMock(return_value=component)
         mock_app._pages = {"/": mock_page_func}
+        mock_app.match_route.return_value = (mock_page_func, {})
 
         ctx = Context(websocket=mock_ws, app=mock_app)
 
@@ -57,6 +58,7 @@ class TestContextRefresh:
 
         mock_page_func = MagicMock(return_value=parent_comp)
         mock_app._pages = {"/": mock_page_func}
+        mock_app.match_route.return_value = (mock_page_func, {})
 
         ctx = Context(websocket=mock_ws, app=mock_app)
 
@@ -82,6 +84,7 @@ class TestContextRefresh:
         page_comp = MockComponent(id="page-root")
         mock_page_func = MagicMock(return_value=page_comp)
         mock_app._pages = {"/": mock_page_func}
+        mock_app.match_route.return_value = (mock_page_func, {})
 
         ctx = Context(websocket=mock_ws, app=mock_app)
 
@@ -100,6 +103,7 @@ class TestContextRefresh:
         component = MockComponent(id="dashboard-root")
         mock_page_func = MagicMock(return_value=component)
         mock_app._pages = {path: mock_page_func}
+        mock_app.match_route.return_value = (mock_page_func, {})
 
         ctx = Context(websocket=mock_ws, app=mock_app)
 

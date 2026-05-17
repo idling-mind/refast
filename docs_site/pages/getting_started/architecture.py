@@ -20,7 +20,7 @@ def render(ctx):
         children=[
             Heading(PAGE_TITLE, level=1),
             Separator(class_name="my-4"),
-            Markdown(content=CONTENT),
+            Markdown(content=CONTENT, enable_mermaid=True),
         ],
     )
     return docs_layout(ctx, content, PAGE_ROUTE)

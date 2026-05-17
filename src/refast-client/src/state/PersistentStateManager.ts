@@ -156,11 +156,11 @@ export class PersistentStateManager {
       session: readStorage(sessionStorage, SESSION_PREFIX),
     };
 
-    // Include current path so backend can render the correct page
+    // Include current path (with query string) so backend renders the correct page
     this.websocket.send(JSON.stringify({
       type: 'store_init',
       data,
-      path: window.location.pathname,
+      path: window.location.pathname + window.location.search,
     }));
 
     this.initialized = true;

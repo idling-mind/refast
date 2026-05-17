@@ -503,14 +503,89 @@ export function Label({
   );
 }
 
+/**
+ * Internal component that lazy-loads Mermaid and renders a diagram.
+ */
+interface MermaidDiagramProps {
+  code: string;
+  theme: 'light' | 'dark';
+}
+
+function MermaidDiagram({ code, theme }: MermaidDiagramProps) {
+  const [svg, setSvg] = React.useState<string>('');
+  const [error, setError] = React.useState<string>('');
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const renderDiagram = async () => {
+      try {
+        const mermaidModule = await import('mermaid');
+        const mermaidLib = mermaidModule.default;
+
+        mermaidLib.initialize({
+          startOnLoad: false,
+          theme: theme === 'dark' ? 'dark' : 'default',
+        });
+
+        const uniqueId = `mermaid-${Math.random().toString(36).slice(2)}`;
+        const { svg: renderedSvg } = await mermaidLib.render(uniqueId, code);
+
+        if (!cancelled) {
+          setSvg(renderedSvg);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to render diagram');
+          setLoading(false);
+        }
+      }
+    };
+
+    renderDiagram();
+    return () => { cancelled = true; };
+  // Re-render only when code or theme actually changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, theme]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
+        Loading diagram…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded border border-destructive p-4 text-destructive text-sm font-mono whitespace-pre-wrap">
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex justify-center overflow-auto py-4"
+      // The SVG comes from Mermaid (trusted local renderer), not user input
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+}
+
 interface MarkdownProps {
   id?: string;
   className?: string;
   style?: React.CSSProperties;
   content: string;
   allowHtml?: boolean;
-  /** @deprecated Kept for backward compatibility; LaTeX is rendered server-side. This prop is ignored. */
-  allowLatex?: boolean;
+  /** Enable Mermaid diagram rendering in fenced ```mermaid blocks. Loaded on demand. */
+  enableMermaid?: boolean;
+  /** Enable LaTeX / KaTeX math rendering ($…$ and $$…$$). Loaded on demand. */
+  enableLatex?: boolean;
   'data-refast-id'?: string;
 }
 
@@ -518,9 +593,6 @@ interface MarkdownProps {
  * Markdown component - renders Markdown content.
  * Uses react-markdown with remark-gfm for GitHub Flavored Markdown.
  * Automatically adapts code block styling to light/dark theme.
- *
- * Note: LaTeX/math rendering has been removed from the client bundle.
- * For math support, render LaTeX server-side in Python and pass as HTML.
  */
 export function Markdown({
   id,
@@ -528,8 +600,8 @@ export function Markdown({
   style,
   content,
   allowHtml = false,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  allowLatex: _allowLatex,
+  enableMermaid = false,
+  enableLatex = false,
   'data-refast-id': dataRefastId,
 }: MarkdownProps): React.ReactElement {
   const theme = useTheme();
@@ -545,6 +617,8 @@ export function Markdown({
     light: Record<string, React.CSSProperties>;
     dark: Record<string, React.CSSProperties>;
   } | null>(null);
+  const [remarkMath, setRemarkMath] = React.useState<unknown>(null);
+  const [rehypeKatex, setRehypeKatex] = React.useState<unknown>(null);
 
   React.useEffect(() => {
     // Dynamically import markdown libraries
@@ -612,13 +686,28 @@ export function Markdown({
         } catch (err) {
           console.error('Failed to load syntax highlighter:', err);
         }
+
+        // Load KaTeX (LaTeX math) plugins on demand via dedicated loader
+        // module so that the main bundle has zero static reference to katex.
+        if (enableLatex) {
+          try {
+            const { remarkMath: rM, rehypeKatex: rHK } =
+              await import('../../loaders/katex-loader');
+            setRemarkMath(() => rM);
+            setRehypeKatex(() => rHK);
+          } catch (err) {
+            console.error('Failed to load LaTeX plugins:', err);
+          }
+        }
       } catch (error) {
         console.error('Failed to load markdown libraries:', error);
       }
     };
 
     loadMarkdown();
-  }, []);
+  // enableLatex is intentionally included so plugins load if the prop is changed dynamically
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enableLatex]);
 
   // Custom components for styling
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -678,6 +767,11 @@ export function Markdown({
       const match = /language-(\w+)/.exec(className || '');
       const language = match ? match[1] : 'text';
       const codeString = String(children).replace(/\n$/, '');
+
+      // Render Mermaid diagrams when enabled
+      if (enableMermaid && language === 'mermaid') {
+        return <MermaidDiagram code={codeString} theme={theme} />;
+      }
 
       const currentHighlightStyle = highlightStyles ? highlightStyles[theme] : null;
 
@@ -751,7 +845,7 @@ export function Markdown({
     ),
     // Horizontal rule
     hr: () => <hr className="my-6 border-muted" />,
-  }), [theme, SyntaxHighlighter, highlightStyles]);
+  }), [theme, SyntaxHighlighter, highlightStyles, enableMermaid]);
 
   if (!ReactMarkdown) {
     // Loading state or fallback to raw content
@@ -768,16 +862,18 @@ export function Markdown({
   }
 
   const remarkPlugins: unknown[] = [];
+  if (remarkGfm) remarkPlugins.push(remarkGfm);
+  if (enableLatex && remarkMath) remarkPlugins.push(remarkMath);
 
-  if (remarkGfm) {
-    remarkPlugins.push(remarkGfm);
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rehypePlugins: any[] = [];
+  if (allowHtml && rehypeRaw) rehypePlugins.push(rehypeRaw);
+  if (enableLatex && rehypeKatex) rehypePlugins.push(rehypeKatex);
 
   // include a readiness flag in the key so that the entire markdown tree
-  // is recreated when the syntax highlighter finishes loading.  without this
-  // ReactMarkdown will often mount once with a fallback <pre> and then never
-  // update the code blocks even after the highlighter becomes available.
-  const ready = Boolean(SyntaxHighlighter && highlightStyles);
+  // is recreated when the syntax highlighter / latex plugins finish loading.
+  const ready = Boolean(SyntaxHighlighter && highlightStyles) &&
+    (!enableLatex || Boolean(remarkMath && rehypeKatex));
   const markdownKey = `${theme}-${ready}`;
 
   return (
@@ -790,8 +886,7 @@ export function Markdown({
     >
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        rehypePlugins={allowHtml && rehypeRaw ? [rehypeRaw as any] : undefined}
+        rehypePlugins={rehypePlugins.length > 0 ? rehypePlugins : undefined}
         components={components}
       >
         {content}

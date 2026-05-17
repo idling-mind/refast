@@ -187,6 +187,7 @@ from refast.components.shadcn.overlay import (
     SheetTitle,
     SheetTrigger,
 )
+from refast.components.shadcn.timer import Timer
 from refast.components.shadcn.typography import BlockQuote, Code, Heading, Link, Markdown, Paragraph
 from refast.components.shadcn.utility import (
     AspectRatio,
@@ -425,6 +426,8 @@ __all__ = [
     "LoadingOverlay",
     "ThemeSwitcher",
     "Toaster",
+    # Timer
+    "Timer",
     # Interaction utilities
     "KeyboardShortcut",
 ]

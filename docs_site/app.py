@@ -74,7 +74,6 @@ from .pages.advanced import (  # noqa: E402
     extension_dev,
     security,
     sessions,
-    styling,
 )
 from .pages.components import (  # noqa: E402
     base,
@@ -89,64 +88,6 @@ from .pages.components import (  # noqa: E402
     typography,
     utility,
 )
-from .pages.components.cards import (  # noqa: E402
-    card as card_page,
-    collapsible as collapsible_page,
-)
-from .pages.components.charts import (  # noqa: E402
-    area_chart as area_chart_page,
-    bar_chart as bar_chart_page,
-    line_chart as line_chart_page,
-    other_charts as other_charts_page,
-    pie_chart as pie_chart_page,
-)
-from .pages.components.navigation import (  # noqa: E402
-    breadcrumb as breadcrumb_page,
-    navigation_menu as navigation_menu_page,
-    pagination as pagination_page,
-    sidebar_nav as sidebar_nav_page,
-)
-from .pages.components.feedback import (  # noqa: E402
-    alert as alert_page,
-    dialog as dialog_page,
-    popover as popover_page,
-    progress as progress_page,
-    sheet as sheet_page,
-)
-from .pages.components.utility import (  # noqa: E402
-    aspect_ratio as aspect_ratio_page,
-    carousel as carousel_page,
-    keyboard_shortcut as keyboard_shortcut_page,
-    separator as separator_page,
-)
-from .pages.components.data_display import (  # noqa: E402
-    accordion as accordion_page,
-    avatar as avatar_page,
-    data_table as data_table_page,
-    hover_card as hover_card_page,
-    list_component as list_page,
-    table as table_page,
-    tabs as tabs_page,
-    tooltip as tooltip_page,
-)
-from .pages.components.layout import (  # noqa: E402
-    container,
-    row,
-    column,
-    flex,
-    grid,
-    scroll_area,
-    resizable,
-)
-from .pages.components.typography import (  # noqa: E402
-    heading,
-    text as text_page,
-    code as code_page,
-    link as link_page,
-    markdown as markdown_page,
-    badge as badge_page,
-    kbd as kbd_page,
-)
 from .pages.components.buttons import (  # noqa: E402
     button,
     context_menu,
@@ -156,16 +97,139 @@ from .pages.components.buttons import (  # noqa: E402
     switch,
     toggle,
 )
+from .pages.components.cards import (  # noqa: E402
+    card as card_page,
+)
+from .pages.components.cards import (
+    collapsible as collapsible_page,
+)
+from .pages.components.charts import (  # noqa: E402
+    area_chart as area_chart_page,
+)
+from .pages.components.charts import (
+    bar_chart as bar_chart_page,
+)
+from .pages.components.charts import (
+    line_chart as line_chart_page,
+)
+from .pages.components.charts import (
+    other_charts as other_charts_page,
+)
+from .pages.components.charts import (
+    pie_chart as pie_chart_page,
+)
+from .pages.components.data_display import (  # noqa: E402
+    accordion as accordion_page,
+)
+from .pages.components.data_display import (
+    avatar as avatar_page,
+)
+from .pages.components.data_display import (
+    data_table as data_table_page,
+)
+from .pages.components.data_display import (
+    hover_card as hover_card_page,
+)
+from .pages.components.data_display import (
+    list_component as list_page,
+)
+from .pages.components.data_display import (
+    table as table_page,
+)
+from .pages.components.data_display import (
+    tabs as tabs_page,
+)
+from .pages.components.data_display import (
+    tooltip as tooltip_page,
+)
+from .pages.components.feedback import (  # noqa: E402
+    alert as alert_page,
+)
+from .pages.components.feedback import (
+    dialog as dialog_page,
+)
+from .pages.components.feedback import (
+    popover as popover_page,
+)
+from .pages.components.feedback import (
+    progress as progress_page,
+)
+from .pages.components.feedback import (
+    sheet as sheet_page,
+)
 from .pages.components.form_inputs import (  # noqa: E402
     checkbox,
     combobox,
     date_picker,
-    form as form_input_page,
-    input as input_page,
     input_otp,
     radio,
-    select as select_page,
     textarea,
+)
+from .pages.components.form_inputs import (
+    form as form_input_page,
+)
+from .pages.components.form_inputs import (
+    input as input_page,
+)
+from .pages.components.form_inputs import (
+    select as select_page,
+)
+from .pages.components.layout import (  # noqa: E402
+    column,
+    container,
+    flex,
+    grid,
+    resizable,
+    row,
+    scroll_area,
+)
+from .pages.components.navigation import (  # noqa: E402
+    breadcrumb as breadcrumb_page,
+)
+from .pages.components.navigation import (
+    navigation_menu as navigation_menu_page,
+)
+from .pages.components.navigation import (
+    pagination as pagination_page,
+)
+from .pages.components.navigation import (
+    sidebar_nav as sidebar_nav_page,
+)
+from .pages.components.typography import (
+    badge as badge_page,
+)
+from .pages.components.typography import (
+    code as code_page,
+)
+from .pages.components.typography import (  # noqa: E402
+    heading,
+)
+from .pages.components.typography import (
+    kbd as kbd_page,
+)
+from .pages.components.typography import (
+    link as link_page,
+)
+from .pages.components.typography import (
+    markdown as markdown_page,
+)
+from .pages.components.typography import (
+    text as text_page,
+)
+from .pages.components.utility import (  # noqa: E402
+    aspect_ratio as aspect_ratio_page,
+)
+from .pages.components.utility import (
+    carousel as carousel_page,
+)
+from .pages.components.utility import (
+    keyboard_shortcut as keyboard_shortcut_page,
+)
+from .pages.components.utility import (
+    separator as separator_page,
+)
+from .pages.components.utility import (
+    timer as timer_page,
 )
 from .pages.concepts import (  # noqa: E402
     background,
@@ -176,6 +240,7 @@ from .pages.concepts import (  # noqa: E402
     routing,
     state,
     streaming,
+    styling,
     theming,
     toasts,
     updates,
@@ -228,6 +293,7 @@ NAV_SECTIONS = [
             ("Streaming", "/docs/concepts/streaming", "radio"),
             ("Background Jobs", "/docs/concepts/background", "clock"),
             ("Theming", "/docs/concepts/theming", "palette"),
+            ("Styling", "/docs/concepts/styling", "paintbrush"),
             ("Toast Notifications", "/docs/concepts/toasts", "bell"),
             ("JavaScript Interop", "/docs/concepts/js-interop", "code"),
             ("File Uploads & Downloads", "/docs/concepts/file-transfers", "upload"),
@@ -361,6 +427,7 @@ NAV_SECTIONS = [
                     ("Aspect Ratio", "/docs/components/aspect-ratio", "maximize"),
                     ("Carousel", "/docs/components/carousel", "image"),
                     ("Keyboard Shortcut", "/docs/components/keyboard-shortcut", "keyboard"),
+                    ("Timer", "/docs/components/timer", "timer"),
                 ],
             },
         ],
@@ -373,7 +440,6 @@ NAV_SECTIONS = [
             ("Building Extensions", "/docs/advanced/extension-dev", "puzzle"),
             ("Security", "/docs/advanced/security", "shield"),
             ("Sessions", "/docs/advanced/sessions", "key"),
-            ("Styling", "/docs/advanced/styling", "paintbrush"),
         ],
     },
 ]
@@ -1278,6 +1344,11 @@ def page_components_keyboard_shortcut(ctx: Context):
     return keyboard_shortcut_page.render(ctx)
 
 
+@ui.page("/docs/components/timer")
+def page_components_timer(ctx: Context):
+    return timer_page.render(ctx)
+
+
 # Advanced
 @ui.page("/docs/advanced/component-dev")
 def page_advanced_component_dev(ctx: Context):
@@ -1299,8 +1370,8 @@ def page_advanced_sessions(ctx: Context):
     return sessions.render(ctx)
 
 
-@ui.page("/docs/advanced/styling")
-def page_advanced_styling(ctx: Context):
+@ui.page("/docs/concepts/styling")
+def page_concepts_styling(ctx: Context):
     return styling.render(ctx)
 
 

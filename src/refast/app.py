@@ -1,6 +1,7 @@
 """Main RefastApp class."""
 
 import logging
+import re
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -137,6 +138,8 @@ class RefastApp:
         self._head_tags: list[str] = list(head_tags) if head_tags else []
 
         self._pages: dict[str, Callable] = {}
+        # Entries: (compiled_pattern, param_types_dict, handler)
+        self._page_patterns: list[tuple[re.Pattern[str], dict[str, type], Callable]] = []
         self._event_handlers: dict[str, Callable] = {}
         self._router: RefastRouter | None = None
         self._extensions: dict[str, Extension] = {}
@@ -192,11 +195,74 @@ class RefastApp:
             ```
         """
 
-        def decorator(func: PageFunc) -> PageFunc:
-            self._pages[path] = func
-            return func
+        # Check whether this is a parameterised path
+        _PARAM_RE = re.compile(r"\{(\w+)(?::(\w+))?\}")  # noqa: N806
+        if _PARAM_RE.search(path):
+            # Build a regex pattern by escaping static segments individually
+            # so we never call re.escape on the {name:type} tokens themselves.
+            _TYPE_MAP: dict[str, type] = {"int": int, "float": float, "str": str, "uuid": str}  # noqa: N806
+            _REGEX_MAP: dict[str, str] = {  # noqa: N806
+                "int": r"\d+",
+                "float": r"[\d.]+",
+                "str": r"[^/]+",
+                "uuid": (
+                    r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+                ),
+            }
+            param_types: dict[str, type] = {}
+            parts: list[str] = []
+            last = 0
+            for m in _PARAM_RE.finditer(path):
+                parts.append(re.escape(path[last : m.start()]))
+                name = m.group(1)
+                type_str = m.group(2) or "str"
+                param_types[name] = _TYPE_MAP.get(type_str, str)
+                parts.append(f"(?P<{name}>{_REGEX_MAP.get(type_str, r'[^/]+')})")
+                last = m.end()
+            parts.append(re.escape(path[last:]))
+            compiled = re.compile("^" + "".join(parts) + "$")
+
+            def decorator(func: PageFunc, _compiled=compiled, _types=param_types) -> PageFunc:
+                self._page_patterns.append((_compiled, _types, func))
+                return func
+        else:
+            def decorator(func: PageFunc) -> PageFunc:
+                self._pages[path] = func
+                return func
 
         return decorator
+
+    def match_route(self, path: str) -> tuple[Callable | None, dict[str, Any]]:
+        """
+        Find a page handler for *path* and extract any path parameters.
+
+        Exact paths are checked first (O(1)); parameterised patterns are tried
+        next in registration order.  Type coercion (int, float) is applied
+        before returning.
+
+        Returns:
+            A ``(handler, path_params)`` tuple.  ``path_params`` is empty for
+            exact matches.  Both values are ``None`` / ``{}`` when no route
+            matches.
+        """
+        func = self._pages.get(path)
+        if func is not None:
+            return func, {}
+
+        for compiled, param_types, handler in self._page_patterns:
+            m = compiled.fullmatch(path)
+            if m:
+                raw: dict[str, Any] = m.groupdict()
+                coerced: dict[str, Any] = {}
+                for k, v in raw.items():
+                    target_type = param_types.get(k, str)
+                    try:
+                        coerced[k] = target_type(v)
+                    except (ValueError, TypeError):
+                        coerced[k] = v
+                return handler, coerced
+
+        return None, {}
 
     def on_event(self, event_type: str) -> Callable[[Callable], Callable]:
         """

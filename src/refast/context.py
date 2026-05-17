@@ -70,7 +70,27 @@ class Context(Generic[T]):
         self._event_data: dict[str, Any] | list[Any] | Any = {}
         self._store_sync_future: asyncio.Future[None] | None = None
         self._current_path: str = "/"
+        self._path_params: dict[str, Any] = {}
+        self._query_params: dict[str, str] = {}
+        self._query_string: str = ""
         self._callbacks: dict[str, Callable[..., Any]] = {}
+
+    @property
+    def path_params(self) -> dict[str, Any]:
+        """Path parameters extracted from the current URL (e.g. ``{id}`` in ``/users/{id}``)."""
+        return self._path_params
+
+    @property
+    def query_params(self) -> dict[str, str]:
+        """Query string parameters from the current URL (e.g. ``?q=hello&page=2``)."""
+        return self._query_params
+
+    @property
+    def url(self) -> str:
+        """The current URL path including query string, if any."""
+        if self._query_string:
+            return f"{self._current_path}?{self._query_string}"
+        return self._current_path
 
     @property
     def event_data(self) -> dict[str, Any] | list[Any] | Any:
@@ -793,11 +813,23 @@ class Context(Generic[T]):
                     "scroll_behavior": scroll_behavior,
                 }
             )
+            # Parse the path to separate pathname from any query string
+            from urllib.parse import parse_qs, urlparse
+
+            parsed = urlparse(path)
+            pathname = parsed.path or "/"
+            if pathname != "/" and pathname.endswith("/"):
+                pathname = pathname.rstrip("/")
+            qs = parsed.query
+            self._query_string = qs
+            self._query_params = {k: v[-1] for k, v in parse_qs(qs).items()} if qs else {}
+
             # Track the new path so ctx.refresh() targets the correct page
-            self._current_path = path
+            self._current_path = pathname
             # Also render the target page and send its component tree
             if self._app:
-                page_func = self._app._pages.get(path)
+                page_func, path_params = self._app.match_route(pathname)
+                self._path_params = path_params
                 if page_func is None:
                     page_func = self._app._pages.get("/")  # Fallback to index
                 if page_func is not None:
@@ -848,7 +880,7 @@ class Context(Generic[T]):
             page_path = path or self._current_path or "/"
 
             # Find and render the page
-            page_func = self._app._pages.get(page_path)
+            page_func, _path_params = self._app.match_route(page_path)
             if page_func is None:
                 page_func = self._app._pages.get("/")  # Fallback to index
 

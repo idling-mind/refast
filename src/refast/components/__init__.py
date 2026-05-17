@@ -203,6 +203,7 @@ from refast.components.shadcn import (
     Tabs,
     Textarea,
     ThemeSwitcher,
+    Timer,
     Toggle,
     ToggleGroup,
     ToggleGroupItem,
@@ -436,6 +437,8 @@ __all__ = [
     "Empty",
     "Kbd",
     "LoadingOverlay",
+    # Timer
+    "Timer",
     # Interaction utilities
     "KeyboardShortcut",
 ]

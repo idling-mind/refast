@@ -31,6 +31,26 @@ _UUID_RE = re.compile(
 )
 
 
+def _parse_url(raw_path: str) -> tuple[str, dict[str, str], str]:
+    """Split a raw URL path (possibly with a query string) into components.
+
+    Returns:
+        ``(pathname, query_params, query_string)`` where *pathname* has trailing
+        slashes stripped, *query_params* is a ``dict[str, str]`` (last value
+        wins for duplicate keys), and *query_string* is the raw query fragment
+        without the leading ``?``.
+    """
+    parsed = urllib.parse.urlparse(raw_path)
+    pathname = parsed.path if parsed.path else "/"
+    if pathname != "/" and pathname.endswith("/"):
+        pathname = pathname.rstrip("/")
+    qs = parsed.query
+    query_params: dict[str, str] = (
+        {k: v[-1] for k, v in urllib.parse.parse_qs(qs).items()} if qs else {}
+    )
+    return pathname, query_params, qs
+
+
 def _filter_callback_kwargs(
     sig: inspect.Signature,
     event_data_raw: dict[str, Any],
@@ -359,8 +379,8 @@ class RefastRouter:
         if page_path != "/" and page_path.endswith("/"):
             page_path = page_path.rstrip("/")
 
-        # Find the page
-        page_func = self.app._pages.get(page_path)
+        # Find the page (supports exact and parameterised routes)
+        page_func, _path_params = self.app.match_route(page_path)
         if page_func is None:
             page_func = self.app._pages.get("/")  # Fallback to index
 
@@ -373,6 +393,9 @@ class RefastRouter:
         # the initial tree (with one set of IDs) was immediately replaced by
         # the post-WebSocket tree (with a fresh set of IDs).
         ctx = Context(request=request, app=self.app)
+        ctx._query_params = dict(request.query_params)
+        ctx._query_string = str(request.url.query)
+        ctx._path_params = _path_params
         html = self._render_html_shell(None, ctx)
         return HTMLResponse(content=html)
 
@@ -393,8 +416,8 @@ class RefastRouter:
         if page_path != "/" and page_path.endswith("/"):
             page_path = page_path.rstrip("/")
 
-        # Find the page
-        page_func = self.app._pages.get(page_path)
+        # Find the page (supports exact and parameterised routes)
+        page_func, path_params = self.app.match_route(page_path)
         if page_func is None:
             page_func = self.app._pages.get("/")  # Fallback to index
 
@@ -403,6 +426,15 @@ class RefastRouter:
 
         # Create context and render page
         ctx = Context(request=request, app=self.app)
+        ctx._path_params = path_params
+        # Propagate query params from the referer URL's query string
+        referer_qs = parsed.query
+        ctx._query_string = referer_qs
+        ctx._query_params = (
+            {k: v[-1] for k, v in urllib.parse.parse_qs(referer_qs).items()}
+            if referer_qs
+            else {}
+        )
         component = page_func(ctx)
 
         # Return component tree as JSON
@@ -489,10 +521,16 @@ class RefastRouter:
         store_data = data.get("data", {})
         ctx._load_store_from_browser(store_data)
 
-        page_path = data.get("path", "/")
-        ctx._current_path = page_path
+        raw_path = data.get("path", "/")
+        pathname, query_params, query_string = _parse_url(raw_path)
+        ctx._current_path = pathname
+        ctx._query_params = query_params
+        ctx._query_string = query_string
 
-        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        page_func, path_params = self.app.match_route(pathname)
+        ctx._path_params = path_params
+        if page_func is None:
+            page_func = self.app._pages.get("/")
         if page_func is not None:
             ctx.clear_callbacks()
             component = page_func(ctx)
@@ -505,12 +543,16 @@ class RefastRouter:
         self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
     ) -> None:
         """Handle a ``navigate`` message: render the page for the requested path."""
-        page_path = data.get("path", "/")
-        if page_path != "/" and page_path.endswith("/"):
-            page_path = page_path.rstrip("/")
-        ctx._current_path = page_path
+        raw_path = data.get("path", "/")
+        pathname, query_params, query_string = _parse_url(raw_path)
+        ctx._current_path = pathname
+        ctx._query_params = query_params
+        ctx._query_string = query_string
 
-        page_func = self.app._pages.get(page_path) or self.app._pages.get("/")
+        page_func, path_params = self.app.match_route(pathname)
+        ctx._path_params = path_params
+        if page_func is None:
+            page_func = self.app._pages.get("/")
         if page_func is not None:
             ctx.clear_callbacks()
             component = page_func(ctx)

@@ -341,5 +341,14 @@ class TestFeatureChunksConstant:
         assert isinstance(ALL_FEATURE_CHUNKS, frozenset)
 
     def test_contains_expected_chunks(self):
-        expected = {"charts", "markdown", "icons", "navigation", "overlay", "controls"}
+        expected = {
+            "charts",
+            "markdown",
+            "mermaid",
+            "katex",
+            "icons",
+            "navigation",
+            "overlay",
+            "controls",
+        }
         assert ALL_FEATURE_CHUNKS == expected

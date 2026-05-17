@@ -138,17 +138,17 @@ This is **bold** and *italic* text.
         rendered = md.render()
         assert rendered["props"]["content"] == content
 
-    def test_markdown_allow_latex_default(self):
-        """Test Markdown allow_latex defaults to True."""
+    def test_markdown_enable_latex_default(self):
+        """Test Markdown enable_latex defaults to False."""
         md = Markdown("$E = mc^2$")
         rendered = md.render()
-        assert rendered["props"]["allow_latex"] is True
+        assert rendered["props"]["enable_latex"] is False
 
-    def test_markdown_allow_latex_disabled(self):
-        """Test Markdown with LaTeX disabled."""
-        md = Markdown("$E = mc^2$", allow_latex=False)
+    def test_markdown_enable_latex_enabled(self):
+        """Test Markdown with LaTeX enabled."""
+        md = Markdown("$E = mc^2$", enable_latex=True)
         rendered = md.render()
-        assert rendered["props"]["allow_latex"] is False
+        assert rendered["props"]["enable_latex"] is True
 
     def test_markdown_allow_html_default(self):
         """Test Markdown allow_html defaults to False for security."""
@@ -178,10 +178,10 @@ $$
 \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
 $$
 """
-        md = Markdown(content, allow_latex=True)
+        md = Markdown(content, enable_latex=True)
         rendered = md.render()
         assert rendered["props"]["content"] == content
-        assert rendered["props"]["allow_latex"] is True
+        assert rendered["props"]["enable_latex"] is True
 
     def test_markdown_children_empty(self):
         """Test Markdown has no children (content is in props)."""

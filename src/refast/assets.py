@@ -32,6 +32,8 @@ ALL_FEATURE_CHUNKS = frozenset(
     {
         "charts",
         "markdown",
+        "mermaid",
+        "katex",
         "icons",
         "navigation",
         "overlay",

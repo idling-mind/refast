@@ -1147,3 +1147,49 @@ class TestContextUpdatePropsChildren:
         ctx = Context()
         # Should not raise
         await ctx.update_props("target-id", {"children": []})
+
+
+class TestUrlParams:
+    """Tests for ctx.path_params, ctx.query_params, and ctx.url."""
+
+    def test_path_params_default_empty(self):
+        """ctx.path_params is an empty dict by default."""
+        ctx = Context()
+        assert ctx.path_params == {}
+
+    def test_query_params_default_empty(self):
+        """ctx.query_params is an empty dict by default."""
+        ctx = Context()
+        assert ctx.query_params == {}
+
+    def test_url_default_slash(self):
+        """ctx.url returns '/' when no path or query string set."""
+        ctx = Context()
+        assert ctx.url == "/"
+
+    def test_path_params_readable(self):
+        """ctx.path_params can be set and read back."""
+        ctx = Context()
+        ctx._path_params = {"id": 42}
+        assert ctx.path_params["id"] == 42
+
+    def test_query_params_readable(self):
+        """ctx.query_params can be set and read back."""
+        ctx = Context()
+        ctx._query_params = {"q": "hello", "page": "2"}
+        assert ctx.query_params["q"] == "hello"
+        assert ctx.query_params["page"] == "2"
+
+    def test_url_with_query_string(self):
+        """ctx.url includes the query string when _query_string is set."""
+        ctx = Context()
+        ctx._current_path = "/search"
+        ctx._query_string = "q=hello&page=2"
+        assert ctx.url == "/search?q=hello&page=2"
+
+    def test_url_without_query_string(self):
+        """ctx.url returns just the path when _query_string is empty."""
+        ctx = Context()
+        ctx._current_path = "/dashboard"
+        ctx._query_string = ""
+        assert ctx.url == "/dashboard"

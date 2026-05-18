@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '../../utils';
+import { Icon } from './icon';
 
 /**
  * Hook to detect current theme (light/dark) from document.documentElement.
@@ -356,38 +357,91 @@ export function Code({
   );
 }
 
+type BlockQuoteColor = 'default' | 'secondary' | 'destructive' | 'info' | 'success' | 'warning';
+
+const NAMED_COLORS = new Set<string>(['default', 'secondary', 'destructive', 'info', 'success', 'warning']);
+
+/** Tailwind classes for named color variants */
+const namedColorClasses: Record<BlockQuoteColor, { border: string; bg: string; iconColor: string }> = {
+  default:     { border: 'border-border',       bg: 'bg-muted/50',            iconColor: 'text-foreground' },
+  secondary:   { border: 'border-secondary',    bg: 'bg-secondary/20',        iconColor: 'text-secondary-foreground' },
+  destructive: { border: 'border-destructive',  bg: 'bg-destructive/10',      iconColor: 'text-destructive' },
+  info:        { border: 'border-info',         bg: 'bg-info/10',             iconColor: 'text-info-foreground' },
+  success:     { border: 'border-success',      bg: 'bg-success/10',          iconColor: 'text-success-foreground' },
+  warning:     { border: 'border-warning',      bg: 'bg-warning/10',          iconColor: 'text-warning-foreground' },
+};
+
 interface BlockQuoteProps {
   id?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Attribution / author displayed below the quote. */
   cite?: string;
+  /** Color variant (named) or any CSS color value for background and border. */
+  color?: string;
+  /** Lucide icon name to display above the quote body. */
+  icon?: string;
+  /** Icon size in pixels. */
+  iconSize?: number;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * BlockQuote component - typography blockquote.
+ * BlockQuote component - styled blockquote with optional icon, color, and attribution.
  */
 export function BlockQuote({
   id,
   className,
   style,
   cite,
+  color = 'default',
+  icon,
+  iconSize = 20,
   children,
   'data-refast-id': dataRefastId,
 }: BlockQuoteProps): React.ReactElement {
+  const isNamed = NAMED_COLORS.has(color);
+  const namedClasses = isNamed ? namedColorClasses[color as BlockQuoteColor] : null;
+
+  // For generic/arbitrary CSS colors build inline styles
+  const genericStyle: React.CSSProperties = isNamed
+    ? {}
+    : {
+        borderColor: color,
+        backgroundColor: `color-mix(in srgb, ${color} 12%, transparent)`,
+      };
+
   return (
     <blockquote
       id={id}
-      cite={cite}
       className={cn(
-        'mt-6 border-l-2 pl-6 italic text-muted-foreground',
+        'border-l-4 rounded-md p-4 my-4 space-y-2',
+        namedClasses ? `${namedClasses.border} ${namedClasses.bg}` : '',
         className
       )}
-      style={style}
+      style={{ ...genericStyle, ...style }}
       data-refast-id={dataRefastId}
     >
-      {children}
+      {icon && (
+        <div
+          className={cn(
+            'mb-1',
+            namedClasses ? namedClasses.iconColor : ''
+          )}
+          style={!isNamed ? { color } : undefined}
+        >
+          <Icon name={icon} size={iconSize} />
+        </div>
+      )}
+      <p className="italic text-foreground leading-relaxed">
+        {children}
+      </p>
+      {cite && (
+        <footer className="text-sm text-muted-foreground">
+          &mdash;&nbsp;{cite}
+        </footer>
+      )}
     </blockquote>
   );
 }

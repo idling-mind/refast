@@ -22,6 +22,7 @@ from refast.components import (
     Avatar,
     # Feedback
     Badge,
+    BlockQuote,
     # Navigation
     Breadcrumb,
     BreadcrumbItem,
@@ -1100,7 +1101,7 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
 | LaTeX | ✅ |
 | Tables | ✅ |
 """,
-                                                        allow_latex=True,
+                                                        enable_latex=True,
                                                         class_name="prose-sm",
                                                     ),
                                                 ],
@@ -1277,6 +1278,85 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                 ],
                                             ),
                                         ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            # BlockQuote Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("BlockQuote"),
+                            CardDescription(
+                                "Styled quotation blocks with optional icon, color, and attribution"
+                            ),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=4,
+                                children=[
+                                    # Named color variants with icons
+                                    Row(
+                                        gap=4,
+                                        wrap=True,
+                                        children=[
+                                            BlockQuote(
+                                                "Doth mother know you weareth her drapes?",
+                                                cite="Ironman",
+                                                color="default",
+                                            ),
+                                            BlockQuote(
+                                                "With great power comes great responsibility.",
+                                                cite="Uncle Ben",
+                                                color="success",
+                                                icon="check-circle",
+                                            ),
+                                            BlockQuote(
+                                                "Premature optimisation is the root of all evil.",
+                                                cite="Donald Knuth",
+                                                color="warning",
+                                                icon="alert-triangle",
+                                            ),
+                                        ],
+                                    ),
+                                    Row(
+                                        gap=4,
+                                        wrap=True,
+                                        children=[
+                                            BlockQuote(
+                                                "The greatest glory in living lies not in never falling, "
+                                                "but in rising every time we fall.",
+                                                cite="Nelson Mandela",
+                                                color="info",
+                                                icon="info",
+                                            ),
+                                            BlockQuote(
+                                                "Something went wrong and the operation could not be completed.",
+                                                cite="System Error",
+                                                color="destructive",
+                                                icon="x-circle",
+                                            ),
+                                            BlockQuote(
+                                                "Be the change you wish to see in the world.",
+                                                cite="Mahatma Gandhi",
+                                                color="secondary",
+                                            ),
+                                        ],
+                                    ),
+                                    # Generic CSS color
+                                    BlockQuote(
+                                        "Any sufficiently advanced technology is indistinguishable from magic.",
+                                        cite="Arthur C. Clarke",
+                                        color="oklch(70% 0.15 280)",
+                                        icon="zap",
+                                        icon_size=24,
                                     ),
                                 ],
                             ),

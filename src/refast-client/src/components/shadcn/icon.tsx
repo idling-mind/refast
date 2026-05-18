@@ -231,6 +231,8 @@ import {
   Bold,
   Italic,
   Underline,
+  Quote,
+  TextQuote,
   // Additional icons for docs & common use
   Rocket,
   Grid3x3,
@@ -538,6 +540,8 @@ const iconMap: Record<string, LucideIcon> = {
   'bold': Bold,
   'italic': Italic,
   'underline': Underline,
+  'quote': Quote,
+  'text-quote': TextQuote,
   // Additional icons for docs & common use
   'rocket': Rocket,
   'grid-3x3': Grid3x3,

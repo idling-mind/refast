@@ -1,7 +1,36 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Copy, Check } from 'lucide-react';
 import { cn } from '../../utils';
 import { Icon } from './icon';
+
+/**
+ * Internal copy-to-clipboard button shown on hover over code blocks.
+ */
+function CopyButton({ text }: { text: string }): React.ReactElement {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access denied or unavailable
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-background/80 hover:bg-muted border border-border text-muted-foreground hover:text-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+      title="Copy code"
+      aria-label="Copy code to clipboard"
+    >
+      {copied ? <Check size={14} /> : <Copy size={14} />}
+    </button>
+  );
+}
 
 /**
  * Hook to detect current theme (light/dark) from document.documentElement.
@@ -316,44 +345,53 @@ export function Code({
     return (
       <div
         id={id}
-        className={cn('mb-4 mt-6 overflow-x-auto rounded-lg border', className)}
+        className={cn('relative group mb-4 mt-6 rounded-lg border', className)}
         style={style}
         data-refast-id={dataRefastId}
         data-language={language}
       >
-        <SyntaxHighlighter
-          language={language || 'text'}
-          style={currentStyle}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-          }}
-          showLineNumbers={showLineNumbers}
-        >
-          {codeString}
-        </SyntaxHighlighter>
+        <div className="overflow-x-auto">
+          <SyntaxHighlighter
+            language={language || 'text'}
+            style={currentStyle}
+            customStyle={{
+              margin: 0,
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+            }}
+            showLineNumbers={showLineNumbers}
+          >
+            {codeString}
+          </SyntaxHighlighter>
+        </div>
+        <CopyButton text={codeString} />
       </div>
     );
   }
 
   // Fallback to plain code block while loading
   return (
-    <pre
+    <div
       id={id}
-      className={cn(
-        'mb-4 mt-6 overflow-x-auto rounded-lg border py-4',
-        theme === 'dark' ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-900',
-        className
-      )}
+      className={cn('relative group mb-4 mt-6 rounded-lg border', className)}
       data-refast-id={dataRefastId}
       data-language={language}
       style={style}
     >
-      <code className="relative rounded bg-transparent px-4 py-[0.2rem] font-mono text-sm text-inherit">
-        {codeString}
-      </code>
-    </pre>
+      <div className="overflow-x-auto">
+        <pre
+          className={cn(
+            'py-4',
+            theme === 'dark' ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-900',
+          )}
+        >
+          <code className="relative rounded bg-transparent px-4 py-[0.2rem] font-mono text-sm text-inherit">
+            {codeString}
+          </code>
+        </pre>
+      </div>
+      <CopyButton text={codeString} />
+    </div>
   );
 }
 
@@ -831,18 +869,23 @@ export function Markdown({
 
       if (SyntaxHighlighter && currentHighlightStyle) {
         return (
-          <SyntaxHighlighter
-            language={language}
-            style={currentHighlightStyle}
-            customStyle={{
-              margin: 0,
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-            }}
-            showLineNumbers={false}
-          >
-            {codeString}
-          </SyntaxHighlighter>
+          <div className="relative group">
+            <div className="overflow-x-auto">
+              <SyntaxHighlighter
+                language={language}
+                style={currentHighlightStyle}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0',
+                  fontSize: '0.875rem',
+                }}
+                showLineNumbers={false}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div>
+            <CopyButton text={codeString} />
+          </div>
         );
       }
       return (
@@ -856,7 +899,7 @@ export function Markdown({
       const currentHighlightStyle = highlightStyles ? highlightStyles[theme] : null;
       if (SyntaxHighlighter && currentHighlightStyle) {
         return (
-          <div className="mb-4 mt-6 overflow-x-auto rounded-lg border">
+          <div className="mb-4 mt-6 rounded-lg border overflow-hidden">
             {children}
           </div>
         );

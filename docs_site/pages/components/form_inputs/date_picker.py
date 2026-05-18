@@ -47,7 +47,12 @@ async def _set_mode(ctx: Context, value: str):
 
 
 async def _on_change(ctx: Context):
-    value = ctx.event_data.get("value", None)
+    data = ctx.event_data
+    if "from" in data or "to" in data:
+        # Range mode: event_data is the range dict {from: ..., to: ...} directly
+        value = data if data else None
+    else:
+        value = data.get("value", None)
     ctx.state.set("dp_value", value)
     await ctx.refresh()
 

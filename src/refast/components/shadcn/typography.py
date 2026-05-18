@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 
 
 class Heading(Component):
@@ -278,17 +278,31 @@ class Markdown(Component):
 
 class BlockQuote(Component):
     """
-    Blockquote component for quoted text.
+    Blockquote component for styled quoted text with optional icon and citation.
 
     Example:
         ```python
-        BlockQuote("To be or not to be.", cite="Hamlet")
-        BlockQuote("Premature optimisation is the root of all evil.")
+        BlockQuote(
+            "To be or not to be, that is the question.",
+            cite="Hamlet, Shakespeare",
+            color="default",
+            icon="quote",
+            icon_size=20,
+        )
+        BlockQuote("Premature optimisation is the root of all evil.", cite="Donald Knuth", color="info")
+        BlockQuote("With great power comes great responsibility.", color="destructive", icon="zap")
         ```
 
     Args:
-        text: The quoted text content.
-        cite: Optional URL or reference for the quote source.
+        children: The quoted text or child components to display as the quote body.
+        cite: Optional attribution text displayed below the quote (e.g., author name).
+        color: Color variant for the background and left border. Named options:
+               "default", "secondary", "destructive", "info", "success", "warning".
+               Also accepts any CSS color value (e.g., "blue", "#ff0000", "oklch(…)").
+        icon: Optional Lucide icon name to display at the top of the quote
+              (e.g., "quote", "flame", "info", "zap"). Uses the same icon names
+              as the ``Icon`` component.
+        icon_size: Size of the icon in pixels (default: 20).
         id: Optional component ID.
         class_name: Optional CSS class name.
         style: Optional inline styles as a dictionary.
@@ -298,8 +312,11 @@ class BlockQuote(Component):
 
     def __init__(
         self,
-        text: str,
+        children: "ChildrenType" = None,
         cite: str | None = None,
+        color: str = "default",
+        icon: str | None = None,
+        icon_size: int = 20,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -313,8 +330,11 @@ class BlockQuote(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.text = text
+        self.add_children(children)
         self.cite = cite
+        self.color = color
+        self.icon = icon
+        self.icon_size = icon_size
         self.style = style
 
     def render(self) -> dict[str, Any]:
@@ -323,9 +343,12 @@ class BlockQuote(Component):
             "id": self.id,
             "props": {
                 "cite": self.cite,
+                "color": self.color,
+                "icon": self.icon,
+                "iconSize": self.icon_size,
                 "class_name": self.class_name,
                 "style": self.style,
                 **self._serialize_extra_props(),
             },
-            "children": [self.text],
+            "children": self._render_children(),
         }

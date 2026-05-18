@@ -366,9 +366,9 @@ const namedColorClasses: Record<BlockQuoteColor, { border: string; bg: string; i
   default:     { border: 'border-border',       bg: 'bg-muted/50',            iconColor: 'text-foreground' },
   secondary:   { border: 'border-secondary',    bg: 'bg-secondary/20',        iconColor: 'text-secondary-foreground' },
   destructive: { border: 'border-destructive',  bg: 'bg-destructive/10',      iconColor: 'text-destructive' },
-  info:        { border: 'border-info',         bg: 'bg-info/10',             iconColor: 'text-info-foreground' },
-  success:     { border: 'border-success',      bg: 'bg-success/10',          iconColor: 'text-success-foreground' },
-  warning:     { border: 'border-warning',      bg: 'bg-warning/10',          iconColor: 'text-warning-foreground' },
+  info:        { border: 'border-info',         bg: 'bg-info/10',             iconColor: 'text-info' },
+  success:     { border: 'border-success',      bg: 'bg-success/10',          iconColor: 'text-success' },
+  warning:     { border: 'border-warning',      bg: 'bg-warning/10',          iconColor: 'text-warning' },
 };
 
 interface BlockQuoteProps {

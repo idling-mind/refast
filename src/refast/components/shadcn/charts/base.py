@@ -250,8 +250,9 @@ class ChartLegend(Component):
             "id": self.id,
             "props": {
                 "verticalAlign": self.vertical_align,
+                "content": self.content.render() if self.content else None,
             },
-            "children": [self.content.render()] if self.content else [],
+            "children": [],
         }
 
 

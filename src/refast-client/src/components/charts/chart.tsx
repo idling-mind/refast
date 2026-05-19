@@ -19,7 +19,13 @@ export function ChartTooltip({
     />
   );
 }
-export const ChartLegend = RechartsLegend;
+export function ChartLegend({
+  content,
+  ...props
+}: React.ComponentProps<typeof RechartsLegend>) {
+  return <RechartsLegend content={content} {...props} />;
+}
+ChartLegend.displayName = 'Legend';
 
 // Chart context for theming
 interface ChartConfig {
@@ -86,25 +92,28 @@ export function ChartContainer({
 
   return (
     <ChartContext.Provider value={config}>
-      <ResponsiveContainer
-        width={width ?? '100%'}
-        height={height ?? '100%'}
-        minHeight={minHeight ?? 200}
-        maxHeight={maxHeight ?? undefined}
-        minWidth={minWidth ?? undefined}
-        aspect={aspect ?? undefined}
-        initialDimension={initialDimension ?? undefined}
-        debounce={debounce ?? undefined}
+      {/* Outer div owns the className (e.g. h-72) and CSS vars so that
+          ResponsiveContainer's own inline width/height styles don't override
+          the Tailwind height class. */}
+      <div
         className={cn('w-full', className)}
+        style={{ ...cssVars, ...style }}
         id={id}
-        style={{
-          ...cssVars,
-          ...style,
-        }}
-        onResize={onResize ?? undefined}
       >
-        {children as React.ReactElement}
-      </ResponsiveContainer>
+        <ResponsiveContainer
+          width={width ?? '100%'}
+          height={height ?? '100%'}
+          minHeight={minHeight ?? 200}
+          maxHeight={maxHeight ?? undefined}
+          minWidth={minWidth ?? undefined}
+          aspect={aspect ?? undefined}
+          initialDimension={initialDimension ?? undefined}
+          debounce={debounce ?? 50}
+          onResize={onResize ?? undefined}
+        >
+          {children as React.ReactElement}
+        </ResponsiveContainer>
+      </div>
     </ChartContext.Provider>
   );
 }
@@ -223,4 +232,3 @@ export function ChartLegendContent({
 
 
 ChartTooltip.displayName = 'Tooltip';
-ChartLegend.displayName = 'Legend';

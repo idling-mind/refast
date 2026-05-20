@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { ExternalLink, Copy, Check } from 'lucide-react';
 import { cn } from '../../utils';
 import { Icon } from './icon';
@@ -6,7 +6,7 @@ import { Icon } from './icon';
 /**
  * Internal copy-to-clipboard button shown on hover over code blocks.
  */
-function CopyButton({ text }: { text: string }): React.ReactElement {
+function CopyButton({ text }: { text: string }): React.ReactElement<any> {
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {
@@ -92,7 +92,7 @@ export function Heading({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: HeadingProps): React.ReactElement {
+}: HeadingProps): React.ReactElement<any> {
   const sizeClasses = {
     1: 'scroll-m-20 text-4xl font-bold tracking-tight',
     2: 'scroll-m-20 text-3xl font-semibold tracking-tight',
@@ -137,7 +137,7 @@ export function Paragraph({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: ParagraphProps): React.ReactElement {
+}: ParagraphProps): React.ReactElement<any> {
   return (
     <p
       id={id}
@@ -181,7 +181,7 @@ export function Link({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: LinkProps): React.ReactElement {
+}: LinkProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -230,7 +230,7 @@ export function Code({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: CodeProps): React.ReactElement {
+}: CodeProps): React.ReactElement<any> {
   const theme = useTheme();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -438,7 +438,7 @@ export function BlockQuote({
   iconSize = 20,
   children,
   'data-refast-id': dataRefastId,
-}: BlockQuoteProps): React.ReactElement {
+}: BlockQuoteProps): React.ReactElement<any> {
   const isNamed = NAMED_COLORS.has(color);
   const namedClasses = isNamed ? namedColorClasses[color as BlockQuoteColor] : null;
 
@@ -503,7 +503,7 @@ export function List({
   ordered = false,
   children,
   'data-refast-id': dataRefastId,
-}: ListProps): React.ReactElement {
+}: ListProps): React.ReactElement<any> {
   const Tag = ordered ? 'ol' : 'ul';
 
   // Auto-wrap children that aren't already <li> elements
@@ -548,7 +548,7 @@ export function ListItem({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: ListItemProps): React.ReactElement {
+}: ListItemProps): React.ReactElement<any> {
   return (
     <li id={id} className={cn('', className)} data-refast-id={dataRefastId} style={style}>
       {children}
@@ -577,7 +577,7 @@ export function Label({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: LabelProps): React.ReactElement {
+}: LabelProps): React.ReactElement<any> {
   return (
     <label
       id={id}
@@ -695,7 +695,7 @@ export function Markdown({
   enableMermaid = false,
   enableLatex = false,
   'data-refast-id': dataRefastId,
-}: MarkdownProps): React.ReactElement {
+}: MarkdownProps): React.ReactElement<any> {
   const theme = useTheme();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1009,7 +1009,7 @@ export function Kbd({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: KbdProps): React.ReactElement {
+}: KbdProps): React.ReactElement<any> {
   return (
     <kbd
       id={id}

@@ -111,7 +111,7 @@ export function ChartContainer({
           debounce={debounce ?? 50}
           onResize={onResize ?? undefined}
         >
-          {children as React.ReactElement}
+          {children as React.ReactElement<any>}
         </ResponsiveContainer>
       </div>
     </ChartContext.Provider>

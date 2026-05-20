@@ -30,7 +30,7 @@ export function Form({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: FormProps): React.ReactElement {
+}: FormProps): React.ReactElement<any> {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (onSubmit) {
@@ -88,7 +88,7 @@ export function FormField({
   required = false,
   children,
   'data-refast-id': dataRefastId,
-}: FormFieldProps): React.ReactElement {
+}: FormFieldProps): React.ReactElement<any> {
   return (
     <div id={id} className={cn('space-y-1', className)} data-refast-id={dataRefastId}>
       {label && (

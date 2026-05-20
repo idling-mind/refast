@@ -28,7 +28,7 @@ interface RefastAppProps {
 /**
  * Main Refast application component.
  */
-export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): React.ReactElement | null {
+export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): React.ReactElement<any> | null {
   // Get initial data from window if not provided
   const tree = useMemo(() => {
     if (initialTree) return initialTree;
@@ -190,7 +190,7 @@ function RefastAppContent({
   reconnectAttempts,
   onUpdate,
   className,
-}: RefastAppContentProps): React.ReactElement {
+}: RefastAppContentProps): React.ReactElement<any> {
   const { onUpdate: registerUpdateHandler } = useEventManager();
 
   // Register update handler

@@ -27,7 +27,7 @@ export function Card({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: CardProps): React.ReactElement {
+}: CardProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -77,7 +77,7 @@ export function CardHeader({
   description,
   children,
   'data-refast-id': dataRefastId,
-}: CardHeaderProps): React.ReactElement {
+}: CardHeaderProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -113,7 +113,7 @@ export function CardTitle({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: CardTitleProps): React.ReactElement {
+}: CardTitleProps): React.ReactElement<any> {
   return (
     <h3
       id={id}
@@ -146,7 +146,7 @@ export function CardDescription({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: CardDescriptionProps): React.ReactElement {
+}: CardDescriptionProps): React.ReactElement<any> {
   return (
     <p
       id={id}
@@ -176,7 +176,7 @@ export function CardContent({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: CardContentProps): React.ReactElement {
+}: CardContentProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -206,7 +206,7 @@ export function CardFooter({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: CardFooterProps): React.ReactElement {
+}: CardFooterProps): React.ReactElement<any> {
   return (
     <div
       id={id}

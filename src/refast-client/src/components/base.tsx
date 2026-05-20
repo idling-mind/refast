@@ -19,7 +19,7 @@ export function Container({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: ContainerProps): React.ReactElement {
+}: ContainerProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -51,7 +51,7 @@ export function Text({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: TextProps): React.ReactElement {
+}: TextProps): React.ReactElement<any> {
   return (
     <span
       id={id}
@@ -72,6 +72,6 @@ interface FragmentProps {
 /**
  * Fragment component - renders children without wrapper.
  */
-export function Fragment({ children }: FragmentProps): React.ReactElement {
+export function Fragment({ children }: FragmentProps): React.ReactElement<any> {
   return <>{children}</>;
 }

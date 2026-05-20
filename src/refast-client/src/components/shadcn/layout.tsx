@@ -25,7 +25,7 @@ export function Row({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: RowProps): React.ReactElement {
+}: RowProps): React.ReactElement<any> {
   const justifyClass = {
     start: 'justify-start',
     end: 'justify-end',
@@ -86,7 +86,7 @@ export function Column({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: ColumnProps): React.ReactElement {
+}: ColumnProps): React.ReactElement<any> {
   const justifyClass = {
     start: 'justify-start',
     end: 'justify-end',
@@ -139,7 +139,7 @@ export function Grid({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: GridProps): React.ReactElement {
+}: GridProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -188,7 +188,7 @@ export function Flex({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: FlexProps): React.ReactElement {
+}: FlexProps): React.ReactElement<any> {
   const directionClass = {
     row: 'flex-row',
     column: 'flex-col',
@@ -242,7 +242,7 @@ export function Center({
   children,
   'data-refast-id': dataRefastId,
   ...props
-}: CenterProps): React.ReactElement {
+}: CenterProps): React.ReactElement<any> {
   return (
     <div
       id={id}

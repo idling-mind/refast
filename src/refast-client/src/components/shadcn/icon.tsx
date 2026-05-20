@@ -591,7 +591,7 @@ export function Icon({
   strokeWidth = 2,
   className,
   'data-refast-id': dataRefastId,
-}: IconProps): React.ReactElement {
+}: IconProps): React.ReactElement<any> {
   const LucideIcon = iconMap[name.toLowerCase()];
 
   if (LucideIcon) {

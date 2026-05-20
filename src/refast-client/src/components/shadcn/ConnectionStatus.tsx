@@ -36,7 +36,7 @@ export function ConnectionStatus({
   jsOnReconnect,
   debounceMs = 500,
   'data-refast-id': dataRefastId,
-}: ConnectionStatusProps): React.ReactElement | null {
+}: ConnectionStatusProps): React.ReactElement<any> | null {
   const [isConnected, setIsConnected] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);

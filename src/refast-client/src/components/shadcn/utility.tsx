@@ -614,7 +614,9 @@ export function InputOTP({
       {Array.from({ length: maxLength }).map((_, index) => (
         <React.Fragment key={index}>
           <input
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={el => {
+              (inputRefs.current[index] = el);
+            }}
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -1107,7 +1109,7 @@ export function Toaster({
   dir = 'auto',
   hotkey = ['altKey', 'KeyT'],
   invert = false,
-}: ToasterProps): React.ReactElement {
+}: ToasterProps): React.ReactElement<any> {
   return (
     <SonnerToaster
       className={className}

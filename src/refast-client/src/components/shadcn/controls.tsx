@@ -39,7 +39,7 @@ export function Switch({
   name,
   onCheckedChange,
   'data-refast-id': dataRefastId,
-}: SwitchProps): React.ReactElement {
+}: SwitchProps): React.ReactElement<any> {
   return (
     <SwitchPrimitive.Root
       id={id}
@@ -109,7 +109,7 @@ export function Slider({
   onValueChange,
   onValueCommit,
   'data-refast-id': dataRefastId,
-}: SliderProps): React.ReactElement {
+}: SliderProps): React.ReactElement<any> {
   const normalizeSliderValues = (
     sliderValues: number | number[] | undefined,
     fallback: number[]
@@ -329,7 +329,7 @@ export function Toggle({
   onPressedChange,
   children,
   'data-refast-id': dataRefastId,
-}: ToggleProps): React.ReactElement {
+}: ToggleProps): React.ReactElement<any> {
   return (
     <TogglePrimitive.Root
       id={id}
@@ -383,7 +383,7 @@ export function ToggleGroup({
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
-}: ToggleGroupProps): React.ReactElement {
+}: ToggleGroupProps): React.ReactElement<any> {
   // Handle value based on type - Radix UI expects array for "multiple" type
   const resolvedValue = type === 'multiple' 
     ? (value as string[] | undefined)
@@ -499,7 +499,7 @@ export function ToggleGroupItem({
   size = 'md',
   children,
   'data-refast-id': dataRefastId,
-}: ToggleGroupItemProps): React.ReactElement {
+}: ToggleGroupItemProps): React.ReactElement<any> {
   return (
     <ToggleGroupPrimitive.Item
       id={id}
@@ -1002,7 +1002,7 @@ export function DatePicker({
   numberOfMonths,
   onChange,
   'data-refast-id': dataRefastId,
-}: DatePickerProps): React.ReactElement {
+}: DatePickerProps): React.ReactElement<any> {
   const [open, setOpen] = React.useState(false);
   const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
   const pendingChangeRef = React.useRef<
@@ -1315,7 +1315,7 @@ export function Combobox({
   disabled = false,
   onSelect,
   'data-refast-id': dataRefastId,
-}: ComboboxProps): React.ReactElement {
+}: ComboboxProps): React.ReactElement<any> {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
@@ -1698,7 +1698,7 @@ export function InputOTP({
   onComplete,
   children,
   'data-refast-id': dataRefastId,
-}: InputOTPProps): React.ReactElement {
+}: InputOTPProps): React.ReactElement<any> {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : '');
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
@@ -1806,7 +1806,7 @@ export function InputOTPGroup({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: InputOTPGroupProps): React.ReactElement {
+}: InputOTPGroupProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1830,7 +1830,7 @@ export function InputOTPSlot({
   className,
   index: _index,
   'data-refast-id': dataRefastId,
-}: InputOTPSlotProps): React.ReactElement {
+}: InputOTPSlotProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1857,7 +1857,7 @@ export function InputOTPSeparator({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: InputOTPSeparatorProps): React.ReactElement {
+}: InputOTPSeparatorProps): React.ReactElement<any> {
   return (
     <div
       id={id}

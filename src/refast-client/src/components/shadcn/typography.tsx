@@ -252,7 +252,8 @@ export function Code({
       if (Array.isArray(node)) return node.map(extractText).join('');
       if (React.isValidElement(node)) {
         // Extract text from React element's children
-        return extractText(node.props.children);
+        // In React 19, element.props is typed as unknown — cast to access children
+        return extractText((node.props as { children?: React.ReactNode }).children);
       }
       return '';
     };

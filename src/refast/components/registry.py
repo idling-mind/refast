@@ -1,17 +1,17 @@
 """Component registry for custom React components."""
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeVar
 
 from refast.components.base import Component
 
-
+_T = TypeVar("_T", bound=Component)
 @dataclass
 class ComponentRegistration:
     """Registration info for a custom component."""
 
     name: str
-    component_class: type[Component]
+    component_class: _T
     package: str | None = None
     module: str | None = None
 
@@ -44,7 +44,7 @@ def register_component(
         ```
     """
 
-    def decorator(cls: type[Component]) -> type[Component]:
+    def decorator(cls: _T) -> _T:
         cls.component_type = name
         _registry[name] = ComponentRegistration(
             name=name,

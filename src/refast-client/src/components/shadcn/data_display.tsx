@@ -103,30 +103,30 @@ interface AccordionTriggerProps {
   className?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
+  ref?: React.Ref<React.ComponentRef<typeof AccordionPrimitive.Trigger>>;
 }
 
 /**
  * AccordionTrigger component - clickable header to toggle section.
  */
-export const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  AccordionTriggerProps
->(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      id={id}
-      className={cn(
-        'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
-        className
-      )}
-      data-refast-id={dataRefastId}
-    >
-      {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
+export function AccordionTrigger({ id, className, children, 'data-refast-id': dataRefastId, ref }: AccordionTriggerProps) {
+  return (
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        ref={ref}
+        id={id}
+        className={cn(
+          'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  );
+}
 AccordionTrigger.displayName = 'AccordionTrigger';
 
 interface AccordionContentProps {
@@ -134,24 +134,24 @@ interface AccordionContentProps {
   className?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
+  ref?: React.Ref<React.ComponentRef<typeof AccordionPrimitive.Content>>;
 }
 
 /**
  * AccordionContent component - content revealed when section is open.
  */
-export const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  AccordionContentProps
->(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    id={id}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    data-refast-id={dataRefastId}
-  >
-    <div className={cn('pb-4 pt-0', className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
+export function AccordionContent({ id, className, children, 'data-refast-id': dataRefastId, ref }: AccordionContentProps) {
+  return (
+    <AccordionPrimitive.Content
+      ref={ref}
+      id={id}
+      className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      data-refast-id={dataRefastId}
+    >
+      <div className={cn('pb-4 pt-0', className)}>{children}</div>
+    </AccordionPrimitive.Content>
+  );
+}
 AccordionContent.displayName = 'AccordionContent';
 
 // ============================================================================

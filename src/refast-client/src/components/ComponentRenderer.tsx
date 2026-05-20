@@ -69,6 +69,7 @@ function LazyFallback() {
 interface ComponentRendererProps {
   tree: ComponentTree | string;
   onUpdate?: (id: string, component: ComponentTree) => void;
+  ref?: React.Ref<HTMLElement>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
@@ -76,7 +77,7 @@ interface ComponentRendererProps {
 /**
  * Renders a component tree from Python backend.
  */
-export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRendererProps>(({ tree, onUpdate, ...rest }, ref) => {
+export function ComponentRenderer({ tree, onUpdate, ref, ...rest }: ComponentRendererProps) {
   if (!tree) {
     return null;
   }
@@ -88,10 +89,10 @@ export const ComponentRenderer = React.forwardRef<HTMLElement, ComponentRenderer
 
   // Delegate object rendering to a sub-component to maintain hook rules
   return <ComponentObjectRenderer tree={tree} onUpdate={onUpdate} ref={ref} {...rest} />;
-});
+}
 ComponentRenderer.displayName = 'ComponentRenderer';
 
-const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererProps & { tree: Extract<ComponentTree, object> }>(({ tree, onUpdate, ...rest }, ref) => {
+function ComponentObjectRenderer({ tree, onUpdate, ref, ...rest }: ComponentRendererProps & { tree: Extract<ComponentTree, object> }) {
   const eventManager = useEventManager();
   const [extensionsReady, setExtensionsReady] = useState<boolean>(
     (window as Window & { __REFAST_EXTENSIONS_READY__?: boolean }).__REFAST_EXTENSIONS_READY__ ?? true,
@@ -285,7 +286,7 @@ const ComponentObjectRenderer = React.forwardRef<HTMLElement, ComponentRendererP
   }
 
   return bounded;
-});
+}
 ComponentObjectRenderer.displayName = 'ComponentObjectRenderer';
 
 /**

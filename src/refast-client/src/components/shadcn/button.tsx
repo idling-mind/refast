@@ -13,12 +13,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   type?: 'button' | 'submit' | 'reset';
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   'data-refast-id'?: string;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
  * Button component - shadcn/ui styled button with Tailwind CSS.
  */
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+export function Button({
   className,
   variant = 'default',
   size = 'md',
@@ -27,8 +28,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   iconPosition = 'left',
   children,
   'data-refast-id': dataRefastId,
+  ref,
   ...props
-}, ref) => {
+}: ButtonProps) {
   const variantClasses = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -77,7 +79,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
       )}
     </button>
   );
-});
+}
 Button.displayName = 'Button';
 
 interface IconButtonProps {
@@ -90,13 +92,14 @@ interface IconButtonProps {
   onClick?: () => void;
   ariaLabel?: string;
   'data-refast-id'?: string;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
  * IconButton component - button with icon.
  * Uses Lucide icons via the Icon component.
  */
-export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(({
+export function IconButton({
   id,
   className,
   icon,
@@ -106,8 +109,9 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
   onClick,
   ariaLabel,
   'data-refast-id': dataRefastId,
+  ref,
   ...props
-}, ref) => {
+}: IconButtonProps) {
   const variantClasses: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -147,7 +151,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
       <Icon name={icon} size={iconSizeMap[size] ?? 16} />
     </button>
   );
-});
+}
 IconButton.displayName = 'IconButton';
 
 export const buttonVariants = cva(

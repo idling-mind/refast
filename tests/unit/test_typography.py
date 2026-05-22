@@ -1,6 +1,6 @@
 """Tests for typography components."""
 
-from refast.components.base import Container, Text
+from refast.components.base import Text
 from refast.components.shadcn.typography import BlockQuote, Code, Heading, Link, Markdown, Paragraph
 
 

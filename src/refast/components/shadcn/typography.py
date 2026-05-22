@@ -289,8 +289,12 @@ class BlockQuote(Component):
             icon="quote",
             icon_size=20,
         )
-        BlockQuote("Premature optimisation is the root of all evil.", cite="Donald Knuth", color="info")
-        BlockQuote("With great power comes great responsibility.", color="destructive", icon="zap")
+        BlockQuote(
+            "Premature optimisation is the root of all evil.", cite="Donald Knuth", color="info"
+        )
+        BlockQuote(
+            "With great power comes great responsibility.", color="destructive", icon="zap"
+        )
         ```
 
     Args:

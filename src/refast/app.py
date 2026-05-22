@@ -226,6 +226,7 @@ class RefastApp:
                 self._page_patterns.append((_compiled, _types, func))
                 return func
         else:
+
             def decorator(func: PageFunc) -> PageFunc:
                 self._pages[path] = func
                 return func

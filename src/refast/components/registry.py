@@ -6,6 +6,8 @@ from typing import Any, TypeVar
 from refast.components.base import Component
 
 _T = TypeVar("_T", bound=Component)
+
+
 @dataclass
 class ComponentRegistration:
     """Registration info for a custom component."""

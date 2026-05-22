@@ -67,9 +67,7 @@ def _filter_callback_kwargs(
     positional argument.
     """
     params = sig.parameters
-    has_var_keyword = any(
-        p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
-    )
+    has_var_keyword = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
     if has_var_keyword:
         return {**event_data_raw, **callback_data}
     combined = {**event_data_raw, **callback_data}
@@ -431,9 +429,7 @@ class RefastRouter:
         referer_qs = parsed.query
         ctx._query_string = referer_qs
         ctx._query_params = (
-            {k: v[-1] for k, v in urllib.parse.parse_qs(referer_qs).items()}
-            if referer_qs
-            else {}
+            {k: v[-1] for k, v in urllib.parse.parse_qs(referer_qs).items()} if referer_qs else {}
         )
         component = page_func(ctx)
 
@@ -559,9 +555,7 @@ class RefastRouter:
             component_data = component.render() if hasattr(component, "render") else {}
             await websocket.send_json({"type": "page_render", "component": component_data})
 
-    async def _on_event(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
-    ) -> None:
+    async def _on_event(self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]) -> None:
         """Handle a custom ``event`` message: invoke the registered event handler."""
         event_type = data.get("eventType")
         handler = self.app._event_handlers.get(event_type)

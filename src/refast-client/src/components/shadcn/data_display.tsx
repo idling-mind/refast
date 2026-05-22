@@ -863,6 +863,16 @@ export const TooltipTrigger = TooltipPrimitive.Trigger;
 export const TooltipContent = TooltipPrimitive.Content;
 export const TooltipProvider = TooltipPrimitive.Provider;
 
+// Tabs size configuration
+const TABS_SIZE_CONFIG = {
+  xs: { iconSize: 10, textClass: 'text-xs',   listPad: 'p-0.5', btnPx: 'px-2',   btnPy: 'py-0.5', squareSize: 'w-6 h-6'   },
+  sm: { iconSize: 12, textClass: 'text-xs',   listPad: 'p-0.5', btnPx: 'px-2.5', btnPy: 'py-1',   squareSize: 'w-7 h-7'   },
+  md: { iconSize: 14, textClass: 'text-sm',   listPad: 'p-1',   btnPx: 'px-3',   btnPy: 'py-1.5', squareSize: 'w-8 h-8'   },
+  lg: { iconSize: 16, textClass: 'text-sm',   listPad: 'p-1.5', btnPx: 'px-4',   btnPy: 'py-2',   squareSize: 'w-9 h-9'   },
+  xl: { iconSize: 18, textClass: 'text-base', listPad: 'p-2',   btnPx: 'px-5',   btnPy: 'py-2.5', squareSize: 'w-10 h-10' },
+} as const;
+type TabsSize = keyof typeof TABS_SIZE_CONFIG;
+
 // Tabs Context
 interface TabsContextValue {
   activeTab: string;
@@ -877,6 +887,9 @@ interface TabsProps {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  direction?: 'horizontal' | 'vertical';
+  size?: TabsSize;
+  gap?: number;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -891,6 +904,9 @@ export function Tabs({
   defaultValue = '',
   value,
   onValueChange,
+  direction = 'horizontal',
+  size = 'md',
+  gap,
   children,
   'data-refast-id': dataRefastId,
 }: TabsProps): React.ReactElement<any> {
@@ -931,7 +947,7 @@ export function Tabs({
       if (itemValue !== undefined) {
         tabMeta.push({
           value: String(itemValue || ''),
-          label: String(itemLabel || itemValue || ''),
+          label: itemLabel != null ? String(itemLabel) : String(itemValue || ''),
           icon: itemIcon,
           disabled: Boolean(itemDisabled),
         });
@@ -956,13 +972,29 @@ export function Tabs({
     [activeTab]
   );
 
+  const sc = TABS_SIZE_CONFIG[size] ?? TABS_SIZE_CONFIG.md;
+  const isVertical = direction === 'vertical';
+  const listStyle = gap != null ? { padding: `${gap}px` } : undefined;
+
   return (
     <TabsContext.Provider value={contextValue}>
-      <div id={id} className={cn('w-full', className)} data-refast-id={dataRefastId}>
+      <div
+        id={id}
+        className={cn(isVertical ? 'flex flex-row items-start gap-2 w-full' : 'w-full', className)}
+        data-refast-id={dataRefastId}
+      >
         {/* Tab buttons */}
-        <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+        <div
+          className={cn(
+            'items-center justify-center rounded-md bg-muted text-muted-foreground',
+            isVertical ? 'inline-flex flex-col' : 'inline-flex',
+            gap == null ? sc.listPad : '',
+          )}
+          style={listStyle}
+        >
           {tabMeta.map((tab) => {
             const isActive = activeTab === tab.value;
+            const iconOnly = !tab.label;
             return (
               <button
                 key={tab.value}
@@ -970,20 +1002,20 @@ export function Tabs({
                 onClick={() => !tab.disabled && handleTabChange(tab.value)}
                 disabled={tab.disabled}
                 className={cn(
-                  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-                  isActive
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:bg-background/50'
+                  'inline-flex items-center justify-center whitespace-nowrap rounded-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+                  sc.textClass,
+                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:bg-background/50',
+                  iconOnly ? sc.squareSize : cn('gap-1.5', sc.btnPx, sc.btnPy),
                 )}
               >
-                {tab.icon ? <Icon name={tab.icon} size={14} /> : null}
-                <span>{tab.label}</span>
+                {tab.icon ? <Icon name={tab.icon} size={sc.iconSize} /> : null}
+                {!iconOnly && <span>{tab.label}</span>}
               </button>
             );
           })}
         </div>
         {/* Tab content - rendered children handle visibility via context */}
-        <div className="mt-2">
+        <div className={cn(isVertical ? 'flex-1' : 'mt-2')}>
           {childArray.map((child, index) => {
             if (React.isValidElement(child)) {
               const props = child.props as Record<string, unknown>;
@@ -1018,7 +1050,7 @@ interface TabItemProps {
   id?: string;
   className?: string;
   value: string;
-  label: string;
+  label?: string;
   icon?: string;
   disabled?: boolean;
   children?: React.ReactNode;
@@ -1033,7 +1065,7 @@ export function TabItem({
   id,
   className,
   value,
-  label,
+  label = '',
   icon,
   disabled = false,
   children,

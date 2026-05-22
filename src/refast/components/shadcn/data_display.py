@@ -908,6 +908,9 @@ class Tabs(Component):
         default_value: str | None = None,
         value: str | None = None,
         on_value_change: Any = None,
+        direction: Literal["horizontal", "vertical"] = "horizontal",
+        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
+        gap: int | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -925,11 +928,17 @@ class Tabs(Component):
         self.default_value = default_value
         self.value = value
         self.on_value_change = on_value_change
+        self.direction = direction
+        self.size = size
+        self.gap = gap
 
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
             "default_value": self.default_value,
             "value": self.value,
+            "direction": self.direction,
+            "size": self.size,
+            "gap": self.gap,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -975,7 +984,7 @@ class TabItem(Component):
     def __init__(
         self,
         value: str,
-        label: str,
+        label: str = "",
         icon: str | None = None,
         children: ChildrenType = None,
         disabled: bool = False,

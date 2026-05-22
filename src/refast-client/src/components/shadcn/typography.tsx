@@ -1,5 +1,5 @@
 import React, { type JSX } from 'react';
-import { ExternalLink, Copy, Check } from 'lucide-react';
+import { ExternalLink, Copy, Check, X } from 'lucide-react';
 import { cn } from '../../utils';
 import { Icon } from './icon';
 
@@ -7,15 +7,35 @@ import { Icon } from './icon';
  * Internal copy-to-clipboard button shown on hover over code blocks.
  */
 function CopyButton({ text }: { text: string }): React.ReactElement<any> {
-  const [copied, setCopied] = React.useState(false);
+  const [status, setStatus] = React.useState<'idle' | 'copied' | 'error'>('idle');
 
   const handleCopy = async () => {
+    // navigator.clipboard requires a secure context (HTTPS / localhost).
+    // Fall back to a selection-based copy for plain HTTP deployments.
+    const copyViaSelection = (): boolean => {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.setAttribute('readonly', '');
+      el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(el);
+      el.select();
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      const ok = document.execCommand('copy');
+      document.body.removeChild(el);
+      return ok;
+    };
+
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      } else if (!copyViaSelection()) {
+        throw new Error('copy failed');
+      }
+      setStatus('copied');
+      setTimeout(() => setStatus('idle'), 2000);
     } catch {
-      // Clipboard access denied or unavailable
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2000);
     }
   };
 
@@ -24,10 +44,10 @@ function CopyButton({ text }: { text: string }): React.ReactElement<any> {
       type="button"
       onClick={handleCopy}
       className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-background/80 hover:bg-muted border border-border text-muted-foreground hover:text-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-      title="Copy code"
+      title={status === 'copied' ? 'Copied!' : status === 'error' ? 'Copy failed' : 'Copy code'}
       aria-label="Copy code to clipboard"
     >
-      {copied ? <Check size={14} /> : <Copy size={14} />}
+      {status === 'copied' ? <Check size={14} /> : status === 'error' ? <X size={14} /> : <Copy size={14} />}
     </button>
   );
 }

@@ -167,9 +167,7 @@ def render_html_shell(app: RefastApp) -> str:
     # Resolve chunk files from the build manifest
     manifest = _load_manifest()
     lazy_features = (
-        set(app.lazy_features)
-        if app.lazy_features is not None
-        else set(ALL_FEATURE_CHUNKS)
+        set(app.lazy_features) if app.lazy_features is not None else set(ALL_FEATURE_CHUNKS)
     )
     startup_features = sorted(
         set(app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features)
@@ -206,9 +204,7 @@ def render_html_shell(app: RefastApp) -> str:
 
     extension_names = set(extension_script_map.keys())
     lazy_extensions = (
-        set(app.lazy_extensions)
-        if app.lazy_extensions is not None
-        else set(extension_names)
+        set(app.lazy_extensions) if app.lazy_extensions is not None else set(extension_names)
     )
     startup_extensions = sorted(
         (set(app.preloaded_extensions or []) | (extension_names - lazy_extensions))

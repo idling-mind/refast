@@ -1,6 +1,56 @@
-import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import React, { type JSX } from 'react';
+import { ExternalLink, Copy, Check, X } from 'lucide-react';
 import { cn } from '../../utils';
+import { Icon } from './icon';
+
+/**
+ * Internal copy-to-clipboard button shown on hover over code blocks.
+ */
+function CopyButton({ text }: { text: string }): React.ReactElement<any> {
+  const [status, setStatus] = React.useState<'idle' | 'copied' | 'error'>('idle');
+
+  const handleCopy = async () => {
+    // navigator.clipboard requires a secure context (HTTPS / localhost).
+    // Fall back to a selection-based copy for plain HTTP deployments.
+    const copyViaSelection = (): boolean => {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.setAttribute('readonly', '');
+      el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(el);
+      el.select();
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      const ok = document.execCommand('copy');
+      document.body.removeChild(el);
+      return ok;
+    };
+
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      } else if (!copyViaSelection()) {
+        throw new Error('copy failed');
+      }
+      setStatus('copied');
+      setTimeout(() => setStatus('idle'), 2000);
+    } catch {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2000);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-background/80 hover:bg-muted border border-border text-muted-foreground hover:text-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+      title={status === 'copied' ? 'Copied!' : status === 'error' ? 'Copy failed' : 'Copy code'}
+      aria-label="Copy code to clipboard"
+    >
+      {status === 'copied' ? <Check size={14} /> : status === 'error' ? <X size={14} /> : <Copy size={14} />}
+    </button>
+  );
+}
 
 /**
  * Hook to detect current theme (light/dark) from document.documentElement.
@@ -62,7 +112,7 @@ export function Heading({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: HeadingProps): React.ReactElement {
+}: HeadingProps): React.ReactElement<any> {
   const sizeClasses = {
     1: 'scroll-m-20 text-4xl font-bold tracking-tight',
     2: 'scroll-m-20 text-3xl font-semibold tracking-tight',
@@ -107,7 +157,7 @@ export function Paragraph({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: ParagraphProps): React.ReactElement {
+}: ParagraphProps): React.ReactElement<any> {
   return (
     <p
       id={id}
@@ -151,7 +201,7 @@ export function Link({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: LinkProps): React.ReactElement {
+}: LinkProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -200,7 +250,7 @@ export function Code({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: CodeProps): React.ReactElement {
+}: CodeProps): React.ReactElement<any> {
   const theme = useTheme();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -222,7 +272,8 @@ export function Code({
       if (Array.isArray(node)) return node.map(extractText).join('');
       if (React.isValidElement(node)) {
         // Extract text from React element's children
-        return extractText(node.props.children);
+        // In React 19, element.props is typed as unknown — cast to access children
+        return extractText((node.props as { children?: React.ReactNode }).children);
       }
       return '';
     };
@@ -315,79 +366,141 @@ export function Code({
     return (
       <div
         id={id}
-        className={cn('mb-4 mt-6 overflow-x-auto rounded-lg border', className)}
+        className={cn('relative group mb-4 mt-6 rounded-lg border', className)}
         style={style}
         data-refast-id={dataRefastId}
         data-language={language}
       >
-        <SyntaxHighlighter
-          language={language || 'text'}
-          style={currentStyle}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-          }}
-          showLineNumbers={showLineNumbers}
-        >
-          {codeString}
-        </SyntaxHighlighter>
+        <div className="overflow-x-auto">
+          <SyntaxHighlighter
+            language={language || 'text'}
+            style={currentStyle}
+            customStyle={{
+              margin: 0,
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+            }}
+            showLineNumbers={showLineNumbers}
+          >
+            {codeString}
+          </SyntaxHighlighter>
+        </div>
+        <CopyButton text={codeString} />
       </div>
     );
   }
 
   // Fallback to plain code block while loading
   return (
-    <pre
+    <div
       id={id}
-      className={cn(
-        'mb-4 mt-6 overflow-x-auto rounded-lg border py-4',
-        theme === 'dark' ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-900',
-        className
-      )}
+      className={cn('relative group mb-4 mt-6 rounded-lg border', className)}
       data-refast-id={dataRefastId}
       data-language={language}
       style={style}
     >
-      <code className="relative rounded bg-transparent px-4 py-[0.2rem] font-mono text-sm text-inherit">
-        {codeString}
-      </code>
-    </pre>
+      <div className="overflow-x-auto">
+        <pre
+          className={cn(
+            'py-4',
+            theme === 'dark' ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-900',
+          )}
+        >
+          <code className="relative rounded bg-transparent px-4 py-[0.2rem] font-mono text-sm text-inherit">
+            {codeString}
+          </code>
+        </pre>
+      </div>
+      <CopyButton text={codeString} />
+    </div>
   );
 }
+
+type BlockQuoteColor = 'default' | 'secondary' | 'destructive' | 'info' | 'success' | 'warning';
+
+const NAMED_COLORS = new Set<string>(['default', 'secondary', 'destructive', 'info', 'success', 'warning']);
+
+/** Tailwind classes for named color variants */
+const namedColorClasses: Record<BlockQuoteColor, { border: string; bg: string; iconColor: string }> = {
+  default:     { border: 'border-border',       bg: 'bg-muted/50',            iconColor: 'text-foreground' },
+  secondary:   { border: 'border-secondary',    bg: 'bg-secondary/20',        iconColor: 'text-secondary-foreground' },
+  destructive: { border: 'border-destructive',  bg: 'bg-destructive/10',      iconColor: 'text-destructive' },
+  info:        { border: 'border-info',         bg: 'bg-info/10',             iconColor: 'text-info' },
+  success:     { border: 'border-success',      bg: 'bg-success/10',          iconColor: 'text-success' },
+  warning:     { border: 'border-warning',      bg: 'bg-warning/10',          iconColor: 'text-warning' },
+};
 
 interface BlockQuoteProps {
   id?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Attribution / author displayed below the quote. */
   cite?: string;
+  /** Color variant (named) or any CSS color value for background and border. */
+  color?: string;
+  /** Lucide icon name to display above the quote body. */
+  icon?: string;
+  /** Icon size in pixels. */
+  iconSize?: number;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
 
 /**
- * BlockQuote component - typography blockquote.
+ * BlockQuote component - styled blockquote with optional icon, color, and attribution.
  */
 export function BlockQuote({
   id,
   className,
   style,
   cite,
+  color = 'default',
+  icon,
+  iconSize = 20,
   children,
   'data-refast-id': dataRefastId,
-}: BlockQuoteProps): React.ReactElement {
+}: BlockQuoteProps): React.ReactElement<any> {
+  const isNamed = NAMED_COLORS.has(color);
+  const namedClasses = isNamed ? namedColorClasses[color as BlockQuoteColor] : null;
+
+  // For generic/arbitrary CSS colors build inline styles
+  const genericStyle: React.CSSProperties = isNamed
+    ? {}
+    : {
+        borderColor: color,
+        backgroundColor: `color-mix(in srgb, ${color} 12%, transparent)`,
+      };
+
   return (
     <blockquote
       id={id}
-      cite={cite}
       className={cn(
-        'mt-6 border-l-2 pl-6 italic text-muted-foreground',
+        'border-l-4 rounded-md p-4 my-4 space-y-2',
+        namedClasses ? `${namedClasses.border} ${namedClasses.bg}` : '',
         className
       )}
-      style={style}
+      style={{ ...genericStyle, ...style }}
       data-refast-id={dataRefastId}
     >
-      {children}
+      {icon && (
+        <div
+          className={cn(
+            'mb-1',
+            namedClasses ? namedClasses.iconColor : ''
+          )}
+          style={!isNamed ? { color } : undefined}
+        >
+          <Icon name={icon} size={iconSize} />
+        </div>
+      )}
+      <p className="italic text-foreground leading-relaxed">
+        {children}
+      </p>
+      {cite && (
+        <footer className="text-sm text-muted-foreground">
+          &mdash;&nbsp;{cite}
+        </footer>
+      )}
     </blockquote>
   );
 }
@@ -411,7 +524,7 @@ export function List({
   ordered = false,
   children,
   'data-refast-id': dataRefastId,
-}: ListProps): React.ReactElement {
+}: ListProps): React.ReactElement<any> {
   const Tag = ordered ? 'ol' : 'ul';
 
   // Auto-wrap children that aren't already <li> elements
@@ -456,7 +569,7 @@ export function ListItem({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: ListItemProps): React.ReactElement {
+}: ListItemProps): React.ReactElement<any> {
   return (
     <li id={id} className={cn('', className)} data-refast-id={dataRefastId} style={style}>
       {children}
@@ -485,7 +598,7 @@ export function Label({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: LabelProps): React.ReactElement {
+}: LabelProps): React.ReactElement<any> {
   return (
     <label
       id={id}
@@ -603,7 +716,7 @@ export function Markdown({
   enableMermaid = false,
   enableLatex = false,
   'data-refast-id': dataRefastId,
-}: MarkdownProps): React.ReactElement {
+}: MarkdownProps): React.ReactElement<any> {
   const theme = useTheme();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -777,18 +890,23 @@ export function Markdown({
 
       if (SyntaxHighlighter && currentHighlightStyle) {
         return (
-          <SyntaxHighlighter
-            language={language}
-            style={currentHighlightStyle}
-            customStyle={{
-              margin: 0,
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-            }}
-            showLineNumbers={false}
-          >
-            {codeString}
-          </SyntaxHighlighter>
+          <div className="relative group">
+            <div className="overflow-x-auto">
+              <SyntaxHighlighter
+                language={language}
+                style={currentHighlightStyle}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0',
+                  fontSize: '0.875rem',
+                }}
+                showLineNumbers={false}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div>
+            <CopyButton text={codeString} />
+          </div>
         );
       }
       return (
@@ -802,7 +920,7 @@ export function Markdown({
       const currentHighlightStyle = highlightStyles ? highlightStyles[theme] : null;
       if (SyntaxHighlighter && currentHighlightStyle) {
         return (
-          <div className="mb-4 mt-6 overflow-x-auto rounded-lg border">
+          <div className="mb-4 mt-6 rounded-lg border overflow-hidden">
             {children}
           </div>
         );
@@ -912,7 +1030,7 @@ export function Kbd({
   style,
   children,
   'data-refast-id': dataRefastId,
-}: KbdProps): React.ReactElement {
+}: KbdProps): React.ReactElement<any> {
   return (
     <kbd
       id={id}

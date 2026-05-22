@@ -39,7 +39,7 @@ export function InputWrapper({
   error,
   children,
   'data-refast-id': dataRefastId,
-}: InputWrapperProps): React.ReactElement {
+}: InputWrapperProps): React.ReactElement<any> {
   // If no label, description, or error, just return the children
   if (!label && !description && !error) {
     return (
@@ -146,7 +146,7 @@ export function Input({
   onKeyup,
   onInput,
   'data-refast-id': dataRefastId,
-}: InputProps): React.ReactElement {
+}: InputProps): React.ReactElement<any> {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
   const debounceTimeout = React.useRef<number | null>(null);
   const onChangeRef = React.useRef(onChange);
@@ -327,7 +327,7 @@ export function Textarea({
   onKeyup,
   onInput,
   'data-refast-id': dataRefastId,
-}: TextareaProps): React.ReactElement {
+}: TextareaProps): React.ReactElement<any> {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
   const debounceTimeout = React.useRef<number | null>(null);
   const onChangeRef = React.useRef(onChange);
@@ -494,7 +494,7 @@ export function Select({
   onChange,
   children,
   'data-refast-id': dataRefastId,
-}: SelectProps): React.ReactElement {
+}: SelectProps): React.ReactElement<any> {
   const [localValue, setLocalValue] = React.useState(value !== undefined ? value : (defaultValue || ''));
 
   React.useEffect(() => {
@@ -584,7 +584,7 @@ export function SelectOption({
   disabled = false,
   children,
   'data-refast-id': dataRefastId,
-}: SelectOptionProps): React.ReactElement {
+}: SelectOptionProps): React.ReactElement<any> {
   return (
     <option value={value} disabled={disabled} data-refast-id={dataRefastId}>
       {children}
@@ -631,7 +631,7 @@ export function Checkbox({
   value,
   onCheckedChange,
   'data-refast-id': dataRefastId,
-}: CheckboxProps): React.ReactElement {
+}: CheckboxProps): React.ReactElement<any> {
   const generatedId = React.useId();
   const checkboxId = id || generatedId;
 
@@ -749,7 +749,7 @@ export function Radio({
   error,
   children,
   'data-refast-id': dataRefastId,
-}: RadioProps): React.ReactElement {
+}: RadioProps): React.ReactElement<any> {
   const itemId = id || `radio-${value}`;
 
   return (
@@ -758,7 +758,7 @@ export function Radio({
         // Complex option: wrap arbitrary children in the Radix item.
         // w-full h-full lets the item fill whatever size the outer div occupies,
         // so flex-1 / w-* / h-* on the Radio's class_name drives the final size.
-        <RadioGroupPrimitive.Item
+        (<RadioGroupPrimitive.Item
           id={itemId}
           value={value}
           disabled={disabled}
@@ -771,10 +771,10 @@ export function Radio({
           )}
         >
           {children}
-        </RadioGroupPrimitive.Item>
+        </RadioGroupPrimitive.Item>)
       ) : (
         // Simple option: inline indicator + label
-        <div className="flex items-start space-x-2">
+        (<div className="flex items-start space-x-2">
           <RadioGroupPrimitive.Item
             id={itemId}
             value={value}
@@ -805,7 +805,7 @@ export function Radio({
             )}
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
-        </div>
+        </div>)
       )}
     </div>
   );
@@ -853,7 +853,7 @@ export function RadioGroup({
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
-}: RadioGroupProps): React.ReactElement {
+}: RadioGroupProps): React.ReactElement<any> {
   const generatedId = React.useId();
   const rootId = id || generatedId;
 
@@ -953,7 +953,7 @@ export function CheckboxGroup({
   onChange,
   children,
   'data-refast-id': dataRefastId,
-}: CheckboxGroupProps): React.ReactElement {
+}: CheckboxGroupProps): React.ReactElement<any> {
   const generatedId = React.useId();
   const rootId = id || generatedId;
 

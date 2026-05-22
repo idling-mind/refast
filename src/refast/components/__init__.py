@@ -19,6 +19,7 @@ from refast.components.shadcn import (
     AspectRatio,
     Avatar,
     Badge,
+    BlockQuote,
     Breadcrumb,
     BreadcrumbEllipsis,
     BreadcrumbItem,
@@ -299,6 +300,7 @@ __all__ = [
     "AccordionItem",
     "AccordionTrigger",
     # Typography
+    "BlockQuote",
     "Heading",
     "Paragraph",
     "Code",

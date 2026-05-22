@@ -17,7 +17,7 @@ export function Slot({
   fallback,
   children,
   'data-refast-id': dataRefastId,
-}: SlotProps): React.ReactElement {
+}: SlotProps): React.ReactElement<any> {
   return (
     <div id={id} data-slot-name={name} data-refast-id={dataRefastId}>
       {children || fallback || null}

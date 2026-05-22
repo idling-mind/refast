@@ -93,6 +93,7 @@ class RadialBar(Component):
         label: bool | dict[str, Any] | None = None,
         corner_radius: int | str | None = None,
         fill: str = "hsl(var(--chart-1))",
+        children: ChildrenType = None,
         id: str | None = None,
         style: dict[str, Any] | None = None,
         parent_style: dict[str, Any] | None = None,
@@ -106,6 +107,7 @@ class RadialBar(Component):
         self.corner_radius = corner_radius
         self.fill = fill
         self.props = extra_props or {}
+        self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -120,4 +122,5 @@ class RadialBar(Component):
                 "fill": self.fill,
                 **self.props,
             },
+            "children": self._render_children(),
         }

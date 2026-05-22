@@ -148,12 +148,10 @@ export const Collapsible = CollapsiblePrimitive.Root;
 export interface CollapsibleTriggerProps
   extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
   asChild?: boolean;
+  ref?: React.Ref<React.ComponentRef<typeof CollapsiblePrimitive.Trigger>>;
 }
 
-export const CollapsibleTrigger = React.forwardRef<
-  React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  CollapsibleTriggerProps
->(({ children, ...props }, ref) => {
+export function CollapsibleTrigger({ children, ref, ...props }: CollapsibleTriggerProps) {
   // Unwrap single child array if present (fixes Radix Slot issue with internal renderer)
   const child =
     Array.isArray(children) && children.length === 1 ? children[0] : children;
@@ -163,24 +161,27 @@ export const CollapsibleTrigger = React.forwardRef<
       {child}
     </CollapsiblePrimitive.Trigger>
   );
-});
+}
 CollapsibleTrigger.displayName = CollapsiblePrimitive.Trigger.displayName;
 
-export const CollapsibleContent = React.forwardRef<
-  React.ElementRef<typeof CollapsiblePrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <CollapsiblePrimitive.Content
-    ref={ref}
-    className={cn(
-      'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden',
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </CollapsiblePrimitive.Content>
-));
+interface CollapsibleContentProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content> {
+  ref?: React.Ref<React.ComponentRef<typeof CollapsiblePrimitive.Content>>;
+}
+
+export function CollapsibleContent({ className, children, ref, ...props }: CollapsibleContentProps) {
+  return (
+    <CollapsiblePrimitive.Content
+      ref={ref}
+      className={cn(
+        'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </CollapsiblePrimitive.Content>
+  );
+}
 CollapsibleContent.displayName =
   CollapsiblePrimitive.Content.displayName;
 
@@ -614,7 +615,9 @@ export function InputOTP({
       {Array.from({ length: maxLength }).map((_, index) => (
         <React.Fragment key={index}>
           <input
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={el => {
+              (inputRefs.current[index] = el);
+            }}
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -1107,7 +1110,7 @@ export function Toaster({
   dir = 'auto',
   hotkey = ['altKey', 'KeyT'],
   invert = false,
-}: ToasterProps): React.ReactElement {
+}: ToasterProps): React.ReactElement<any> {
   return (
     <SonnerToaster
       className={className}

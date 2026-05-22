@@ -157,4 +157,33 @@ Icons can be used inline as children of other components:
 Button("Save", children=[Icon("save", size=14)])
 SidebarMenuButton("Home", icon="home")  # also accepts icon name directly
 ```
+
+---
+
+## BlockQuote
+
+Styled quotation block with optional icon, color variant, and muted attribution.
+
+```python
+BlockQuote(
+    "Doth mother know you weareth her drapes?",
+    cite="Ironman",
+    color="default",
+)
+
+BlockQuote(
+    "With great power comes great responsibility.",
+    cite="Uncle Ben",
+    color="success",
+    icon="check-circle",
+)
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `str \| Component \| list \| None` | `None` | Quote body |
+| `cite` | `str \| None` | `None` | Attribution / author displayed below the quote |
+| `color` | `str` | `"default"` | Named variant (`default`, `secondary`, `destructive`, `info`, `success`, `warning`) or any CSS color |
+| `icon` | `str \| None` | `None` | Lucide icon name shown above the body |
+| `icon_size` | `int` | `20` | Icon size in pixels |
 """

@@ -83,7 +83,7 @@ export function ToastManager({
   dir = 'auto',
   hotkey = ['altKey', 'KeyT'],
   invert = false,
-}: ToastManagerProps): React.ReactElement {
+}: ToastManagerProps): React.ReactElement<any> {
   const eventManager = useEventManager();
 
   // Detect current theme from document element

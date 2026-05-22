@@ -199,6 +199,9 @@ from .pages.components.typography import (
     badge as badge_page,
 )
 from .pages.components.typography import (
+    blockquote as blockquote_page,
+)
+from .pages.components.typography import (
     code as code_page,
 )
 from .pages.components.typography import (  # noqa: E402
@@ -333,6 +336,7 @@ NAV_SECTIONS = [
                     ("Code", "/docs/components/code", "code"),
                     ("Link", "/docs/components/link", "link"),
                     ("Markdown", "/docs/components/markdown", "file-text"),
+                    ("BlockQuote", "/docs/components/blockquote", "quote"),
                     ("Badge", "/docs/components/badge", "tag"),
                     ("Kbd", "/docs/components/kbd", "terminal"),
                 ],
@@ -1077,6 +1081,11 @@ def page_components_markdown(ctx: Context):
 @ui.page("/docs/components/badge")
 def page_components_badge(ctx: Context):
     return badge_page.render(ctx)
+
+
+@ui.page("/docs/components/blockquote")
+def page_components_blockquote(ctx: Context):
+    return blockquote_page.render(ctx)
 
 
 @ui.page("/docs/components/kbd")

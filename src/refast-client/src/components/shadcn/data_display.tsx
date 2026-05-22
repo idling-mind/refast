@@ -34,7 +34,7 @@ export function Accordion({
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
-}: AccordionProps): React.ReactElement {
+}: AccordionProps): React.ReactElement<any> {
   // Handle controlled vs uncontrolled based on type
   if (type === 'single') {
     return (
@@ -85,7 +85,7 @@ export function AccordionItem({
   value,
   children,
   'data-refast-id': dataRefastId,
-}: AccordionItemProps): React.ReactElement {
+}: AccordionItemProps): React.ReactElement<any> {
   return (
     <AccordionPrimitive.Item
       id={id}
@@ -103,30 +103,30 @@ interface AccordionTriggerProps {
   className?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
+  ref?: React.Ref<React.ComponentRef<typeof AccordionPrimitive.Trigger>>;
 }
 
 /**
  * AccordionTrigger component - clickable header to toggle section.
  */
-export const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  AccordionTriggerProps
->(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      id={id}
-      className={cn(
-        'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
-        className
-      )}
-      data-refast-id={dataRefastId}
-    >
-      {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
+export function AccordionTrigger({ id, className, children, 'data-refast-id': dataRefastId, ref }: AccordionTriggerProps) {
+  return (
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        ref={ref}
+        id={id}
+        className={cn(
+          'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children}
+        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  );
+}
 AccordionTrigger.displayName = 'AccordionTrigger';
 
 interface AccordionContentProps {
@@ -134,24 +134,24 @@ interface AccordionContentProps {
   className?: string;
   children?: React.ReactNode;
   'data-refast-id'?: string;
+  ref?: React.Ref<React.ComponentRef<typeof AccordionPrimitive.Content>>;
 }
 
 /**
  * AccordionContent component - content revealed when section is open.
  */
-export const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  AccordionContentProps
->(({ id, className, children, 'data-refast-id': dataRefastId }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    id={id}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    data-refast-id={dataRefastId}
-  >
-    <div className={cn('pb-4 pt-0', className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
+export function AccordionContent({ id, className, children, 'data-refast-id': dataRefastId, ref }: AccordionContentProps) {
+  return (
+    <AccordionPrimitive.Content
+      ref={ref}
+      id={id}
+      className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      data-refast-id={dataRefastId}
+    >
+      <div className={cn('pb-4 pt-0', className)}>{children}</div>
+    </AccordionPrimitive.Content>
+  );
+}
 AccordionContent.displayName = 'AccordionContent';
 
 // ============================================================================
@@ -184,7 +184,7 @@ export function Table({
   striped = false,
   hoverable = true,
   'data-refast-id': dataRefastId,
-}: TableProps): React.ReactElement {
+}: TableProps): React.ReactElement<any> {
   return (
     <TableContext.Provider value={{ striped, hoverable }}>
     <div className="relative w-full overflow-auto" data-refast-id={dataRefastId}>
@@ -214,7 +214,7 @@ export function TableHeader({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: TableHeaderProps): React.ReactElement {
+}: TableHeaderProps): React.ReactElement<any> {
   return (
     <thead
       id={id}
@@ -241,7 +241,7 @@ export function TableBody({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: TableBodyProps): React.ReactElement {
+}: TableBodyProps): React.ReactElement<any> {
   return (
     <tbody
       id={id}
@@ -268,7 +268,7 @@ export function TableRow({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: TableRowProps): React.ReactElement {
+}: TableRowProps): React.ReactElement<any> {
   const { striped, hoverable } = React.useContext(TableContext);
   return (
     <tr
@@ -301,7 +301,7 @@ export function TableHead({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: TableHeadProps): React.ReactElement {
+}: TableHeadProps): React.ReactElement<any> {
   return (
     <th
       id={id}
@@ -336,7 +336,7 @@ export function TableCell({
   rowSpan,
   children,
   'data-refast-id': dataRefastId,
-}: TableCellProps): React.ReactElement {
+}: TableCellProps): React.ReactElement<any> {
   return (
     <td
       id={id}
@@ -406,7 +406,7 @@ export function DataTable({
   onFilterChange,
   onPageChange,
   'data-refast-id': dataRefastId,
-}: DataTableProps): React.ReactElement {
+}: DataTableProps): React.ReactElement<any> {
   const [filterValue, setFilterValue] = React.useState('');
   const [sortState, setSortState] = React.useState<{
     key: string;
@@ -643,7 +643,7 @@ export function Avatar({
   fallback,
   size = 'md',
   'data-refast-id': dataRefastId,
-}: AvatarProps): React.ReactElement {
+}: AvatarProps): React.ReactElement<any> {
   const sizeClasses = {
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
@@ -707,7 +707,7 @@ export function Image({
   fallbackSrc,
   fallback,
   'data-refast-id': dataRefastId,
-}: ImageProps): React.ReactElement {
+}: ImageProps): React.ReactElement<any> {
   const [isLoading, setIsLoading] = React.useState(loading);
   const [error, setError] = React.useState(false);
   const [currentSrc, setCurrentSrc] = React.useState(src);
@@ -828,10 +828,10 @@ export function Tooltip({
   sideOffset,
   children,
   'data-refast-id': dataRefastId,
-}: TooltipProps): React.ReactElement {
+}: TooltipProps): React.ReactElement<any> {
   // Ensure trigger is a single element for Radix's asChild and attach id/data-refast-id to it
   const trigger = React.Children.count(children) === 1 && React.isValidElement(children)
-    ? React.cloneElement(children as React.ReactElement, { id, 'data-refast-id': dataRefastId })
+    ? React.cloneElement(children as React.ReactElement<any>, { id, 'data-refast-id': dataRefastId })
     : <span id={id} data-refast-id={dataRefastId}>{children}</span>;
 
   return (
@@ -893,7 +893,7 @@ export function Tabs({
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
-}: TabsProps): React.ReactElement {
+}: TabsProps): React.ReactElement<any> {
   const [activeTab, setActiveTab] = React.useState(value || defaultValue);
 
   // Extract tab information from children by looking at their rendered output
@@ -1038,7 +1038,7 @@ export function TabItem({
   disabled = false,
   children,
   'data-refast-id': dataRefastId,
-}: TabItemProps): React.ReactElement {
+}: TabItemProps): React.ReactElement<any> {
   return (
     <div
       id={id}

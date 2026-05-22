@@ -1,6 +1,7 @@
 """Tests for typography components."""
 
-from refast.components.shadcn.typography import Code, Heading, Link, Markdown, Paragraph
+from refast.components.base import Text
+from refast.components.shadcn.typography import BlockQuote, Code, Heading, Link, Markdown, Paragraph
 
 
 class MockCallback:
@@ -188,3 +189,133 @@ $$
         md = Markdown("Content")
         rendered = md.render()
         assert rendered["children"] == []
+
+
+class TestBlockQuote:
+    """Tests for BlockQuote component."""
+
+    def test_blockquote_type(self):
+        """Test BlockQuote renders with correct type."""
+        bq = BlockQuote("Some quote")
+        rendered = bq.render()
+        assert rendered["type"] == "BlockQuote"
+
+    def test_blockquote_children_string(self):
+        """Test BlockQuote with a plain string child."""
+        bq = BlockQuote("To be or not to be.")
+        rendered = bq.render()
+        assert rendered["children"] == ["To be or not to be."]
+
+    def test_blockquote_children_component(self):
+        """Test BlockQuote with a component child."""
+        bq = BlockQuote(Text("Inner text"))
+        rendered = bq.render()
+        assert len(rendered["children"]) == 1
+        assert rendered["children"][0]["type"] == "Text"
+
+    def test_blockquote_children_list(self):
+        """Test BlockQuote with a list of mixed children."""
+        bq = BlockQuote(["First line", Text("Second line")])
+        rendered = bq.render()
+        assert len(rendered["children"]) == 2
+
+    def test_blockquote_no_children(self):
+        """Test BlockQuote with no children is valid."""
+        bq = BlockQuote()
+        rendered = bq.render()
+        assert rendered["children"] == []
+
+    def test_blockquote_cite_in_props(self):
+        """Test cite is passed through props."""
+        bq = BlockQuote("Quote", cite="Author Name")
+        rendered = bq.render()
+        assert rendered["props"]["cite"] == "Author Name"
+
+    def test_blockquote_cite_none_by_default(self):
+        """Test cite defaults to None."""
+        bq = BlockQuote("Quote")
+        rendered = bq.render()
+        assert rendered["props"]["cite"] is None
+
+    def test_blockquote_default_color(self):
+        """Test color defaults to 'default'."""
+        bq = BlockQuote("Quote")
+        rendered = bq.render()
+        assert rendered["props"]["color"] == "default"
+
+    def test_blockquote_named_color_variants(self):
+        """Test all named color variants are accepted."""
+        for variant in ("default", "secondary", "destructive", "info", "success", "warning"):
+            bq = BlockQuote("Quote", color=variant)
+            rendered = bq.render()
+            assert rendered["props"]["color"] == variant
+
+    def test_blockquote_generic_css_color(self):
+        """Test arbitrary CSS color values are passed through."""
+        for css_color in ("blue", "#ff5733", "oklch(70% 0.2 240)", "rgb(100, 200, 50)"):
+            bq = BlockQuote("Quote", color=css_color)
+            rendered = bq.render()
+            assert rendered["props"]["color"] == css_color
+
+    def test_blockquote_icon_in_props(self):
+        """Test icon name is in props."""
+        bq = BlockQuote("Quote", icon="flame")
+        rendered = bq.render()
+        assert rendered["props"]["icon"] == "flame"
+
+    def test_blockquote_icon_none_by_default(self):
+        """Test icon defaults to None."""
+        bq = BlockQuote("Quote")
+        rendered = bq.render()
+        assert rendered["props"]["icon"] is None
+
+    def test_blockquote_icon_size_default(self):
+        """Test icon_size defaults to 20."""
+        bq = BlockQuote("Quote")
+        rendered = bq.render()
+        assert rendered["props"]["iconSize"] == 20
+
+    def test_blockquote_icon_size_custom(self):
+        """Test custom icon_size is serialised as iconSize."""
+        bq = BlockQuote("Quote", icon="info", icon_size=32)
+        rendered = bq.render()
+        assert rendered["props"]["iconSize"] == 32
+
+    def test_blockquote_class_name(self):
+        """Test class_name is in props."""
+        bq = BlockQuote("Quote", class_name="my-custom-class")
+        rendered = bq.render()
+        assert rendered["props"]["class_name"] == "my-custom-class"
+
+    def test_blockquote_style(self):
+        """Test style dict is in props."""
+        bq = BlockQuote("Quote", style={"marginTop": "1rem"})
+        rendered = bq.render()
+        assert rendered["props"]["style"] == {"marginTop": "1rem"}
+
+    def test_blockquote_custom_id(self):
+        """Test custom id is preserved."""
+        bq = BlockQuote("Quote", id="my-quote")
+        rendered = bq.render()
+        assert rendered["id"] == "my-quote"
+
+    def test_blockquote_all_props_together(self):
+        """Test BlockQuote with all props set at once."""
+        bq = BlockQuote(
+            "With great power comes great responsibility.",
+            cite="Uncle Ben",
+            color="destructive",
+            icon="zap",
+            icon_size=24,
+            class_name="my-quote",
+            id="hero-quote",
+        )
+        rendered = bq.render()
+        assert rendered["type"] == "BlockQuote"
+        assert rendered["id"] == "hero-quote"
+        assert rendered["children"] == ["With great power comes great responsibility."]
+        assert rendered["props"]["cite"] == "Uncle Ben"
+        assert rendered["props"]["color"] == "destructive"
+        assert rendered["props"]["icon"] == "zap"
+        assert rendered["props"]["iconSize"] == 24
+        assert rendered["props"]["class_name"] == "my-quote"

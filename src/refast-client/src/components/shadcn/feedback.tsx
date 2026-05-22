@@ -27,7 +27,7 @@ export function Alert({
   dismissible,
   onDismiss,
   'data-refast-id': dataRefastId,
-}: AlertProps): React.ReactElement | null {
+}: AlertProps): React.ReactElement<any> | null {
   const [visible, setVisible] = useState(true);
 
   if (!visible) {
@@ -92,7 +92,7 @@ export function AlertTitle({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: AlertTitleProps): React.ReactElement {
+}: AlertTitleProps): React.ReactElement<any> {
   return (
     <h5
       id={id}
@@ -119,7 +119,7 @@ export function AlertDescription({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: AlertDescriptionProps): React.ReactElement {
+}: AlertDescriptionProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -148,7 +148,7 @@ export function Badge({
   variant = 'default',
   children,
   'data-refast-id': dataRefastId,
-}: BadgeProps): React.ReactElement {
+}: BadgeProps): React.ReactElement<any> {
   const variantClasses = {
     default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
     secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -203,7 +203,7 @@ export function Progress({
   trackColor,
   striped,
   'data-refast-id': dataRefastId,
-}: ProgressProps): React.ReactElement {
+}: ProgressProps): React.ReactElement<any> {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
   const getColors = (color: string | undefined, defaultClass: string) => {
@@ -263,7 +263,7 @@ export function Spinner({
   className,
   size = 'md',
   'data-refast-id': dataRefastId,
-}: SpinnerProps): React.ReactElement {
+}: SpinnerProps): React.ReactElement<any> {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-6 w-6',
@@ -308,7 +308,7 @@ export function Skeleton({
   variant = 'text',
   circle = false,
   'data-refast-id': dataRefastId,
-}: SkeletonProps): React.ReactElement {
+}: SkeletonProps): React.ReactElement<any> {
   return (
     <div
       id={id}

@@ -21,7 +21,7 @@ export function Breadcrumb({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbProps): React.ReactElement {
+}: BreadcrumbProps): React.ReactElement<any> {
   return (
     <nav
       id={id}
@@ -48,7 +48,7 @@ export function BreadcrumbList({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbListProps): React.ReactElement {
+}: BreadcrumbListProps): React.ReactElement<any> {
   return (
     <ol
       id={id}
@@ -75,7 +75,7 @@ export function BreadcrumbItem({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbItemProps): React.ReactElement {
+}: BreadcrumbItemProps): React.ReactElement<any> {
   return (
     <li
       id={id}
@@ -103,7 +103,7 @@ export function BreadcrumbLink({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbLinkProps): React.ReactElement {
+}: BreadcrumbLinkProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -134,7 +134,7 @@ export function BreadcrumbPage({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbPageProps): React.ReactElement {
+}: BreadcrumbPageProps): React.ReactElement<any> {
   return (
     <span
       id={id}
@@ -161,7 +161,7 @@ export function BreadcrumbSeparator({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: BreadcrumbSeparatorProps): React.ReactElement {
+}: BreadcrumbSeparatorProps): React.ReactElement<any> {
   return (
     <li
       id={id}
@@ -199,7 +199,7 @@ export function BreadcrumbEllipsis({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: BreadcrumbEllipsisProps): React.ReactElement {
+}: BreadcrumbEllipsisProps): React.ReactElement<any> {
   return (
     <span
       id={id}
@@ -247,7 +247,7 @@ export function NavigationMenu({
   orientation,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuProps): React.ReactElement {
+}: NavigationMenuProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.Root
       id={id}
@@ -264,7 +264,7 @@ export function NavigationMenu({
   );
 }
 
-function NavigationMenuViewport(): React.ReactElement {
+function NavigationMenuViewport(): React.ReactElement<any> {
   return (
     <div className="absolute left-0 top-full flex justify-center">
       <NavigationMenuPrimitive.Viewport
@@ -290,7 +290,7 @@ export function NavigationMenuList({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuListProps): React.ReactElement {
+}: NavigationMenuListProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.List
       id={id}
@@ -317,7 +317,7 @@ export function NavigationMenuItem({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuItemProps): React.ReactElement {
+}: NavigationMenuItemProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.Item
       id={id}
@@ -341,7 +341,7 @@ export function NavigationMenuTrigger({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuTriggerProps): React.ReactElement {
+}: NavigationMenuTriggerProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.Trigger
       id={id}
@@ -385,7 +385,7 @@ export function NavigationMenuContent({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuContentProps): React.ReactElement {
+}: NavigationMenuContentProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.Content
       id={id}
@@ -422,7 +422,7 @@ export function NavigationMenuLink({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: NavigationMenuLinkProps): React.ReactElement {
+}: NavigationMenuLinkProps): React.ReactElement<any> {
   return (
     <NavigationMenuPrimitive.Link
       id={id}
@@ -462,7 +462,7 @@ export function Pagination({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: PaginationProps): React.ReactElement {
+}: PaginationProps): React.ReactElement<any> {
   return (
     <nav
       id={id}
@@ -488,7 +488,7 @@ export function PaginationContent({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: PaginationContentProps): React.ReactElement {
+}: PaginationContentProps): React.ReactElement<any> {
   return (
     <ul
       id={id}
@@ -512,7 +512,7 @@ export function PaginationItem({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: PaginationItemProps): React.ReactElement {
+}: PaginationItemProps): React.ReactElement<any> {
   return (
     <li id={id} className={className} data-refast-id={dataRefastId}>
       {children}
@@ -538,7 +538,7 @@ export function PaginationLink({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: PaginationLinkProps): React.ReactElement {
+}: PaginationLinkProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -580,7 +580,7 @@ export function PaginationPrevious({
   href = '#',
   onClick,
   'data-refast-id': dataRefastId,
-}: PaginationPreviousProps): React.ReactElement {
+}: PaginationPreviousProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -632,7 +632,7 @@ export function PaginationNext({
   href = '#',
   onClick,
   'data-refast-id': dataRefastId,
-}: PaginationNextProps): React.ReactElement {
+}: PaginationNextProps): React.ReactElement<any> {
   return (
     <a
       id={id}
@@ -680,7 +680,7 @@ export function PaginationEllipsis({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: PaginationEllipsisProps): React.ReactElement {
+}: PaginationEllipsisProps): React.ReactElement<any> {
   return (
     <span
       id={id}
@@ -725,7 +725,7 @@ export function Menubar({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarProps): React.ReactElement {
+}: MenubarProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Root
       id={id}
@@ -750,7 +750,7 @@ interface MenubarMenuProps {
 export function MenubarMenu({
   children,
   'data-refast-id': dataRefastId,
-}: MenubarMenuProps): React.ReactElement {
+}: MenubarMenuProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Menu data-refast-id={dataRefastId}>
       {children}
@@ -770,7 +770,7 @@ export function MenubarTrigger({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarTriggerProps): React.ReactElement {
+}: MenubarTriggerProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Trigger
       id={id}
@@ -802,7 +802,7 @@ export function MenubarContent({
   sideOffset = 5,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarContentProps): React.ReactElement {
+}: MenubarContentProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Portal>
       <MenubarPrimitive.Content
@@ -843,7 +843,7 @@ export function MenubarItem({
   onSelect,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarItemProps): React.ReactElement {
+}: MenubarItemProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Item
       id={id}
@@ -876,7 +876,7 @@ export function MenubarSeparator({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: MenubarSeparatorProps): React.ReactElement {
+}: MenubarSeparatorProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Separator
       id={id}
@@ -904,7 +904,7 @@ export function MenubarCheckboxItem({
   disabled,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarCheckboxItemProps): React.ReactElement {
+}: MenubarCheckboxItemProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.CheckboxItem
       id={id}
@@ -957,7 +957,7 @@ export function MenubarRadioGroup({
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarRadioGroupProps): React.ReactElement {
+}: MenubarRadioGroupProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.RadioGroup
       id={id}
@@ -985,7 +985,7 @@ export function MenubarRadioItem({
   value,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarRadioItemProps): React.ReactElement {
+}: MenubarRadioItemProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.RadioItem
       id={id}
@@ -1030,7 +1030,7 @@ interface MenubarSubProps {
 export function MenubarSub({
   children,
   'data-refast-id': dataRefastId,
-}: MenubarSubProps): React.ReactElement {
+}: MenubarSubProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Sub data-refast-id={dataRefastId}>
       {children}
@@ -1050,7 +1050,7 @@ export function MenubarSubTrigger({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarSubTriggerProps): React.ReactElement {
+}: MenubarSubTriggerProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.SubTrigger
       id={id}
@@ -1092,7 +1092,7 @@ export function MenubarSubContent({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: MenubarSubContentProps): React.ReactElement {
+}: MenubarSubContentProps): React.ReactElement<any> {
   return (
     <MenubarPrimitive.Portal>
       <MenubarPrimitive.SubContent
@@ -1129,7 +1129,7 @@ export function Command({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: CommandProps): React.ReactElement {
+}: CommandProps): React.ReactElement<any> {
   return (
     <CommandPrimitive
       id={id}
@@ -1160,7 +1160,7 @@ export function CommandInput({
   value,
   onValueChange,
   'data-refast-id': dataRefastId,
-}: CommandInputProps): React.ReactElement {
+}: CommandInputProps): React.ReactElement<any> {
   return (
     <div className="flex items-center border-b px-3" cmdk-input-wrapper="" data-refast-id={dataRefastId}>
       <svg
@@ -1205,7 +1205,7 @@ export function CommandList({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: CommandListProps): React.ReactElement {
+}: CommandListProps): React.ReactElement<any> {
   return (
     <CommandPrimitive.List
       id={id}
@@ -1229,7 +1229,7 @@ export function CommandEmpty({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: CommandEmptyProps): React.ReactElement {
+}: CommandEmptyProps): React.ReactElement<any> {
   return (
     <CommandPrimitive.Empty
       id={id}
@@ -1255,7 +1255,7 @@ export function CommandGroup({
   heading,
   children,
   'data-refast-id': dataRefastId,
-}: CommandGroupProps): React.ReactElement {
+}: CommandGroupProps): React.ReactElement<any> {
   return (
     <CommandPrimitive.Group
       id={id}
@@ -1293,7 +1293,7 @@ export function CommandItem({
   onSelect,
   children,
   'data-refast-id': dataRefastId,
-}: CommandItemProps): React.ReactElement {
+}: CommandItemProps): React.ReactElement<any> {
   return (
     <CommandPrimitive.Item
       id={id}
@@ -1324,7 +1324,7 @@ export function CommandSeparator({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: CommandSeparatorProps): React.ReactElement {
+}: CommandSeparatorProps): React.ReactElement<any> {
   return (
     <CommandPrimitive.Separator
       id={id}
@@ -1346,7 +1346,7 @@ export function CommandShortcut({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: CommandShortcutProps): React.ReactElement {
+}: CommandShortcutProps): React.ReactElement<any> {
   return (
     <span
       id={id}
@@ -1407,7 +1407,7 @@ export function SidebarProvider({
   children,
   style,
   'data-refast-id': dataRefastId,
-}: SidebarProviderProps): React.ReactElement {
+}: SidebarProviderProps): React.ReactElement<any> {
   const [isMobile, setIsMobile] = React.useState(false);
   const [openMobile, setOpenMobile] = React.useState(false);
   const [_open, _setOpen] = React.useState(defaultOpen);
@@ -1512,7 +1512,7 @@ export function Sidebar({
   collapsible = 'offcanvas',
   children,
   'data-refast-id': dataRefastId,
-}: SidebarProps): React.ReactElement {
+}: SidebarProps): React.ReactElement<any> {
   const context = React.useContext(SidebarContext);
   
   // If no context, render a simple sidebar
@@ -1642,7 +1642,7 @@ export function SidebarInset({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarInsetProps): React.ReactElement {
+}: SidebarInsetProps): React.ReactElement<any> {
   return (
     <main
       id={id}
@@ -1670,7 +1670,7 @@ export function SidebarHeader({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarHeaderProps): React.ReactElement {
+}: SidebarHeaderProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1695,7 +1695,7 @@ export function SidebarContent({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarContentProps): React.ReactElement {
+}: SidebarContentProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1723,7 +1723,7 @@ export function SidebarFooter({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarFooterProps): React.ReactElement {
+}: SidebarFooterProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1746,7 +1746,7 @@ export function SidebarSeparator({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: SidebarSeparatorProps): React.ReactElement {
+}: SidebarSeparatorProps): React.ReactElement<any> {
   return (
     <hr
       id={id}
@@ -1769,7 +1769,7 @@ export function SidebarGroup({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarGroupProps): React.ReactElement {
+}: SidebarGroupProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1794,7 +1794,7 @@ export function SidebarGroupLabel({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarGroupLabelProps): React.ReactElement {
+}: SidebarGroupLabelProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1828,7 +1828,7 @@ export function SidebarGroupAction({
   onClick,
   title,
   'data-refast-id': dataRefastId,
-}: SidebarGroupActionProps): React.ReactElement {
+}: SidebarGroupActionProps): React.ReactElement<any> {
   return (
     <button
       id={id}
@@ -1861,7 +1861,7 @@ export function SidebarGroupContent({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarGroupContentProps): React.ReactElement {
+}: SidebarGroupContentProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -1886,7 +1886,7 @@ export function SidebarMenu({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuProps): React.ReactElement {
+}: SidebarMenuProps): React.ReactElement<any> {
   return (
     <ul
       id={id}
@@ -1911,7 +1911,7 @@ export function SidebarMenuItem({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuItemProps): React.ReactElement {
+}: SidebarMenuItemProps): React.ReactElement<any> {
   return (
     <li
       id={id}
@@ -1948,7 +1948,7 @@ export function SidebarMenuButton({
   href,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuButtonProps): React.ReactElement {
+}: SidebarMenuButtonProps): React.ReactElement<any> {
   const buttonClasses = cn(
     'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground',
     'group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
@@ -2015,7 +2015,7 @@ export function SidebarMenuAction({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuActionProps): React.ReactElement {
+}: SidebarMenuActionProps): React.ReactElement<any> {
   return (
     <button
       id={id}
@@ -2052,7 +2052,7 @@ export function SidebarMenuBadge({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuBadgeProps): React.ReactElement {
+}: SidebarMenuBadgeProps): React.ReactElement<any> {
   return (
     <div
       id={id}
@@ -2085,7 +2085,7 @@ export function SidebarMenuSub({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuSubProps): React.ReactElement {
+}: SidebarMenuSubProps): React.ReactElement<any> {
   return (
     <ul
       id={id}
@@ -2114,7 +2114,7 @@ export function SidebarMenuSubItem({
   className,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuSubItemProps): React.ReactElement {
+}: SidebarMenuSubItemProps): React.ReactElement<any> {
   return (
     <li
       id={id}
@@ -2146,7 +2146,7 @@ export function SidebarMenuSubButton({
   onClick,
   children,
   'data-refast-id': dataRefastId,
-}: SidebarMenuSubButtonProps): React.ReactElement {
+}: SidebarMenuSubButtonProps): React.ReactElement<any> {
   const classes = cn(
     'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
     isActive && 'bg-sidebar-accent text-sidebar-accent-foreground',
@@ -2198,7 +2198,7 @@ export function SidebarMenuSkeleton({
   className,
   showIcon = false,
   'data-refast-id': dataRefastId,
-}: SidebarMenuSkeletonProps): React.ReactElement {
+}: SidebarMenuSkeletonProps): React.ReactElement<any> {
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`;
   }, []);
@@ -2231,7 +2231,7 @@ export function SidebarRail({
   id,
   className,
   'data-refast-id': dataRefastId,
-}: SidebarRailProps): React.ReactElement {
+}: SidebarRailProps): React.ReactElement<any> {
   const context = React.useContext(SidebarContext);
   const toggleSidebar = context?.toggleSidebar;
 
@@ -2269,7 +2269,7 @@ export function SidebarTrigger({
   className,
   onClick,
   'data-refast-id': dataRefastId,
-}: SidebarTriggerProps): React.ReactElement {
+}: SidebarTriggerProps): React.ReactElement<any> {
   const context = React.useContext(SidebarContext);
 
   const handleClick = () => {

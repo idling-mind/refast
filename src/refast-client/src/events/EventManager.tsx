@@ -114,7 +114,7 @@ export function EventManagerProvider({
   children,
   websocket,
   onComponentUpdate: _onComponentUpdate,
-}: EventManagerProviderProps): React.ReactElement {
+}: EventManagerProviderProps): React.ReactElement<any> {
   const updateHandlers = useRef<Set<(message: UpdateMessage) => void>>(new Set());
   const websocketRef = useRef<WebSocket | null>(websocket);
   const messageHandlerRegistry = useRef<Map<string, Set<(msg: UpdateMessage) => void>>>(new Map());

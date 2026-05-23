@@ -1285,6 +1285,238 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                     ),
                 ],
             ),
+            # Tabs Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Tabs"),
+                            CardDescription("Tabbed interface variants"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=6,
+                                children=[
+                                    # Tabs with text labels
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Text labels"),
+                                            Tabs(
+                                                default_value="overview",
+                                                children=[
+                                                    TabItem(
+                                                        value="overview",
+                                                        label="Overview",
+                                                        children=[Text("Overview content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="settings",
+                                                        label="Settings",
+                                                        children=[Text("Settings content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="billing",
+                                                        label="Billing",
+                                                        children=[Text("Billing content.")],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Tabs with icon + text
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Icon + text labels"),
+                                            Tabs(
+                                                default_value="profile",
+                                                children=[
+                                                    TabItem(
+                                                        value="profile",
+                                                        label="Profile",
+                                                        icon="user",
+                                                        children=[Text("Profile content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="notifications",
+                                                        label="Notifications",
+                                                        icon="bell",
+                                                        children=[Text("Notifications content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="security",
+                                                        label="Security",
+                                                        icon="shield",
+                                                        children=[Text("Security content.")],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Icon-only tabs
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Icon-only (omit or empty label)"),
+                                            Tabs(
+                                                default_value="home",
+                                                children=[
+                                                    TabItem(
+                                                        value="home",
+                                                        icon="home",
+                                                        children=[Text("Home content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="search",
+                                                        icon="search",
+                                                        children=[Text("Search content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="settings",
+                                                        icon="settings",
+                                                        children=[Text("Settings content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="user",
+                                                        icon="user",
+                                                        children=[Text("User content.")],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Sizes
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Sizes (xs → xl)"),
+                                            Column(
+                                                gap=3,
+                                                children=[
+                                                    Tabs(
+                                                        default_value="a",
+                                                        size="xs",
+                                                        children=[
+                                                            TabItem(value="a", label="Account", icon="user"),
+                                                            TabItem(value="b", label="Settings", icon="settings"),
+                                                            TabItem(value="c", label="Billing", icon="credit-card"),
+                                                        ],
+                                                    ),
+                                                    Tabs(
+                                                        default_value="a",
+                                                        size="sm",
+                                                        children=[
+                                                            TabItem(value="a", label="Account", icon="user"),
+                                                            TabItem(value="b", label="Settings", icon="settings"),
+                                                            TabItem(value="c", label="Billing", icon="credit-card"),
+                                                        ],
+                                                    ),
+                                                    Tabs(
+                                                        default_value="a",
+                                                        size="md",
+                                                        children=[
+                                                            TabItem(value="a", label="Account", icon="user"),
+                                                            TabItem(value="b", label="Settings", icon="settings"),
+                                                            TabItem(value="c", label="Billing", icon="credit-card"),
+                                                        ],
+                                                    ),
+                                                    Tabs(
+                                                        default_value="a",
+                                                        size="lg",
+                                                        children=[
+                                                            TabItem(value="a", label="Account", icon="user"),
+                                                            TabItem(value="b", label="Settings", icon="settings"),
+                                                            TabItem(value="c", label="Billing", icon="credit-card"),
+                                                        ],
+                                                    ),
+                                                    Tabs(
+                                                        default_value="a",
+                                                        size="xl",
+                                                        children=[
+                                                            TabItem(value="a", label="Account", icon="user"),
+                                                            TabItem(value="b", label="Settings", icon="settings"),
+                                                            TabItem(value="c", label="Billing", icon="credit-card"),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Vertical direction
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Vertical direction"),
+                                            Tabs(
+                                                default_value="overview",
+                                                direction="vertical",
+                                                children=[
+                                                    TabItem(
+                                                        value="overview",
+                                                        label="Overview",
+                                                        icon="layout",
+                                                        children=[Text("Overview panel content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="analytics",
+                                                        label="Analytics",
+                                                        icon="bar-chart",
+                                                        children=[Text("Analytics panel content.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="reports",
+                                                        label="Reports",
+                                                        icon="file",
+                                                        children=[Text("Reports panel content.")],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                    Separator(),
+                                    # Vertical icon-only with custom gap
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Vertical icon-only + custom gap"),
+                                            Tabs(
+                                                default_value="home",
+                                                direction="vertical",
+                                                gap=4,
+                                                children=[
+                                                    TabItem(
+                                                        value="home",
+                                                        icon="home",
+                                                        children=[Text("Home.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="search",
+                                                        icon="search",
+                                                        children=[Text("Search.")],
+                                                    ),
+                                                    TabItem(
+                                                        value="bell",
+                                                        icon="bell",
+                                                        children=[Text("Notifications.")],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
             # BlockQuote Section
             Card(
                 class_name="mb-6",

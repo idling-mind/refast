@@ -389,6 +389,64 @@ function syncPropStoreForComponent(
 }
 
 /**
+ * Recursively apply an update to any ComponentTree objects found within a
+ * prop value (plain object, array, or ComponentTree-shaped object).
+ * Returns { value, changed } – `changed` is true only if a nested component
+ * was actually found and updated, preserving reference equality otherwise.
+ */
+function applyUpdateInPropValue(
+  val: unknown,
+  targetId: string,
+  update: ComponentTree | null,
+  operation: string
+): { value: unknown; changed: boolean } {
+  if (val === null || val === undefined || typeof val !== 'object') {
+    return { value: val, changed: false };
+  }
+
+  if (Array.isArray(val)) {
+    let changed = false;
+    const newArr: unknown[] = [];
+    for (const item of val as unknown[]) {
+      // Handle remove: skip the item that directly matches the target
+      if (
+        operation === 'remove' &&
+        item !== null &&
+        typeof item === 'object' &&
+        !Array.isArray(item)
+      ) {
+        const obj = item as Record<string, unknown>;
+        if (typeof obj.type === 'string' && obj.id === targetId) {
+          changed = true;
+          continue;
+        }
+      }
+      const r = applyUpdateInPropValue(item, targetId, update, operation);
+      if (r.changed) changed = true;
+      newArr.push(r.value);
+    }
+    return { value: changed ? newArr : val, changed };
+  }
+
+  const obj = val as Record<string, unknown>;
+  // If this looks like a ComponentTree (has `type` string + `id`), recurse via applyUpdate
+  if (typeof obj.type === 'string' && 'id' in obj) {
+    const updated = applyUpdate(obj as unknown as ComponentTree, targetId, update, operation);
+    return { value: updated, changed: updated !== (obj as unknown) };
+  }
+
+  // Generic plain object: search its values
+  let changed = false;
+  const newObj: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    const r = applyUpdateInPropValue(v, targetId, update, operation);
+    if (r.changed) changed = true;
+    newObj[k] = r.value;
+  }
+  return { value: changed ? newObj : val, changed };
+}
+
+/**
  * Apply an update operation to a component tree.
  */
 export function applyUpdate(
@@ -521,14 +579,30 @@ export function applyUpdate(
     newChildren.push(updatedChild);
   }
 
-  if (!hasChanges) {
-    return tree;
+  if (hasChanges) {
+    return {
+      ...tree,
+      children: newChildren,
+    };
   }
 
-  return {
-    ...tree,
-    children: newChildren,
-  };
+  // Also search through props values for embedded ComponentTree objects
+  // (e.g. component instances stored in DataTable's `data` prop).
+  const currentProps = tree.props as Record<string, unknown> | undefined;
+  if (currentProps) {
+    let propsChanged = false;
+    const newProps: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(currentProps)) {
+      const r = applyUpdateInPropValue(val, targetId, update, operation);
+      if (r.changed) propsChanged = true;
+      newProps[key] = r.value;
+    }
+    if (propsChanged) {
+      return { ...tree, props: newProps as ComponentTree['props'] };
+    }
+  }
+
+  return tree;
 }
 
 /**
@@ -551,6 +625,32 @@ export function findComponent(
     }
   }
 
+  // Also search through props values for embedded ComponentTree objects
+  for (const val of Object.values((tree.props as Record<string, unknown>) || {})) {
+    const found = findComponentInPropValue(val, id);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function findComponentInPropValue(val: unknown, id: string): ComponentTree | null {
+  if (val === null || val === undefined || typeof val !== 'object') return null;
+  if (Array.isArray(val)) {
+    for (const item of val as unknown[]) {
+      const found = findComponentInPropValue(item, id);
+      if (found) return found;
+    }
+    return null;
+  }
+  const obj = val as Record<string, unknown>;
+  if (typeof obj.type === 'string' && 'id' in obj) {
+    return findComponent(obj as unknown as ComponentTree, id);
+  }
+  for (const v of Object.values(obj)) {
+    const found = findComponentInPropValue(v, id);
+    if (found) return found;
+  }
   return null;
 }
 
@@ -575,5 +675,35 @@ export function getComponentPath(
     }
   }
 
+  // Also search through props values for embedded ComponentTree objects
+  for (const val of Object.values((tree.props as Record<string, unknown>) || {})) {
+    const found = getComponentPathInPropValue(val, id, [...path, tree.id]);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function getComponentPathInPropValue(
+  val: unknown,
+  id: string,
+  path: string[]
+): string[] | null {
+  if (val === null || val === undefined || typeof val !== 'object') return null;
+  if (Array.isArray(val)) {
+    for (const item of val as unknown[]) {
+      const found = getComponentPathInPropValue(item, id, path);
+      if (found) return found;
+    }
+    return null;
+  }
+  const obj = val as Record<string, unknown>;
+  if (typeof obj.type === 'string' && 'id' in obj) {
+    return getComponentPath(obj as unknown as ComponentTree, id, path);
+  }
+  for (const v of Object.values(obj)) {
+    const found = getComponentPathInPropValue(v, id, path);
+    if (found) return found;
+  }
   return null;
 }

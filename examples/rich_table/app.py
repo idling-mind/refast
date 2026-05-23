@@ -12,10 +12,18 @@ Demonstrates two approaches:
     Put Component instances as dict values in the `data` list.
     DataTable serialises them automatically; the frontend renders
     them via ComponentRenderer just like any other component.
+    Score values are refreshed every 5 seconds; only the Progress bar
+    props are patched via ctx.update_props (no full table re-render).
 
 Run with:
     uvicorn examples.rich_table.app:app --reload
 """
+
+import asyncio
+import random
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -57,6 +65,7 @@ USERS = [
         "status": "active",
         "score": 92,
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
+        "keywords": "female",
     },
     {
         "id": 2,
@@ -66,6 +75,7 @@ USERS = [
         "status": "inactive",
         "score": 45,
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
+        "keywords": "male",
     },
     {
         "id": 3,
@@ -75,6 +85,7 @@ USERS = [
         "status": "pending",
         "score": 68,
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Carol",
+        "keywords": "female",
     },
     {
         "id": 4,
@@ -84,6 +95,7 @@ USERS = [
         "status": "active",
         "score": 81,
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Dan",
+        "keywords": "male",
     },
     {
         "id": 5,
@@ -93,6 +105,7 @@ USERS = [
         "status": "active",
         "score": 99,
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Eve",
+        "keywords": "female",
     },
 ]
 
@@ -115,6 +128,23 @@ def status_badge(status: str) -> Badge:
     )
 
 
+def score_progress(score: int, user_id: int) -> Progress:
+    return Progress(
+        id=f"score-progress-{user_id}",
+        value=score,
+        max=100,
+        show_value=True,
+        foreground_color=(
+            "#16a34a" if score >= 80 else "#d97706" if score >= 50 else "destructive"
+        ),
+        class_name="min-w-28",
+    )
+
+
+def _score_fg(score: int) -> str:
+    return "#16a34a" if score >= 80 else "#d97706" if score >= 50 else "destructive"
+
+
 # ---------------------------------------------------------------------------
 # Callbacks
 # ---------------------------------------------------------------------------
@@ -133,6 +163,34 @@ async def on_link_click(ctx: Context) -> None:
 async def on_row_click(ctx: Context) -> None:
     row = ctx.event_data
     await ctx.show_toast(f"Row clicked: {row.get('name', row)}")
+
+
+# ---------------------------------------------------------------------------
+# Background task — update scores every 5 seconds
+# ---------------------------------------------------------------------------
+
+
+async def _tick_scores() -> None:
+    while True:
+        await asyncio.sleep(5)
+        print("Tick: updating scores...")
+        for ctx in ui.active_contexts:
+            scores: dict[int, int] = ctx.store.local.get(
+                "scores", {u["id"]: u["score"] for u in USERS}
+            )
+            # Random walk: ±1–10 points, clamped to [1, 100]
+            new_scores = {
+                uid: max(1, min(100, s + random.randint(-10, 10)))
+                for uid, s in scores.items()
+            }
+            ctx.store.local["scores"] = new_scores
+            # Update only the individual Progress components — no table re-render
+            for uid, score in new_scores.items():
+                print(f"Updating user {uid} score to {score}")
+                await ctx.update_props(
+                    f"score-progress-{uid}",
+                    {"value": score, "foreground_color": _score_fg(score)},
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -256,48 +314,34 @@ def home(ctx: Context):
     )
 
     # ------------------------------------------------------------------
-    # Section B — DataTable with Component instances as cell values
-    # Each row dict contains a mix of plain values and Component objects.
-    # DataTable serialises Component values automatically.
+    # Section B — DataTable with Component instances as cell values.
+    # Each Progress has a stable id; the background task uses update_props
+    # to patch only value+foreground_color — no table re-render needed.
     # ------------------------------------------------------------------
 
-    datatable_data = []
-    for user in USERS:
-        datatable_data.append(
-            {
-                # Plain string — rendered as text (unchanged behaviour)
-                "name": user["name"],
-                # Image component — rendered as a small avatar thumbnail
-                "avatar": Image(
-                    src=user["avatar"],
-                    alt=user["name"],
-                    width=36,
-                    height=36,
-                    class_name="rounded-full",
-                    object_fit="cover",
-                ),
-                # Badge component — rendered with colour variant
-                "status": status_badge(user["status"]),
-                # Progress component — numeric bar
-                "score": Progress(
-                    value=user["score"],
-                    max=100,
-                    show_value=True,
-                    foreground_color=(
-                        "#16a34a"
-                        if user["score"] >= 80
-                        else "#d97706"
-                        if user["score"] >= 50
-                        else "destructive"
-                    ),
-                    class_name="min-w-28",
-                ),
-                # Plain string
-                "role": user["role"],
-            }
-        )
-
+    scores: dict[int, int] = ctx.store.local.get(
+        "scores", {u["id"]: u["score"] for u in USERS}
+    )
+    datatable_data = [
+        {
+            "name": user["name"],
+            "avatar": Image(
+                src=user["avatar"],
+                alt=user["name"],
+                width=36,
+                height=36,
+                class_name="rounded-full",
+                object_fit="cover",
+            ),
+            "status": status_badge(user["status"]),
+            "score": score_progress(scores.get(user["id"], user["score"]), user["id"]),
+            "role": user["role"],
+            "keywords": user["keywords"],
+        }
+        for user in USERS
+    ]
     rich_datatable = DataTable(
+        id="rich-datatable",
         columns=[
             {"key": "avatar", "header": "Photo", "width": "60px"},
             {"key": "name", "header": "Name", "sortable": True},
@@ -349,9 +393,9 @@ def home(ctx: Context):
                         children=[
                             Heading("Section B — DataTable with component cells", level=2),
                             Text(
-                                "Component instances placed as values in the row dict are "
-                                "serialised automatically. Plain string/number values continue "
-                                "to render as text. Click a row to see event_data.",
+                                "Each Progress bar has a stable id. The background task calls "
+                                "ctx.update_props to patch only value+color every 5 s — "
+                                "no full table re-render. Click a row to see event_data.",
                                 class_name="text-sm text-muted-foreground",
                             ),
                         ]
@@ -364,9 +408,18 @@ def home(ctx: Context):
 
 
 # FastAPI app entry-point
-from fastapi import FastAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(_tick_scores())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
 
-app = FastAPI()
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(ui.router)
 
 if __name__ == "__main__":

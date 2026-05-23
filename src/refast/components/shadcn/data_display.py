@@ -530,10 +530,25 @@ class DataTable(Component):
         self.on_filter_change = on_filter_change
         self.on_page_change = on_page_change
 
+    def _serialize_data(self) -> list[dict[str, Any]]:
+        """Return ``self.data`` with any Component values rendered to dicts."""
+        from refast.components.base import Component as _Component
+
+        serialized = []
+        for row in self.data:
+            new_row: dict[str, Any] = {}
+            for key, value in row.items():
+                if isinstance(value, _Component):
+                    new_row[key] = value.render()
+                else:
+                    new_row[key] = value
+            serialized.append(new_row)
+        return serialized
+
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
             "columns": self.columns,
-            "data": self.data,
+            "data": self._serialize_data(),
             "sortable": self.sortable,
             "filterable": self.filterable,
             "paginated": self.paginated,

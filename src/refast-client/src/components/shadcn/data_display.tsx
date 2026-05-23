@@ -4,6 +4,8 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../../utils';
 import { Icon } from './icon';
+import { ComponentRenderer } from '../ComponentRenderer';
+import type { ComponentTree } from '../../types';
 
 // ============================================================================
 // Accordion Components
@@ -354,6 +356,38 @@ export function TableCell({
 // DataTable Component
 // ============================================================================
 
+/**
+ * Recursively extract a plain-text representation from any cell value so that
+ * filtering and sorting work on columns that contain serialised ComponentTree
+ * objects (e.g. Badge, Progress, Image) as well as plain primitives.
+ *
+ * - Strings / numbers / booleans  → converted to string directly
+ * - ComponentTree objects          → gather text from children strings and from
+ *   common text-bearing props (label, value, text, title, alt)
+ * - Arrays                         → join each element's text with a space
+ */
+function extractCellText(val: unknown): string {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (Array.isArray(val)) return val.map(extractCellText).join(' ');
+  if (typeof val === 'object') {
+    const node = val as { type?: string; props?: Record<string, unknown>; children?: unknown[] };
+    if (node.type) {
+      // Text from direct string children
+      const childText = (node.children ?? []).map(extractCellText).join(' ');
+      // Text from common label-like props (covers Progress.value, Image.alt, etc.)
+      const props = node.props ?? {};
+      const propsText = ['label', 'value', 'text', 'title', 'alt']
+        .map((k) => (props[k] !== undefined && props[k] !== null ? String(props[k]) : ''))
+        .filter(Boolean)
+        .join(' ');
+      return [childText, propsText].filter(Boolean).join(' ').trim();
+    }
+  }
+  return '';
+}
+
 interface DataTableColumn {
   /** Data key used to look up values in each row. */
   key: string;
@@ -421,17 +455,26 @@ export function DataTable({
   const filteredData = React.useMemo(() => {
     if (!filterValue) return data;
     const lower = filterValue.toLowerCase();
-    return data.filter((row) =>
-      Object.values(row).some((val) => String(val ?? '').toLowerCase().includes(lower))
-    );
+    return data.filter((row) => {
+      // Check all visible column values
+      const matchesCell = Object.entries(row)
+        .filter(([key]) => key !== 'keywords')
+        .some(([, val]) => extractCellText(val).toLowerCase().includes(lower));
+      if (matchesCell) return true;
+      // Also check the optional `keywords` field (string or array of strings)
+      const kw = row['keywords'];
+      if (typeof kw === 'string') return kw.toLowerCase().includes(lower);
+      if (Array.isArray(kw)) return kw.some((k) => String(k ?? '').toLowerCase().includes(lower));
+      return false;
+    });
   }, [data, filterValue]);
 
   // Client-side sort
   const sortedData = React.useMemo(() => {
     if (!sortState) return filteredData;
     return [...filteredData].sort((a, b) => {
-      const aVal = String(a[sortState.key] ?? '');
-      const bVal = String(b[sortState.key] ?? '');
+      const aVal = extractCellText(a[sortState.key]);
+      const bVal = extractCellText(b[sortState.key]);
       const cmp = aVal.localeCompare(bVal);
       return sortState.direction === 'asc' ? cmp : -cmp;
     });
@@ -566,7 +609,13 @@ export function DataTable({
                         col.align === 'right' && 'text-right'
                       )}
                     >
-                      {String(row[col.key] ?? '')}
+                      {(() => {
+                        const val = row[col.key];
+                        if (val !== null && typeof val === 'object' && (val as ComponentTree).type) {
+                          return <ComponentRenderer tree={val as ComponentTree} />;
+                        }
+                        return String(val ?? '');
+                      })()}
                     </td>
                   ))}
                 </tr>

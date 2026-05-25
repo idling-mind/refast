@@ -1,5 +1,6 @@
 """Tests for RefastRouter class."""
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -118,6 +119,21 @@ class TestRefastRouter:
 
         response = client.get("/ui/")
         assert 'id="refast-root"' in response.text
+
+    def test_api_page_handler_raises_when_page_returns_none(self):
+        """Test that page-render API rejects page functions returning None."""
+        app = FastAPI()
+        ui = RefastApp()
+
+        @ui.page("/")
+        def home(ctx):
+            return None
+
+        app.include_router(ui.router)
+        client = TestClient(app)
+
+        with pytest.raises(ValueError, match="Page function 'home' for path '/' returned None"):
+            client.get("/api/page", headers={"referer": "http://testserver/"})
 
     def test_active_contexts_property(self):
         """Test active_contexts property returns values from _websocket_contexts."""

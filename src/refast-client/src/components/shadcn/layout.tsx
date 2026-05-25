@@ -8,6 +8,7 @@ interface RowProps {
   align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
   gap?: number | string;
   wrap?: boolean;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -22,6 +23,7 @@ export function Row({
   align = 'start',
   gap = 2,
   wrap = false,
+  style,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -53,7 +55,7 @@ export function Row({
         wrap && 'flex-wrap',
         className
       )}
-      style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
+      style={{ ...style, gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
       {...props}
     >
@@ -69,6 +71,7 @@ interface ColumnProps {
   align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
   gap?: number | string;
   wrap?: boolean;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -83,6 +86,7 @@ export function Column({
   align = 'stretch',
   gap = 2,
   wrap = false,
+  style,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -108,7 +112,7 @@ export function Column({
     <div
       id={id}
       className={cn('flex flex-col', justifyClass, alignClass, wrap && 'flex-wrap', className)}
-      style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
+      style={{ ...style, gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
       {...props}
     >
@@ -170,6 +174,7 @@ interface FlexProps {
   align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
   gap?: number | string;
   wrap?: boolean;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -185,6 +190,7 @@ export function Flex({
   align = 'stretch',
   gap = 2,
   wrap = false,
+  style,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -217,7 +223,7 @@ export function Flex({
     <div
       id={id}
       className={cn('flex', directionClass, justifyClass, alignClass, wrap && 'flex-wrap', className)}
-      style={{ gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
+      style={{ ...style, gap: typeof gap === 'number' ? `${gap * 0.25}rem` : gap }}
       data-refast-id={dataRefastId}
       {...props}
     >

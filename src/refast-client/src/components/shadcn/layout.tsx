@@ -127,6 +127,7 @@ interface GridProps {
   columns?: number | string;
   rows?: number | string;
   gap?: number | string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -140,6 +141,7 @@ export function Grid({
   columns = 1,
   rows,
   gap = 4,
+  style,
   children,
   'data-refast-id': dataRefastId,
   ...props
@@ -149,6 +151,7 @@ export function Grid({
       id={id}
       className={cn('grid', className)}
       style={{
+        ...style,
         gridTemplateColumns:
           typeof columns === 'number' ? `repeat(${columns}, 1fr)` : columns,
         gridTemplateRows: rows

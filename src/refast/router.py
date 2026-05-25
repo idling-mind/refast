@@ -398,7 +398,9 @@ class RefastRouter:
         html = self._render_html_shell(None, ctx)
         return HTMLResponse(content=html)
 
-    async def _execute_page_func(self, page_func: Callable[..., Any], ctx: "Context", page_path: str) -> Any:
+    async def _execute_page_func(
+        self, page_func: Callable[..., Any], ctx: "Context", page_path: str
+    ) -> Any:
         """Invoke a page function and reject unsupported return values."""
         component = page_func(ctx)
         if inspect.isawaitable(component):

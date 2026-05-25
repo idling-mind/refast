@@ -530,10 +530,25 @@ class DataTable(Component):
         self.on_filter_change = on_filter_change
         self.on_page_change = on_page_change
 
+    def _serialize_data(self) -> list[dict[str, Any]]:
+        """Return ``self.data`` with any Component values rendered to dicts."""
+        from refast.components.base import Component as _Component
+
+        serialized = []
+        for row in self.data:
+            new_row: dict[str, Any] = {}
+            for key, value in row.items():
+                if isinstance(value, _Component):
+                    new_row[key] = value.render()
+                else:
+                    new_row[key] = value
+            serialized.append(new_row)
+        return serialized
+
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
             "columns": self.columns,
-            "data": self.data,
+            "data": self._serialize_data(),
             "sortable": self.sortable,
             "filterable": self.filterable,
             "paginated": self.paginated,
@@ -681,11 +696,20 @@ class Badge(Component):
         Badge(children=["New"])
         Badge(children=["Error"], variant="destructive")
         Badge(children=["Active"], variant="success")
+        Badge(children=["Verified"], icon="check-circle", icon_position="left")
+        Badge(children=["New"], icon="arrow-right", icon_position="right")
+        Badge(children=["Tiny"], size="xs")
+        Badge(children=["Large"], size="xl")
         ```
 
     Args:
         children: Badge content — typically a short string.
         variant: Visual style. ``"default"`` is the primary filled style.
+        icon: Lucide icon name (e.g. ``"check"``、``"star"``、``"alert-circle"``).
+        icon_position: Where the icon appears relative to the content — ``"left"``
+            (default) or ``"right"``.
+        size: Size of the badge — ``"xs"``, ``"sm"``, ``"md"`` (default), ``"lg"``,
+            or ``"xl"``.
         id: Optional HTML element id.
         class_name: Additional CSS class names.
     """
@@ -698,6 +722,9 @@ class Badge(Component):
         variant: Literal[
             "default", "secondary", "destructive", "outline", "success", "warning"
         ] = "default",
+        icon: str | None = None,
+        icon_position: Literal["left", "right"] = "left",
+        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -713,6 +740,9 @@ class Badge(Component):
         )
         self.add_children(children)
         self.variant = variant
+        self.icon = icon
+        self.icon_position = icon_position
+        self.size = size
 
     def render(self) -> dict[str, Any]:
         return {
@@ -720,6 +750,9 @@ class Badge(Component):
             "id": self.id,
             "props": {
                 "variant": self.variant,
+                "icon": self.icon,
+                "icon_position": self.icon_position,
+                "size": self.size,
                 "class_name": self.class_name,
                 **self._serialize_extra_props(),
             },

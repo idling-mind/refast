@@ -5,6 +5,7 @@ import inspect
 import re
 import unicodedata
 import urllib.parse
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -397,6 +398,21 @@ class RefastRouter:
         html = self._render_html_shell(None, ctx)
         return HTMLResponse(content=html)
 
+    async def _execute_page_func(
+        self, page_func: Callable[..., Any], ctx: "Context", page_path: str
+    ) -> Any:
+        """Invoke a page function and reject unsupported return values."""
+        component = page_func(ctx)
+        if inspect.isawaitable(component):
+            component = await component
+        if component is None:
+            func_name = getattr(page_func, "__name__", "<anonymous>")
+            raise ValueError(
+                f"Page function '{func_name}' for path '{page_path}' returned None. "
+                "Page functions must return a component instance."
+            )
+        return component
+
     async def _api_page_handler(self, request: Request) -> JSONResponse:
         """Handle API requests for page component tree (used for refresh)."""
         from refast.context import Context
@@ -431,7 +447,7 @@ class RefastRouter:
         ctx._query_params = (
             {k: v[-1] for k, v in urllib.parse.parse_qs(referer_qs).items()} if referer_qs else {}
         )
-        component = page_func(ctx)
+        component = await self._execute_page_func(page_func, ctx, page_path)
 
         # Return component tree as JSON
         component_data = component.render() if hasattr(component, "render") else {}
@@ -529,7 +545,7 @@ class RefastRouter:
             page_func = self.app._pages.get("/")
         if page_func is not None:
             ctx.clear_callbacks()
-            component = page_func(ctx)
+            component = await self._execute_page_func(page_func, ctx, pathname)
             component_data = component.render() if hasattr(component, "render") else {}
             await websocket.send_json({"type": "page_render", "component": component_data})
 
@@ -551,7 +567,7 @@ class RefastRouter:
             page_func = self.app._pages.get("/")
         if page_func is not None:
             ctx.clear_callbacks()
-            component = page_func(ctx)
+            component = await self._execute_page_func(page_func, ctx, pathname)
             component_data = component.render() if hasattr(component, "render") else {}
             await websocket.send_json({"type": "page_render", "component": component_data})
 

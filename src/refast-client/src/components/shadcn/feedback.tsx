@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../../utils';
 import { X } from 'lucide-react';
+import { Icon } from './icon';
 
 interface AlertProps {
   id?: string;
@@ -135,6 +136,9 @@ interface BadgeProps {
   id?: string;
   className?: string;
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';
+  icon?: string;
+  iconPosition?: 'left' | 'right';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -146,6 +150,9 @@ export function Badge({
   id,
   className,
   variant = 'default',
+  icon,
+  iconPosition = 'left',
+  size = 'md',
   children,
   'data-refast-id': dataRefastId,
 }: BadgeProps): React.ReactElement<any> {
@@ -158,18 +165,32 @@ export function Badge({
     warning: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-600',
   };
 
+  const sizeClasses = {
+    xs: 'px-1.5 py-px text-[10px] gap-0.5',
+    sm: 'px-2 py-0.5 text-[11px] gap-0.5',
+    md: 'px-2.5 py-0.5 text-xs gap-1',
+    lg: 'px-3 py-1 text-sm gap-1',
+    xl: 'px-4 py-1.5 text-base gap-1.5',
+  };
+
+  const iconSizes = { xs: 10, sm: 11, md: 12, lg: 14, xl: 16 };
+  const iconEl = icon ? <Icon name={icon} size={iconSizes[size]} className="shrink-0" /> : null;
+
   return (
     <div
       id={id}
       className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors',
+        'inline-flex items-center rounded-full border font-semibold transition-colors',
         'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        sizeClasses[size],
         variantClasses[variant],
         className
       )}
       data-refast-id={dataRefastId}
     >
+      {iconPosition === 'left' && iconEl}
       {children}
+      {iconPosition === 'right' && iconEl}
     </div>
   );
 }

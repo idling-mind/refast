@@ -117,6 +117,40 @@ class TestBadge:
         rendered = badge.render()
         assert rendered["props"]["variant"] == "destructive"
 
+    def test_badge_icon_default_position(self):
+        """Test Badge icon defaults to left position."""
+        badge = Badge(children=["Verified"], icon="check-circle")
+        rendered = badge.render()
+        assert rendered["props"]["icon"] == "check-circle"
+        assert rendered["props"]["icon_position"] == "left"
+
+    def test_badge_icon_right_position(self):
+        """Test Badge icon can be placed on the right."""
+        badge = Badge(children=["New"], icon="arrow-right", icon_position="right")
+        rendered = badge.render()
+        assert rendered["props"]["icon"] == "arrow-right"
+        assert rendered["props"]["icon_position"] == "right"
+
+    def test_badge_no_icon(self):
+        """Test Badge without icon has None icon prop."""
+        badge = Badge(children=["Label"])
+        rendered = badge.render()
+        assert rendered["props"]["icon"] is None
+        assert rendered["props"]["icon_position"] == "left"
+
+    def test_badge_default_size(self):
+        """Test Badge defaults to md size."""
+        badge = Badge(children=["New"])
+        rendered = badge.render()
+        assert rendered["props"]["size"] == "md"
+
+    def test_badge_size_variants(self):
+        """Test Badge accepts all size variants."""
+        for size in ("xs", "sm", "md", "lg", "xl"):
+            badge = Badge(children=["Label"], size=size)
+            rendered = badge.render()
+            assert rendered["props"]["size"] == size
+
 
 class TestAvatar:
     """Tests for Avatar component."""

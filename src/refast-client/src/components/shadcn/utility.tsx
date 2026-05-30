@@ -74,6 +74,7 @@ export interface ScrollAreaProps extends BaseProps {
   type?: 'auto' | 'always' | 'scroll' | 'hover';
   scrollHideDelay?: number;
   dir?: 'ltr' | 'rtl';
+  stickToBottom?: boolean;
 }
 
 export function ScrollArea({
@@ -81,8 +82,27 @@ export function ScrollArea({
   scrollHideDelay = 600,
   className,
   children,
+  stickToBottom = false,
   ...props
 }: ScrollAreaProps) {
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+  const isSticky = React.useRef(true);
+
+  // After every render: if sticky, scroll the viewport to the bottom.
+  React.useEffect(() => {
+    if (!stickToBottom || !viewportRef.current) return;
+    if (isSticky.current) {
+      viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
+    }
+  });
+
+  const handleScroll = React.useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isSticky.current = distanceFromBottom <= 8;
+  }, []);
+
   return (
     <ScrollAreaPrimitive.Root
       type={type}
@@ -90,7 +110,11 @@ export function ScrollArea({
       className={cn('relative overflow-hidden', className)}
       {...props}
     >
-      <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+      <ScrollAreaPrimitive.Viewport
+        ref={viewportRef}
+        onScroll={stickToBottom ? handleScroll : undefined}
+        className="h-full w-full rounded-[inherit]"
+      >
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollAreaPrimitive.Scrollbar

@@ -134,6 +134,7 @@ class ScrollArea(Component):
         type: Literal["auto", "always", "scroll", "hover"] = "hover",
         scroll_hide_delay: int = 600,
         dir: Literal["ltr", "rtl"] | None = None,
+        stick_to_bottom: bool = False,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -151,6 +152,10 @@ class ScrollArea(Component):
                 only). Defaults to ``600``.
             dir: Reading direction of the scroll area — ``"ltr"`` or
                 ``"rtl"``. Defaults to ``None`` (inherits from document).
+            stick_to_bottom: When ``True``, automatically scrolls to the
+                bottom whenever content changes, unless the user has
+                scrolled upwards. Re-sticks when the user scrolls back
+                to the bottom. Defaults to ``False``.
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
@@ -164,12 +169,14 @@ class ScrollArea(Component):
         self.scroll_type = type
         self.scroll_hide_delay = scroll_hide_delay
         self.dir = dir
+        self.stick_to_bottom = stick_to_bottom
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
             "type": self.scroll_type,
             "scroll_hide_delay": self.scroll_hide_delay,
+            "stick_to_bottom": self.stick_to_bottom,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

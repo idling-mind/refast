@@ -172,10 +172,14 @@ export function ChartTooltipContent({
                     indicator === 'dashed' && 'w-0 border-2 border-dashed bg-transparent'
                   )}
                   style={{ 
-                    // Recharts Pie tooltip payload omits `color`; fall back to
-                    // the slice's `fill` from the data item.
-                    backgroundColor: indicator === 'dashed' ? undefined : (item.color ?? item.payload?.fill),
-                    borderColor: indicator === 'dashed' ? (item.color ?? item.payload?.fill) : undefined
+                    // Prefer per-item fill (Pie, RadialBar, Funnel inject fill into data items)
+                    // over the series-level color (which may be a static component fill).
+                    // For Scatter, item.color and item.payload.fill are both undefined
+                    // (Recharts v3 explicitly erases them for dimension entries); the
+                    // Scatter Python component injects its series fill into each data
+                    // point so item.payload.fill resolves correctly here.
+                    backgroundColor: indicator === 'dashed' ? undefined : (item.payload?.fill ?? item.color),
+                    borderColor: indicator === 'dashed' ? (item.payload?.fill ?? item.color) : undefined
                   }}
                 />
               )}

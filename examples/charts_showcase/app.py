@@ -734,6 +734,7 @@ def _render_treemap_card():
                             stroke="#fff",
                             is_animation_active=True,
                             animation_duration=800,
+                            children=ChartTooltip(content=ChartTooltipContent()),
                         ),
                     )
                 ]

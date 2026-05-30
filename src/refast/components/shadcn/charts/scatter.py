@@ -182,11 +182,20 @@ class Scatter(SeriesMixin, Component):
         return str(self.id)
 
     def render(self) -> dict[str, Any]:
+        # Inject the series fill into each data point so that the tooltip
+        # indicator dot can pick up item.payload?.fill. Recharts v3 explicitly
+        # erases color/fill from scatter tooltip dimension entries, so the only
+        # reliable source is the data-point payload itself.
+        data_with_fill = (
+            [{**item, "fill": self.fill} for item in self.data]
+            if self.data is not None
+            else None
+        )
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "data": self.data,
+                "data": data_with_fill,
                 "data_key": self.data_key,
                 "x_axis_id": self.x_axis_id,
                 "y_axis_id": self.y_axis_id,

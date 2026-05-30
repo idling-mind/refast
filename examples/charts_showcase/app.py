@@ -764,10 +764,10 @@ def _render_sankey_card():
                             id="sankey-chart",
                             data=get_data()["sankey_data"],
                             node_padding=20,
-                            node_width=10,
+                            node_width=12,
                             link_curvature=0.5,
                             height=300,
-                            margin={"top": 10, "right": 10, "bottom": 10, "left": 10},
+                            margin={"top": 20, "right": 80, "bottom": 20, "left": 80},
                         ),
                     )
                 ]

@@ -695,7 +695,7 @@ def _render_funnel_chart_card():
                                     ],
                                     data_key="value",
                                     name_key="name",
-                                    label=True,
+                                    label={"fill": "hsl(var(--foreground))"},
                                     is_animation_active=True,
                                     animation_duration=800,
                                 ),

@@ -19,7 +19,6 @@ from refast.components.shadcn.charts import (
     Bar,
     BarChart,
     CartesianGrid,
-    ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -40,12 +39,6 @@ SAMPLE_DATA = [
     {"month": "May",      "desktop": 209, "mobile": 130},
     {"month": "June",     "desktop": 214, "mobile": 140},
 ]
-
-CHART_CONFIG = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
-
 
 # ── Playground callbacks ──────────────────────────────────────────────────
 
@@ -81,8 +74,8 @@ def _playground(ctx: Context):
     chart_children.append(ChartTooltip(content=ChartTooltipContent()))
     if show_legend:
         chart_children.append(ChartLegend(content=ChartLegendContent()))
-    chart_children.append(Bar(data_key="desktop", fill="var(--color-desktop)", radius=4, stack_id=stack_id))
-    chart_children.append(Bar(data_key="mobile",  fill="var(--color-mobile)",  radius=4, stack_id=stack_id))
+    chart_children.append(Bar(data_key="desktop", label="Desktop", radius=4, stack_id=stack_id))
+    chart_children.append(Bar(data_key="mobile",  label="Mobile",  radius=4, stack_id=stack_id))
 
     return playground_card(
         options=[
@@ -101,7 +94,6 @@ def _playground(ctx: Context):
         ],
         preview=[
             ChartContainer(
-                config=CHART_CONFIG,
                 class_name="h-64",
                 children=[
                     BarChart(
@@ -142,14 +134,9 @@ They are ideal for comparing values across categories.
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig, BarChart, Bar,
+    ChartContainer, BarChart, Bar,
     CartesianGrid, XAxis, ChartTooltip, ChartTooltipContent,
 )
-
-config = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
 
 data = [
     {"month": "January",  "desktop": 186, "mobile": 80},
@@ -157,13 +144,13 @@ data = [
     {"month": "March",    "desktop": 237, "mobile": 120},
 ]
 
-ChartContainer(config=config, class_name="h-64", children=[
+ChartContainer(class_name="h-64", children=[
     BarChart(data=data, children=[
         CartesianGrid(vertical=False),
         XAxis(data_key="month", tick_line=False, axis_line=False),
         ChartTooltip(content=ChartTooltipContent()),
-        Bar(data_key="desktop", fill="var(--color-desktop)", radius=4),
-        Bar(data_key="mobile",  fill="var(--color-mobile)",  radius=4),
+        Bar(data_key="desktop", label="Desktop", radius=4),
+        Bar(data_key="mobile",  label="Mobile",  radius=4),
     ]),
 ])
 ```
@@ -174,7 +161,7 @@ REFERENCE = """
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `config` | `dict[str, ChartConfig]` | `{}` | Maps data keys to display labels and colors |
+| `config` | `dict[str, ChartConfig] \| None` | `None` | Optional override map; auto-built from series children when omitted |
 | `class_name` | `str` | `""` | Container class; set height here (e.g. `"h-64"`) |
 | `children` | `list` | `[]` | The chart component(s) |
 | `min_height` | `int \\| str \\| None` | `200` | Minimum height |
@@ -207,12 +194,13 @@ REFERENCE = """
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `data_key` | `str` | *(required)* | Key from data objects |
-| `fill` | `str` | `"hsl(var(--chart-1))"` | CSS color or `var(--color-<key>)` |
+| `fill` | `str` | *(auto from `data_key`)* | CSS color; defaults to `var(--color-{data_key})` |
 | `radius` | `int \\| list[int]` | `0` | Corner radius |
 | `stack_id` | `str \\| None` | `None` | Bars sharing the same `stack_id` are stacked |
 | `bar_size` | `int \\| None` | `None` | Fixed bar width in pixels |
 | `min_point_size` | `int \\| None` | `None` | Minimum bar height for zero values |
-| `label` | `bool \\| dict \\| None` | `None` | Show value labels on bars |
+| `label` | `str \| None` | `None` | Human-readable series label shown in tooltip/legend |
+| `bar_label` | `bool \| dict \| None` | `None` | Show value labels on bars |
 | `background` | `bool \\| dict` | `False` | Show background bar |
 | `hide` | `bool` | `False` | Hide this bar series |
 """

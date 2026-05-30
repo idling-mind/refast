@@ -84,9 +84,9 @@ def get_data():
         {
             "browser": browser,
             "visitors": random.randint(50, 300),
-            "fill": f"var(--color-{browser.lower()})",
+            "fill": f"hsl(var(--chart-{(i % 8) + 1}))",
         }
-        for browser in browsers
+        for i, browser in enumerate(browsers)
     ]
 
     data["radar_data"] = [
@@ -316,10 +316,6 @@ def _render_area_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-                            "mobile": ChartConfig(label="Mobile", color="hsl(var(--chart-2))"),
-                        },
                         min_height=300,
                         children=AreaChart(
                             id="area-chart",
@@ -331,25 +327,22 @@ def _render_area_chart_card():
                                     tick_line=False,
                                     axis_line=False,
                                     tick_margin=8,
-                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(indicator="dot")
                                 ),
                                 Area(
                                     data_key="mobile",
+                                    label="Mobile",
                                     type="natural",
-                                    fill="var(--color-mobile)",
                                     fill_opacity=0.4,
-                                    stroke="var(--color-mobile)",
                                     stacked_id="a",
                                 ),
                                 Area(
                                     data_key="desktop",
+                                    label="Desktop",
                                     type="natural",
-                                    fill="var(--color-desktop)",
                                     fill_opacity=0.4,
-                                    stroke="var(--color-desktop)",
                                     stacked_id="a",
                                 ),
                             ],
@@ -373,10 +366,6 @@ def _render_bar_chart_card(ctx: Context):
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-                            "mobile": ChartConfig(label="Mobile", color="hsl(var(--chart-2))"),
-                        },
                         min_height=300,
                         children=BarChart(
                             id="bar-chart",
@@ -390,13 +379,12 @@ def _render_bar_chart_card(ctx: Context):
                                     tick_line=False,
                                     tick_margin=10,
                                     axis_line=False,
-                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(indicator="dashed")
                                 ),
-                                Bar(data_key="desktop", stack_id="a", fill="var(--color-desktop)"),
-                                Bar(data_key="mobile", stack_id="a", fill="var(--color-mobile)"),
+                                Bar(data_key="desktop", label="Desktop", stack_id="a"),
+                                Bar(data_key="mobile", label="Mobile", stack_id="a"),
                             ],
                         ),
                     )
@@ -415,9 +403,6 @@ def _render_line_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-                        },
                         min_height=300,
                         children=LineChart(
                             id="line-chart",
@@ -430,15 +415,14 @@ def _render_line_chart_card():
                                     tick_line=False,
                                     axis_line=False,
                                     tick_margin=8,
-                                    # tick_formatter="value.slice(0,3)",
                                 ),
                                 ChartTooltip(
                                     cursor=False, content=ChartTooltipContent(hide_label=False)
                                 ),
                                 Line(
                                     data_key="desktop",
+                                    label="Desktop",
                                     type="natural",
-                                    stroke="var(--color-desktop)",
                                     stroke_width=2,
                                     dot=False,
                                 ),
@@ -463,13 +447,6 @@ def _render_pie_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "chrome": ChartConfig(label="Chrome", color="hsl(var(--chart-1))"),
-                            "safari": ChartConfig(label="Safari", color="hsl(var(--chart-2))"),
-                            "firefox": ChartConfig(label="Firefox", color="hsl(var(--chart-3))"),
-                            "edge": ChartConfig(label="Edge", color="hsl(var(--chart-4))"),
-                            "other": ChartConfig(label="Other", color="hsl(var(--chart-5))"),
-                        },
                         min_height=300,
                         max_height=500,
                         class_name="mx-auto aspect-square",
@@ -480,7 +457,13 @@ def _render_pie_chart_card():
                                 ),
                                 Pie(
                                     id="pie-chart",
-                                    data=get_data()["pie_data"],
+                                    data=[
+                                        {"browser": "chrome", "visitors": random.randint(50, 300)},
+                                        {"browser": "safari", "visitors": random.randint(50, 300)},
+                                        {"browser": "firefox", "visitors": random.randint(50, 300)},
+                                        {"browser": "edge", "visitors": random.randint(50, 300)},
+                                        {"browser": "other", "visitors": random.randint(50, 300)},
+                                    ],
                                     data_key="visitors",
                                     name_key="browser",
                                     inner_radius=60,
@@ -507,10 +490,6 @@ def _render_radar_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-                            "mobile": ChartConfig(label="Mobile", color="hsl(var(--chart-2))"),
-                        },
                         min_height=300,
                         max_height=500,
                         class_name="mx-auto aspect-square",
@@ -521,14 +500,8 @@ def _render_radar_chart_card():
                                 ChartTooltip(cursor=False, content=ChartTooltipContent()),
                                 PolarGrid(),
                                 PolarAngleAxis(data_key="skill"),
-                                Radar(
-                                    data_key="desktop",
-                                    fill="var(--color-desktop)",
-                                    fill_opacity=0.6,
-                                ),
-                                Radar(
-                                    data_key="mobile", fill="var(--color-mobile)", fill_opacity=0.6
-                                ),
+                                Radar(data_key="desktop", label="Desktop", fill_opacity=0.6),
+                                Radar(data_key="mobile", label="Mobile", fill_opacity=0.6),
                             ],
                         ),
                     )
@@ -555,7 +528,10 @@ def _render_radial_chart_card():
                         class_name="mx-auto aspect-square",
                         children=RadialBarChart(
                             id="radial-bar-chart",
-                            data=get_data()["radial_data"],
+                            data=[
+                                {"activity": f"activity {i + 1}", "value": random.randint(20, 100)}
+                                for i in range(5)
+                            ],
                             inner_radius="30%",
                             outer_radius="100%",
                             start_angle=0,
@@ -585,10 +561,6 @@ def _render_scatter_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "series1": ChartConfig(label="Series A", color="hsl(var(--chart-1))"),
-                            "series2": ChartConfig(label="Series B", color="hsl(var(--chart-2))"),
-                        },
                         min_height=300,
                         children=ScatterChart(
                             id="scatter-chart",
@@ -614,16 +586,16 @@ def _render_scatter_chart_card():
                                 ),
                                 Scatter(
                                     name="Series A",
+                                    label="Series A",
                                     id="scatter-series-a",
                                     data=get_data()["scatter-series-a"],
-                                    fill="hsl(var(--chart-1))",
                                     shape="circle",
                                 ),
                                 Scatter(
                                     id="scatter-series-b",
                                     name="Series B",
+                                    label="Series B",
                                     data=get_data()["scatter-series-b"],
-                                    fill="hsl(var(--chart-2))",
                                     shape="diamond",
                                 ),
                             ],
@@ -648,11 +620,6 @@ def _render_composed_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "revenue": ChartConfig(label="Revenue", color="hsl(var(--chart-1))"),
-                            "profit": ChartConfig(label="Profit", color="hsl(var(--chart-2))"),
-                            "orders": ChartConfig(label="Orders", color="hsl(var(--chart-3))"),
-                        },
                         min_height=300,
                         children=ComposedChart(
                             id="composed-chart",
@@ -670,20 +637,19 @@ def _render_composed_chart_card():
                                 ChartLegend(content=ChartLegendContent()),
                                 Area(
                                     data_key="profit",
+                                    label="Profit",
                                     type="monotone",
-                                    fill="var(--color-profit)",
                                     fill_opacity=0.3,
-                                    stroke="var(--color-profit)",
                                 ),
                                 Bar(
                                     data_key="revenue",
-                                    fill="var(--color-revenue)",
+                                    label="Revenue",
                                     radius=[4, 4, 0, 0],
                                 ),
                                 Line(
                                     data_key="orders",
+                                    label="Orders",
                                     type="monotone",
-                                    stroke="var(--color-orders)",
                                     stroke_width=2,
                                     dot={"r": 4},
                                 ),
@@ -714,20 +680,18 @@ def _render_funnel_chart_card():
             CardContent(
                 children=[
                     ChartContainer(
-                        config={
-                            "value": ChartConfig(label="Users"),
-                            "visited": ChartConfig(label="Visited", color="hsl(var(--chart-1))"),
-                            "cart": ChartConfig(label="Cart", color="hsl(var(--chart-2))"),
-                            "checkout": ChartConfig(label="Checkout", color="hsl(var(--chart-3))"),
-                            "purchase": ChartConfig(label="Purchase", color="hsl(var(--chart-4))"),
-                        },
                         min_height=300,
                         children=FunnelChart(
                             children=[
                                 ChartTooltip(content=ChartTooltipContent()),
                                 Funnel(
                                     id="funnel-chart",
-                                    data=get_data()["funnel_data"],
+                                    data=[
+                                        {"name": "Visited", "value": random.randint(2500, 5000)},
+                                        {"name": "Cart", "value": random.randint(1800, 2500)},
+                                        {"name": "Checkout", "value": random.randint(800, 1800)},
+                                        {"name": "Purchase", "value": random.randint(100, 800)},
+                                    ],
                                     data_key="value",
                                     name_key="name",
                                     label=True,

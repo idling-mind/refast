@@ -17,7 +17,6 @@ from refast.components import (
 )
 from refast.components.shadcn.charts import (
     CartesianGrid,
-    ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -41,11 +40,6 @@ SAMPLE_DATA = [
     {"month": "May",      "desktop": 209, "mobile": 130},
     {"month": "June",     "desktop": 214, "mobile": 140},
 ]
-
-CHART_CONFIG = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
 
 STROKE_OPTIONS = [
     {"value": "monotone", "label": "Monotone"},
@@ -90,7 +84,7 @@ def _playground(ctx: Context):
     chart_children.append(
         Line(
             data_key="desktop",
-            stroke="var(--color-desktop)",
+            label="Desktop",
             stroke_width=2,
             dot=show_dots,
             type=stroke_type,
@@ -99,7 +93,7 @@ def _playground(ctx: Context):
     chart_children.append(
         Line(
             data_key="mobile",
-            stroke="var(--color-mobile)",
+            label="Mobile",
             stroke_width=2,
             dot=show_dots,
             type=stroke_type,
@@ -127,7 +121,6 @@ def _playground(ctx: Context):
         ],
         preview=[
             ChartContainer(
-                config=CHART_CONFIG,
                 class_name="h-64",
                 children=[
                     LineChart(
@@ -168,16 +161,11 @@ with a continuous line.
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig, LineChart, Line,
+    ChartContainer, LineChart, Line,
     CartesianGrid, XAxis, YAxis,
     ChartTooltip, ChartTooltipContent,
     ChartLegend, ChartLegendContent,
 )
-
-config = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
 
 data = [
     {"month": "January",  "desktop": 186, "mobile": 80},
@@ -185,15 +173,15 @@ data = [
     {"month": "March",    "desktop": 237, "mobile": 120},
 ]
 
-ChartContainer(config=config, class_name="h-64", children=[
+ChartContainer(class_name="h-64", children=[
     LineChart(data=data, children=[
         CartesianGrid(vertical=False),
         XAxis(data_key="month", tick_line=False, axis_line=False),
         YAxis(tick_line=False, axis_line=False),
         ChartTooltip(content=ChartTooltipContent()),
         ChartLegend(content=ChartLegendContent()),
-        Line(data_key="desktop", stroke="var(--color-desktop)", type="monotone"),
-        Line(data_key="mobile",  stroke="var(--color-mobile)",  type="monotone"),
+        Line(data_key="desktop", label="Desktop", type="monotone"),
+        Line(data_key="mobile",  label="Mobile",  type="monotone"),
     ]),
 ])
 ```
@@ -217,13 +205,14 @@ REFERENCE = """
 |------|------|---------|-------------|
 | `data_key` | `str` | *(required)* | Key from data objects |
 | `type` | `str` | `"natural"` | Interpolation: `"linear"`, `"monotone"`, `"step"`, `"natural"`, `"basis"` |
-| `stroke` | `str` | `"hsl(var(--chart-1))"` | Line color or `var(--color-<key>)` |
+| `stroke` | `str` | *(auto from `data_key`)* | Line color; defaults to `var(--color-{data_key})` |
 | `stroke_width` | `int` | `2` | Line thickness in pixels |
 | `dot` | `bool \\| dict` | `True` | Show data-point dots; pass a dict for custom dot styling |
 | `active_dot` | `bool \\| dict` | `True` | Dot shown on hover |
 | `connect_nulls` | `bool` | `False` | Draw a line through `null` values |
 | `stroke_dasharray` | `str \\| None` | `None` | SVG dash pattern e.g. `"5 5"` for dashed lines |
-| `label` | `bool \\| dict \\| None` | `None` | Show value labels at each data point |
+| `label` | `str \| None` | `None` | Human-readable series label shown in tooltip/legend |
+| `line_label` | `bool \| dict \| None` | `None` | Show value labels at each data point |
 | `hide` | `bool` | `False` | Hide this line series |
 
 ## XAxis / YAxis Props

@@ -3,6 +3,7 @@
 from typing import Any, Literal
 
 from refast.components.base import ChildrenType, Component
+from refast.components.shadcn.charts.base import SeriesMixin
 from refast.context import Callback
 
 
@@ -95,25 +96,28 @@ class AreaChart(Component):
         }
 
 
-class Area(Component):
+class Area(SeriesMixin, Component):
     """
     Area component for AreaChart.
 
     Args:
         data_key: Key from data to use for values
+        label: Human-readable label for tooltip/legend (used by ChartContainer
+            to build config automatically)
+        color: Series color. ``None`` = auto-assigned; ``int`` = palette index
+            (e.g. ``color=2``); ``str`` = any CSS color value.
         type: Interpolation type
-        fill: Fill color
+        fill: Fill color. Defaults to ``var(--color-{data_key})``.
         fill_opacity: Fill opacity (0-1)
-        stroke: Stroke color
+        stroke: Stroke color. Defaults to ``fill``.
         stroke_width: Stroke width
         stacked_id: ID for stacking multiple areas
         base_value: Baseline value
         connect_nulls: Connect across null points
         dot: Dot configuration
         active_dot: Active dot config
-        label: Label configuration
         legend_type: Legend icon type
-        name: Name for tooltip/legend
+        name: Name for tooltip/legend (overrides label in recharts)
         unit: Unit for tooltip
         x_axis_id: XAxis reference
         y_axis_id: YAxis reference
@@ -129,10 +133,12 @@ class Area(Component):
     def __init__(
         self,
         data_key: str,
+        label: str | None = None,
+        color: str | int | None = None,
         type: Literal[
             "basis", "linear", "natural", "monotone", "step", "stepBefore", "stepAfter"
         ] = "natural",
-        fill: str = "hsl(var(--chart-1))",
+        fill: str | None = None,
         fill_opacity: float = 0.4,
         stroke: str | None = None,
         stroke_width: int = 2,
@@ -141,7 +147,7 @@ class Area(Component):
         connect_nulls: bool = False,
         dot: bool | dict[str, Any] = False,
         active_dot: bool | dict[str, Any] = True,
-        label: bool | dict[str, Any] | None = None,
+        area_label: bool | dict[str, Any] | None = None,
         legend_type: str | None = None,
         name: str | None = None,
         unit: str | None = None,
@@ -159,17 +165,19 @@ class Area(Component):
     ):
         super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
+        self.label = label
+        self.color = color
         self.type = type
-        self.fill = fill
+        self.fill = fill if fill is not None else f"var(--color-{data_key})"
         self.fill_opacity = fill_opacity
-        self.stroke = stroke or fill
+        self.stroke = stroke if stroke is not None else self.fill
         self.stroke_width = stroke_width
         self.stacked_id = stacked_id
         self.base_value = base_value
         self.connect_nulls = connect_nulls
         self.dot = dot
         self.active_dot = active_dot
-        self.label = label
+        self.area_label = area_label
         self.legend_type = legend_type
         self.name = name
         self.unit = unit
@@ -197,7 +205,7 @@ class Area(Component):
                 "connectNulls": self.connect_nulls,
                 "dot": self.dot,
                 "activeDot": self.active_dot,
-                "label": self.label,
+                "label": self.area_label,
                 "legend_type": self.legend_type,
                 "name": self.name,
                 "unit": self.unit,

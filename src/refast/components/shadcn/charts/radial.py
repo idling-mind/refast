@@ -40,7 +40,14 @@ class RadialBarChart(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
-        self.data = data
+        # Auto-inject fill colors by index when data items have no fill
+        if data and not any("fill" in item for item in data):
+            self.data = [
+                {**item, "fill": f"hsl(var(--chart-{(i % 8) + 1}))"}
+                for i, item in enumerate(data)
+            ]
+        else:
+            self.data = list(data)
         self.margin = margin or {"top": 0, "right": 0, "left": 0, "bottom": 0}
         self.cx = cx
         self.cy = cy

@@ -2,20 +2,54 @@
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
 class ChartConfig(BaseModel):
-    """Configuration for chart data series."""
+    """Configuration for chart data series.
+
+    Args:
+        label: Human-readable label shown in tooltip and legend.
+        color: Color for the series. Accepts:
+            - ``None``: auto-assigned from the ``--chart-N`` palette by order.
+            - ``int``: palette index, e.g. ``color=3`` → ``hsl(var(--chart-3))``.
+            - ``str``: any CSS color, e.g. ``"#ff5500"`` or ``"hsl(var(--chart-1))"``.
+        icon: Optional Lucide icon name.
+    """
 
     model_config = ConfigDict(extra="allow")
 
     label: str
     color: str | None = None
     icon: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _resolve_color(cls, values: Any) -> Any:
+        """Convert integer color index to a CSS variable string."""
+        if isinstance(values, dict) and isinstance(values.get("color"), int):
+            values = dict(values)
+            values["color"] = f"hsl(var(--chart-{values['color']}))"
+        return values
+
+
+class SeriesMixin:
+    """Mixin for chart series components (Area, Bar, Line, Scatter, Radar).
+
+    Enables :class:`ChartContainer` to auto-discover series and build a
+    ``ChartConfig`` dict without any explicit ``config=`` argument.
+    Subclasses set ``self.label`` and ``self.color`` in their ``__init__``.
+    """
+
+    _is_chart_series = True
+
+    @property
+    def series_key(self) -> str:
+        """Key used for the ``--color-{key}`` CSS variable and config dict."""
+        return getattr(self, "data_key", None) or str(self.id)  # type: ignore[attr-defined]
 
 
 class ChartStyle(Component):
@@ -51,20 +85,31 @@ class ChartContainer(Component):
     """
     Container component for charts.
 
-    Provides responsive sizing and theming context.
+    Provides responsive sizing and theming context. Colors and labels can be
+    specified directly on series components — no ``config=`` argument required:
 
-    Example:
+    Example (zero-config):
+        ```python
+        ChartContainer(
+            min_height=300,
+            children=AreaChart(
+                data=data,
+                children=[
+                    Area(data_key="desktop", label="Desktop"),
+                    Area(data_key="mobile",  label="Mobile", color=2),
+                ],
+            ),
+        )
+        ```
+
+    Example (explicit config, backward-compatible):
         ```python
         ChartContainer(
             config={
-                "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-                "mobile": ChartConfig(label="Mobile", color="hsl(var(--chart-2))"),
+                "desktop": ChartConfig(label="Desktop", color=1),
+                "mobile":  ChartConfig(label="Mobile",  color="#6366f1"),
             },
-            AreaChart(
-                data=data,
-                Area(data_key="desktop", fill="var(--color-desktop)"),
-                Area(data_key="mobile", fill="var(--color-mobile)"),
-            ),
+            children=...,
         )
         ```
     """
@@ -74,7 +119,7 @@ class ChartContainer(Component):
     def __init__(
         self,
         children: ChildrenType = None,
-        config: dict[str, ChartConfig] | None = None,
+        config: "dict[str, ChartConfig | dict[str, Any] | str] | None" = None,
         id: str | None = None,
         class_name: str = "",
         width: str | int = "100%",
@@ -97,7 +142,7 @@ class ChartContainer(Component):
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.config = config or {}
+        self.config = self._normalize_config(config)
 
         # Props
         self.width = width
@@ -112,12 +157,85 @@ class ChartContainer(Component):
 
         self.add_children(children)
 
+    @staticmethod
+    def _normalize_config(
+        config: dict | None,
+    ) -> dict[str, ChartConfig]:
+        """Normalize config values to :class:`ChartConfig` instances.
+
+        Accepts ``ChartConfig``, plain ``dict``, or ``str`` (label only) as values.
+        """
+        if not config:
+            return {}
+        result: dict[str, ChartConfig] = {}
+        for k, v in config.items():
+            if isinstance(v, ChartConfig):
+                result[k] = v
+            elif isinstance(v, dict):
+                result[k] = ChartConfig(**v)
+            elif isinstance(v, str):
+                result[k] = ChartConfig(label=v)
+            else:
+                result[k] = v  # type: ignore[assignment]
+        return result
+
+    def _collect_series_from_children(self) -> "list[SeriesMixin]":
+        """Recursively walk the children tree and collect all series components."""
+        series: list[SeriesMixin] = []
+
+        def walk(components: list) -> None:
+            for comp in components:
+                if isinstance(comp, SeriesMixin):
+                    series.append(comp)
+                walk(comp._traversal_children())
+
+        walk(self._traversal_children())
+        return series
+
+    def _build_config(self) -> dict[str, ChartConfig]:
+        """Merge auto-discovered series config with explicit config.
+
+        Explicit ``config=`` entries override auto-discovered ones.
+        Colors are auto-assigned from the ``--chart-N`` palette in discovery
+        order for any entry (auto or explicit) that has no color set.
+        """
+        # Step 1: auto-config from children series components
+        auto_config: dict[str, ChartConfig] = {}
+        for series in self._collect_series_from_children():
+            key = series.series_key
+            if key not in auto_config:
+                auto_config[key] = ChartConfig(
+                    label=getattr(series, "label", None) or key,
+                    color=getattr(series, "color", None),
+                )
+
+        # Step 2: explicit config overrides auto-config per key
+        merged: dict[str, ChartConfig] = {**auto_config, **self.config}
+
+        # Step 3: auto-assign palette colors in iteration order for None-color entries
+        resolved: dict[str, ChartConfig] = {}
+        color_index = 0
+        for key, cfg in merged.items():
+            if cfg.color is None:
+                color = f"hsl(var(--chart-{(color_index % 8) + 1}))"
+                color_index += 1
+                resolved[key] = ChartConfig(
+                    label=cfg.label,
+                    color=color,
+                    icon=getattr(cfg, "icon", None),
+                )
+            else:
+                resolved[key] = cfg
+
+        return resolved
+
     def render(self) -> dict[str, Any]:
+        config = self._build_config()
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
-                "config": {k: v.model_dump() for k, v in self.config.items()},
+                "config": {k: v.model_dump() for k, v in config.items()},
                 "class_name": self.class_name,
                 "style": self.style,
                 "width": self.width,

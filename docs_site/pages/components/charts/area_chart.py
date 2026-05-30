@@ -19,7 +19,6 @@ from refast.components.shadcn.charts import (
     Area,
     AreaChart,
     CartesianGrid,
-    ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -40,11 +39,6 @@ SAMPLE_DATA = [
     {"month": "May",      "desktop": 209, "mobile": 130},
     {"month": "June",     "desktop": 214, "mobile": 140},
 ]
-
-CHART_CONFIG = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
 
 FILL_OPTIONS = [
     {"value": "solid",    "label": "Solid"},
@@ -83,16 +77,14 @@ def _playground(ctx: Context):
         ChartLegend(content=ChartLegendContent()),
         Area(
             data_key="desktop",
-            fill="var(--color-desktop)",
-            stroke="var(--color-desktop)",
+            label="Desktop",
             fill_opacity=fill_opacity,
             stacked_id=stack_id_desktop,
             type="monotone",
         ),
         Area(
             data_key="mobile",
-            fill="var(--color-mobile)",
-            stroke="var(--color-mobile)",
+            label="Mobile",
             fill_opacity=fill_opacity,
             stacked_id=stack_id_mobile,
             type="monotone",
@@ -116,7 +108,6 @@ def _playground(ctx: Context):
         ],
         preview=[
             ChartContainer(
-                config=CHART_CONFIG,
                 class_name="h-64",
                 children=[
                     AreaChart(
@@ -157,16 +148,11 @@ making them useful for showing volume, cumulative totals, or part-to-whole relat
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig, AreaChart, Area,
+    ChartContainer, AreaChart, Area,
     CartesianGrid, XAxis,
     ChartTooltip, ChartTooltipContent,
     ChartLegend, ChartLegendContent,
 )
-
-config = {
-    "desktop": ChartConfig(label="Desktop", color="hsl(var(--chart-1))"),
-    "mobile":  ChartConfig(label="Mobile",  color="hsl(var(--chart-2))"),
-}
 
 data = [
     {"month": "January",  "desktop": 186, "mobile": 80},
@@ -174,16 +160,14 @@ data = [
     {"month": "March",    "desktop": 237, "mobile": 120},
 ]
 
-ChartContainer(config=config, class_name="h-64", children=[
+ChartContainer(class_name="h-64", children=[
     AreaChart(data=data, children=[
         CartesianGrid(vertical=False),
         XAxis(data_key="month", tick_line=False, axis_line=False),
         ChartTooltip(content=ChartTooltipContent()),
         ChartLegend(content=ChartLegendContent()),
-        Area(data_key="desktop", fill="var(--color-desktop)", stroke="var(--color-desktop)",
-             fill_opacity=0.4, type="monotone"),
-        Area(data_key="mobile",  fill="var(--color-mobile)",  stroke="var(--color-mobile)",
-             fill_opacity=0.4, type="monotone"),
+        Area(data_key="desktop", label="Desktop", fill_opacity=0.4, type="monotone"),
+        Area(data_key="mobile",  label="Mobile",  fill_opacity=0.4, type="monotone"),
     ]),
 ])
 ```
@@ -193,8 +177,8 @@ ChartContainer(config=config, class_name="h-64", children=[
 Pass the same `stacked_id` to multiple `Area` components to stack them:
 
 ```python
-Area(data_key="desktop", fill="var(--color-desktop)", stacked_id="areas", ...)
-Area(data_key="mobile",  fill="var(--color-mobile)",  stacked_id="areas", ...)
+Area(data_key="desktop", label="Desktop", stacked_id="areas", ...)
+Area(data_key="mobile",  label="Mobile",  stacked_id="areas", ...)
 ```
 """
 
@@ -217,7 +201,7 @@ REFERENCE = """
 |------|------|---------|-------------|
 | `data_key` | `str` | *(required)* | Key from data objects |
 | `type` | `str` | `"natural"` | Interpolation: `"linear"`, `"monotone"`, `"step"`, `"natural"` |
-| `fill` | `str` | `"hsl(var(--chart-1))"` | Area fill color |
+| `fill` | `str` | *(auto from `data_key`)* | Area fill color; defaults to `var(--color-{data_key})` |
 | `fill_opacity` | `float` | `0.4` | Fill opacity (0–1). Use `0.8` for solid, `0.3` for gradient-like |
 | `stroke` | `str \\| None` | *(same as fill)* | Line stroke color |
 | `stroke_width` | `int` | `2` | Stroke width in pixels |

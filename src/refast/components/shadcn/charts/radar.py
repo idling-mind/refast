@@ -3,6 +3,7 @@
 from typing import Any
 
 from refast.components.base import ChildrenType, Component
+from refast.components.shadcn.charts.base import SeriesMixin
 
 
 class RadarChart(Component):
@@ -66,15 +67,19 @@ class RadarChart(Component):
         }
 
 
-class Radar(Component):
+class Radar(SeriesMixin, Component):
     """
     Radar component for RadarChart.
 
     Args:
         data_key: Key from data
-        fill: Fill color
+        label: Human-readable label for tooltip/legend (used by ChartContainer
+            to build config automatically)
+        color: Series color. ``None`` = auto-assigned; ``int`` = palette index;
+            ``str`` = any CSS color value.
+        fill: Fill color. Defaults to ``var(--color-{data_key})``.
         fill_opacity: Fill opacity
-        stroke: Stroke color
+        stroke: Stroke color. Defaults to ``fill``.
         stroke_width: Stroke width
     """
 
@@ -83,7 +88,9 @@ class Radar(Component):
     def __init__(
         self,
         data_key: str,
-        fill: str = "hsl(var(--chart-1))",
+        label: str | None = None,
+        color: str | int | None = None,
+        fill: str | None = None,
         fill_opacity: float = 0.6,
         stroke: str | None = None,
         stroke_width: int = 2,
@@ -94,9 +101,11 @@ class Radar(Component):
     ):
         super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
-        self.fill = fill
+        self.label = label
+        self.color = color
+        self.fill = fill if fill is not None else f"var(--color-{data_key})"
         self.fill_opacity = fill_opacity
-        self.stroke = stroke or fill
+        self.stroke = stroke if stroke is not None else self.fill
         self.stroke_width = stroke_width
         self.props = extra_props or {}
 

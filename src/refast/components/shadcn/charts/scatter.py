@@ -3,6 +3,7 @@
 from typing import Any, Literal
 
 from refast.components.base import ChildrenType, Component
+from refast.components.shadcn.charts.base import SeriesMixin
 from refast.context import Callback
 
 
@@ -87,13 +88,17 @@ class ScatterChart(Component):
         }
 
 
-class Scatter(Component):
+class Scatter(SeriesMixin, Component):
     """
     Scatter component for ScatterChart.
 
     Args:
         data: Scatter data points
         data_key: Data key for values
+        label: Human-readable label for tooltip/legend (used by ChartContainer
+            to build config automatically)
+        color: Series color. ``None`` = auto-assigned; ``int`` = palette index;
+            ``str`` = any CSS color value.
         x_axis_id: XAxis reference
         y_axis_id: YAxis reference
         z_axis_id: ZAxis reference (for size)
@@ -104,9 +109,9 @@ class Scatter(Component):
                "triangle", "wye")
         active_shape: Active shape configuration
         legend_type: Legend icon type
-        name: Name for tooltip/legend
-        fill: Fill color
-        label: Label configuration
+        name: Series name for tooltip/legend. Also used to derive the config key.
+        fill: Fill color. Defaults to ``var(--color-{series_key})``.
+        scatter_label: Label configuration
         is_animation_active: Enable animation
         animation_begin: Animation delay (ms)
         animation_duration: Animation duration (ms)
@@ -120,6 +125,8 @@ class Scatter(Component):
         self,
         data: list[dict[str, Any]] | None = None,
         data_key: str | None = None,
+        label: str | None = None,
+        color: str | int | None = None,
         x_axis_id: str | int | None = None,
         y_axis_id: str | int | None = None,
         z_axis_id: str | int | None = None,
@@ -130,8 +137,8 @@ class Scatter(Component):
         active_shape: dict[str, Any] | None = None,
         legend_type: str | None = None,
         name: str | None = None,
-        fill: str = "hsl(var(--chart-1))",
-        label: bool | dict[str, Any] | None = None,
+        fill: str | None = None,
+        scatter_label: bool | dict[str, Any] | None = None,
         is_animation_active: bool | Literal["auto"] = "auto",
         animation_begin: int = 0,
         animation_duration: int = 1500,
@@ -145,6 +152,10 @@ class Scatter(Component):
         super().__init__(id=id, extra_props=extra_props)
         self.data = data
         self.data_key = data_key
+        self.label = label
+        self.color = color
+        self.name = name
+        self.fill = fill if fill is not None else f"var(--color-{self.series_key})"
         self.x_axis_id = x_axis_id
         self.y_axis_id = y_axis_id
         self.z_axis_id = z_axis_id
@@ -154,14 +165,21 @@ class Scatter(Component):
         self.shape = shape
         self.active_shape = active_shape
         self.legend_type = legend_type
-        self.name = name
-        self.fill = fill
-        self.label = label
+        self.scatter_label = scatter_label
         self.is_animation_active = is_animation_active
         self.animation_begin = animation_begin
         self.animation_duration = animation_duration
         self.animation_easing = animation_easing
         self.hide = hide
+
+    @property
+    def series_key(self) -> str:
+        """Derive config key from name (normalized) or data_key."""
+        if self.name:
+            return self.name.lower().replace(" ", "_").replace("-", "_")
+        if self.data_key:
+            return self.data_key
+        return str(self.id)
 
     def render(self) -> dict[str, Any]:
         return {
@@ -181,7 +199,7 @@ class Scatter(Component):
                 "legend_type": self.legend_type,
                 "name": self.name,
                 "fill": self.fill,
-                "label": self.label,
+                "label": self.scatter_label,
                 "isAnimationActive": self.is_animation_active,
                 "animationBegin": self.animation_begin,
                 "animation_duration": self.animation_duration,

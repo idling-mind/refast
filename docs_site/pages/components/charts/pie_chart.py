@@ -17,7 +17,6 @@ from refast.components import (
 )
 from refast.components.shadcn.charts import (
     Cell,
-    ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -39,27 +38,12 @@ BROWSER_DATA = [
     {"name": "Other",   "visitors": 90},
 ]
 
-CHART_CONFIG = {
-    "chrome":  ChartConfig(label="Chrome",  color="hsl(var(--chart-1))"),
-    "firefox": ChartConfig(label="Firefox", color="hsl(var(--chart-2))"),
-    "safari":  ChartConfig(label="Safari",  color="hsl(var(--chart-3))"),
-    "edge":    ChartConfig(label="Edge",    color="hsl(var(--chart-4))"),
-    "other":   ChartConfig(label="Other",   color="hsl(var(--chart-5))"),
-}
-
 INNER_RADIUS_OPTIONS = [
     {"value": "pie",   "label": "Pie (0)"},
     {"value": "donut", "label": "Donut (60)"},
 ]
 
 _INNER_RADIUS_MAP = {"pie": 0, "donut": 60}
-_FILL_COLORS = [
-    "hsl(var(--chart-1))",
-    "hsl(var(--chart-2))",
-    "hsl(var(--chart-3))",
-    "hsl(var(--chart-4))",
-    "hsl(var(--chart-5))",
-]
 
 
 # ── Playground callbacks ──────────────────────────────────────────────────
@@ -83,8 +67,6 @@ def _playground(ctx: Context):
     show_labels      = ctx.state.get("pc_labels",       True)
     inner_radius     = _INNER_RADIUS_MAP[inner_radius_key]
 
-    cells = [Cell(extra_props={"fill": _FILL_COLORS[i]}) for i in range(len(BROWSER_DATA))]
-
     pie = Pie(
         data=BROWSER_DATA,
         data_key="visitors",
@@ -93,7 +75,6 @@ def _playground(ctx: Context):
         outer_radius="80%",
         label=show_labels,
         padding_angle=2,
-        children=cells,
     )
 
     return playground_card(
@@ -113,7 +94,6 @@ def _playground(ctx: Context):
         ],
         preview=[
             ChartContainer(
-                config=CHART_CONFIG,
                 class_name="h-72",
                 children=[
                     PieChart(
@@ -157,16 +137,10 @@ Pie charts show part-to-whole relationships. Setting `inner_radius > 0` creates 
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig, PieChart, Pie, Cell,
+    ChartContainer, PieChart, Pie,
     ChartTooltip, ChartTooltipContent,
     ChartLegend, ChartLegendContent,
 )
-
-config = {
-    "chrome":  ChartConfig(label="Chrome",  color="hsl(var(--chart-1))"),
-    "firefox": ChartConfig(label="Firefox", color="hsl(var(--chart-2))"),
-    "safari":  ChartConfig(label="Safari",  color="hsl(var(--chart-3))"),
-}
 
 data = [
     {"name": "Chrome",  "visitors": 275},
@@ -174,14 +148,8 @@ data = [
     {"name": "Safari",  "visitors": 187},
 ]
 
-# Assign per-slice colours with Cell
-cells = [
-    Cell(extra_props={"fill": "hsl(var(--chart-1))"}),
-    Cell(extra_props={"fill": "hsl(var(--chart-2))"}),
-    Cell(extra_props={"fill": "hsl(var(--chart-3))"}),
-]
-
-ChartContainer(config=config, class_name="h-72", children=[
+# Slice colors are auto-assigned by index (hsl(var(--chart-1)), --chart-2, ...)
+ChartContainer(class_name="h-72", children=[
     PieChart(children=[
         Pie(
             data=data,
@@ -190,13 +158,16 @@ ChartContainer(config=config, class_name="h-72", children=[
             inner_radius=60,   # 0 = pie, >0 = donut
             outer_radius="80%",
             padding_angle=2,
-            children=cells,
         ),
         ChartTooltip(content=ChartTooltipContent()),
         ChartLegend(content=ChartLegendContent()),
     ]),
 ])
 ```
+
+> **Tip:** For custom per-slice colors, add a `"fill"` key to each data item
+> (e.g. `{"name": "Chrome", "visitors": 275, "fill": "hsl(var(--chart-1))"}`).
+> You can also use `Cell` children for fine-grained control.
 """
 
 REFERENCE = """

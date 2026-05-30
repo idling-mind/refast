@@ -3,6 +3,7 @@
 from typing import Any, Literal
 
 from refast.components.base import ChildrenType, Component
+from refast.components.shadcn.charts.base import SeriesMixin
 from refast.context import Callback
 
 
@@ -109,13 +110,17 @@ class BarChart(Component):
         }
 
 
-class Bar(Component):
+class Bar(SeriesMixin, Component):
     """
     Bar component for BarChart.
 
     Args:
         data_key: Key from data
-        fill: Fill color
+        label: Human-readable label for tooltip/legend (used by ChartContainer
+            to build config automatically)
+        color: Series color. ``None`` = auto-assigned; ``int`` = palette index;
+            ``str`` = any CSS color value.
+        fill: Fill color. Defaults to ``var(--color-{data_key})``.
         radius: Border radius of bar
         bar_size: Bar size
         bar_gap: Gap between bars
@@ -128,7 +133,7 @@ class Bar(Component):
         name: Name for tooltip/legend
         unit: Unit for tooltip
         legend_type: Legend icon type
-        label: Label configuration
+        bar_label: Label configuration
         active_bar: Active bar styling
         is_animation_active: Enable animation
         animation_begin: Animation delay (ms)
@@ -142,7 +147,9 @@ class Bar(Component):
     def __init__(
         self,
         data_key: str,
-        fill: str = "hsl(var(--chart-1))",
+        label: str | None = None,
+        color: str | int | None = None,
+        fill: str | None = None,
         radius: int | list[int] = 0,
         bar_size: int | None = None,
         bar_gap: str | int | None = None,
@@ -155,7 +162,7 @@ class Bar(Component):
         name: str | None = None,
         unit: str | None = None,
         legend_type: str | None = None,
-        label: bool | dict[str, Any] | None = None,
+        bar_label: bool | dict[str, Any] | None = None,
         active_bar: bool | dict[str, Any] | None = None,
         is_animation_active: bool | Literal["auto"] = "auto",
         animation_begin: int = 0,
@@ -169,7 +176,9 @@ class Bar(Component):
     ):
         super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
-        self.fill = fill
+        self.label = label
+        self.color = color
+        self.fill = fill if fill is not None else f"var(--color-{data_key})"
         self.radius = radius
         self.bar_size = bar_size
         self.bar_gap = bar_gap
@@ -182,7 +191,7 @@ class Bar(Component):
         self.name = name
         self.unit = unit
         self.legend_type = legend_type
-        self.label = label
+        self.bar_label = bar_label
         self.active_bar = active_bar
         self.is_animation_active = is_animation_active
         self.animation_begin = animation_begin
@@ -208,7 +217,7 @@ class Bar(Component):
                 "name": self.name,
                 "unit": self.unit,
                 "legend_type": self.legend_type,
-                "label": self.label,
+                "label": self.bar_label,
                 "activeBar": self.active_bar,
                 "isAnimationActive": self.is_animation_active,
                 "animationBegin": self.animation_begin,

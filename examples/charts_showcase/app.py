@@ -536,6 +536,7 @@ def _render_radial_chart_card():
                             outer_radius="100%",
                             start_angle=0,
                             end_angle=250,
+                            name_key="activity",
                             children=[
                                 RadialBar(data_key="value", background=False, corner_radius=10),
                                 ChartTooltip(cursor=False, content=ChartTooltipContent()),

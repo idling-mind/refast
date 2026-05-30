@@ -119,6 +119,7 @@ class Pie(Component):
         animation_duration: int = 1500,
         animation_easing: str = "ease",
         hide: bool = False,
+        label_key: str | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         style: dict[str, Any] | None = None,
@@ -126,6 +127,7 @@ class Pie(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
+        self.label_key = label_key
         # Auto-inject fill colors by index when data items have no fill
         if data and not any("fill" in item for item in data):
             self.data = [
@@ -170,7 +172,10 @@ class Pie(Component):
                 "cy": self.cy,
                 "inner_radius": self.inner_radius,
                 "outer_radius": self.outer_radius,
-                "label": self.label,
+                # When label_key is set, emit a field-getter sentinel that
+                # propTransformer converts into (entry) => entry[key] — a
+                # proper Recharts label function.  Otherwise pass label as-is.
+                "label": {"$field_getter": self.label_key} if self.label_key else self.label,
                 "start_angle": self.start_angle,
                 "end_angle": self.end_angle,
                 "paddingAngle": self.padding_angle,

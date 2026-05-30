@@ -192,7 +192,7 @@ function ComponentObjectRenderer({ tree, onUpdate, ref, ...rest }: ComponentRend
         return <ComponentRenderer key={node.id || i} tree={node} onUpdate={onUpdate} />;
       }
 
-        const nProps = {
+        const nProps: Record<string, unknown> = {
           key: node.id || i,
           ...transformProps(node.props || {}, {
             resolveComponentTree: (value) => (

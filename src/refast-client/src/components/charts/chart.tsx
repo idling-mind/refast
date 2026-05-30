@@ -153,7 +153,12 @@ export function ChartTooltipContent({
       )}
       <div className="grid gap-2">
         {payload.map((item, index) => {
-          const key = nameKey ? item.payload?.[nameKey] : item.dataKey;
+          // For Pie charts item.name holds the per-slice nameKey value;
+          // item.dataKey is the Pie's dataKey (same for every slice).
+          // For RadialBar, item.payload.name holds the per-sector name (from data);
+          // item.name is the RadialBar-level name prop (same for every sector).
+          // For Line/Bar, item.name equals the series dataKey or label.
+          const key = nameKey ? item.payload?.[nameKey] : (item.payload?.name ?? item.name ?? item.dataKey);
           const configItem = config?.[key];
           
           return (
@@ -167,8 +172,10 @@ export function ChartTooltipContent({
                     indicator === 'dashed' && 'w-0 border-2 border-dashed bg-transparent'
                   )}
                   style={{ 
-                    backgroundColor: indicator === 'dashed' ? undefined : item.color,
-                    borderColor: indicator === 'dashed' ? item.color : undefined
+                    // Recharts Pie tooltip payload omits `color`; fall back to
+                    // the slice's `fill` from the data item.
+                    backgroundColor: indicator === 'dashed' ? undefined : (item.color ?? item.payload?.fill),
+                    borderColor: indicator === 'dashed' ? (item.color ?? item.payload?.fill) : undefined
                   }}
                 />
               )}
@@ -209,7 +216,10 @@ export function ChartLegendContent({
   return (
     <div className="flex flex-wrap items-center justify-center gap-4">
       {payload.map((item, index) => {
-        const key = nameKey ? item.payload?.[nameKey] : item.dataKey;
+        // For Pie legend, item.value is the per-slice nameKey value;
+        // item.dataKey is undefined on pie legend entries.
+        // For Line/Bar legend, item.value equals the series name/dataKey.
+        const key = nameKey ? item.payload?.[nameKey] : (item.value ?? item.dataKey);
         const configItem = config?.[key];
 
         return (

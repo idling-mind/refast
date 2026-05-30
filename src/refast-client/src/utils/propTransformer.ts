@@ -65,6 +65,33 @@ export function removeNullValues(
 }
 
 /**
+ * Check if a value is a field-getter sentinel: `{ "$field_getter": "keyName" }`.
+ * Python components can emit this to turn any prop into `(entry) => entry[key]`
+ * without component-specific frontend logic.
+ */
+export function isFieldGetterRef(value: unknown): value is { $field_getter: string } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    '$field_getter' in value &&
+    typeof (value as Record<string, unknown>).$field_getter === 'string'
+  );
+}
+
+/**
+ * Create a field-getter function from a sentinel.
+ * Returns `(entry) => entry[key]` as a string (falls back to empty string).
+ */
+export function createFieldGetterFunction(
+  key: string,
+): (entry: Record<string, unknown>) => string {
+  return (entry: Record<string, unknown>): string => {
+    const v = entry[key];
+    return v !== null && v !== undefined ? String(v) : '';
+  };
+}
+
+/**
  * Create a formatter function from a string expression.
  * The expression may reference `value` and `index` variables.
  */
@@ -156,6 +183,8 @@ export function transformProps(
 
     if (resolveAction && isAnyActionRef(value)) {
       result[camelKey] = resolveAction(value, camelKey);
+    } else if (isFieldGetterRef(value)) {
+      result[camelKey] = createFieldGetterFunction(value.$field_getter);
     } else if (isFormatterString(key, value)) {
       result[camelKey] = createFormatterFunction(value as string);
     } else if (resolveComponentTree && isComponentTree(value)) {

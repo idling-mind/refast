@@ -317,7 +317,8 @@ class TestScatterChart:
         )
 
         rendered = scatter.render()
-        assert rendered["props"]["data"] == data
+        # fill is injected into each data point for tooltip color support
+        assert rendered["props"]["data"] == [{**d, "fill": "#ff7300"} for d in data]
         assert rendered["props"]["x_axis_id"] == "x1"
         assert rendered["props"]["zAxisId"] == "z1"
         assert rendered["props"]["line"] is True
@@ -645,11 +646,9 @@ class TestReferenceComponents:
 
 from refast.components.shadcn.charts import (  # noqa: E402
     ChartConfig,
-    ChartContainer,
-    RadialBarChart,
-    RadialBar,
     Radar,
-    Scatter,
+    RadialBar,
+    RadialBarChart,
 )
 
 
@@ -681,9 +680,7 @@ class TestChartContainerNormalizeConfig:
     """ChartContainer accepts plain dict and str values in config."""
 
     def test_plain_dict_config(self):
-        container = ChartContainer(
-            config={"desktop": {"label": "Desktop", "color": "#ff5500"}}
-        )
+        container = ChartContainer(config={"desktop": {"label": "Desktop", "color": "#ff5500"}})
         cfg = container.config["desktop"]
         assert isinstance(cfg, ChartConfig)
         assert cfg.label == "Desktop"
@@ -733,7 +730,9 @@ class TestChartContainerAutoConfig:
     def test_explicit_color_on_series(self):
         data = [{"month": "Jan", "revenue": 100}]
         container = ChartContainer(
-            children=BarChart(data=data, children=[Bar(data_key="revenue", label="Revenue", color=3)])
+            children=BarChart(
+                data=data, children=[Bar(data_key="revenue", label="Revenue", color=3)]
+            )
         )
         rendered = container.render()
         assert rendered["props"]["config"]["revenue"]["color"] == "hsl(var(--chart-3))"
@@ -754,9 +753,7 @@ class TestChartContainerAutoConfig:
         explicit = ChartConfig(label="My Desktop", color="#123456")
         container = ChartContainer(
             config={"desktop": explicit},
-            children=AreaChart(
-                data=data, children=[Area(data_key="desktop", label="Desktop")]
-            ),
+            children=AreaChart(data=data, children=[Area(data_key="desktop", label="Desktop")]),
         )
         rendered = container.render()
         cfg = rendered["props"]["config"]["desktop"]

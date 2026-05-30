@@ -3,6 +3,7 @@
 from typing import Any, Literal
 
 from refast.components.base import ChildrenType, Component
+from refast.components.shadcn.charts.base import SeriesMixin
 from refast.context import Callback
 
 
@@ -85,14 +86,18 @@ class LineChart(Component):
         }
 
 
-class Line(Component):
+class Line(SeriesMixin, Component):
     """
     Line component for LineChart.
 
     Args:
         data_key: Key from data
+        label: Human-readable label for tooltip/legend (used by ChartContainer
+            to build config automatically)
+        color: Series color. ``None`` = auto-assigned; ``int`` = palette index;
+            ``str`` = any CSS color value.
         type: Interpolation type
-        stroke: Stroke color
+        stroke: Stroke color. Defaults to ``var(--color-{data_key})``.
         stroke_width: Stroke width
         dot: Whether to show dots
         active_dot: Active dot configuration
@@ -102,7 +107,7 @@ class Line(Component):
         legend_type: Legend icon type
         name: Name for tooltip/legend
         unit: Unit for tooltip
-        label: Label configuration
+        line_label: Label configuration
         stroke_dasharray: Dash pattern
         is_animation_active: Enable animation
         animation_begin: Animation delay (ms)
@@ -116,10 +121,12 @@ class Line(Component):
     def __init__(
         self,
         data_key: str,
+        label: str | None = None,
+        color: str | int | None = None,
         type: Literal[
             "basis", "linear", "natural", "monotone", "step", "stepBefore", "stepAfter"
         ] = "natural",
-        stroke: str = "hsl(var(--chart-1))",
+        stroke: str | None = None,
         stroke_width: int = 2,
         dot: bool | dict[str, Any] = True,
         active_dot: bool | dict[str, Any] = True,
@@ -129,7 +136,7 @@ class Line(Component):
         legend_type: str | None = None,
         name: str | None = None,
         unit: str | None = None,
-        label: bool | dict[str, Any] | None = None,
+        line_label: bool | dict[str, Any] | None = None,
         stroke_dasharray: str | None = None,
         is_animation_active: bool | Literal["auto"] = "auto",
         animation_begin: int = 0,
@@ -143,8 +150,10 @@ class Line(Component):
     ):
         super().__init__(id=id, extra_props=extra_props)
         self.data_key = data_key
+        self.label = label
+        self.color = color
         self.type = type
-        self.stroke = stroke
+        self.stroke = stroke if stroke is not None else f"var(--color-{data_key})"
         self.stroke_width = stroke_width
         self.dot = dot
         self.active_dot = active_dot
@@ -154,7 +163,7 @@ class Line(Component):
         self.legend_type = legend_type
         self.name = name
         self.unit = unit
-        self.label = label
+        self.line_label = line_label
         self.stroke_dasharray = stroke_dasharray
         self.is_animation_active = is_animation_active
         self.animation_begin = animation_begin
@@ -179,7 +188,7 @@ class Line(Component):
                 "legend_type": self.legend_type,
                 "name": self.name,
                 "unit": self.unit,
-                "label": self.label,
+                "label": self.line_label,
                 "stroke_dasharray": self.stroke_dasharray,
                 "isAnimationActive": self.is_animation_active,
                 "animationBegin": self.animation_begin,

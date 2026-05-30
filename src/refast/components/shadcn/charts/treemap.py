@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component
+from refast.components.base import ChildrenType, Component
 from refast.context import Callback
 
 
@@ -60,12 +60,14 @@ class Treemap(Component):
         on_click: Callback | None = None,
         on_mouse_enter: Callback | None = None,
         on_mouse_leave: Callback | None = None,
+        children: ChildrenType = None,
         id: str | None = None,
         style: dict[str, Any] | None = None,
         parent_style: dict[str, Any] | None = None,
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
+        self.add_children(children)
         self.data = data
         self.width = width
         self.height = height
@@ -112,4 +114,5 @@ class Treemap(Component):
                 ),
                 **self.extra_props,
             },
+            "children": self._render_children(),
         }

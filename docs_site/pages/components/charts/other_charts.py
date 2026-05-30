@@ -11,8 +11,6 @@ from refast.components import (
     Separator,
 )
 from refast.components.shadcn.charts import (
-    Cell,
-    ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
@@ -67,16 +65,12 @@ SCATTER_DATA = [
 
 
 def _radar_chart():
-    config = {
-        "score": ChartConfig(label="Score", color="hsl(var(--chart-1))"),
-    }
     return Card(
         children=[
             CardHeader(title="Radar Chart — Skills Assessment"),
             CardContent(
                 children=[
                     ChartContainer(
-                        config=config,
                         class_name="h-72",
                         children=[
                             RadarChart(
@@ -87,9 +81,8 @@ def _radar_chart():
                                     ChartTooltip(content=ChartTooltipContent()),
                                     Radar(
                                         data_key="score",
-                                        fill="var(--color-score)",
+                                        label="Score",
                                         fill_opacity=0.5,
-                                        stroke="var(--color-score)",
                                     ),
                                 ],
                             ),
@@ -102,19 +95,12 @@ def _radar_chart():
 
 
 def _radial_bar_chart():
-    config = {
-        "value": ChartConfig(label="Progress", color="hsl(var(--chart-1))"),
-    }
-    radial_cells = [
-        Cell(extra_props={"fill": item["fill"]}) for item in RADIAL_DATA
-    ]
     return Card(
         children=[
             CardHeader(title="Radial Bar Chart — Progress Bars"),
             CardContent(
                 children=[
                     ChartContainer(
-                        config=config,
                         class_name="h-72",
                         children=[
                             RadialBarChart(
@@ -127,7 +113,6 @@ def _radial_bar_chart():
                                         data_key="value",
                                         background=True,
                                         corner_radius=4,
-                                        children=radial_cells,
                                     ),
                                     ChartTooltip(content=ChartTooltipContent()),
                                 ],
@@ -141,16 +126,12 @@ def _radial_bar_chart():
 
 
 def _scatter_chart():
-    config = {
-        "correlation": ChartConfig(label="Correlation", color="hsl(var(--chart-2))"),
-    }
     return Card(
         children=[
             CardHeader(title="Scatter Chart — Correlation Plot"),
             CardContent(
                 children=[
                     ChartContainer(
-                        config=config,
                         class_name="h-72",
                         children=[
                             ScatterChart(
@@ -159,8 +140,9 @@ def _scatter_chart():
                                     YAxis(data_key="y", tick_line=False, axis_line=False),
                                     ChartTooltip(content=ChartTooltipContent()),
                                     Scatter(
+                                        name="Correlation",
+                                        label="Correlation",
                                         data=SCATTER_DATA,
-                                        fill="var(--color-correlation)",
                                     ),
                                 ],
                             ),
@@ -214,12 +196,10 @@ quantitative dimensions.
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig,
+    ChartContainer,
     RadarChart, Radar, PolarGrid, PolarAngleAxis,
     ChartTooltip, ChartTooltipContent,
 )
-
-config = {"score": ChartConfig(label="Score", color="hsl(var(--chart-1))")}
 
 data = [
     {"subject": "Python",     "score": 90},
@@ -227,17 +207,12 @@ data = [
     {"subject": "React",      "score": 80},
 ]
 
-ChartContainer(config=config, class_name="h-72", children=[
+ChartContainer(class_name="h-72", children=[
     RadarChart(data=data, children=[
         PolarGrid(),
         PolarAngleAxis(data_key="subject"),
         ChartTooltip(content=ChartTooltipContent()),
-        Radar(
-            data_key="score",
-            fill="var(--color-score)",
-            fill_opacity=0.5,
-            stroke="var(--color-score)",
-        ),
+        Radar(data_key="score", label="Score", fill_opacity=0.5),
     ]),
 ])
 ```
@@ -253,30 +228,30 @@ progress indicators or for comparing a small number of categories in a compact s
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig,
-    RadialBarChart, RadialBar, Cell,
+    ChartContainer,
+    RadialBarChart, RadialBar,
     ChartTooltip, ChartTooltipContent,
 )
 
-config = {"value": ChartConfig(label="Progress", color="hsl(var(--chart-1))")}
-
+# Add "fill" to each data item for per-bar colors
 data = [
     {"name": "Design",      "value": 80,  "fill": "hsl(var(--chart-1))"},
     {"name": "Development", "value": 65,  "fill": "hsl(var(--chart-2))"},
     {"name": "Testing",     "value": 50,  "fill": "hsl(var(--chart-3))"},
 ]
 
-cells = [Cell(extra_props={"fill": item["fill"]}) for item in data]
-
-ChartContainer(config=config, class_name="h-72", children=[
+ChartContainer(class_name="h-72", children=[
     RadialBarChart(data=data, inner_radius="20%", outer_radius="90%", bar_size=18,
         children=[
-            RadialBar(data_key="value", background=True, corner_radius=4, children=cells),
+            RadialBar(data_key="value", background=True, corner_radius=4),
             ChartTooltip(content=ChartTooltipContent()),
         ],
     ),
 ])
 ```
+
+> **Tip:** If no `"fill"` is present in any data item, colors are auto-assigned
+> from the palette (`--chart-1`, `--chart-2`, …) in order.
 """
 
 SCATTER_SECTION = """
@@ -289,13 +264,11 @@ correlations, clusters, and outliers.
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig,
+    ChartContainer,
     ScatterChart, Scatter,
     XAxis, YAxis,
     ChartTooltip, ChartTooltipContent,
 )
-
-config = {"points": ChartConfig(label="Points", color="hsl(var(--chart-2))")}
 
 data = [
     {"x": 10, "y": 30},
@@ -303,12 +276,12 @@ data = [
     {"x": 70, "y": 55},
 ]
 
-ChartContainer(config=config, class_name="h-72", children=[
+ChartContainer(class_name="h-72", children=[
     ScatterChart(children=[
         XAxis(data_key="x", tick_line=False, axis_line=False),
         YAxis(data_key="y", tick_line=False, axis_line=False),
         ChartTooltip(content=ChartTooltipContent()),
-        Scatter(data=data, fill="hsl(var(--chart-2))"),
+        Scatter(name="Points", label="Points", data=data),
     ]),
 ])
 ```
@@ -389,6 +362,6 @@ REFERENCE = """
 | `Treemap` | Hierarchical area-proportioned rectangles |
 | `Sankey` | Flow diagrams between nodes |
 
-> These chart types follow the same `ChartContainer` + `ChartConfig` wrapping pattern.
+> These chart types follow the same `ChartContainer` wrapping pattern.
 > Refer to the Recharts documentation for their full set of props.
 """

@@ -27,8 +27,8 @@ CONTENT = r"""
 ## Overview
 
 Refast includes a full charting system built on [Recharts](https://recharts.org/).
-All charts are wrapped in a `ChartContainer` with a `ChartConfig` that maps data
-keys to display labels and colors.
+All charts are wrapped in a `ChartContainer` which automatically builds color config
+from its series children. You can still pass an explicit `config=` dict as an escape hatch.
 
 ## Chart Types
 
@@ -52,7 +52,7 @@ keys to display labels and colors.
 
 ```python
 from refast.components.shadcn.charts import (
-    ChartContainer, ChartConfig,
+    ChartContainer,
     BarChart, Bar,
     ChartTooltip, ChartTooltipContent,
     XAxis, CartesianGrid,
@@ -64,12 +64,8 @@ data = [
     {"month": "Mar", "sales": 200},
 ]
 
-config = {
-    "sales": ChartConfig(label="Sales", color="hsl(var(--chart-1))"),
-}
-
+# No config dict needed — label= on Bar auto-builds it
 ChartContainer(
-    config=config,
     class_name="h-64 w-full",
     children=[
         BarChart(
@@ -78,7 +74,7 @@ ChartContainer(
                 CartesianGrid(stroke_dasharray="3 3"),
                 XAxis(data_key="month"),
                 ChartTooltip(content=ChartTooltipContent()),
-                Bar(data_key="sales", fill="var(--color-sales)", radius=4),
+                Bar(data_key="sales", label="Sales", radius=4),
             ],
         ),
     ],
@@ -93,7 +89,7 @@ Responsive wrapper that provides theming context and sizing.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `config` | `dict[str, ChartConfig]` | `{}` | Map of data key → `ChartConfig` |
+| `config` | `dict[str, ChartConfig] \| None` | `None` | Optional override map. Auto-built from series children when omitted |
 | `class_name` | `str` | `""` | CSS classes (e.g., `"h-64 w-full"`) |
 | `width` | `str \| int` | `"100%"` | Container width |
 | `height` | `str \| int` | `"100%"` | Container height |
@@ -103,8 +99,13 @@ Responsive wrapper that provides theming context and sizing.
 
 ## ChartConfig (Pydantic model)
 
+Used as an optional escape hatch when you need explicit control over labels,
+colors, or icons. In most cases you can omit it and set `label=` on each series.
+
 ```python
 ChartConfig(label="Revenue", color="hsl(var(--chart-1))")
+# Integer shorthand — equivalent to the above:
+ChartConfig(label="Revenue", color=1)
 ```
 
 | Field | Type | Description |

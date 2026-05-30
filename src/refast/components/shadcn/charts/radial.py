@@ -33,6 +33,7 @@ class RadialBarChart(Component):
         bar_size: int | None = None,
         start_angle: int = 90,
         end_angle: int = -270,
+        name_key: str | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         style: dict[str, Any] | None = None,
@@ -40,7 +41,20 @@ class RadialBarChart(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(id=id, extra_props=extra_props)
-        self.data = data
+        # Auto-inject fill colors by index when data items have no fill
+        processed = data
+        if processed and not any("fill" in item for item in processed):
+            processed = [
+                {**item, "fill": f"hsl(var(--chart-{(i % 8) + 1}))"}
+                for i, item in enumerate(processed)
+            ]
+        # Remap name_key → "name" so Recharts legend/tooltip can read entry.name
+        if name_key and name_key != "name":
+            processed = [
+                {**item, "name": item[name_key]}
+                for item in processed
+            ]
+        self.data = processed
         self.margin = margin or {"top": 0, "right": 0, "left": 0, "bottom": 0}
         self.cx = cx
         self.cy = cy

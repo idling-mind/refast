@@ -317,7 +317,8 @@ class TestScatterChart:
         )
 
         rendered = scatter.render()
-        assert rendered["props"]["data"] == data
+        # fill is injected into each data point for tooltip color support
+        assert rendered["props"]["data"] == [{**d, "fill": "#ff7300"} for d in data]
         assert rendered["props"]["x_axis_id"] == "x1"
         assert rendered["props"]["zAxisId"] == "z1"
         assert rendered["props"]["line"] is True
@@ -405,7 +406,11 @@ class TestFunnelChart:
 
         rendered = funnel.render()
         assert rendered["type"] == "Funnel"
-        assert rendered["props"]["data"] == data
+        # Data is enriched with auto-fill colors
+        assert len(rendered["props"]["data"]) == 3
+        assert rendered["props"]["data"][0]["name"] == "Visit"
+        assert rendered["props"]["data"][0]["value"] == 4000
+        assert "fill" in rendered["props"]["data"][0]
         assert rendered["props"]["lastShapeType"] == "rectangle"
 
 
@@ -633,6 +638,207 @@ class TestReferenceComponents:
         assert rendered["type"] == "ErrorBar"
         assert rendered["props"]["data_key"] == "error"
         assert rendered["props"]["direction"] == "y"
+
+
+# ---------------------------------------------------------------------------
+# New API: simplified colors, label/color on series, auto-fill in data
+# ---------------------------------------------------------------------------
+
+from refast.components.shadcn.charts import (  # noqa: E402
+    ChartConfig,
+    Radar,
+    RadialBar,
+    RadialBarChart,
+)
+
+
+class TestChartConfigColorShorthand:
+    """ChartConfig accepts int color shorthand."""
+
+    def test_int_color_converted_to_css_var(self):
+        cfg = ChartConfig(label="Desktop", color=1)
+        assert cfg.color == "hsl(var(--chart-1))"
+
+    def test_int_color_large_index(self):
+        cfg = ChartConfig(label="X", color=8)
+        assert cfg.color == "hsl(var(--chart-8))"
+
+    def test_string_color_unchanged(self):
+        cfg = ChartConfig(label="X", color="#ff5500")
+        assert cfg.color == "#ff5500"
+
+    def test_string_hsl_unchanged(self):
+        cfg = ChartConfig(label="X", color="hsl(var(--chart-3))")
+        assert cfg.color == "hsl(var(--chart-3))"
+
+    def test_none_color_stays_none(self):
+        cfg = ChartConfig(label="X")
+        assert cfg.color is None
+
+
+class TestChartContainerNormalizeConfig:
+    """ChartContainer accepts plain dict and str values in config."""
+
+    def test_plain_dict_config(self):
+        container = ChartContainer(config={"desktop": {"label": "Desktop", "color": "#ff5500"}})
+        cfg = container.config["desktop"]
+        assert isinstance(cfg, ChartConfig)
+        assert cfg.label == "Desktop"
+        assert cfg.color == "#ff5500"
+
+    def test_str_config(self):
+        container = ChartContainer(config={"desktop": "Desktop Users"})
+        cfg = container.config["desktop"]
+        assert isinstance(cfg, ChartConfig)
+        assert cfg.label == "Desktop Users"
+        assert cfg.color is None
+
+    def test_chartconfig_passthrough(self):
+        orig = ChartConfig(label="Desktop", color=2)
+        container = ChartContainer(config={"desktop": orig})
+        assert container.config["desktop"] is orig
+
+
+class TestChartContainerAutoConfig:
+    """ChartContainer builds config automatically from series children."""
+
+    def test_auto_color_assigned_by_order(self):
+        data = [{"month": "Jan", "desktop": 100, "mobile": 50}]
+        container = ChartContainer(
+            children=AreaChart(
+                data=data,
+                children=[
+                    Area(data_key="desktop", label="Desktop"),
+                    Area(data_key="mobile", label="Mobile"),
+                ],
+            )
+        )
+        rendered = container.render()
+        config = rendered["props"]["config"]
+        assert config["desktop"]["color"] == "hsl(var(--chart-1))"
+        assert config["mobile"]["color"] == "hsl(var(--chart-2))"
+        assert config["desktop"]["label"] == "Desktop"
+        assert config["mobile"]["label"] == "Mobile"
+
+    def test_label_defaults_to_data_key(self):
+        """Series without label falls back to data_key as label."""
+        data = [{"month": "Jan", "revenue": 100}]
+        container = ChartContainer(children=BarChart(data=data, children=[Bar(data_key="revenue")]))
+        rendered = container.render()
+        assert rendered["props"]["config"]["revenue"]["label"] == "revenue"
+
+    def test_explicit_color_on_series(self):
+        data = [{"month": "Jan", "revenue": 100}]
+        container = ChartContainer(
+            children=BarChart(
+                data=data, children=[Bar(data_key="revenue", label="Revenue", color=3)]
+            )
+        )
+        rendered = container.render()
+        assert rendered["props"]["config"]["revenue"]["color"] == "hsl(var(--chart-3))"
+
+    def test_explicit_hex_color_on_series(self):
+        data = [{"month": "Jan", "revenue": 100}]
+        container = ChartContainer(
+            children=BarChart(
+                data=data, children=[Bar(data_key="revenue", label="Revenue", color="#abcdef")]
+            )
+        )
+        rendered = container.render()
+        assert rendered["props"]["config"]["revenue"]["color"] == "#abcdef"
+
+    def test_explicit_config_overrides_auto(self):
+        """Explicit config= takes precedence over series-derived config."""
+        data = [{"month": "Jan", "desktop": 100}]
+        explicit = ChartConfig(label="My Desktop", color="#123456")
+        container = ChartContainer(
+            config={"desktop": explicit},
+            children=AreaChart(data=data, children=[Area(data_key="desktop", label="Desktop")]),
+        )
+        rendered = container.render()
+        cfg = rendered["props"]["config"]["desktop"]
+        assert cfg["label"] == "My Desktop"
+        assert cfg["color"] == "#123456"
+
+    def test_auto_color_cycles_at_8(self):
+        """Colors cycle through 8-palette slots."""
+        data = [{"x": i} for i in range(10)]
+        series = [Bar(data_key=f"s{i}", label=f"S{i}") for i in range(9)]
+        container = ChartContainer(children=BarChart(data=data, children=series))
+        rendered = container.render()
+        config = rendered["props"]["config"]
+        assert config["s0"]["color"] == "hsl(var(--chart-1))"
+        assert config["s7"]["color"] == "hsl(var(--chart-8))"
+        assert config["s8"]["color"] == "hsl(var(--chart-1))"  # wraps
+
+
+class TestSeriesAutoFill:
+    """Series components auto-derive fill/stroke from data_key."""
+
+    def test_area_default_fill(self):
+        area = Area(data_key="desktop")
+        assert area.fill == "var(--color-desktop)"
+        assert area.stroke == "var(--color-desktop)"
+
+    def test_area_explicit_fill_respected(self):
+        area = Area(data_key="desktop", fill="#ff0000")
+        assert area.fill == "#ff0000"
+
+    def test_bar_default_fill(self):
+        bar = Bar(data_key="revenue")
+        assert bar.fill == "var(--color-revenue)"
+
+    def test_line_default_stroke(self):
+        line = Line(data_key="orders")
+        assert line.stroke == "var(--color-orders)"
+
+    def test_radar_default_fill(self):
+        radar = Radar(data_key="speed")
+        assert radar.fill == "var(--color-speed)"
+        assert radar.stroke == "var(--color-speed)"
+
+    def test_scatter_default_fill_from_name(self):
+        scatter = Scatter(name="Series A")
+        assert scatter.series_key == "series_a"
+        assert scatter.fill == "var(--color-series_a)"
+
+    def test_scatter_series_key_normalized(self):
+        scatter = Scatter(name="My-Series B")
+        assert scatter.series_key == "my_series_b"
+
+
+class TestAutoFillInData:
+    """Pie, Funnel, RadialBarChart auto-inject fill into data items."""
+
+    def test_pie_auto_fill(self):
+        data = [{"browser": "chrome", "visitors": 100}, {"browser": "safari", "visitors": 80}]
+        pie = Pie(data=data, data_key="visitors", name_key="browser")
+        assert pie.data[0]["fill"] == "hsl(var(--chart-1))"
+        assert pie.data[1]["fill"] == "hsl(var(--chart-2))"
+        # original data not mutated
+        assert "fill" not in data[0]
+
+    def test_pie_respects_existing_fill(self):
+        data = [{"browser": "chrome", "visitors": 100, "fill": "#custom"}]
+        pie = Pie(data=data, data_key="visitors", name_key="browser")
+        assert pie.data[0]["fill"] == "#custom"
+
+    def test_funnel_auto_fill(self):
+        data = [{"name": "Visit", "value": 1000}, {"name": "Cart", "value": 500}]
+        funnel = Funnel(data=data, data_key="value")
+        assert funnel.data[0]["fill"] == "hsl(var(--chart-1))"
+        assert funnel.data[1]["fill"] == "hsl(var(--chart-2))"
+
+    def test_radial_auto_fill(self):
+        data = [{"activity": "a", "value": 50}, {"activity": "b", "value": 80}]
+        chart = RadialBarChart(data=data, children=[RadialBar(data_key="value")])
+        assert chart.data[0]["fill"] == "hsl(var(--chart-1))"
+        assert chart.data[1]["fill"] == "hsl(var(--chart-2))"
+
+    def test_radial_respects_existing_fill(self):
+        data = [{"activity": "a", "value": 50, "fill": "red"}]
+        chart = RadialBarChart(data=data, children=[RadialBar(data_key="value")])
+        assert chart.data[0]["fill"] == "red"
 
 
 class TestCartesianGrid:

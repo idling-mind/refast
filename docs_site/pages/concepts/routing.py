@@ -264,7 +264,7 @@ and call it from every page handler:
 
 ```python
 def app_layout(ctx: Context, content):
-    """Shared layout wrapper."""
+    \"""Shared layout wrapper.\"""
     return Container(
         class_name="flex min-h-screen",
         children=[

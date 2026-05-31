@@ -2,6 +2,25 @@
 
 > **IMPORTANT**: This file must be kept up-to-date with the current project structure. When making structural changes to the codebase, update this file accordingly.
 
+## AI Skills
+
+The following skills are available in this repository. Use the `readFile` tool to load a skill before working on Refast app code.
+
+### `create-refast-app`
+**Location**: `.copilot/skills/create-refast-app/SKILL.md`  
+**Use when**: Building, extending, or debugging any Refast application — pages, components, events, streaming, navigation.
+
+| Skill File | Contents |
+|------------|----------|
+| [SKILL.md](.copilot/skills/create-refast-app/SKILL.md) | Entry point & quick reference |
+| [01-core-setup.md](.copilot/skills/create-refast-app/01-core-setup.md) | RefastApp, pages, Context, state |
+| [02-components-layout.md](.copilot/skills/create-refast-app/02-components-layout.md) | All components with props & examples |
+| [03-events-callbacks.md](.copilot/skills/create-refast-app/03-events-callbacks.md) | Callbacks, prop store, chains, JS interop |
+| [04-streaming-advanced.md](.copilot/skills/create-refast-app/04-streaming-advanced.md) | Streaming, long-running tasks, broadcast |
+| [05-navigation-structure.md](.copilot/skills/create-refast-app/05-navigation-structure.md) | Multi-page, sidebar, layout patterns |
+
+---
+
 ## Project Overview
 
 **Refast** is a Python + React UI framework that enables building reactive web applications with Python-first development. It uses FastAPI for the backend and React with shadcn/ui for the frontend.

@@ -46,6 +46,8 @@ def _feature_table_card():
         ("overlay", "Dialog, Sheet, Drawer, Popover, HoverCard", "refast-overlay-*.js", "~55 kB"),
         ("controls", "Slider, DatePicker, Combobox, ToggleGroup, Carousel", "refast-controls-*.js", "~70 kB"),
         ("markdown", "Markdown renderer (remark/rehype + syntax highlighting)", "refast-markdown-*.js", "~95 kB"),
+        ("katex", "KaTeX math rendering (remark-math, rehype-katex)", "refast-katex-*.js", "~50 kB"),
+        ("mermaid", "Mermaid diagramming library", "refast-mermaid-*.js", "~140 kB"),
         ("icons", "Full Lucide icon set (thousands of icons)", "refast-icons-*.js", "~120 kB"),
     ]
 
@@ -95,9 +97,10 @@ def _feature_table_card():
 
 CONTENT = r"""
 Refast's frontend is split into a small always-loaded **core bundle** and a set of
-optional **feature chunks**. By default all chunks are preloaded. The
-`preloaded_features` parameter on `RefastApp` controls which chunks are sent to
-the browser on the initial page load.
+optional **feature chunks**. By default **no** feature chunks are preloaded — they
+load on demand the first time a component from that chunk is rendered. The
+`preloaded_features` parameter on `RefastApp` controls which chunks are eagerly
+sent to the browser on the initial page load.
 
 ## Why it matters
 
@@ -110,13 +113,16 @@ there's no reason to make users download that code.
 ```python
 from refast import RefastApp
 
-# Default — all feature chunks are preloaded (simplest, biggest bundle)
+# Default — no feature chunks preloaded; all load on demand
 app = RefastApp(title="My App")
 
-# Charts only — only the recharts chunk is preloaded
+# Charts only — the recharts chunk is preloaded at startup
 app = RefastApp(title="My App", preloaded_features=["charts"])
 
-# Minimal — only the always-loaded core components (buttons, cards, inputs, …)
+# All features preloaded — biggest initial bundle, no on-demand loading
+app = RefastApp(title="My App", preloaded_features=["charts", "markdown", "katex", "mermaid", "icons", "navigation", "overlay", "controls"])
+
+# Explicitly empty — same as the default, confirms no chunks are preloaded
 app = RefastApp(title="My App", preloaded_features=[])
 ```
 
@@ -147,9 +153,9 @@ CONTENT_AFTER_TABLE = r"""
 |---|---|
 | Dashboard with charts | `["charts"]` |
 | Admin panel with rich forms | `["controls", "overlay"]` |
-| Documentation or content site | `["markdown", "icons", "navigation"]` |
-| Minimal UI / internal tool | `[]` |
-| Full-featured app | `None` (default — all chunks) |
+| Documentation or content site | `["markdown", "katex", "mermaid", "icons", "navigation"]` |
+| Minimal UI / internal tool | `[]` or `None` (default — on demand) |
+| Full-featured app | `["charts", "markdown", "katex", "mermaid", "icons", "navigation", "overlay", "controls"]` |
 
 ## Example
 

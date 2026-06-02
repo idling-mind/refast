@@ -224,6 +224,84 @@ export function Link({
   );
 }
 
+// ── Syntax-highlighter singleton ──────────────────────────────────────────
+// Loaded once at module level so the first Code block render can read the
+// result synchronously (via useState initializer) if the promise already
+// resolved. This eliminates the flash-of-unstyled-code on first page load.
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type _SHType = React.ComponentType<any>;
+type _SHCache = {
+  SyntaxHighlighter: _SHType;
+  styles: { light: Record<string, React.CSSProperties>; dark: Record<string, React.CSSProperties> };
+};
+
+let _shCache: _SHCache | null = null;
+let _shPromise: Promise<void> | null = null;
+const _shListeners = new Set<() => void>();
+
+function _loadSyntaxHighlighter(): Promise<void> {
+  if (_shPromise) return _shPromise;
+  _shPromise = (async () => {
+    try {
+      const [PrismLightModule, oneDarkModule, oneLightModule] = await Promise.all([
+        import('react-syntax-highlighter/dist/esm/prism-light'),
+        import('react-syntax-highlighter/dist/esm/styles/prism/one-dark'),
+        import('react-syntax-highlighter/dist/esm/styles/prism/one-light'),
+      ]);
+      const PrismLight = PrismLightModule.default;
+      const [javascript, typescript, python, bash, json, css, jsx, tsx, sql, yaml, markdown] = await Promise.all([
+        import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/python'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/json'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/css'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/jsx'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/sql'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/yaml'),
+        import('react-syntax-highlighter/dist/esm/languages/prism/markdown'),
+      ]);
+      PrismLight.registerLanguage('javascript', javascript.default);
+      PrismLight.registerLanguage('js', javascript.default);
+      PrismLight.registerLanguage('typescript', typescript.default);
+      PrismLight.registerLanguage('ts', typescript.default);
+      PrismLight.registerLanguage('python', python.default);
+      PrismLight.registerLanguage('py', python.default);
+      PrismLight.registerLanguage('bash', bash.default);
+      PrismLight.registerLanguage('shell', bash.default);
+      PrismLight.registerLanguage('sh', bash.default);
+      PrismLight.registerLanguage('json', json.default);
+      PrismLight.registerLanguage('css', css.default);
+      PrismLight.registerLanguage('jsx', jsx.default);
+      PrismLight.registerLanguage('tsx', tsx.default);
+      PrismLight.registerLanguage('sql', sql.default);
+      PrismLight.registerLanguage('yaml', yaml.default);
+      PrismLight.registerLanguage('yml', yaml.default);
+      PrismLight.registerLanguage('markdown', markdown.default);
+      PrismLight.registerLanguage('md', markdown.default);
+      _shCache = {
+        SyntaxHighlighter: PrismLight,
+        styles: {
+          light: oneLightModule.default as Record<string, React.CSSProperties>,
+          dark: oneDarkModule.default as Record<string, React.CSSProperties>,
+        },
+      };
+      _shListeners.forEach((fn) => fn());
+    } catch (error) {
+      console.error('Failed to load syntax highlighter:', error);
+    }
+  })();
+  return _shPromise;
+}
+
+// Kick off loading as soon as this module is imported so the chunks are
+// in-flight before any Code component is rendered.
+_loadSyntaxHighlighter();
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface CodeProps {
   id?: string;
   className?: string;
@@ -252,14 +330,10 @@ export function Code({
   'data-refast-id': dataRefastId,
 }: CodeProps): React.ReactElement<any> {
   const theme = useTheme();
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [SyntaxHighlighter, setSyntaxHighlighter] = React.useState<React.ComponentType<any> | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [styles, setStyles] = React.useState<{
-    light: Record<string, React.CSSProperties>;
-    dark: Record<string, React.CSSProperties>;
-  } | null>(null);
+
+  // Read from the singleton cache synchronously so that components mounting
+  // after the first load never see the plain-text fallback.
+  const [highlighter, setHighlighter] = React.useState<_SHCache | null>(() => _shCache);
 
   // Extract code string from children (which might be React nodes or strings)
   const codeString = React.useMemo(() => {
@@ -281,68 +355,22 @@ export function Code({
   }, [children, code]);
 
   React.useEffect(() => {
-    if (!inline) {
-      // Dynamically import syntax highlighter for block code
-      // Use PrismLight with only commonly used languages to reduce bundle size
-      const loadHighlighter = async () => {
-        try {
-          const [PrismLightModule, oneDarkModule, oneLightModule] = await Promise.all([
-            import('react-syntax-highlighter/dist/esm/prism-light'),
-            import('react-syntax-highlighter/dist/esm/styles/prism/one-dark'),
-            import('react-syntax-highlighter/dist/esm/styles/prism/one-light'),
-          ]);
-          
-          const PrismLight = PrismLightModule.default;
-          
-          // Register commonly used languages
-          const [javascript, typescript, python, bash, json, css, jsx, tsx, sql, yaml, markdown] = await Promise.all([
-            import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/python'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/json'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/css'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/jsx'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/sql'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/yaml'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/markdown'),
-          ]);
-          
-          PrismLight.registerLanguage('javascript', javascript.default);
-          PrismLight.registerLanguage('js', javascript.default);
-          PrismLight.registerLanguage('typescript', typescript.default);
-          PrismLight.registerLanguage('ts', typescript.default);
-          PrismLight.registerLanguage('python', python.default);
-          PrismLight.registerLanguage('py', python.default);
-          PrismLight.registerLanguage('bash', bash.default);
-          PrismLight.registerLanguage('shell', bash.default);
-          PrismLight.registerLanguage('sh', bash.default);
-          PrismLight.registerLanguage('json', json.default);
-          PrismLight.registerLanguage('css', css.default);
-          PrismLight.registerLanguage('jsx', jsx.default);
-          PrismLight.registerLanguage('tsx', tsx.default);
-          PrismLight.registerLanguage('sql', sql.default);
-          PrismLight.registerLanguage('yaml', yaml.default);
-          PrismLight.registerLanguage('yml', yaml.default);
-          PrismLight.registerLanguage('markdown', markdown.default);
-          PrismLight.registerLanguage('md', markdown.default);
-          
-          setSyntaxHighlighter(() => PrismLight);
-          setStyles({
-            light: oneLightModule.default as Record<string, React.CSSProperties>,
-            dark: oneDarkModule.default as Record<string, React.CSSProperties>,
-          });
-        } catch (error) {
-          console.error('Failed to load syntax highlighter:', error);
-        }
-      };
-      loadHighlighter();
+    if (inline) return;
+    // Already loaded — nothing to do.
+    if (_shCache) {
+      if (!highlighter) setHighlighter(_shCache);
+      return;
     }
-  }, [inline]);
+    // Subscribe so we re-render once the singleton resolves.
+    const notify = () => setHighlighter(_shCache);
+    _shListeners.add(notify);
+    _loadSyntaxHighlighter();
+    return () => { _shListeners.delete(notify); };
+  }, [inline, highlighter]);
 
   // Get the current style based on theme
-  const currentStyle = styles ? styles[theme] : null;
+  const SyntaxHighlighter = highlighter?.SyntaxHighlighter ?? null;
+  const currentStyle = highlighter ? highlighter.styles[theme] : null;
 
   if (inline) {
     return (

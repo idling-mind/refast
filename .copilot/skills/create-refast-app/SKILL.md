@@ -1,3 +1,8 @@
+---
+name: create-refast-app
+description: Guide for creating, scaffolding, and extending a Refast application. Use this when asked to build pages, add components, handle events, implement streaming, or structure a multi-page app.
+---
+
 # Skill: Create a Refast App
 
 **Use this skill** when the user asks to build, scaffold, extend, or debug a Refast application — including creating pages, adding components, handling events, implementing streaming, or structuring a multi-page app.

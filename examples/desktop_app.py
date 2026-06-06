@@ -5,12 +5,12 @@ import socket
 import sys
 import threading
 import time
+import uvicorn
 from contextlib import asynccontextmanager
 
-import psutil
-import uvicorn
-import webview
 from fastapi import FastAPI
+import psutil
+import webview
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -39,8 +39,10 @@ from refast.theme import catppuccin_theme
 
 # Global references for window management
 window = None
+port = 8000
 is_maximized = False
 is_fullscreen = False
+is_frameless = False
 
 # Create the Refast App
 ui = RefastApp(
@@ -51,14 +53,14 @@ ui = RefastApp(
 
 # Helper: Find a free port starting from a default
 def find_free_port(start_port=8000):
-    port = start_port
+    p = start_port
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
-                s.bind(("127.0.0.1", port))
-                return port
+                s.bind(("127.0.0.1", p))
+                return p
             except OSError:
-                port += 1
+                p += 1
 
 
 # Helper: Get current system resource stats
@@ -171,13 +173,58 @@ async def resize_window_preset(ctx: Context, size_preset: str):
             await ctx.show_toast("Resized to 1280 x 720", variant="success")
 
 
+# Toggle Frameless Window state by recreating the window dynamically
+async def toggle_frameless_state(ctx: Context, checked: bool = None):
+    global window, is_frameless, is_maximized, is_fullscreen
+    
+    # Determine the new target state (use checked bool if from switch, else toggle)
+    new_state = checked if checked is not None else not is_frameless
+    
+    # Write to local storage to persist the choice
+    ctx.store.local["is_frameless"] = new_state
+    
+    # Update backend global state
+    is_frameless = new_state
+    
+    if window:
+        # Fetch current window placement properties to preserve them
+        width = window.width
+        height = window.height
+        x = window.x
+        y = window.y
+        title = window.title
+        url = window.get_current_url() or f"http://127.0.0.1:{port}"
+        
+        # Reset maximized and fullscreen tracking since we are initializing a clean window
+        is_maximized = False
+        is_fullscreen = False
+        
+        old_window = window
+        print(f"[*] Recreating window: frameless={is_frameless}, title='{title}', url='{url}'")
+        
+        # Create a new window instance with the new frame style
+        window = webview.create_window(
+            title=title,
+            url=url,
+            width=width,
+            height=height,
+            x=x,
+            y=y,
+            frameless=is_frameless,
+            min_size=(800, 600),
+        )
+        
+        # Destroy the previous window instance
+        old_window.destroy()
+
+
 # Native Dialog Callbacks
 async def trigger_open_file(ctx: Context):
     if not window:
         return
     await ctx.show_toast("Opening native file dialog...", variant="info")
     file_types = ("All files (*.*)", "Python files (*.py)", "Text files (*.txt)")
-    result = window.create_file_dialog(webview.FileDialog.OPEN, file_types=file_types)
+    result = window.create_file_dialog(webview.OPEN_DIALOG, file_types=file_types)
 
     if result:
         file_path = result[0]
@@ -196,7 +243,7 @@ async def trigger_select_folder(ctx: Context):
     if not window:
         return
     await ctx.show_toast("Opening native folder dialog...", variant="info")
-    result = window.create_file_dialog(webview.FileDialog.FOLDER)
+    result = window.create_file_dialog(webview.FOLDER_DIALOG)
 
     if result:
         folder_path = result[0]
@@ -222,7 +269,7 @@ async def trigger_save_file(ctx: Context):
     await ctx.show_toast("Opening native save dialog...", variant="info")
     file_types = ("Text files (*.txt)", "JSON files (*.json)", "All files (*.*)")
     result = window.create_file_dialog(
-        webview.FileDialog.SAVE, file_types=file_types, save_filename="refast_export.txt"
+        webview.SAVE_DIALOG, file_types=file_types, save_filename="refast_export.txt"
     )
 
     if result:
@@ -282,10 +329,14 @@ def index_page(ctx: Context):
 
     # Initial stats fetch
     init_cpu, init_ram, init_disk = get_system_stats()
+    
+    # Read frameless configuration choice from persistent local storage
+    init_frameless = ctx.store.local.get("is_frameless", False)
 
     # Build Header Bar with Title and Custom Window Controls (iconbuttons)
+    # Adding 'pywebview-drag-region' to class_name makes it draggable in frameless mode!
     header = Card(
-        class_name="mb-6 bg-slate-900 border-slate-800 text-slate-100",
+        class_name="mb-6 bg-slate-900 border-slate-800 text-slate-100 pywebview-drag-region",
         children=[
             CardContent(
                 class_name="py-3 px-6 flex flex-row justify-between items-center",
@@ -298,13 +349,15 @@ def index_page(ctx: Context):
                             Column(
                                 gap=0,
                                 children=[
-                                    Text(
-                                        "Refast Desktop Environment", class_name="font-bold text-lg"
+                                    Row(
+                                        gap=2,
+                                        align="center",
+                                        children=[
+                                            Text("Refast Desktop Environment", class_name="font-bold text-lg"),
+                                            Badge("Frameless Mode", variant="outline", class_name="text-xs bg-purple-950/30 text-purple-300 border-purple-800") if init_frameless else Container(),
+                                        ]
                                     ),
-                                    Text(
-                                        "PyWebView native window bridge showcase",
-                                        class_name="text-xs text-muted-foreground",
-                                    ),
+                                    Text("PyWebView native window bridge showcase (Drag header to move window)", class_name="text-xs text-muted-foreground"),
                                 ],
                             ),
                         ],
@@ -377,43 +430,28 @@ def index_page(ctx: Context):
                             Row(
                                 justify="between",
                                 children=[
-                                    Text(
-                                        "Operating System",
-                                        class_name="text-muted-foreground font-medium",
-                                    ),
+                                    Text("Operating System", class_name="text-muted-foreground font-medium"),
                                     Badge(os_name, variant="secondary"),
                                 ],
                             ),
                             Row(
                                 justify="between",
                                 children=[
-                                    Text(
-                                        "Processor Cores",
-                                        class_name="text-muted-foreground font-medium",
-                                    ),
-                                    Badge(
-                                        f"{cpu_cores_physical} Cores (Logical: {cpu_cores_logical})",
-                                        variant="secondary",
-                                    ),
+                                    Text("Processor Cores", class_name="text-muted-foreground font-medium"),
+                                    Badge(f"{cpu_cores_physical} Cores (Logical: {cpu_cores_logical})", variant="secondary"),
                                 ],
                             ),
                             Row(
                                 justify="between",
                                 children=[
-                                    Text(
-                                        "Installed Memory",
-                                        class_name="text-muted-foreground font-medium",
-                                    ),
+                                    Text("Installed Memory", class_name="text-muted-foreground font-medium"),
                                     Badge(f"{total_ram_gb} GB", variant="secondary"),
                                 ],
                             ),
                             Row(
                                 justify="between",
                                 children=[
-                                    Text(
-                                        "Python Engine",
-                                        class_name="text-muted-foreground font-medium",
-                                    ),
+                                    Text("Python Engine", class_name="text-muted-foreground font-medium"),
                                     Badge(f"v{python_ver}", variant="secondary"),
                                 ],
                             ),
@@ -438,19 +476,14 @@ def index_page(ctx: Context):
                                 gap=1,
                                 children=[
                                     CardTitle("System Diagnostics"),
-                                    CardDescription(
-                                        "Dynamic CPU, RAM, and primary Drive diagnostics"
-                                    ),
-                                ],
+                                    CardDescription("Dynamic CPU, RAM, and primary Drive diagnostics"),
+                                ]
                             ),
                             Row(
                                 gap=2,
                                 align="center",
                                 children=[
-                                    Text(
-                                        "Auto-Refresh",
-                                        class_name="text-xs text-muted-foreground font-medium",
-                                    ),
+                                    Text("Auto-Refresh", class_name="text-xs text-muted-foreground font-medium"),
                                     Switch(
                                         id="auto-refresh-switch",
                                         checked=ctx.state.get("auto_refresh", True),
@@ -474,15 +507,8 @@ def index_page(ctx: Context):
                                     Row(
                                         justify="between",
                                         children=[
-                                            Text(
-                                                "Processor Activity (CPU)",
-                                                class_name="font-semibold text-sm",
-                                            ),
-                                            Text(
-                                                f"{init_cpu}%",
-                                                id="cpu-text",
-                                                class_name="font-mono text-sm",
-                                            ),
+                                            Text("Processor Activity (CPU)", class_name="font-semibold text-sm"),
+                                            Text(f"{init_cpu}%", id="cpu-text", class_name="font-mono text-sm"),
                                         ],
                                     ),
                                     Progress(
@@ -501,15 +527,8 @@ def index_page(ctx: Context):
                                     Row(
                                         justify="between",
                                         children=[
-                                            Text(
-                                                "RAM Memory Load",
-                                                class_name="font-semibold text-sm",
-                                            ),
-                                            Text(
-                                                f"{init_ram}%",
-                                                id="ram-text",
-                                                class_name="font-mono text-sm",
-                                            ),
+                                            Text("RAM Memory Load", class_name="font-semibold text-sm"),
+                                            Text(f"{init_ram}%", id="ram-text", class_name="font-mono text-sm"),
                                         ],
                                     ),
                                     Progress(
@@ -527,15 +546,8 @@ def index_page(ctx: Context):
                                     Row(
                                         justify="between",
                                         children=[
-                                            Text(
-                                                "Disk Space Usage",
-                                                class_name="font-semibold text-sm",
-                                            ),
-                                            Text(
-                                                f"{init_disk}%",
-                                                id="disk-text",
-                                                class_name="font-mono text-sm",
-                                            ),
+                                            Text("Disk Space Usage", class_name="font-semibold text-sm"),
+                                            Text(f"{init_disk}%", id="disk-text", class_name="font-mono text-sm"),
                                         ],
                                     ),
                                     Progress(
@@ -573,16 +585,8 @@ def index_page(ctx: Context):
                                 gap=4,
                                 align="center",
                                 children=[
-                                    Button(
-                                        "Select File",
-                                        icon="file",
-                                        on_click=ctx.callback(trigger_open_file),
-                                    ),
-                                    Text(
-                                        "No file chosen yet...",
-                                        id="file-dialog-result",
-                                        class_name="text-xs text-muted-foreground flex-1 break-all",
-                                    ),
+                                    Button("Select File", icon="file", on_click=ctx.callback(trigger_open_file)),
+                                    Text("No file chosen yet...", id="file-dialog-result", class_name="text-xs text-muted-foreground flex-1 break-all"),
                                 ],
                             ),
                             # Folder selector
@@ -590,16 +594,8 @@ def index_page(ctx: Context):
                                 gap=4,
                                 align="center",
                                 children=[
-                                    Button(
-                                        "Select Folder",
-                                        icon="folder",
-                                        on_click=ctx.callback(trigger_select_folder),
-                                    ),
-                                    Text(
-                                        "No folder chosen yet...",
-                                        id="folder-dialog-result",
-                                        class_name="text-xs text-muted-foreground flex-1 break-all",
-                                    ),
+                                    Button("Select Folder", icon="folder", on_click=ctx.callback(trigger_select_folder)),
+                                    Text("No folder chosen yet...", id="folder-dialog-result", class_name="text-xs text-muted-foreground flex-1 break-all"),
                                 ],
                             ),
                             # Action: Open explorer
@@ -621,17 +617,8 @@ def index_page(ctx: Context):
                                 gap=4,
                                 align="center",
                                 children=[
-                                    Button(
-                                        "Save File Dialog",
-                                        icon="save",
-                                        variant="secondary",
-                                        on_click=ctx.callback(trigger_save_file),
-                                    ),
-                                    Text(
-                                        "Awaiting save location...",
-                                        id="save-dialog-result",
-                                        class_name="text-xs text-muted-foreground flex-1 break-all",
-                                    ),
+                                    Button("Save File Dialog", icon="save", variant="secondary", on_click=ctx.callback(trigger_save_file)),
+                                    Text("Awaiting save location...", id="save-dialog-result", class_name="text-xs text-muted-foreground flex-1 break-all"),
                                 ],
                             ),
                         ],
@@ -660,14 +647,8 @@ def index_page(ctx: Context):
                             Column(
                                 gap=2,
                                 children=[
-                                    Text(
-                                        "Hardware/Motherboard Beep",
-                                        class_name="font-semibold text-sm",
-                                    ),
-                                    Text(
-                                        "Uses winsound on Windows to play a physical beep",
-                                        class_name="text-xs text-muted-foreground mb-1",
-                                    ),
+                                    Text("Hardware/Motherboard Beep", class_name="font-semibold text-sm"),
+                                    Text("Uses winsound on Windows to play a physical beep", class_name="text-xs text-muted-foreground mb-1"),
                                     Button(
                                         "Trigger Motherboard Beep Sound",
                                         icon="volume-2",
@@ -680,14 +661,8 @@ def index_page(ctx: Context):
                             Column(
                                 gap=2,
                                 children=[
-                                    Text(
-                                        "Rename GUI Window Title",
-                                        class_name="font-semibold text-sm",
-                                    ),
-                                    Text(
-                                        "Dynamically update the parent window's text bar",
-                                        class_name="text-xs text-muted-foreground mb-1",
-                                    ),
+                                    Text("Rename GUI Window Title", class_name="font-semibold text-sm"),
+                                    Text("Dynamically update the parent window's text bar", class_name="text-xs text-muted-foreground mb-1"),
                                     Row(
                                         gap=2,
                                         children=[
@@ -699,9 +674,7 @@ def index_page(ctx: Context):
                                             Button(
                                                 "Apply",
                                                 variant="outline",
-                                                on_click=ctx.callback(
-                                                    rename_window_title, props=["title_input"]
-                                                ),
+                                                on_click=ctx.callback(rename_window_title, props=["title_input"]),
                                             ),
                                         ],
                                     ),
@@ -711,14 +684,8 @@ def index_page(ctx: Context):
                             Column(
                                 gap=2,
                                 children=[
-                                    Text(
-                                        "Window Dimensions Preset",
-                                        class_name="font-semibold text-sm",
-                                    ),
-                                    Text(
-                                        "Resize the application window layout instantly",
-                                        class_name="text-xs text-muted-foreground mb-2",
-                                    ),
+                                    Text("Window Dimensions Preset", class_name="font-semibold text-sm"),
+                                    Text("Resize the application window layout instantly", class_name="text-xs text-muted-foreground mb-2"),
                                     Row(
                                         gap=2,
                                         children=[
@@ -726,29 +693,43 @@ def index_page(ctx: Context):
                                                 "800 x 600",
                                                 variant="outline",
                                                 size="sm",
-                                                on_click=ctx.callback(
-                                                    resize_window_preset, size_preset="small"
-                                                ),
+                                                on_click=ctx.callback(resize_window_preset, size_preset="small"),
                                             ),
                                             Button(
                                                 "1024 x 768",
                                                 variant="outline",
                                                 size="sm",
-                                                on_click=ctx.callback(
-                                                    resize_window_preset, size_preset="medium"
-                                                ),
+                                                on_click=ctx.callback(resize_window_preset, size_preset="medium"),
                                             ),
                                             Button(
                                                 "1280 x 720",
                                                 variant="outline",
                                                 size="sm",
-                                                on_click=ctx.callback(
-                                                    resize_window_preset, size_preset="large"
-                                                ),
+                                                on_click=ctx.callback(resize_window_preset, size_preset="large"),
                                             ),
                                         ],
                                     ),
                                 ],
+                            ),
+                            # Dynamic Frameless Switch
+                            Row(
+                                justify="between",
+                                align="center",
+                                children=[
+                                    Column(
+                                        gap=1,
+                                        children=[
+                                            Text("Frameless Window Border", class_name="font-semibold text-sm"),
+                                            Text("Toggle OS border/title bar (recreates window)", class_name="text-xs text-muted-foreground"),
+                                        ]
+                                    ),
+                                    Switch(
+                                        id="frameless-switch",
+                                        checked=init_frameless,
+                                        on_checked_change=ctx.callback(toggle_frameless_state),
+                                    ),
+                                ],
+                                class_name="border-t border-slate-800 pt-4"
                             ),
                         ],
                     )
@@ -764,10 +745,7 @@ def index_page(ctx: Context):
             CardContent(
                 class_name="py-4 px-6 flex flex-row justify-between items-center",
                 children=[
-                    Text(
-                        "Refast-PyWebView Desktop Integration Sample",
-                        class_name="text-sm text-slate-400",
-                    ),
+                    Text("Refast-PyWebView Desktop Integration Sample", class_name="text-sm text-slate-400"),
                     Row(
                         gap=4,
                         align="center",
@@ -806,8 +784,8 @@ app = FastAPI(title="Refast Desktop App Server", lifespan=lifespan)
 app.include_router(ui.router)
 
 
-def run_server(port):
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+def run_server(server_port):
+    uvicorn.run(app, host="127.0.0.1", port=server_port, log_level="warning")
 
 
 if __name__ == "__main__":
@@ -827,6 +805,7 @@ if __name__ == "__main__":
         width=1000,
         height=750,
         min_size=(800, 600),
+        frameless=is_frameless,
     )
 
     # Start the native window main loop

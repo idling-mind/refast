@@ -102,7 +102,7 @@ export type AnyCallbackRef = AnyActionRef;
  * Update message from backend.
  */
 export interface UpdateMessage {
-  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call' | 'theme_update';
+  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call' | 'theme_update' | 'desktop_notification';
   operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children' | 'append_prop';
   targetId?: string;
   component?: ComponentTree;
@@ -141,6 +141,16 @@ export interface UpdateMessage {
   kwargs?: Record<string, unknown>;
   // Theme update properties
   theme?: ThemePayload;
+  // Desktop notification properties
+  title?: string;
+  body?: string;
+  tag?: string;
+  silent?: boolean;
+  require_interaction?: boolean;
+  on_click?: AnyActionRef;
+  on_close?: AnyActionRef;
+  on_permission_granted?: AnyActionRef;
+  on_permission_denied?: AnyActionRef;
 }
 
 /**

@@ -1061,13 +1061,17 @@ class Context(Generic[T]):
             title: The main title text of the notification.
             body: The secondary description/body content.
             icon: URL or relative path to an icon to show in the notification.
-            tag: A unique tag to prevent duplicate notifications (replaces existing notification with the same tag).
+            tag: A unique tag to prevent duplicate notifications
+                (replaces existing notification with the same tag).
             silent: If True, plays no sound during alert presentation.
-            require_interaction: If True, keeps the notification active until user clicks or dismisses it.
+            require_interaction: If True, keeps the notification active
+                until user clicks or dismisses it.
             on_click: Python callback to run when the notification is clicked.
             on_close: Python callback to run when the notification is dismissed or closed.
-            on_permission_granted: Python callback to run when notification permission is granted (fires immediately if already granted).
-            on_permission_denied: Python callback to run when notification permission is denied (fires immediately if blocked).
+            on_permission_granted: Python callback to run when notification
+                permission is granted (fires immediately if already granted).
+            on_permission_denied: Python callback to run when notification
+                permission is denied (fires immediately if blocked).
         """
         if self._websocket:
             payload: dict = {
@@ -1085,9 +1089,13 @@ class Context(Generic[T]):
             if tag is not None:
                 payload["tag"] = tag
             if on_click is not None:
-                payload["on_click"] = on_click.serialize() if hasattr(on_click, "serialize") else on_click
+                payload["on_click"] = (
+                    on_click.serialize() if hasattr(on_click, "serialize") else on_click
+                )
             if on_close is not None:
-                payload["on_close"] = on_close.serialize() if hasattr(on_close, "serialize") else on_close
+                payload["on_close"] = (
+                    on_close.serialize() if hasattr(on_close, "serialize") else on_close
+                )
             if on_permission_granted is not None:
                 payload["on_permission_granted"] = (
                     on_permission_granted.serialize()

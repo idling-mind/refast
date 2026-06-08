@@ -3,6 +3,7 @@ import { EventMessage, UpdateMessage, ComponentTree, ThemePayload } from '../typ
 import { persistentStateManager } from '../state/PersistentStateManager';
 import { refastJsHelper } from '../utils/refastJsHelper';
 import { refastBus } from '../utils/eventBus';
+import { createSingleActionExecutor } from '../utils/actionExecutor';
 
 /**
  * CSS variable names that may be set as inline styles by a previous
@@ -206,6 +207,82 @@ export function EventManagerProvider({
       registerMessageHandler('theme_update', (msg) => {
         if (msg.theme) applyThemeUpdate(msg.theme);
       }),
+    );
+
+    unregister.push(
+      registerMessageHandler('desktop_notification', (msg) => {
+        const title = msg.title || '';
+        const body = msg.body;
+        const icon = msg.icon;
+        const tag = msg.tag;
+        const silent = msg.silent;
+        const requireInteraction = msg.require_interaction;
+        const onClickRef = msg.on_click;
+        const onCloseRef = msg.on_close;
+        const onPermissionGrantedRef = msg.on_permission_granted;
+        const onPermissionDeniedRef = msg.on_permission_denied;
+
+        if (!('Notification' in window)) {
+          console.warn('[Refast] Desktop notifications are not supported in this browser.');
+          if (onPermissionDeniedRef) {
+            const executor = createSingleActionExecutor(onPermissionDeniedRef, { invokeCallback });
+            executor({}, []);
+          }
+          return;
+        }
+
+        const invokeHelper = (ref: any, eventData: Record<string, unknown> = {}, args: unknown[] = []) => {
+          if (ref) {
+            const executor = createSingleActionExecutor(ref, { invokeCallback });
+            executor(eventData, args);
+          }
+        };
+
+        const showNotification = () => {
+          const options: NotificationOptions = {
+            body,
+            icon,
+            tag,
+            silent,
+            requireInteraction,
+          };
+          try {
+            const notification = new Notification(title, options);
+
+            notification.onclick = (e) => {
+              window.focus();
+              invokeHelper(onClickRef, {}, [e]);
+            };
+
+            if (onCloseRef) {
+              notification.onclose = (e) => {
+                invokeHelper(onCloseRef, {}, [e]);
+              };
+            }
+          } catch (err) {
+            console.error('[Refast] Failed to trigger native desktop notification:', err);
+          }
+        };
+
+        if (Notification.permission === 'granted') {
+          invokeHelper(onPermissionGrantedRef);
+          showNotification();
+        } else if (Notification.permission === 'denied') {
+          console.warn('[Refast] Desktop notification permission is denied.');
+          invokeHelper(onPermissionDeniedRef);
+        } else {
+          // permission is 'default', request it
+          Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+              invokeHelper(onPermissionGrantedRef);
+              showNotification();
+            } else {
+              console.warn('[Refast] Desktop notification permission request was denied.');
+              invokeHelper(onPermissionDeniedRef);
+            }
+          });
+        }
+      })
     );
 
     return () => unregister.forEach((f) => f());

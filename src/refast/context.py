@@ -1041,6 +1041,76 @@ class Context(Generic[T]):
 
             await self._websocket.send_json(payload)
 
+    async def show_desktop_notification(
+        self,
+        title: str,
+        body: str | None = None,
+        icon: str | None = None,
+        tag: str | None = None,
+        silent: bool = False,
+        require_interaction: bool = False,
+        on_click: Any = None,
+        on_close: Any = None,
+        on_permission_granted: Any = None,
+        on_permission_denied: Any = None,
+    ) -> None:
+        """
+        Show a native system-level desktop notification.
+
+        Args:
+            title: The main title text of the notification.
+            body: The secondary description/body content.
+            icon: URL or relative path to an icon to show in the notification.
+            tag: A unique tag to prevent duplicate notifications
+                (replaces existing notification with the same tag).
+            silent: If True, plays no sound during alert presentation.
+            require_interaction: If True, keeps the notification active
+                until user clicks or dismisses it.
+            on_click: Python callback to run when the notification is clicked.
+            on_close: Python callback to run when the notification is dismissed or closed.
+            on_permission_granted: Python callback to run when notification
+                permission is granted (fires immediately if already granted).
+            on_permission_denied: Python callback to run when notification
+                permission is denied (fires immediately if blocked).
+        """
+        if self._websocket:
+            payload: dict = {
+                "type": "desktop_notification",
+                "title": title,
+                "silent": silent,
+                "require_interaction": require_interaction,
+            }
+
+            # Only include optional fields if provided
+            if body is not None:
+                payload["body"] = body
+            if icon is not None:
+                payload["icon"] = icon
+            if tag is not None:
+                payload["tag"] = tag
+            if on_click is not None:
+                payload["on_click"] = (
+                    on_click.serialize() if hasattr(on_click, "serialize") else on_click
+                )
+            if on_close is not None:
+                payload["on_close"] = (
+                    on_close.serialize() if hasattr(on_close, "serialize") else on_close
+                )
+            if on_permission_granted is not None:
+                payload["on_permission_granted"] = (
+                    on_permission_granted.serialize()
+                    if hasattr(on_permission_granted, "serialize")
+                    else on_permission_granted
+                )
+            if on_permission_denied is not None:
+                payload["on_permission_denied"] = (
+                    on_permission_denied.serialize()
+                    if hasattr(on_permission_denied, "serialize")
+                    else on_permission_denied
+                )
+
+            await self._websocket.send_json(payload)
+
     async def push_event(self, event_type: str, data: Any) -> None:
         """Push an event to the frontend."""
         if self._websocket:

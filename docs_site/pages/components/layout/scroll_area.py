@@ -1,21 +1,17 @@
 """ScrollArea — /docs/components/scroll-area."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     ScrollArea,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "ScrollArea"
 PAGE_ROUTE = "/docs/components/scroll-area"

@@ -1,9 +1,10 @@
 import inspect
 import re
-import uuid
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 from pydantic import validate_call
+
 from refast.components.base import ChildrenType, Component
 
 
@@ -245,7 +246,8 @@ class Markdown(Component):
         enable_latex: Enable LaTeX / KaTeX math rendering ($..$ and $$..$$).
             The KaTeX library is loaded on demand only when this is True.
         custom_tags: A dictionary mapping tag names (str) to callables that return a component.
-        custom_components: A dictionary mapping component IDs (str) to serialized component trees (for internal use).
+        custom_components: A dictionary mapping component IDs (str) to serialized component
+            trees (for internal use).
     """
 
     component_type: str = "Markdown"
@@ -294,7 +296,9 @@ class Markdown(Component):
         def parse_attributes(attrs_str: str) -> dict[str, Any]:
             if not attrs_str:
                 return {}
-            attr_rx = re.compile(r'([a-zA-Z0-9_-]+)(?:\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+)))?')
+            attr_rx = re.compile(
+                r'([a-zA-Z0-9_-]+)(?:\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+)))?'
+            )
             attrs = {}
             for match in attr_rx.finditer(attrs_str):
                 name = match.group(1)
@@ -312,7 +316,7 @@ class Markdown(Component):
             if match:
                 tag_name = match.group(1)
                 attrs_str = match.group(2)
-                
+
                 if tag_name in self.custom_tags:
                     attrs = parse_attributes(attrs_str)
                     try:
@@ -323,7 +327,8 @@ class Markdown(Component):
                         replacement = f"![{tag_name}](/refast-component/{comp_id})"
                         content = content[:match.start()] + replacement + content[match.end():]
                     except Exception:
-                        # Validation failed (or other error), leave tag text as is (mark temporarily)
+                        # Validation failed (or other error), leave tag text
+                        # as is (mark temporarily)
                         failed_marker = f"<__FAILED_SELF_{tag_name} {attrs_str or ''} />"
                         content = content[:match.start()] + failed_marker + content[match.end():]
                 else:
@@ -386,7 +391,8 @@ class Markdown(Component):
                             try:
                                 instance = _validate_and_call(callable_obj, attrs_with_child)
                             except Exception:
-                                # Fall back to passing raw inner_content as a string (e.g. if type is strictly str)
+                                # Fall back to passing raw inner_content as a
+                                # string (e.g. if type is strictly str)
                                 attrs_with_child[param_name] = inner_content
                                 instance = _validate_and_call(callable_obj, attrs_with_child)
                         else:
@@ -396,20 +402,42 @@ class Markdown(Component):
                         comp_id = f"{tag_name}_{tag_counts[tag_name]}"
                         self.custom_components[comp_id] = instance
                         replacement = f"![{tag_name}](/refast-component/{comp_id})"
-                        content = content[:container_match.start()] + replacement + content[container_match.end():]
+                        content = (
+                            content[:container_match.start()]
+                            + replacement
+                            + content[container_match.end():]
+                        )
                     except Exception:
-                        failed_marker = f"<__FAILED_CONT_{tag_name} {attrs_str or ''}>{inner_content}</__FAILED_CONT_{tag_name}>"
-                        content = content[:container_match.start()] + failed_marker + content[container_match.end():]
+                        failed_marker = (
+                            f"<__FAILED_CONT_{tag_name} {attrs_str or ''}>"
+                            f"{inner_content}</__FAILED_CONT_{tag_name}>"
+                        )
+                        content = (
+                            content[:container_match.start()]
+                            + failed_marker
+                            + content[container_match.end():]
+                        )
                 else:
-                    failed_marker = f"<__FAILED_CONT_{tag_name} {attrs_str or ''}>{inner_content}</__FAILED_CONT_{tag_name}>"
-                    content = content[:container_match.start()] + failed_marker + content[container_match.end():]
+                    failed_marker = (
+                        f"<__FAILED_CONT_{tag_name} {attrs_str or ''}>"
+                        f"{inner_content}</__FAILED_CONT_{tag_name}>"
+                    )
+                    content = (
+                        content[:container_match.start()]
+                        + failed_marker
+                        + content[container_match.end():]
+                    )
                 continue
 
             # If no self-closing or container matches can be processed, we are done!
             break
 
         # Restore failed markers back to their original tags
-        content = content.replace("<__FAILED_SELF_", "<").replace("<__FAILED_CONT_", "<").replace("</__FAILED_CONT_", "</")
+        content = (
+            content.replace("<__FAILED_SELF_", "<")
+            .replace("<__FAILED_CONT_", "<")
+            .replace("</__FAILED_CONT_", "</")
+        )
         return content
 
     def _traversal_children(self) -> "list[Component]":

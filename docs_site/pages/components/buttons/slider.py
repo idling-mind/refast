@@ -2,24 +2,20 @@
 
 Interactive reference page for the Slider component.
 """
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Input,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
 from refast.components.shadcn.controls import Slider
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Slider"
 PAGE_ROUTE = "/docs/components/slider"

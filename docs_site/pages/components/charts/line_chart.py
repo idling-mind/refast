@@ -1,16 +1,13 @@
 """Line Chart — /docs/components/line-chart."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
@@ -27,7 +24,6 @@ from refast.components.shadcn.charts import (
     XAxis,
     YAxis,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Line Chart"
 PAGE_ROUTE = "/docs/components/line-chart"
@@ -211,8 +207,8 @@ REFERENCE = """
 | `active_dot` | `bool \\| dict` | `True` | Dot shown on hover |
 | `connect_nulls` | `bool` | `False` | Draw a line through `null` values |
 | `stroke_dasharray` | `str \\| None` | `None` | SVG dash pattern e.g. `"5 5"` for dashed lines |
-| `label` | `str \| None` | `None` | Human-readable series label shown in tooltip/legend |
-| `line_label` | `bool \| dict \| None` | `None` | Show value labels at each data point |
+| `label` | `str \\| None` | `None` | Human-readable series label shown in tooltip/legend |
+| `line_label` | `bool \\| dict \\| None` | `None` | Show value labels at each data point |
 | `hide` | `bool` | `False` | Hide this line series |
 
 ## XAxis / YAxis Props

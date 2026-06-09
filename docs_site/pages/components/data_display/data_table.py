@@ -3,23 +3,18 @@
 Interactive reference page for the DataTable component.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     DataTable,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "DataTable"
 PAGE_ROUTE = "/docs/components/data-table"

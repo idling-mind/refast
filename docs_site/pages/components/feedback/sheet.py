@@ -1,16 +1,13 @@
 """Sheet — /docs/components/sheet."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Sheet,
@@ -22,7 +19,6 @@ from refast.components import (
     SheetTrigger,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Sheet"
 PAGE_ROUTE = "/docs/components/sheet"

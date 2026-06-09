@@ -3,17 +3,14 @@
 Interactive reference page for the Table component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Table,
@@ -24,7 +21,6 @@ from refast.components import (
     TableRow,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Table"
 PAGE_ROUTE = "/docs/components/table"

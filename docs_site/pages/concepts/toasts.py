@@ -1,9 +1,8 @@
 """Toast Notifications — /docs/concepts/toasts."""
 
+from docs_site.pages.utils import render_markdown_with_demo_apps
 from refast import Context
 from refast.components import Button, Column, Container, Heading, Row, Separator, Text
-
-from docs_site.pages.utils import render_markdown_with_demo_apps
 
 PAGE_TITLE = "Toast Notifications"
 PAGE_ROUTE = "/docs/concepts/toasts"

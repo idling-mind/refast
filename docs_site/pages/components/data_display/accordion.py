@@ -3,25 +3,21 @@
 Interactive reference page for the Accordion component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Accordion"
 PAGE_ROUTE = "/docs/components/accordion"

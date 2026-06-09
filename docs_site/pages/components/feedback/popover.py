@@ -1,11 +1,9 @@
 """Popover — /docs/components/popover."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
@@ -13,12 +11,10 @@ from refast.components import (
     Popover,
     PopoverContent,
     PopoverTrigger,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Popover"
 PAGE_ROUTE = "/docs/components/popover"

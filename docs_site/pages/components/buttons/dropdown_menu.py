@@ -3,18 +3,13 @@
 Interactive reference page for the DropdownMenu component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Badge,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
-    Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Separator,
     Text,
 )
@@ -32,7 +27,6 @@ from refast.components.shadcn.overlay import (
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Dropdown Menu"
 PAGE_ROUTE = "/docs/components/dropdown-menu"

@@ -13,8 +13,9 @@ or using your local venv python:
 """
 
 import asyncio
-from fastapi import FastAPI
 from typing import Literal
+
+from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
@@ -106,17 +107,17 @@ async def stream_markdown_with_tags(ctx: Context):
     current_text = ""
     for chunk in chunks:
         current_text += chunk
-        
+
         # Instantiate a temporary Markdown component to run parsing and validation
         temp_md = Markdown(content=current_text, custom_tags=custom_tags)
         rendered = temp_md.render()
-        
+
         # Update client props in a single call (sending both the parsed content and serialized child components)
         await ctx.update_props("streaming-output", {
             "content": rendered["props"]["content"],
             "custom_components": rendered["props"]["custom_components"]
         })
-        
+
         # Delay to simulate network / generation latency
         await asyncio.sleep(0.2)
 

@@ -1,11 +1,8 @@
 """Text & Paragraph — /docs/components/text."""
 
-from refast import Context
 from docs_site.pages.components.playground import playground_card
+from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,

@@ -3,11 +3,9 @@
 Interactive reference page for the Collapsible component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Collapsible,
     CollapsibleContent,
@@ -16,11 +14,9 @@ from refast.components import (
     Container,
     Heading,
     Markdown,
-    Row,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Collapsible"
 PAGE_ROUTE = "/docs/components/collapsible"

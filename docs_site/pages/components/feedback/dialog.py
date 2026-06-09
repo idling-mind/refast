@@ -1,5 +1,6 @@
 """Dialog & AlertDialog — /docs/components/dialog."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Button,
@@ -20,11 +21,9 @@ from refast.components import (
     Heading,
     Input,
     Markdown,
-    Row,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Dialog"
 PAGE_ROUTE = "/docs/components/dialog"

@@ -1,24 +1,18 @@
 """DatePicker — /docs/components/date-picker."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Alert,
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
 from refast.components.shadcn.controls import DatePicker
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "DatePicker"
 PAGE_ROUTE = "/docs/components/date-picker"

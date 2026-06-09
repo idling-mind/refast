@@ -3,24 +3,20 @@
 Interactive reference page for the Tooltip component.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Input,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
     Tooltip,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Tooltip"
 PAGE_ROUTE = "/docs/components/tooltip"

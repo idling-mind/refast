@@ -1,17 +1,13 @@
 """Bar Chart — /docs/components/bar-chart."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
-    Select,
     Separator,
     Text,
 )
@@ -26,7 +22,6 @@ from refast.components.shadcn.charts import (
     ChartTooltipContent,
     XAxis,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Bar Chart"
 PAGE_ROUTE = "/docs/components/bar-chart"
@@ -161,7 +156,7 @@ REFERENCE = """
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `config` | `dict[str, ChartConfig] \| None` | `None` | Optional override map; auto-built from series children when omitted |
+| `config` | `dict[str, ChartConfig] \\| None` | `None` | Optional override map; auto-built from series children when omitted |
 | `class_name` | `str` | `""` | Container class; set height here (e.g. `"h-64"`) |
 | `children` | `list` | `[]` | The chart component(s) |
 | `min_height` | `int \\| str \\| None` | `200` | Minimum height |
@@ -199,8 +194,8 @@ REFERENCE = """
 | `stack_id` | `str \\| None` | `None` | Bars sharing the same `stack_id` are stacked |
 | `bar_size` | `int \\| None` | `None` | Fixed bar width in pixels |
 | `min_point_size` | `int \\| None` | `None` | Minimum bar height for zero values |
-| `label` | `str \| None` | `None` | Human-readable series label shown in tooltip/legend |
-| `bar_label` | `bool \| dict \| None` | `None` | Show value labels on bars |
+| `label` | `str \\| None` | `None` | Human-readable series label shown in tooltip/legend |
+| `bar_label` | `bool \\| dict \\| None` | `None` | Show value labels on bars |
 | `background` | `bool \\| dict` | `False` | Show background bar |
 | `hide` | `bool` | `False` | Hide this bar series |
 """

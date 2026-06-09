@@ -1,11 +1,9 @@
 """Flex — /docs/components/flex."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
@@ -17,7 +15,6 @@ from refast.components import (
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Flex"
 PAGE_ROUTE = "/docs/components/flex"

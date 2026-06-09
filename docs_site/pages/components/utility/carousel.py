@@ -1,10 +1,7 @@
 """Carousel — /docs/components/carousel."""
-from refast import Context
 from docs_site.pages.components.playground import playground_card
+from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Carousel,
     CarouselContent,
     CarouselItem,
@@ -15,7 +12,6 @@ from refast.components import (
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,

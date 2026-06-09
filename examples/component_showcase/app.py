@@ -31,6 +31,7 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
+    Calendar,
     Card,
     CardContent,
     CardDescription,
@@ -123,6 +124,23 @@ async def on_switch_change(ctx: Context):
     current = ctx.state.get("notifications", False)
     ctx.state.set("notifications", not current)
     await ctx.update_text("switch-status", "ON" if not current else "OFF")
+
+
+async def on_calendar_select(ctx: Context):
+    """Handle calendar selection."""
+    print("Calendar select event:", ctx.event_data)
+    date_str = ctx.event_data.get("value") if isinstance(ctx.event_data, dict) else None
+    if date_str:
+        try:
+            from datetime import datetime
+            # Remove any timezone suffixes ('Z' or '+HH:MM') to parse as a timezone-unaware datetime object
+            naive_dt = datetime.fromisoformat(date_str.replace("Z", "").split("+")[0])
+            display_date = naive_dt.date().isoformat()
+            await ctx.show_toast(f"Date selected: {display_date}", variant="success")
+        except Exception:
+            await ctx.show_toast(f"Date selected: {date_str}", variant="success")
+    else:
+        await ctx.show_toast("No date selected", variant="info")
 
 
 async def on_slider_change(ctx: Context):
@@ -496,6 +514,18 @@ def home(ctx: Context):
                                                 caption_layout="dropdown",
                                                 # min_date="2024-01-01",
                                                 # max_date="2024-12-31",
+                                            ),
+                                            InputWrapper(
+                                                label="Calendar",
+                                                description="Select a date directly on the calendar",
+                                                children=[
+                                                    Calendar(
+                                                        mode="single",
+                                                        caption_layout="dropdown",
+                                                        on_select=ctx.callback(on_calendar_select),
+                                                        class_name="rounded-md border",
+                                                    ),
+                                                ],
                                             ),
                                             Textarea(
                                                 name="message",

@@ -3,8 +3,8 @@
 Interactive reference page for the Card component family.
 """
 
-from refast import Context
 from docs_site.pages.components.playground import playground_card
+from refast import Context
 from refast.components import (
     Button,
     Card,
@@ -19,7 +19,6 @@ from refast.components import (
     Heading,
     Input,
     Markdown,
-    Row,
     Separator,
     Text,
 )

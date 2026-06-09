@@ -2,6 +2,7 @@ import React, { type JSX } from 'react';
 import { ExternalLink, Copy, Check, X } from 'lucide-react';
 import { cn } from '../../utils';
 import { Icon } from './icon';
+import { ComponentRenderer } from '../ComponentRenderer';
 
 /**
  * Internal copy-to-clipboard button shown on hover over code blocks.
@@ -727,6 +728,7 @@ interface MarkdownProps {
   enableMermaid?: boolean;
   /** Enable LaTeX / KaTeX math rendering ($…$ and $$…$$). Loaded on demand. */
   enableLatex?: boolean;
+  customComponents?: Record<string, any>;
   'data-refast-id'?: string;
 }
 
@@ -743,6 +745,7 @@ export function Markdown({
   allowHtml = false,
   enableMermaid = false,
   enableLatex = false,
+  customComponents,
   'data-refast-id': dataRefastId,
 }: MarkdownProps): React.ReactElement<any> {
   const theme = useTheme();
@@ -991,7 +994,18 @@ export function Markdown({
     ),
     // Horizontal rule
     hr: () => <hr className="my-6 border-muted" />,
-  }), [theme, SyntaxHighlighter, highlightStyles, enableMermaid]);
+    img: ({ src, alt }) => {
+      if (src && src.startsWith('/refast-component/')) {
+        const componentId = src.substring(18);
+        const childTree = customComponents?.[componentId];
+        if (childTree) {
+          return <ComponentRenderer tree={childTree} />;
+        }
+        return null;
+      }
+      return <img src={src} alt={alt} className="max-w-full h-auto rounded-md" />;
+    },
+  }), [theme, SyntaxHighlighter, highlightStyles, enableMermaid, customComponents]);
 
   if (!ReactMarkdown) {
     // Loading state or fallback to raw content

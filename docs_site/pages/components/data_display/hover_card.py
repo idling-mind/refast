@@ -3,12 +3,10 @@
 Interactive reference page for the HoverCard component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Avatar,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
@@ -22,7 +20,6 @@ from refast.components import (
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "HoverCard"
 PAGE_ROUTE = "/docs/components/hover-card"

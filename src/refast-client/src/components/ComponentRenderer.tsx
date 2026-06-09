@@ -316,18 +316,28 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
 
   // Date object (e.g., Calendar onSelect in single mode)
   if (first instanceof Date) {
+    const offset = first.getTimezoneOffset();
+    const adjusted = new Date(first.getTime() - offset * 60 * 1000);
+    const iso = adjusted.toISOString();
     return {
-      value: first.toISOString(),
-      date: first.toISOString(),
+      value: iso,
+      date: iso,
     };
   }
 
   // Array payloads (e.g., Slider onValueChange) should be available as
   // event.value for save_prop("key"), while keeping index access ("0", "1").
   if (Array.isArray(first)) {
+    const cleanArray = first.map((item) => {
+      if (item instanceof Date) {
+        const offset = item.getTimezoneOffset();
+        return new Date(item.getTime() - offset * 60 * 1000).toISOString();
+      }
+      return item;
+    });
     return {
-      ...first,
-      value: first,
+      ...cleanArray,
+      value: cleanArray,
     };
   }
 
@@ -370,8 +380,17 @@ function extractEventData(args: unknown[]): Record<string, unknown> {
   }
 
   // Object
-  if (typeof first === 'object') {
-    return first as Record<string, unknown>;
+  if (typeof first === 'object' && first !== null) {
+    const cleanObj: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(first)) {
+      if (v instanceof Date) {
+        const offset = v.getTimezoneOffset();
+        cleanObj[k] = new Date(v.getTime() - offset * 60 * 1000).toISOString();
+      } else {
+        cleanObj[k] = v;
+      }
+    }
+    return cleanObj;
   }
 
   return {};

@@ -3,22 +3,18 @@
 Interactive reference page for the List and ListItem components.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     List,
     Markdown,
-    Row,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "List"
 PAGE_ROUTE = "/docs/components/list"

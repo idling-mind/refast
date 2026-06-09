@@ -1,22 +1,16 @@
 """Combobox — /docs/components/combobox."""
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Alert,
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Separator,
     Text,
 )
 from refast.components.shadcn.controls import Combobox, ComboboxOption
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Combobox"
 PAGE_ROUTE = "/docs/components/combobox"

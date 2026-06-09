@@ -1,8 +1,7 @@
 """Navigation Components — /docs/components/navigation."""
 
-from refast.components import Container, Heading, Separator
-
 from docs_site.pages.utils import render_markdown_with_demo_apps
+from refast.components import Container, Heading, Separator
 
 PAGE_TITLE = "Navigation Components"
 PAGE_ROUTE = "/docs/components/navigation"

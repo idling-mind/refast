@@ -2,7 +2,6 @@ import asyncio
 import os
 import platform
 import socket
-import sys
 import threading
 import time
 from contextlib import asynccontextmanager

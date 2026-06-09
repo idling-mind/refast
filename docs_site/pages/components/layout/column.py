@@ -1,22 +1,17 @@
 """Column — /docs/components/column."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Badge,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Column"
 PAGE_ROUTE = "/docs/components/column"

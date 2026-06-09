@@ -1,18 +1,14 @@
 """Badge — /docs/components/badge."""
 
-from refast import Context
 from docs_site.pages.components.playground import playground_card
+from refast import Context
 from refast.components import (
     Badge,
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Heading,
     Input,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,

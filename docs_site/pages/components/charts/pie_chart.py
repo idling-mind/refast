@@ -1,22 +1,18 @@
 """Pie Chart — /docs/components/pie-chart."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
 from refast.components.shadcn.charts import (
-    Cell,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -25,7 +21,6 @@ from refast.components.shadcn.charts import (
     Pie,
     PieChart,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Pie Chart"
 PAGE_ROUTE = "/docs/components/pie-chart"

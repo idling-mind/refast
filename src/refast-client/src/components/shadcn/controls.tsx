@@ -525,11 +525,30 @@ export function ToggleGroupItem({
 // Calendar (using react-day-picker)
 // ============================================================================
 
+// Helper to convert a local Date object to a timezone-neutral ISO string
+function toLocalISOString(date: Date | undefined | null): string | undefined {
+  if (!date) return undefined;
+  const offset = date.getTimezoneOffset();
+  const adjusted = new Date(date.getTime() - offset * 60 * 1000);
+  return adjusted.toISOString();
+}
+
 // Helper to parse a date string or Date to Date object
 function parseDate(value: string | Date | undefined | null): Date | undefined {
   if (!value) return undefined;
   if (value instanceof Date) return value;
   if (typeof value === 'string') {
+    // Check if it matches a date string format (e.g., YYYY-MM-DD)
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2}))?/);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1;
+      const day = parseInt(match[3], 10);
+      const hour = match[4] ? parseInt(match[4], 10) : 0;
+      const minute = match[5] ? parseInt(match[5], 10) : 0;
+      const second = match[6] ? parseInt(match[6], 10) : 0;
+      return new Date(year, month, day, hour, minute, second);
+    }
     const parsed = new Date(value);
     return isNaN(parsed.getTime()) ? undefined : parsed;
   }
@@ -1137,7 +1156,7 @@ export function DatePicker({
     setSelectedDate(date);
     setOpen(false);
     if (onChange) {
-      onChange(date ? date.toISOString() : undefined);
+      onChange(toLocalISOString(date));
     }
   };
 
@@ -1154,8 +1173,8 @@ export function DatePicker({
         onChange(undefined);
       } else {
         onChange({
-          from: range.from?.toISOString(),
-          to: range.to?.toISOString(),
+          from: toLocalISOString(range.from),
+          to: toLocalISOString(range.to),
         });
       }
     }
@@ -1165,7 +1184,7 @@ export function DatePicker({
   const handleMultipleSelect = (dates: Date[] | undefined) => {
     const nextDates = dates || [];
     setSelectedDates(nextDates);
-    pendingChangeRef.current = nextDates.map((d) => d.toISOString());
+    pendingChangeRef.current = nextDates.map((d) => toLocalISOString(d)!).filter(Boolean) as string[];
   };
 
   const hasValue =

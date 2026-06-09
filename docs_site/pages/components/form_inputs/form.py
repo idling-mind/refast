@@ -1,24 +1,19 @@
 """Form — /docs/components/form."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Badge,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
-    Checkbox,
     Column,
     Container,
     Heading,
     Input,
     Markdown,
-    Row,
     Separator,
     Text,
 )
-from refast.components.shadcn.form import Form, FormField, Label
-from docs_site.pages.components.playground import playground_card
+from refast.components.shadcn.form import Form, FormField
 
 PAGE_TITLE = "Form"
 PAGE_ROUTE = "/docs/components/form"

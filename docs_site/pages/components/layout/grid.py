@@ -1,21 +1,17 @@
 """Grid — /docs/components/grid."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Card,
-    CardContent,
-    CardHeader,
     Column,
     Container,
     Grid,
     Heading,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Grid"
 PAGE_ROUTE = "/docs/components/grid"

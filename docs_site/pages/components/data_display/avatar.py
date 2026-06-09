@@ -3,24 +3,20 @@
 Interactive reference page for the Avatar component.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Avatar,
-    Card,
-    CardContent,
-    CardHeader,
     Checkbox,
     Column,
     Container,
     Heading,
     Input,
     Markdown,
-    Row,
     Select,
     Separator,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Avatar"
 PAGE_ROUTE = "/docs/components/avatar"

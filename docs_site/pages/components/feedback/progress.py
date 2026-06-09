@@ -1,5 +1,6 @@
 """Progress / Spinner / Skeleton — /docs/components/progress."""
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
     Card,
@@ -18,7 +19,6 @@ from refast.components import (
     Spinner,
     Text,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Progress, Spinner & Skeleton"
 PAGE_ROUTE = "/docs/components/progress"

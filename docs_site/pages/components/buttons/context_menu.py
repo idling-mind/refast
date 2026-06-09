@@ -3,17 +3,12 @@
 Interactive reference page for the ContextMenu component family.
 """
 
+from docs_site.pages.components.playground import playground_card
 from refast import Context
 from refast.components import (
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
-    Column,
     Container,
     Heading,
     Markdown,
-    Row,
     Separator,
     Text,
 )
@@ -25,7 +20,6 @@ from refast.components.shadcn.overlay import (
     ContextMenuSeparator,
     ContextMenuTrigger,
 )
-from docs_site.pages.components.playground import playground_card
 
 PAGE_TITLE = "Context Menu"
 PAGE_ROUTE = "/docs/components/context-menu"

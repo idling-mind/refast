@@ -499,8 +499,13 @@ export function ResizablePanel({
   // called via ctx.bound_js(id, "collapse") / ctx.call_bound_js(id, "resize", 30)
   React.useEffect(() => {
     if (!id) return;
-    const el = document.getElementById(id);
+    const el = document.getElementById(id) || document.querySelector(`[data-panel-id="${id}"]`);
     if (!el) return;
+
+    // Ensure the actual DOM id matches so that document.getElementById(id) works
+    if (el.id !== id) {
+      el.id = id;
+    }
 
     (el as any).collapse = () => panelRef.current?.collapse();
     (el as any).expand = (minSizeArg?: number) => panelRef.current?.expand(minSizeArg);
@@ -522,13 +527,13 @@ export function ResizablePanel({
   // Convert nulls (from Python None) to undefined so library defaults apply
   return (
     <ResizablePrimitive.Panel
-      ref={panelRef}
       id={id}
       className={cn(className)}
       defaultSize={defaultSize ?? undefined}
       minSize={minSize ?? undefined}
       maxSize={maxSize ?? undefined}
       {...props}
+      ref={panelRef}
     />
   )
 }
@@ -998,7 +1003,7 @@ export function ThemeSwitcher({
 
   // Dropdown mode
   return (
-    <div ref={containerRef} className={cn('relative', className)} {...props}>
+    <div className={cn('relative', className)} {...props} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Wifi, WifiOff, Loader2 } from 'lucide-react';
 import { cn } from '../../utils';
 import { ComponentRenderer } from '../ComponentRenderer';
 import { ComponentTree } from '../../types';
@@ -17,6 +18,10 @@ interface ConnectionStatusProps {
   debounceMs?: number;
   'data-refast-id'?: string;
 }
+
+// Global state to track connection transitions across unmounts/remounts
+let globalIsConnected = true;
+let lastReconnectTime = 0;
 
 /**
  * ConnectionStatus component - conditionally shows content based on WebSocket connection state.
@@ -40,7 +45,9 @@ export function ConnectionStatus({
   const [isConnected, setIsConnected] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [showConnected, setShowConnected] = useState(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showConnectedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastStateRef = useRef<boolean | null>(null);
 
   // Observe the .refast-app element for connection state changes
@@ -99,6 +106,30 @@ export function ConnectionStatus({
       setIsConnecting(connecting);
       setReconnectAttempts(attempts);
 
+      // Track connection transitions globally across possible unmounts/remounts
+      if (globalIsConnected === false && connected === true) {
+        lastReconnectTime = Date.now();
+      }
+      globalIsConnected = connected;
+
+      // Determine if we should show the temporary "Connected" toast
+      const timeSinceReconnect = Date.now() - lastReconnectTime;
+      if (connected && lastReconnectTime > 0 && timeSinceReconnect < 3000) {
+        setShowConnected(true);
+        if (showConnectedTimeoutRef.current) {
+          clearTimeout(showConnectedTimeoutRef.current);
+        }
+        showConnectedTimeoutRef.current = setTimeout(() => {
+          setShowConnected(false);
+        }, 3000 - timeSinceReconnect);
+      } else {
+        setShowConnected(false);
+        if (showConnectedTimeoutRef.current) {
+          clearTimeout(showConnectedTimeoutRef.current);
+          showConnectedTimeoutRef.current = null;
+        }
+      }
+
       // Fire callbacks on state change (debounced)
       if (lastStateRef.current !== null && lastStateRef.current !== connected) {
         if (debounceTimerRef.current) {
@@ -107,10 +138,8 @@ export function ConnectionStatus({
 
         debounceTimerRef.current = setTimeout(() => {
           if (connected) {
-            // Connection restored
             fireReconnectCallbacks();
           } else {
-            // Connection lost
             fireDisconnectCallbacks();
           }
         }, debounceMs);
@@ -144,6 +173,9 @@ export function ConnectionStatus({
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      if (showConnectedTimeoutRef.current) {
+        clearTimeout(showConnectedTimeoutRef.current);
+      }
     };
   }, [debounceMs, jsOnDisconnect, jsOnReconnect, onDisconnect, onReconnect]);
 
@@ -160,10 +192,12 @@ export function ConnectionStatus({
     inline: '',
   };
 
-  // If no children to show, render nothing (unless disconnected with no disconnected children - show default)
+  // If no children to show, render nothing (unless disconnected/temporarily connected with no custom children - show default)
   if (!hasActiveChildren) {
-    // Show default disconnection indicator only when disconnected and no custom children provided
-    if (!isConnected && childrenDisconnected.length === 0) {
+    const shouldShowDefaultDisconnected = !isConnected && childrenDisconnected.length === 0;
+    const shouldShowDefaultConnected = showConnected && childrenConnected.length === 0;
+
+    if (shouldShowDefaultDisconnected || shouldShowDefaultConnected) {
       return (
         <div
           id={id}
@@ -175,18 +209,30 @@ export function ConnectionStatus({
         >
           <div
             className={cn(
-              'flex items-center gap-2 rounded-lg px-3 py-2 shadow-lg',
-              isConnecting ? 'bg-yellow-500 text-white' : 'bg-destructive text-destructive-foreground'
+              'flex items-center gap-2 rounded-full px-4 py-2 shadow-lg border text-sm font-medium transition-all duration-300 ease-in-out',
+              showConnected
+                ? 'bg-success text-success-foreground border-success/30 animate-in fade-in zoom-in-95 duration-200'
+                : isConnecting
+                ? 'bg-warning text-warning-foreground border-warning/30 animate-in fade-in zoom-in-95 duration-200'
+                : 'bg-destructive text-destructive-foreground border-destructive/30 animate-in fade-in zoom-in-95 duration-200'
             )}
           >
-            {isConnecting ? (
+            {showConnected ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                <span>Reconnecting... ({reconnectAttempts})</span>
+                <Wifi className="h-4 w-4 shrink-0" />
+                <span>Connected</span>
+              </>
+            ) : isConnecting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span>Reconnecting</span>
+                <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-warning-foreground/20 text-warning-foreground shrink-0">
+                  {reconnectAttempts}
+                </span>
               </>
             ) : (
               <>
-                <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                <WifiOff className="h-4 w-4 shrink-0" />
                 <span>Connection lost</span>
               </>
             )}
@@ -214,3 +260,4 @@ export function ConnectionStatus({
 }
 
 export default ConnectionStatus;
+

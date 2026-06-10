@@ -914,7 +914,9 @@ function CalendarDayButton({
   modifiers,
   ref: parentRef,
   ...props
-}: React.ComponentProps<typeof DayButton>) {
+}: React.ComponentProps<typeof DayButton> & {
+  ref?: React.Ref<HTMLButtonElement>;
+}) {
   const defaultClassNames = getDefaultClassNames()
   const localRef = React.useRef<HTMLButtonElement>(null)
 

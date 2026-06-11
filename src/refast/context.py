@@ -38,6 +38,15 @@ class SSEWebSocketProxy:
         if self._underlying_websocket is not None and hasattr(self._underlying_websocket, "send_json"):
             await self._underlying_websocket.send_json(message)
         else:
+            # Try to send directly to the active connection if it exists
+            if self._context._connection_id and self._context._app and hasattr(self._context._app, "router_stream"):
+                stream = self._context._app.router_stream
+                conn = stream.get_connection(self._context._connection_id)
+                if conn:
+                    await conn.send(message)
+                    return
+            
+            # Buffer the message in the context queue if connection is not active
             await self._context._queue.put(message)
 
 

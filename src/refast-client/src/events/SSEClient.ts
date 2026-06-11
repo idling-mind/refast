@@ -189,14 +189,40 @@ export function useSSE(options: SSEOptions) {
 
     const handleError = (err: any) => {
       setIsConnected(false);
-      setIsConnecting(true);
-      setReconnectAttempts((prev) => prev + 1);
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsConnecting(false);
+      } else {
+        setIsConnecting(true);
+        setReconnectAttempts((prev) => prev + 1);
+      }
       onErrorRef.current?.(err);
+    };
+
+    const handleOffline = () => {
+      setIsConnected(false);
+      setIsConnecting(false);
+      onCloseRef.current?.();
+    };
+
+    const handleOnline = () => {
+      setIsConnecting(true);
+      client.connect();
     };
 
     client.addEventListener('open', handleOpen);
     client.addEventListener('close', handleClose);
     client.addEventListener('error', handleError);
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('offline', handleOffline);
+      window.addEventListener('online', handleOnline);
+      
+      // If we are currently offline, adjust state immediately
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsConnected(false);
+        setIsConnecting(false);
+      }
+    }
 
     client.connect();
 
@@ -204,6 +230,10 @@ export function useSSE(options: SSEOptions) {
       client.removeEventListener('open', handleOpen);
       client.removeEventListener('close', handleClose);
       client.removeEventListener('error', handleError);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener('online', handleOnline);
+      }
       client.disconnect();
     };
   }, [url]);

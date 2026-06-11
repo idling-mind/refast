@@ -493,10 +493,15 @@ class RefastRouter:
             import json
             # Track SSE Connection in our stream manager
             async with self.stream.connection(connection_id) as conn:
+                # Flush any buffered messages from the context queue to the new connection queue
+                while not ctx._queue.empty():
+                    msg = ctx._queue.get_nowait()
+                    await conn.send(msg)
+
                 try:
-                    while True:
-                        # Wait for messages pushed from callback executions
-                        message = await ctx._queue.get()
+                    while conn.connected:
+                        # Wait for messages pushed to the active connection's queue
+                        message = await conn.queue.get()
                         yield f"data: {json.dumps(message)}\n\n"
                 except asyncio.CancelledError:
                     # Connection closed. Start a grace period cleanup task.

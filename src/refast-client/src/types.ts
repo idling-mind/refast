@@ -193,7 +193,7 @@ export interface EventMessage {
  * WebSocket connection state.
  */
 export interface WebSocketState {
-  socket: WebSocket | null;
+  socket: any;
   isConnected: boolean;
   isConnecting: boolean;
   reconnectAttempts: number;

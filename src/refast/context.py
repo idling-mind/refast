@@ -29,6 +29,18 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
+class SSEWebSocketProxy:
+    def __init__(self, context: "Context", websocket: Any = None):
+        self._context = context
+        self._underlying_websocket = websocket
+
+    async def send_json(self, message: dict[str, Any]) -> None:
+        if self._underlying_websocket is not None and hasattr(self._underlying_websocket, "send_json"):
+            await self._underlying_websocket.send_json(message)
+        else:
+            await self._context._queue.put(message)
+
+
 class Context(Generic[T]):
     """
     Request context passed to page functions and callbacks.
@@ -40,30 +52,36 @@ class Context(Generic[T]):
     - Callback creation
 
     Example:
-        ```python
-        @ui.page("/")
-        def home(ctx: Context):
-            count = ctx.state.get("count", 0)
-            return Button(
-                f"Count: {count}",
-                on_click=ctx.callback(increment, amount=1)
-            )
+    ```python
+    @ui.page("/")
+    def home(ctx: Context):
+        count = ctx.state.get("count", 0)
+        return Button(
+            f"Count: {count}",
+            on_click=ctx.callback(increment, amount=1)
+        )
 
-        async def increment(ctx: Context, amount: int):
-            ctx.state["count"] = ctx.state.get("count", 0) + amount
-            await ctx.refresh()
-        ```
+    async def increment(ctx: Context, amount: int):
+        ctx.state["count"] = ctx.state.get("count", 0) + amount
+        await ctx.refresh()
+    ```
     """
 
     def __init__(
         self,
         request: Request | None = None,
-        websocket: WebSocket | None = None,
+        websocket: Any = None,
+        connection_id: str | None = None,
         app: "RefastApp | None" = None,
     ):
         self._request = request
-        self._websocket = websocket
+        self._connection_id = connection_id
         self._app = app
+        self._queue = asyncio.Queue()
+        if connection_id or websocket is not None:
+            self._websocket = SSEWebSocketProxy(self, websocket)
+        else:
+            self._websocket = None
         self._state: State = State()
         self._store: Store | None = None
         self._session: Session | None = None

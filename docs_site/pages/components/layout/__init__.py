@@ -1,1 +1,0 @@
-"""Layout component pages."""

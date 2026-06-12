@@ -1,1 +1,0 @@
-"""Charts component pages."""

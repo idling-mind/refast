@@ -75,23 +75,28 @@ function getStorageInfo(storageType: 'local' | 'session'): { storage: Storage; p
  * PersistentStateManager handles syncing browser storage with the backend.
  */
 export class PersistentStateManager {
-  private websocket: WebSocket | null = null;
+  private websocket: any = null;
   private initialized = false;
   private onReadyCallback: (() => void) | null = null;
+
+  private handleOpenEvent = (): void => {
+    this.reset();
+    this.sendInitialState();
+  };
 
   /**
    * Set the WebSocket connection to use for communication.
    */
-  setWebSocket(ws: WebSocket | null): void {
+  setWebSocket(ws: any): void {
     this.websocket = ws;
 
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      this.sendInitialState();
-    } else if (ws) {
-      // Wait for connection to open
-      ws.addEventListener('open', () => {
+    if (ws) {
+      ws.removeEventListener('open', this.handleOpenEvent);
+      ws.addEventListener('open', this.handleOpenEvent);
+
+      if (ws.readyState === 1 || (typeof WebSocket !== 'undefined' && ws.readyState === WebSocket.OPEN)) {
         this.sendInitialState();
-      }, { once: true });
+      }
     }
   }
 

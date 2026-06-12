@@ -22,16 +22,6 @@ function propsEqual(
     const val1 = props1[key];
     const val2 = props2[key];
     
-    // Skip callback comparison (they have unique IDs each render)
-    if (key === 'onClick' || key === 'onChange' || key === 'onSubmit' || key === 'onInput') {
-      // Compare callback IDs if both are objects with callbackId
-      if (typeof val1 === 'object' && val1 !== null && 'callbackId' in val1 &&
-          typeof val2 === 'object' && val2 !== null && 'callbackId' in val2) {
-        // Callbacks are considered equal if they exist (ID will differ)
-        continue;
-      }
-    }
-    
     if (typeof val1 === 'object' && typeof val2 === 'object') {
       if (JSON.stringify(val1) !== JSON.stringify(val2)) return false;
     } else if (val1 !== val2) {

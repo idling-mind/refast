@@ -104,7 +104,7 @@ const EventManagerContext = createContext<EventManagerContextValue | null>(null)
 
 interface EventManagerProviderProps {
   children: React.ReactNode;
-  websocket: WebSocket | null;
+  websocket: any;
   onComponentUpdate?: (id: string, component: ComponentTree | null, operation?: string) => void;
 }
 
@@ -117,7 +117,7 @@ export function EventManagerProvider({
   onComponentUpdate: _onComponentUpdate,
 }: EventManagerProviderProps): React.ReactElement<any> {
   const updateHandlers = useRef<Set<(message: UpdateMessage) => void>>(new Set());
-  const websocketRef = useRef<WebSocket | null>(websocket);
+  const websocketRef = useRef<any>(websocket);
   const messageHandlerRegistry = useRef<Map<string, Set<(msg: UpdateMessage) => void>>>(new Map());
 
   // Keep websocket ref updated

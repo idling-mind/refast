@@ -99,6 +99,11 @@ export {
   WebSocketClient,
 } from './events/WebSocketClient';
 
+export {
+  useSSE,
+  SSEClient,
+} from './events/SSEClient';
+
 // State
 export {
   useStateManager,

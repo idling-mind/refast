@@ -2,6 +2,7 @@
 
 import asyncio
 import inspect
+import logging
 import re
 import unicodedata
 import urllib.parse
@@ -9,8 +10,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi import APIRouter, File, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 
 from refast.assets import (
     STATIC_DIR,
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from refast.app import RefastApp
     from refast.context import Context
 
+logger = logging.getLogger(__name__)
 
 # UUID format for validating file IDs received from URLs.
 _UUID_RE = re.compile(
@@ -81,15 +83,24 @@ class RefastRouter:
 
     This router provides:
     - GET endpoints for each registered page
-    - WebSocket endpoint for real-time updates
+    - GET endpoint for Server-Sent Events (SSE)
+    - POST endpoint for client events and callbacks
     - Static file serving for the React client
     """
 
     def __init__(self, app: "RefastApp"):
         self.app = app
         self.api_router = APIRouter()
-        # Track contexts per WebSocket connection to preserve state
-        self._websocket_contexts: dict[WebSocket, Context] = {}
+        # Track contexts per connection ID to preserve state
+        self._connection_contexts: dict[str, Context] = {}
+        # Track active cleanup tasks for disconnected contexts
+        self._cleanup_tasks: dict[str, asyncio.Task] = {}
+        # EventStream instance for routing/broadcasting compatibility
+        from refast.events.stream import EventStream
+        self.stream = EventStream(app)
+        # Register stream on app so broadcasting can use it
+        self.app.router_stream = self.stream
+
         # Dispatch table: message type → handler coroutine method
         self._message_dispatch = {
             "callback": self._on_callback,
@@ -101,10 +112,18 @@ class RefastRouter:
 
     def _setup_routes(self) -> None:
         """Set up all routes."""
-        # WebSocket endpoint
-        self.api_router.add_api_websocket_route(
-            "/ws",
-            self._websocket_handler,
+        # Server-Sent Events GET stream
+        self.api_router.add_api_route(
+            "/api/events",
+            self._sse_handler,
+            methods=["GET"],
+        )
+
+        # HTTP event POST endpoint
+        self.api_router.add_api_route(
+            "/api/event",
+            self._api_event_handler,
+            methods=["POST"],
         )
 
         # API endpoint for fetching page component tree (used for refresh)
@@ -387,10 +406,7 @@ class RefastRouter:
             return HTMLResponse(content="<h1>404 - Page Not Found</h1>", status_code=404)
 
         # Do NOT call page_func here — components are created (and random IDs
-        # assigned) only after the WebSocket connects via the store_init /
-        # page_render flow.  Calling it twice caused a visible blink because
-        # the initial tree (with one set of IDs) was immediately replaced by
-        # the post-WebSocket tree (with a fresh set of IDs).
+        # assigned) only after the SSE stream connects via store_init.
         ctx = Context(request=request, app=self.app)
         ctx._query_params = dict(request.query_params)
         ctx._query_string = str(request.url.query)
@@ -455,62 +471,88 @@ class RefastRouter:
 
     @property
     def active_contexts(self) -> list["Context"]:
-        """Get all active WebSocket contexts."""
-        return list(self._websocket_contexts.values())
+        """Get all active contexts."""
+        return list(self._connection_contexts.values())
 
-    async def _websocket_handler(self, websocket: WebSocket) -> None:
-        """Handle WebSocket connections for real-time updates."""
-        await websocket.accept()
+    async def _sse_handler(self, request: Request, connection_id: str) -> StreamingResponse:
+        """Handle Server-Sent Events stream for real-time updates."""
+        # Cancel any pending cleanup task for this connection_id
+        cleanup_task = self._cleanup_tasks.pop(connection_id, None)
+        if cleanup_task:
+            cleanup_task.cancel()
+            logger.info(
+                f"Reconnected active context for connection {connection_id}, cancelled cleanup"
+            )
 
-        # Create a single context for this WebSocket connection
-        # This preserves state across all callback invocations
         from refast.context import Context
 
-        ctx = Context(websocket=websocket, app=self.app)
-        self._websocket_contexts[websocket] = ctx
+        ctx = self._connection_contexts.get(connection_id)
+        if ctx is None:
+            ctx = Context(connection_id=connection_id, app=self.app)
+            self._connection_contexts[connection_id] = ctx
 
+        async def event_generator():
+            import json
+            # Track SSE Connection in our stream manager
+            async with self.stream.connection(connection_id) as conn:
+                # Flush any buffered messages from the context queue to the new connection queue
+                while not ctx._queue.empty():
+                    msg = ctx._queue.get_nowait()
+                    await conn.send(msg)
+
+                try:
+                    while conn.connected:
+                        # Wait for messages pushed to the active connection's queue
+                        message = await conn.queue.get()
+                        yield f"data: {json.dumps(message)}\n\n"
+                except asyncio.CancelledError:
+                    # Connection closed. Start a grace period cleanup task.
+                    grace_period = getattr(self.app, "context_grace_period", 10.0)
+                    task = asyncio.create_task(
+                        self._cleanup_context_after_delay(connection_id, grace_period)
+                    )
+                    self._cleanup_tasks[connection_id] = task
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    async def _cleanup_context_after_delay(self, connection_id: str, delay: float) -> None:
+        """Purge connection context and callbacks after grace period has expired."""
         try:
-            while True:
-                data = await websocket.receive_json()
-                message_type = data.get("type")
+            await asyncio.sleep(delay)
+            self._connection_contexts.pop(connection_id, None)
+            self._cleanup_tasks.pop(connection_id, None)
+            logger.info(f"Purged connection context {connection_id} after grace period of {delay}s")
+        except asyncio.CancelledError:
+            pass
 
-                # Handle store_sync immediately (it's a response to resync_store)
-                # This must happen in the main loop to avoid deadlock when
-                # a callback is waiting for sync response
-                if message_type == "store_sync":
-                    store_data = data.get("data", {})
-                    ctx._load_store_from_browser(store_data)
-                    ctx._resolve_store_sync()
-                elif message_type == "callback":
-                    # Run callbacks in a separate task so the main loop can
-                    # continue receiving messages (needed for store.sync())
-                    asyncio.create_task(self._handle_websocket_message(websocket, data))
-                else:
-                    # Process other messages normally
-                    await self._handle_websocket_message(websocket, data)
-        except WebSocketDisconnect:
-            # Clean up context when WebSocket disconnects
-            self._websocket_contexts.pop(websocket, None)
-
-    async def _handle_websocket_message(self, websocket: WebSocket, data: dict[str, Any]) -> None:
-        """Dispatch an incoming WebSocket message to the appropriate handler."""
+    async def _api_event_handler(self, request: Request) -> Response:
+        """Process incoming client commands and callbacks."""
+        data = await request.json()
+        connection_id = data.get("connection_id")
         message_type = data.get("type")
 
-        # Get the persistent context for this WebSocket connection
-        ctx = self._websocket_contexts.get(websocket)
+        from refast.context import Context
+
+        ctx = self._connection_contexts.get(connection_id)
         if ctx is None:
-            # Fallback: create a new context if not found (shouldn't happen)
-            from refast.context import Context
+            # Recreate context if not found to prevent completely breaking page
+            ctx = Context(connection_id=connection_id, app=self.app)
+            self._connection_contexts[connection_id] = ctx
 
-            ctx = Context(websocket=websocket, app=self.app)
-            self._websocket_contexts[websocket] = ctx
+        # Handle store_sync immediately (response to resync_store request)
+        if message_type == "store_sync":
+            store_data = data.get("data", {})
+            ctx._load_store_from_browser(store_data)
+            ctx._resolve_store_sync()
+        else:
+            handler = self._message_dispatch.get(message_type)
+            if handler is not None:
+                await handler(ctx, data)
 
-        handler = self._message_dispatch.get(message_type)
-        if handler is not None:
-            await handler(ctx, websocket, data)
+        return Response(status_code=200)
 
     async def _on_callback(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", data: dict[str, Any]
     ) -> None:
         """Handle a ``callback`` message: invoke a registered Python callback."""
         callback_id = data.get("callbackId")
@@ -527,7 +569,7 @@ class RefastRouter:
             await ctx.sync_store()
 
     async def _on_store_init(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", data: dict[str, Any]
     ) -> None:
         """Handle a ``store_init`` message: load browser storage then render the page."""
         store_data = data.get("data", {})
@@ -547,12 +589,12 @@ class RefastRouter:
             ctx.clear_callbacks()
             component = await self._execute_page_func(page_func, ctx, pathname)
             component_data = component.render() if hasattr(component, "render") else {}
-            await websocket.send_json({"type": "page_render", "component": component_data})
+            await ctx._websocket.send_json({"type": "page_render", "component": component_data})
 
-        await websocket.send_json({"type": "store_ready"})
+        await ctx._websocket.send_json({"type": "store_ready"})
 
     async def _on_navigate(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", data: dict[str, Any]
     ) -> None:
         """Handle a ``navigate`` message: render the page for the requested path."""
         raw_path = data.get("path", "/")
@@ -569,9 +611,9 @@ class RefastRouter:
             ctx.clear_callbacks()
             component = await self._execute_page_func(page_func, ctx, pathname)
             component_data = component.render() if hasattr(component, "render") else {}
-            await websocket.send_json({"type": "page_render", "component": component_data})
+            await ctx._websocket.send_json({"type": "page_render", "component": component_data})
 
-    async def _on_event(self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]) -> None:
+    async def _on_event(self, ctx: "Context", data: dict[str, Any]) -> None:
         """Handle a custom ``event`` message: invoke the registered event handler."""
         event_type = data.get("eventType")
         handler = self.app._event_handlers.get(event_type)

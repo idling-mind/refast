@@ -136,7 +136,7 @@ class TestRefastRouter:
             client.get("/api/page", headers={"referer": "http://testserver/"})
 
     def test_active_contexts_property(self):
-        """Test active_contexts property returns values from _websocket_contexts."""
+        """Test active_contexts property returns values from _connection_contexts."""
         app = RefastApp()
         # Initialize router
         _ = app.router
@@ -145,29 +145,22 @@ class TestRefastRouter:
         assert refast_router.active_contexts == []
 
         # Mock a context
-        mock_ws = object()
+        conn_id = "test-connection-id"
         mock_ctx = object()
-        refast_router._websocket_contexts[mock_ws] = mock_ctx
+        refast_router._connection_contexts[conn_id] = mock_ctx
 
         assert refast_router.active_contexts == [mock_ctx]
 
 
-class TestWebSocketEndpoint:
-    """Tests for WebSocket endpoint."""
+class TestSSEAndEventEndpoints:
+    """Tests for SSE and HTTP POST Event endpoints registration."""
 
-    def test_websocket_endpoint_exists(self):
-        """Test WebSocket endpoint is set up."""
-        app = FastAPI()
+    def test_endpoints_registered(self):
+        """Test SSE and Event endpoints are registered on the router."""
         ui = RefastApp()
-
-        @ui.page("/")
-        def home(ctx):
-            return None
-
-        app.include_router(ui.router, prefix="/ui")
-        client = TestClient(app)
-
-        # WebSocket connection test
-        with client.websocket_connect("/ui/ws") as websocket:  # noqa: F841
-            # Just verify we can connect
-            pass
+        # Trigger router initialization
+        router = ui.router
+        
+        routes = [r.path for r in router.routes]
+        assert "/api/events" in routes
+        assert "/api/event" in routes

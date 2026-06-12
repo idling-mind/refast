@@ -69,29 +69,25 @@ class TestWebSocketConnection:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_send_when_no_websocket(self):
-        """Test send fails without websocket."""
-        conn = WebSocketConnection(connected=True, websocket=None)
-        result = await conn.send({"test": "data"})
-        assert result is False
-
-    @pytest.mark.asyncio
     async def test_send_success(self):
-        """Test successful send."""
-        ws = AsyncMock()
-        conn = WebSocketConnection(connected=True, websocket=ws)
+        """Test successful send by verifying queue insertion."""
+        conn = WebSocketConnection(connected=True)
 
         result = await conn.send({"test": "data"})
 
         assert result is True
-        ws.send_json.assert_called_once_with({"test": "data"})
+        assert conn.queue.qsize() == 1
+        queued_item = await conn.queue.get()
+        assert queued_item == {"test": "data"}
 
     @pytest.mark.asyncio
     async def test_send_error_marks_disconnected(self):
         """Test send error marks connection as disconnected."""
-        ws = AsyncMock()
-        ws.send_json.side_effect = Exception("Connection closed")
-        conn = WebSocketConnection(connected=True, websocket=ws)
+        conn = WebSocketConnection(connected=True)
+        # Mock put to raise an Exception
+        mock_queue = AsyncMock()
+        mock_queue.put.side_effect = Exception("Queue error")
+        conn.queue = mock_queue
 
         result = await conn.send({"test": "data"})
 
@@ -101,15 +97,14 @@ class TestWebSocketConnection:
     @pytest.mark.asyncio
     async def test_send_event(self):
         """Test sending an event."""
-        ws = AsyncMock()
-        conn = WebSocketConnection(connected=True, websocket=ws)
+        conn = WebSocketConnection(connected=True)
 
         event = Event(type="test:event", data={"value": 42})
         result = await conn.send_event(event)
 
         assert result is True
-        ws.send_json.assert_called_once()
-        sent_data = ws.send_json.call_args[0][0]
+        assert conn.queue.qsize() == 1
+        sent_data = await conn.queue.get()
         assert sent_data["type"] == "test:event"
         assert sent_data["data"]["value"] == 42
 

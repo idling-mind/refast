@@ -82,8 +82,6 @@ async def update_value():
                 Text(
                     f"{ctx.store.local.get('prefix')} {ctx.store.local.get('counter')}",
                     id="hello-text",
-                    size="xl",
-                    weight="bold",
                 ),
             )
             print(ctx.store.local["counter"])

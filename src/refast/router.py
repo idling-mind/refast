@@ -480,7 +480,9 @@ class RefastRouter:
         cleanup_task = self._cleanup_tasks.pop(connection_id, None)
         if cleanup_task:
             cleanup_task.cancel()
-            logger.info(f"Reconnected active context for connection {connection_id}, cancelled cleanup")
+            logger.info(
+                f"Reconnected active context for connection {connection_id}, cancelled cleanup"
+            )
 
         from refast.context import Context
 

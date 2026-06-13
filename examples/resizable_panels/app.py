@@ -256,10 +256,10 @@ def home(ctx: Context):
     )
 
 
-app = FastAPI()
-app.include_router(ui.router)
+fastapi_app = FastAPI()
+fastapi_app.include_router(ui.router)
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)

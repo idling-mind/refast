@@ -136,7 +136,7 @@ class TestRefastRouter:
             client.get("/api/page", headers={"referer": "http://testserver/"})
 
     def test_active_contexts_property(self):
-        """Test active_contexts property returns values from _connection_contexts."""
+        """Test active_contexts property returns values from _websocket_contexts."""
         app = RefastApp()
         # Initialize router
         _ = app.router
@@ -145,92 +145,29 @@ class TestRefastRouter:
         assert refast_router.active_contexts == []
 
         # Mock a context
-        conn_id = "test-connection-id"
+        mock_ws = object()
         mock_ctx = object()
-        refast_router._connection_contexts[conn_id] = mock_ctx
+        refast_router._websocket_contexts[mock_ws] = mock_ctx
 
         assert refast_router.active_contexts == [mock_ctx]
 
 
-class TestSSEAndEventEndpoints:
-    """Tests for SSE and HTTP POST Event endpoints registration."""
+class TestWebSocketEndpoint:
+    """Tests for WebSocket endpoint."""
 
-    def test_endpoints_registered(self):
-        """Test SSE and Event endpoints are registered on the router."""
+    def test_websocket_endpoint_exists(self):
+        """Test WebSocket endpoint is set up."""
+        app = FastAPI()
         ui = RefastApp()
-        # Trigger router initialization
-        router = ui.router
-        
-        routes = [r.path for r in router.routes]
-        assert "/api/events" in routes
-        assert "/api/event" in routes
 
-    @pytest.mark.asyncio
-    async def test_sse_handler_headers_and_heartbeat(self):
-        """Test that SSE handler returns correct headers and the generator yields heartbeats."""
-        import asyncio
-        from unittest.mock import patch
-        from fastapi import Request
-        from refast.context import Context
+        @ui.page("/")
+        def home(ctx):
+            return None
 
-        ui = RefastApp()
-        _ = ui.router
-        router = ui._router
+        app.include_router(ui.router, prefix="/ui")
+        client = TestClient(app)
 
-        conn_id = "test-sse-handler-conn"
-        ctx = Context(connection_id=conn_id, app=ui)
-        router._connection_contexts[conn_id] = ctx
-
-        # Create a dummy request
-        scope = {
-            "type": "http",
-            "method": "GET",
-            "path": "/api/events",
-            "headers": [],
-            "query_string": b"",
-        }
-        request = Request(scope)
-
-        response = await router._sse_handler(request, conn_id)
-
-        # 1. Verify headers
-        assert response.headers["cache-control"] == "no-cache, no-transform"
-        assert response.headers["connection"] == "keep-alive"
-        assert response.headers["x-accel-buffering"] == "no"
-
-        # 2. Verify body iterator yields items
-        body_iterator = response.body_iterator
-
-        call_count = 0
-
-        async def mock_wait_for(fut, timeout):
-            try:
-                fut.close()
-            except RuntimeError:
-                pass
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return {"type": "test_msg"}
-            else:
-                raise asyncio.TimeoutError()
-
-        with patch("asyncio.wait_for", side_effect=mock_wait_for):
-            gen = body_iterator
-            
-            # First yield should be the message we mock returned
-            first_val = await gen.__anext__()
-            assert "test_msg" in first_val
-            
-            # Second yield should be the heartbeat because wait_for raises TimeoutError
-            second_val = await gen.__anext__()
-            assert "keepalive" in second_val
-            
-            # Mark connection as disconnected so the loop exits
-            conn = router.stream.get_connection(conn_id)
-            if conn:
-                conn.connected = False
-                
-            with pytest.raises(StopAsyncIteration):
-                await gen.__anext__()
-
+        # WebSocket connection test
+        with client.websocket_connect("/ui/ws") as websocket:  # noqa: F841
+            # Just verify we can connect
+            pass

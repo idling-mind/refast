@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
-from fastapi import Request
+from fastapi import Request, WebSocket
 
 # Action types live in events.actions; re-exported here for backward compatibility
 # so that ``from refast.context import Callback`` etc. continue to work.
@@ -29,34 +29,6 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-class SSEWebSocketProxy:
-    def __init__(self, context: "Context", websocket: Any = None):
-        self._context = context
-        self._underlying_websocket = websocket
-
-    async def send_json(self, message: dict[str, Any]) -> None:
-        if (
-            self._underlying_websocket is not None
-            and hasattr(self._underlying_websocket, "send_json")
-        ):
-            await self._underlying_websocket.send_json(message)
-        else:
-            # Try to send directly to the active connection if it exists
-            if (
-                self._context._connection_id
-                and self._context._app
-                and hasattr(self._context._app, "router_stream")
-            ):
-                stream = self._context._app.router_stream
-                conn = stream.get_connection(self._context._connection_id)
-                if conn:
-                    await conn.send(message)
-                    return
-
-            # Buffer the message in the context queue if connection is not active
-            await self._context._queue.put(message)
-
-
 class Context(Generic[T]):
     """
     Request context passed to page functions and callbacks.
@@ -68,36 +40,30 @@ class Context(Generic[T]):
     - Callback creation
 
     Example:
-    ```python
-    @ui.page("/")
-    def home(ctx: Context):
-        count = ctx.state.get("count", 0)
-        return Button(
-            f"Count: {count}",
-            on_click=ctx.callback(increment, amount=1)
-        )
+        ```python
+        @ui.page("/")
+        def home(ctx: Context):
+            count = ctx.state.get("count", 0)
+            return Button(
+                f"Count: {count}",
+                on_click=ctx.callback(increment, amount=1)
+            )
 
-    async def increment(ctx: Context, amount: int):
-        ctx.state["count"] = ctx.state.get("count", 0) + amount
-        await ctx.refresh()
-    ```
+        async def increment(ctx: Context, amount: int):
+            ctx.state["count"] = ctx.state.get("count", 0) + amount
+            await ctx.refresh()
+        ```
     """
 
     def __init__(
         self,
         request: Request | None = None,
-        websocket: Any = None,
-        connection_id: str | None = None,
+        websocket: WebSocket | None = None,
         app: "RefastApp | None" = None,
     ):
         self._request = request
-        self._connection_id = connection_id
+        self._websocket = websocket
         self._app = app
-        self._queue = asyncio.Queue()
-        if connection_id or websocket is not None:
-            self._websocket = SSEWebSocketProxy(self, websocket)
-        else:
-            self._websocket = None
         self._state: State = State()
         self._store: Store | None = None
         self._session: Session | None = None

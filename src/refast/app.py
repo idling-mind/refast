@@ -108,14 +108,12 @@ class RefastApp:
         file_store: TempFileStore | None = None,
         max_upload_files: int = 20,
         max_upload_size: int | None = None,
-        context_grace_period: float = 10.0,
     ):
         self.title = title
         self.theme = theme
         self.secret_key = secret_key
         self.debug = debug
         self.favicon = favicon
-        self.context_grace_period = context_grace_period
 
         self.preloaded_features = preloaded_features
         self.lazy_features = lazy_features

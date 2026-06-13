@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useCallback} from 'react';
 import { ComponentRenderer } from './components/ComponentRenderer';
 import { ToastManager } from './components/ToastManager';
 import { EventManagerProvider, useEventManager } from './events/EventManager';
-import { useSSE } from './events/SSEClient';
+import { useWebSocket, buildWebSocketUrl } from './events/WebSocketClient';
 import { useStateManager } from './state/StateManager';
 import { persistentStateManager } from './state/PersistentStateManager';
 import { ComponentTree, UpdateMessage } from './types';
@@ -42,9 +42,11 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
     return window.__REFAST_CONFIG__ || {};
   }, []);
 
-  // SSE connection
-  const { socket, isConnected, isConnecting, reconnectAttempts } = useSSE({
-    url: wsUrl || config.wsUrl || '/api/events',
+  // WebSocket connection
+  const { socket, isConnected, isConnecting, reconnectAttempts } = useWebSocket({
+    url: wsUrl || config.wsUrl || buildWebSocketUrl('/ws'),
+    reconnect: true,
+    maxReconnectAttempts: 10,
     onOpen: () => {},
     onClose: () => {},
   });

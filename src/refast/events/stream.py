@@ -1,12 +1,13 @@
-"""SSE event streaming and connection management."""
+"""WebSocket streaming and connection management."""
 
-import asyncio
 import logging
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
+
+from fastapi import WebSocket, WebSocketDisconnect
 
 from refast.events.types import Event
 
@@ -19,19 +20,25 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WebSocketConnection:
     """
-    Represents an SSE/WebSocket connection.
+    Represents a WebSocket connection.
 
     Tracks connection state, session, and subscriptions.
-    Kept as 'WebSocketConnection' for backward compatibility.
+
+    Attributes:
+        id: Unique identifier for this connection
+        websocket: The FastAPI WebSocket instance
+        session_id: Session ID if authenticated
+        subscriptions: Set of channels the connection is subscribed to
+        connected: Whether the connection is active
+        metadata: Additional connection metadata
     """
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    websocket: Any = None  # Kept for backward compatibility
+    websocket: WebSocket | None = None
     session_id: str | None = None
     subscriptions: set[str] = field(default_factory=set)
     connected: bool = False
     metadata: dict[str, Any] = field(default_factory=dict)
-    queue: asyncio.Queue[dict[str, Any]] = field(default_factory=asyncio.Queue)
 
     async def send(self, data: dict[str, Any]) -> bool:
         """
@@ -43,11 +50,11 @@ class WebSocketConnection:
         Returns:
             True if successful, False otherwise
         """
-        if not self.connected:
+        if not self.connected or not self.websocket:
             return False
 
         try:
-            await self.queue.put(data)
+            await self.websocket.send_json(data)
             return True
         except Exception as e:
             logger.error(f"Error sending to connection {self.id}: {e}")
@@ -99,7 +106,21 @@ class WebSocketConnection:
 
 class EventStream:
     """
-    Manages connections and event streaming.
+    Manages WebSocket connections and event streaming.
+
+    Provides:
+    - Connection lifecycle management
+    - Message routing
+    - Stream-based event delivery
+
+    Example:
+        ```python
+        stream = EventStream(app)
+
+        async with stream.connection(websocket) as conn:
+            async for message in stream.receive(conn):
+                await stream.handle_message(conn, message)
+        ```
     """
 
     def __init__(self, app: "RefastApp | None" = None):
@@ -154,26 +175,33 @@ class EventStream:
 
     @asynccontextmanager
     async def connection(
-        self, connection_id: str | Any = None, session_id: str | None = None
+        self, websocket: WebSocket, session_id: str | None = None
     ) -> AsyncIterator[WebSocketConnection]:
         """
-        Context manager for connection lifecycle.
-        """
-        # Handle cases where first argument is a WebSocket object (compatibility with old tests)
-        if connection_id is not None and not isinstance(connection_id, str):
-            conn_id = str(uuid.uuid4())
-            websocket_obj = connection_id
-        else:
-            conn_id = connection_id or str(uuid.uuid4())
-            websocket_obj = None
+        Context manager for WebSocket connection lifecycle.
 
+        Example:
+            ```python
+            async with stream.connection(websocket, session_id) as conn:
+                # Connection is active
+                await process_messages(conn)
+            # Connection is automatically cleaned up
+            ```
+
+        Args:
+            websocket: The FastAPI WebSocket
+            session_id: Optional session ID
+
+        Yields:
+            The WebSocket connection
+        """
         conn = WebSocketConnection(
-            id=conn_id,
-            websocket=websocket_obj,
+            websocket=websocket,
             session_id=session_id,
         )
 
         try:
+            await websocket.accept()
             conn.connected = True
 
             # Register connection
@@ -183,27 +211,46 @@ class EventStream:
                     self._session_connections[session_id] = set()
                 self._session_connections[session_id].add(conn.id)
 
-            logger.info(f"Connection registered: {conn.id}")
+            logger.info(f"WebSocket connected: {conn.id}")
             yield conn
 
+        except WebSocketDisconnect:
+            logger.info(f"WebSocket disconnected: {conn.id}")
         except Exception as e:
-            logger.error(f"Connection error: {e}")
+            logger.error(f"WebSocket error: {e}")
         finally:
             # Cleanup
             conn.connected = False
             self._connections.pop(conn.id, None)
             if session_id and session_id in self._session_connections:
                 self._session_connections[session_id].discard(conn.id)
-            logger.info(f"Connection cleaned up: {conn.id}")
+            logger.info(f"WebSocket cleaned up: {conn.id}")
 
     async def receive(self, conn: WebSocketConnection) -> AsyncIterator[dict[str, Any]]:
         """
-        Async generator to receive messages from a connection's queue.
+        Async generator to receive messages from a connection.
+
+        Example:
+            ```python
+            async for message in stream.receive(conn):
+                await handle_message(message)
+            ```
+
+        Args:
+            conn: The WebSocket connection
+
+        Yields:
+            Received messages as dictionaries
         """
+        if not conn.websocket:
+            return
+
         try:
             while conn.connected:
-                data = await conn.queue.get()
+                data = await conn.websocket.receive_json()
                 yield data
+        except WebSocketDisconnect:
+            conn.connected = False
         except Exception as e:
             logger.error(f"Error receiving from {conn.id}: {e}")
             conn.connected = False
@@ -215,6 +262,13 @@ class EventStream:
     ) -> int:
         """
         Send data to all connections for a session.
+
+        Args:
+            session_id: The session ID
+            data: The data to send
+
+        Returns:
+            Number of successful sends
         """
         connections = self.get_session_connections(session_id)
         success_count = 0
@@ -232,6 +286,13 @@ class EventStream:
     ) -> int:
         """
         Send data to all connections subscribed to a channel.
+
+        Args:
+            channel: The channel name
+            data: The data to send
+
+        Returns:
+            Number of successful sends
         """
         success_count = 0
 
@@ -245,6 +306,12 @@ class EventStream:
     async def broadcast(self, data: dict[str, Any]) -> int:
         """
         Broadcast data to all connected clients.
+
+        Args:
+            data: The data to send
+
+        Returns:
+            Number of successful sends
         """
         success_count = 0
 

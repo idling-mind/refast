@@ -502,10 +502,15 @@ class RefastRouter:
 
                 try:
                     while conn.connected:
-                        # Wait for messages pushed to the active connection's queue
-                        message = await conn.queue.get()
-                        yield f"data: {json.dumps(message)}\n\n"
-                except asyncio.CancelledError:
+                        try:
+                            # Wait for messages pushed to the active connection's queue with a 15s
+                            # timeout
+                            message = await asyncio.wait_for(conn.queue.get(), timeout=15.0)
+                            yield f"data: {json.dumps(message)}\n\n"
+                        except TimeoutError:
+                            # Send a keep-alive heartbeat comment
+                            yield ": keepalive\n\n"
+                except (asyncio.CancelledError, GeneratorExit):
                     # Connection closed. Start a grace period cleanup task.
                     grace_period = getattr(self.app, "context_grace_period", 10.0)
                     task = asyncio.create_task(
@@ -513,7 +518,16 @@ class RefastRouter:
                     )
                     self._cleanup_tasks[connection_id] = task
 
-        return StreamingResponse(event_generator(), media_type="text/event-stream")
+        headers = {
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers=headers,
+        )
 
     async def _cleanup_context_after_delay(self, connection_id: str, delay: float) -> None:
         """Purge connection context and callbacks after grace period has expired."""

@@ -13,7 +13,7 @@ or using your local venv python:
 """
 
 import asyncio
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import FastAPI
 
@@ -65,7 +65,10 @@ async def on_date_select(ctx: Context, value: str = ""):
 async def stream_markdown_with_tags(ctx: Context):
     """Simulate streaming markdown with custom components inline."""
     # Reset/clear previous content and status
-    await ctx.update_props("streaming-output", {"content": "Starting stream...", "custom_components": {}})
+    await ctx.update_props(
+        "streaming-output",
+        {"content": "Starting stream...", "custom_components": {}},
+    )
     await ctx.show_toast("Streaming starting...", variant="info")
 
     # Define custom tag factory functions capturing ctx via closure
@@ -87,10 +90,17 @@ async def stream_markdown_with_tags(ctx: Context):
     def make_progress(id: str, value: int = 0):
         return Progress(id=id, value=value, class_name="w-full max-w-md my-2")
 
+    def make_button_row(children: Any):
+        return Row(
+            class_name="flex flex-row gap-2 items-center p-2 border rounded bg-muted/10 my-2",
+            children=children
+        )
+
     custom_tags = {
         "Tag": make_tag,
         "CounterButton": make_button,
         "ProgressBar": make_progress,
+        "ButtonRow": make_button_row,
     }
 
     chunks = [
@@ -100,7 +110,13 @@ async def stream_markdown_with_tags(ctx: Context):
         "Here is a status label: <Tag label=\"Streaming...\" variant=\"secondary\" />\n\n",
         "Let's add a progress bar at 40%: ",
         "<ProgressBar id=\"progress-bar\" value=\"40\" />\n\n",
-        "We can also stream buttons with callback actions: <CounterButton label=\"Increment progress\" />\n\n",
+        "We can also stream buttons with callback actions: "
+        "<CounterButton label=\"Increment progress\" />\n\n",
+        "We can also stream container tags containing multiple components:\n",
+        "<ButtonRow>\n",
+        "  <CounterButton label=\"Row Button 1\" variant=\"outline\" />\n",
+        "  <CounterButton label=\"Row Button 2\" variant=\"secondary\" />\n",
+        "</ButtonRow>\n\n",
         "And another tag at the end: <Tag label=\"Stream Finished!\" variant=\"success\" />\n"
     ]
 
@@ -112,7 +128,8 @@ async def stream_markdown_with_tags(ctx: Context):
         temp_md = Markdown(content=current_text, custom_tags=custom_tags)
         rendered = temp_md.render()
 
-        # Update client props in a single call (sending both the parsed content and serialized child components)
+        # Update client props in a single call (sending both the parsed content
+        # and serialized child components)
         await ctx.update_props("streaming-output", {
             "content": rendered["props"]["content"],
             "custom_components": rendered["props"]["custom_components"]
@@ -162,23 +179,32 @@ def index(ctx: Context):
             on_select=ctx.callback(on_date_select)
         )
 
+    def make_button_row(children: Any):
+        return Row(
+            class_name="flex flex-row gap-2 items-center p-2 border rounded bg-muted/10 my-2",
+            children=children
+        )
+
     # Dictionary of custom tags mapped to their Pydantic-validated constructors/factories
     custom_tags = {
         "Tag": make_tag,
         "CounterButton": make_button,
         "ProgressBar": make_progress,
         "DatePickerCalendar": make_calendar,
+        "ButtonRow": make_button_row,
     }
 
     # Markdown template containing custom tags
     markdown_content = f"""# Markdown Custom Tags Showcase
 
-This example demonstrates how to integrate **interactive Refast components** directly inside standard Markdown text blocks using HTML-like tags. 
+This example demonstrates how to integrate **interactive Refast components**
+directly inside standard Markdown text blocks using HTML-like tags.
 
 Under the hood:
 1. The backend parses custom tags (e.g. `<Tag />`, `<ProgressBar />`).
 2. Arguments are validated and coerced (e.g. string numbers to float/int) using **Pydantic**.
-3. Registered components are serialized and rendered **inline** inside the markdown flow on the client.
+3. Registered components are serialized and rendered **inline** inside the
+   markdown flow on the client.
 
 ---
 
@@ -212,6 +238,43 @@ Select a date below to fire a callback, update local store, and refresh the text
 <DatePickerCalendar id="date-picker" selected_date="{selected_date}" />
 
 Selected Date in State: **{selected_date}**
+
+---
+
+### 5. Container Tag (`<ButtonRow>...</ButtonRow>` -> `Row`)
+Group multiple interactive elements horizontally using a container tag:
+
+<ButtonRow>
+  <CounterButton label="Row Button A" variant="outline" />
+  <CounterButton label="Row Button B" variant="secondary" />
+  <CounterButton label="Row Button C" variant="default" />
+</ButtonRow>
+
+---
+
+### 6. Code Blocks & Syntax Highlighting
+Here are code blocks rendered in different programming languages:
+
+**Python:**
+```python
+def greet(name: str) -> None:
+    print("Hello", name)
+
+greet("Refast developer")
+```
+
+**JavaScript:**
+```javascript
+const colors = ["red", "green", "blue"];
+const upperColors = colors.map(c => c.toUpperCase());
+console.log(upperColors);
+```
+
+**Bash / Shell:**
+```bash
+# Start the Refast application dev server
+python examples/markdown_custom_tags/app.py
+```
 """
 
     return Container(
@@ -230,7 +293,10 @@ Selected Date in State: **{selected_date}**
                     CardHeader(
                         children=[
                             CardTitle("Rich Content Showcase"),
-                            CardDescription("Refast components rendered inline within Markdown using standard HTML-like syntax"),
+                            CardDescription(
+                                "Refast components rendered inline within Markdown "
+                                "using standard HTML-like syntax"
+                            ),
                         ]
                     ),
                     CardContent(
@@ -249,7 +315,10 @@ Selected Date in State: **{selected_date}**
                     CardHeader(
                         children=[
                             CardTitle("Streaming Showcase"),
-                            CardDescription("Demonstrates dynamic token-by-token streaming of Markdown containing interactive components"),
+                            CardDescription(
+                                "Demonstrates dynamic token-by-token streaming of "
+                                "Markdown containing interactive components"
+                            ),
                         ]
                     ),
                     CardContent(

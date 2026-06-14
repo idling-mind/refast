@@ -181,6 +181,7 @@ interface LinkProps {
   id?: string;
   className?: string;
   href?: string;
+  variant?: 'default' | 'unstyled';
   target?: '_blank' | '_self' | '_parent' | '_top';
   external?: boolean;
   onClick?: () => void;
@@ -196,6 +197,7 @@ export function Link({
   id,
   className,
   href = '#',
+  variant = 'default',
   target = '_self',
   external = false,
   onClick,
@@ -211,14 +213,14 @@ export function Link({
       rel={external ? 'noopener noreferrer' : undefined}
       onClick={onClick}
       className={cn(
-        'font-medium text-primary px-2 hover:bg-accent',
+        variant === 'default' && 'font-medium text-primary px-2 hover:bg-accent',
         className
       )}
       style={style}
       data-refast-id={dataRefastId}
     >
       {children}
-      {external && (
+      {external && variant === 'default' && (
         <ExternalLink className="inline-block ml-1 align-middle" size={12} />
       )}
     </a>
@@ -300,6 +302,72 @@ function _loadSyntaxHighlighter(): Promise<void> {
 // Kick off loading as soon as this module is imported so the chunks are
 // in-flight before any Code component is rendered.
 _loadSyntaxHighlighter();
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type _MarkdownCache = {
+  ReactMarkdown: React.ComponentType<any>;
+  remarkGfm: any;
+  rehypeRaw: any;
+};
+
+let _markdownCache: _MarkdownCache | null = null;
+let _markdownPromise: Promise<void> | null = null;
+const _markdownListeners = new Set<() => void>();
+
+function _loadMarkdownLibraries(): Promise<void> {
+  if (_markdownPromise) return _markdownPromise;
+  _markdownPromise = (async () => {
+    try {
+      const [reactMarkdownModule, remarkGfmModule, rehypeRawModule] = await Promise.all([
+        import('react-markdown'),
+        import('remark-gfm'),
+        import('rehype-raw'),
+      ]);
+      _markdownCache = {
+        ReactMarkdown: reactMarkdownModule.default as React.ComponentType<any>,
+        remarkGfm: remarkGfmModule.default,
+        rehypeRaw: rehypeRawModule.default,
+      };
+      _markdownListeners.forEach((fn) => fn());
+    } catch (error) {
+      console.error('Failed to load markdown libraries:', error);
+    }
+  })();
+  return _markdownPromise;
+}
+
+// Preloaded on import (except during testing to prevent startup slowdowns)
+const isTestEnv = typeof (globalThis as any).process !== 'undefined' && (globalThis as any).process.env?.NODE_ENV === 'test';
+if (!isTestEnv) {
+  _loadMarkdownLibraries();
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type _LatexCache = {
+  remarkMath: any;
+  rehypeKatex: any;
+};
+
+let _latexCache: _LatexCache | null = null;
+let _latexPromise: Promise<void> | null = null;
+const _latexListeners = new Set<() => void>();
+
+function _loadLatexLibraries(): Promise<void> {
+  if (_latexPromise) return _latexPromise;
+  _latexPromise = (async () => {
+    try {
+      const { remarkMath: rM, rehypeKatex: rHK } = await import('../../loaders/katex-loader');
+      _latexCache = {
+        remarkMath: rM,
+        rehypeKatex: rHK,
+      };
+      _latexListeners.forEach((fn) => fn());
+    } catch (error) {
+      console.error('Failed to load LaTeX plugins:', error);
+    }
+  })();
+  return _latexPromise;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -749,109 +817,52 @@ export function Markdown({
   'data-refast-id': dataRefastId,
 }: MarkdownProps): React.ReactElement<any> {
   const theme = useTheme();
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [ReactMarkdown, setReactMarkdown] = React.useState<React.ComponentType<any> | null>(null);
-  const [remarkGfm, setRemarkGfm] = React.useState<unknown>(null);
-  const [rehypeRaw, setRehypeRaw] = React.useState<unknown>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [SyntaxHighlighter, setSyntaxHighlighter] = React.useState<React.ComponentType<any> | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [highlightStyles, setHighlightStyles] = React.useState<{
-    light: Record<string, React.CSSProperties>;
-    dark: Record<string, React.CSSProperties>;
-  } | null>(null);
-  const [remarkMath, setRemarkMath] = React.useState<unknown>(null);
-  const [rehypeKatex, setRehypeKatex] = React.useState<unknown>(null);
+
+  const [mdCache, setMdCache] = React.useState<_MarkdownCache | null>(() => _markdownCache);
+  const [highlighter, setHighlighter] = React.useState<_SHCache | null>(() => _shCache);
+  const [latexCache, setLatexCache] = React.useState<_LatexCache | null>(() => _latexCache);
 
   React.useEffect(() => {
-    // Dynamically import markdown libraries
-    const loadMarkdown = async () => {
-      try {
-        const [reactMarkdownModule, remarkGfmModule, rehypeRawModule] = await Promise.all([
-          import('react-markdown'),
-          import('remark-gfm'),
-          import('rehype-raw'),
-        ]);
-        
-        setReactMarkdown(() => reactMarkdownModule.default as React.ComponentType<any>);
-        setRemarkGfm(() => remarkGfmModule.default);
-        setRehypeRaw(() => rehypeRawModule.default);
+    if (_markdownCache) {
+      if (!mdCache) setMdCache(_markdownCache);
+      return;
+    }
+    const notify = () => setMdCache(_markdownCache);
+    _markdownListeners.add(notify);
+    _loadMarkdownLibraries();
+    return () => { _markdownListeners.delete(notify); };
+  }, [mdCache]);
 
-        // Load syntax highlighter with PrismLight for smaller bundle
-        try {
-          const [PrismLightModule, oneDarkModule, oneLightModule] = await Promise.all([
-            import('react-syntax-highlighter/dist/esm/prism-light'),
-            import('react-syntax-highlighter/dist/esm/styles/prism/one-dark'),
-            import('react-syntax-highlighter/dist/esm/styles/prism/one-light'),
-          ]);
-          
-          const PrismLight = PrismLightModule.default;
-          
-          // Register commonly used languages
-          const [javascript, typescript, python, bash, json, css, jsx, tsx, sql, yaml, markdown] = await Promise.all([
-            import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/python'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/json'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/css'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/jsx'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/sql'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/yaml'),
-            import('react-syntax-highlighter/dist/esm/languages/prism/markdown'),
-          ]);
-          
-          PrismLight.registerLanguage('javascript', javascript.default);
-          PrismLight.registerLanguage('js', javascript.default);
-          PrismLight.registerLanguage('typescript', typescript.default);
-          PrismLight.registerLanguage('ts', typescript.default);
-          PrismLight.registerLanguage('python', python.default);
-          PrismLight.registerLanguage('py', python.default);
-          PrismLight.registerLanguage('bash', bash.default);
-          PrismLight.registerLanguage('shell', bash.default);
-          PrismLight.registerLanguage('sh', bash.default);
-          PrismLight.registerLanguage('json', json.default);
-          PrismLight.registerLanguage('css', css.default);
-          PrismLight.registerLanguage('jsx', jsx.default);
-          PrismLight.registerLanguage('tsx', tsx.default);
-          PrismLight.registerLanguage('sql', sql.default);
-          PrismLight.registerLanguage('yaml', yaml.default);
-          PrismLight.registerLanguage('yml', yaml.default);
-          PrismLight.registerLanguage('markdown', markdown.default);
-          PrismLight.registerLanguage('md', markdown.default);
-          
-          setSyntaxHighlighter(() => PrismLight);
-          setHighlightStyles({
-            light: oneLightModule.default as Record<string, React.CSSProperties>,
-            dark: oneDarkModule.default as Record<string, React.CSSProperties>,
-          });
-        } catch (err) {
-          console.error('Failed to load syntax highlighter:', err);
-        }
+  React.useEffect(() => {
+    if (_shCache) {
+      if (!highlighter) setHighlighter(_shCache);
+      return;
+    }
+    const notify = () => setHighlighter(_shCache);
+    _shListeners.add(notify);
+    _loadSyntaxHighlighter();
+    return () => { _shListeners.delete(notify); };
+  }, [highlighter]);
 
-        // Load KaTeX (LaTeX math) plugins on demand via dedicated loader
-        // module so that the main bundle has zero static reference to katex.
-        if (enableLatex) {
-          try {
-            const { remarkMath: rM, rehypeKatex: rHK } =
-              await import('../../loaders/katex-loader');
-            setRemarkMath(() => rM);
-            setRehypeKatex(() => rHK);
-          } catch (err) {
-            console.error('Failed to load LaTeX plugins:', err);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load markdown libraries:', error);
-      }
-    };
+  React.useEffect(() => {
+    if (!enableLatex) return;
+    if (_latexCache) {
+      if (!latexCache) setLatexCache(_latexCache);
+      return;
+    }
+    const notify = () => setLatexCache(_latexCache);
+    _latexListeners.add(notify);
+    _loadLatexLibraries();
+    return () => { _latexListeners.delete(notify); };
+  }, [enableLatex, latexCache]);
 
-    loadMarkdown();
-  // enableLatex is intentionally included so plugins load if the prop is changed dynamically
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enableLatex]);
+  const ReactMarkdown = mdCache?.ReactMarkdown || null;
+  const remarkGfm = mdCache?.remarkGfm || null;
+  const rehypeRaw = mdCache?.rehypeRaw || null;
+  const SyntaxHighlighter = highlighter?.SyntaxHighlighter || null;
+  const highlightStyles = highlighter?.styles || null;
+  const remarkMath = latexCache?.remarkMath || null;
+  const rehypeKatex = latexCache?.rehypeKatex || null;
 
   // Custom components for styling
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1030,11 +1041,9 @@ export function Markdown({
   if (allowHtml && rehypeRaw) rehypePlugins.push(rehypeRaw);
   if (enableLatex && rehypeKatex) rehypePlugins.push(rehypeKatex);
 
-  // include a readiness flag in the key so that the entire markdown tree
-  // is recreated when the syntax highlighter / latex plugins finish loading.
-  const ready = Boolean(SyntaxHighlighter && highlightStyles) &&
-    (!enableLatex || Boolean(remarkMath && rehypeKatex));
-  const markdownKey = `${theme}-${ready}`;
+  // Use theme as the key to support styling updates but prevent full unmounting/remounting
+  // of the markdown AST and embedded custom components when packages finish loading.
+  const markdownKey = theme;
 
   return (
     <div

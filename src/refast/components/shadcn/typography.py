@@ -174,8 +174,10 @@ class Link(Component):
 
     def __init__(
         self,
-        text: str,
-        href: str,
+        text: str | None = None,
+        href: str = "#",
+        children: ChildrenType = None,
+        variant: Literal["default", "unstyled"] = "default",
         target: Literal["_self", "_blank", "_parent", "_top"] = "_self",
         on_click: Any = None,
         external: bool = False,
@@ -194,17 +196,28 @@ class Link(Component):
         )
         self.text = text
         self.href = href
+        self.variant = variant
         self.target = target
         self.external = external
         self.style = style
         self.on_click = on_click
+        if children is not None:
+            self.add_children(children)
 
     def render(self) -> dict[str, Any]:
+        children = (
+            self._render_children()
+            if self._children
+            else [self.text]
+            if self.text is not None
+            else []
+        )
         return {
             "type": self.component_type,
             "id": self.id,
             "props": {
                 "href": self.href,
+                "variant": self.variant,
                 "target": self.target,
                 "external": self.external,
                 "on_click": self.on_click.serialize() if self.on_click else None,
@@ -212,7 +225,7 @@ class Link(Component):
                 "style": self.style,
                 **self._serialize_extra_props(),
             },
-            "children": [self.text],
+            "children": children,
         }
 
 

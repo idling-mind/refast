@@ -114,6 +114,20 @@ class TestLink:
         rendered = link.render()
         assert rendered["props"]["on_click"] == {"callbackId": "cb-123"}
 
+    def test_link_with_children(self):
+        """Test Link wrapping children components."""
+        link = Link(href="/somewhere", children=[Text("Inner text")])
+        rendered = link.render()
+        assert len(rendered["children"]) == 1
+        assert rendered["children"][0]["type"] == "Text"
+        assert rendered["children"][0]["children"] == ["Inner text"]
+
+    def test_link_variant_unstyled(self):
+        """Test Link with variant='unstyled'."""
+        link = Link("Click", href="/page", variant="unstyled")
+        rendered = link.render()
+        assert rendered["props"]["variant"] == "unstyled"
+
 
 class TestMarkdown:
     """Tests for Markdown component."""

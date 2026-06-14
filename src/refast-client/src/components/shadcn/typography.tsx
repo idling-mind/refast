@@ -181,6 +181,7 @@ interface LinkProps {
   id?: string;
   className?: string;
   href?: string;
+  variant?: 'default' | 'unstyled';
   target?: '_blank' | '_self' | '_parent' | '_top';
   external?: boolean;
   onClick?: () => void;
@@ -196,6 +197,7 @@ export function Link({
   id,
   className,
   href = '#',
+  variant = 'default',
   target = '_self',
   external = false,
   onClick,
@@ -211,14 +213,14 @@ export function Link({
       rel={external ? 'noopener noreferrer' : undefined}
       onClick={onClick}
       className={cn(
-        'font-medium text-primary px-2 hover:bg-accent',
+        variant === 'default' && 'font-medium text-primary px-2 hover:bg-accent',
         className
       )}
       style={style}
       data-refast-id={dataRefastId}
     >
       {children}
-      {external && (
+      {external && variant === 'default' && (
         <ExternalLink className="inline-block ml-1 align-middle" size={12} />
       )}
     </a>

@@ -50,10 +50,7 @@ class RadialBarChart(Component):
             ]
         # Remap name_key → "name" so Recharts legend/tooltip can read entry.name
         if name_key and name_key != "name":
-            processed = [
-                {**item, "name": item[name_key]}
-                for item in processed
-            ]
+            processed = [{**item, "name": item[name_key]} for item in processed]
         self.data = processed
         self.margin = margin or {"top": 0, "right": 0, "left": 0, "bottom": 0}
         self.cx = cx

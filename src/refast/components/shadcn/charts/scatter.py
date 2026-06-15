@@ -187,9 +187,7 @@ class Scatter(SeriesMixin, Component):
         # erases color/fill from scatter tooltip dimension entries, so the only
         # reliable source is the data-point payload itself.
         data_with_fill = (
-            [{**item, "fill": self.fill} for item in self.data]
-            if self.data is not None
-            else None
+            [{**item, "fill": self.fill} for item in self.data] if self.data is not None else None
         )
         return {
             "type": self.component_type,

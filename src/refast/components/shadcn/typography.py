@@ -303,8 +303,8 @@ class Markdown(Component):
 
         # Innermost first parsing loop
         # We search for self-closing or container tags matching <[A-Z]
-        self_closing_rx = re.compile(r'<([A-Z][a-zA-Z0-9_]*)(?:\s+([^>]*?))?\s*\/>')
-        container_rx = re.compile(r'<([A-Z][a-zA-Z0-9_]*)(?:\s+([^>]*?))?\s*>(.*?)</\1>', re.DOTALL)
+        self_closing_rx = re.compile(r"<([A-Z][a-zA-Z0-9_]*)(?:\s+([^>]*?))?\s*\/>")
+        container_rx = re.compile(r"<([A-Z][a-zA-Z0-9_]*)(?:\s+([^>]*?))?\s*>(.*?)</\1>", re.DOTALL)
 
         def parse_attributes(attrs_str: str) -> dict[str, Any]:
             if not attrs_str:
@@ -316,7 +316,7 @@ class Markdown(Component):
             for match in attr_rx.finditer(attrs_str):
                 name = match.group(1)
                 val_group = match.group(0)
-                if '=' in val_group:
+                if "=" in val_group:
                     val = match.group(2) or match.group(3) or match.group(4) or ""
                 else:
                     val = True
@@ -338,16 +338,16 @@ class Markdown(Component):
                         comp_id = f"{tag_name}_{tag_counts[tag_name]}"
                         self.custom_components[comp_id] = instance
                         replacement = f"![{tag_name}](/refast-component/{comp_id})"
-                        content = content[:match.start()] + replacement + content[match.end():]
+                        content = content[: match.start()] + replacement + content[match.end() :]
                     except Exception:
                         # Validation failed (or other error), leave tag text
                         # as is (mark temporarily)
                         failed_marker = f"<__FAILED_SELF_{tag_name} {attrs_str or ''} />"
-                        content = content[:match.start()] + failed_marker + content[match.end():]
+                        content = content[: match.start()] + failed_marker + content[match.end() :]
                 else:
                     # Tag name not registered in custom_tags, leave it as is
                     failed_marker = f"<__FAILED_SELF_{tag_name} {attrs_str or ''} />"
-                    content = content[:match.start()] + failed_marker + content[match.end():]
+                    content = content[: match.start()] + failed_marker + content[match.end() :]
                 continue
 
             # 2. Try to find the first container tag with no nested un-processed tags.
@@ -358,7 +358,7 @@ class Markdown(Component):
                 # If inner_text contains '<[A-Z]', there is an inner un-processed tag. Skip for now.
                 # Note: we exclude '<__FAILED_' markers as they are already processed/failed.
                 # So we search for '<' followed by an uppercase letter: '<[A-Z]'
-                if re.search(r'<[A-Z]', inner_text):
+                if re.search(r"<[A-Z]", inner_text):
                     continue
                 container_match = m
                 break
@@ -376,17 +376,17 @@ class Markdown(Component):
                     if isinstance(callable_obj, type):
                         sig = inspect.signature(callable_obj.__init__)
                         params = list(sig.parameters.keys())
-                        if 'self' in params:
-                            params.remove('self')
+                        if "self" in params:
+                            params.remove("self")
                     else:
                         sig = inspect.signature(callable_obj)
                         params = list(sig.parameters.keys())
 
                     param_name = None
-                    if 'children' in params:
-                        param_name = 'children'
-                    elif 'content' in params:
-                        param_name = 'content'
+                    if "children" in params:
+                        param_name = "children"
+                    elif "content" in params:
+                        param_name = "content"
 
                     try:
                         if param_name:
@@ -416,9 +416,9 @@ class Markdown(Component):
                         self.custom_components[comp_id] = instance
                         replacement = f"![{tag_name}](/refast-component/{comp_id})"
                         content = (
-                            content[:container_match.start()]
+                            content[: container_match.start()]
                             + replacement
-                            + content[container_match.end():]
+                            + content[container_match.end() :]
                         )
                     except Exception:
                         failed_marker = (
@@ -426,9 +426,9 @@ class Markdown(Component):
                             f"{inner_content}</__FAILED_CONT_{tag_name}>"
                         )
                         content = (
-                            content[:container_match.start()]
+                            content[: container_match.start()]
                             + failed_marker
-                            + content[container_match.end():]
+                            + content[container_match.end() :]
                         )
                 else:
                     failed_marker = (
@@ -436,9 +436,9 @@ class Markdown(Component):
                         f"{inner_content}</__FAILED_CONT_{tag_name}>"
                     )
                     content = (
-                        content[:container_match.start()]
+                        content[: container_match.start()]
                         + failed_marker
-                        + content[container_match.end():]
+                        + content[container_match.end() :]
                     )
                 continue
 
@@ -455,7 +455,7 @@ class Markdown(Component):
 
     def _traversal_children(self) -> "list[Component]":
         children = super()._traversal_children()
-        if hasattr(self, 'custom_components') and self.custom_components:
+        if hasattr(self, "custom_components") and self.custom_components:
             for comp in self.custom_components.values():
                 if isinstance(comp, Component):
                     children.append(comp)

@@ -2,6 +2,7 @@
 
 import asyncio
 import inspect
+import logging
 import re
 import unicodedata
 import urllib.parse
@@ -19,10 +20,20 @@ from refast.assets import (
 from refast.assets import (
     UNSAFE_CONTENT_TYPES as _UNSAFE_CONTENT_TYPES,
 )
+from refast.models.messages import client_message_adapter
 
 if TYPE_CHECKING:
     from refast.app import RefastApp
     from refast.context import Context
+    from refast.models.messages import (
+        CallbackMessage,
+        EventMessage,
+        NavigateMessage,
+        StoreInitMessage,
+    )
+
+
+logger = logging.getLogger(__name__)
 
 
 # UUID format for validating file IDs received from URLs.
@@ -464,6 +475,8 @@ class RefastRouter:
 
         # Create a single context for this WebSocket connection
         # This preserves state across all callback invocations
+        from pydantic import ValidationError
+
         from refast.context import Context
 
         ctx = Context(websocket=websocket, app=self.app)
@@ -472,29 +485,44 @@ class RefastRouter:
         try:
             while True:
                 data = await websocket.receive_json()
-                message_type = data.get("type")
+                try:
+                    message = client_message_adapter.validate_python(data)
+                except ValidationError as exc:
+                    logger.warning(f"WebSocket message validation failed: {exc}")
+                    try:
+                        await websocket.send_json(
+                            {
+                                "type": "validation_error",
+                                "details": exc.errors(include_url=False),
+                            }
+                        )
+                    except Exception as send_err:
+                        logger.error(f"Failed to send validation error to client: {send_err}")
+                    continue
+
+                message_type = message.type
 
                 # Handle store_sync immediately (it's a response to resync_store)
                 # This must happen in the main loop to avoid deadlock when
                 # a callback is waiting for sync response
                 if message_type == "store_sync":
-                    store_data = data.get("data", {})
+                    store_data = message.data
                     ctx._load_store_from_browser(store_data)
                     ctx._resolve_store_sync()
                 elif message_type == "callback":
                     # Run callbacks in a separate task so the main loop can
                     # continue receiving messages (needed for store.sync())
-                    asyncio.create_task(self._handle_websocket_message(websocket, data))
+                    asyncio.create_task(self._handle_websocket_message(websocket, message))
                 else:
                     # Process other messages normally
-                    await self._handle_websocket_message(websocket, data)
+                    await self._handle_websocket_message(websocket, message)
         except WebSocketDisconnect:
             # Clean up context when WebSocket disconnects
             self._websocket_contexts.pop(websocket, None)
 
-    async def _handle_websocket_message(self, websocket: WebSocket, data: dict[str, Any]) -> None:
+    async def _handle_websocket_message(self, websocket: WebSocket, message: Any) -> None:
         """Dispatch an incoming WebSocket message to the appropriate handler."""
-        message_type = data.get("type")
+        message_type = message.type
 
         # Get the persistent context for this WebSocket connection
         ctx = self._websocket_contexts.get(websocket)
@@ -507,15 +535,15 @@ class RefastRouter:
 
         handler = self._message_dispatch.get(message_type)
         if handler is not None:
-            await handler(ctx, websocket, data)
+            await handler(ctx, websocket, message)
 
     async def _on_callback(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", websocket: WebSocket, message: "CallbackMessage"
     ) -> None:
         """Handle a ``callback`` message: invoke a registered Python callback."""
-        callback_id = data.get("callbackId")
-        callback_data = data.get("data", {})
-        event_data_raw = data.get("eventData", {})
+        callback_id = message.callback_id
+        callback_data = message.data
+        event_data_raw = message.event_data
 
         callback = ctx.get_callback(callback_id)
         if callback:
@@ -527,13 +555,13 @@ class RefastRouter:
             await ctx.sync_store()
 
     async def _on_store_init(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", websocket: WebSocket, message: "StoreInitMessage"
     ) -> None:
         """Handle a ``store_init`` message: load browser storage then render the page."""
-        store_data = data.get("data", {})
+        store_data = message.data
         ctx._load_store_from_browser(store_data)
 
-        raw_path = data.get("path", "/")
+        raw_path = message.path
         pathname, query_params, query_string = _parse_url(raw_path)
         ctx._current_path = pathname
         ctx._query_params = query_params
@@ -552,10 +580,10 @@ class RefastRouter:
         await websocket.send_json({"type": "store_ready"})
 
     async def _on_navigate(
-        self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]
+        self, ctx: "Context", websocket: WebSocket, message: "NavigateMessage"
     ) -> None:
         """Handle a ``navigate`` message: render the page for the requested path."""
-        raw_path = data.get("path", "/")
+        raw_path = message.path
         pathname, query_params, query_string = _parse_url(raw_path)
         ctx._current_path = pathname
         ctx._query_params = query_params
@@ -571,14 +599,16 @@ class RefastRouter:
             component_data = component.render() if hasattr(component, "render") else {}
             await websocket.send_json({"type": "page_render", "component": component_data})
 
-    async def _on_event(self, ctx: "Context", websocket: WebSocket, data: dict[str, Any]) -> None:
+    async def _on_event(
+        self, ctx: "Context", websocket: WebSocket, message: "EventMessage"
+    ) -> None:
         """Handle a custom ``event`` message: invoke the registered event handler."""
-        event_type = data.get("eventType")
+        event_type = message.event_type
         handler = self.app._event_handlers.get(event_type)
         if handler:
             from refast.events.types import Event
 
-            event = Event(type=event_type, data=data.get("data", {}))
+            event = Event(type=event_type, data=message.data)
             await handler(ctx, event)
 
     def _render_html_shell(self, component, ctx):

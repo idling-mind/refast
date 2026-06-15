@@ -131,8 +131,7 @@ class Pie(Component):
         # Auto-inject fill colors by index when data items have no fill
         if data and not any("fill" in item for item in data):
             self.data = [
-                {**item, "fill": f"hsl(var(--chart-{(i % 8) + 1}))"}
-                for i, item in enumerate(data)
+                {**item, "fill": f"hsl(var(--chart-{(i % 8) + 1}))"} for i, item in enumerate(data)
             ]
         else:
             self.data = list(data)

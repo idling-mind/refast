@@ -10,7 +10,15 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Request,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 from refast.assets import (
@@ -540,19 +548,23 @@ class RefastRouter:
             except HTTPException as exc:
                 if self.app.debug:
                     try:
-                        await websocket.send_json({
-                            "type": "debug_event",
-                            "event": {
-                                "type": "Python HTTP Exception",
-                                "message": f"HTTP {exc.status_code}: {exc.detail}",
-                                "details": {
-                                    "messageType": message_type,
-                                    "statusCode": exc.status_code,
-                                    "detail": exc.detail,
-                                    "messageData": getattr(message, "model_dump", lambda: str(message))()
-                                }
+                        await websocket.send_json(
+                            {
+                                "type": "debug_event",
+                                "event": {
+                                    "type": "Python HTTP Exception",
+                                    "message": f"HTTP {exc.status_code}: {exc.detail}",
+                                    "details": {
+                                        "messageType": message_type,
+                                        "statusCode": exc.status_code,
+                                        "detail": exc.detail,
+                                        "messageData": getattr(
+                                            message, "model_dump", lambda: str(message)
+                                        )(),
+                                    },
+                                },
                             }
-                        })
+                        )
                     except Exception as send_err:
                         logger.error(f"Failed to send debug error message: {send_err}")
                 if message_type in ("store_init", "navigate"):
@@ -560,7 +572,9 @@ class RefastRouter:
 
                     icon_name = "alert-triangle" if 400 <= exc.status_code < 500 else "alert-circle"
                     error_component = Column(
-                        class_name="p-8 h-screen flex flex-col items-center justify-center space-y-4",
+                        class_name=(
+                            "p-8 h-screen flex flex-col items-center justify-center space-y-4"
+                        ),
                         align="center",
                         justify="center",
                         children=[
@@ -591,34 +605,43 @@ class RefastRouter:
                 )
                 if self.app.debug:
                     import traceback
+
                     tb = traceback.format_exc()
                     try:
-                        await websocket.send_json({
-                            "type": "debug_event",
-                            "event": {
-                                "type": "Python Callback Exception",
-                                "message": f"{type(exc).__name__}: {exc}",
-                                "details": {
-                                    "messageType": message_type,
-                                    "exception": type(exc).__name__,
-                                    "traceback": tb,
-                                    "messageData": getattr(message, "model_dump", lambda: str(message))()
-                                }
+                        await websocket.send_json(
+                            {
+                                "type": "debug_event",
+                                "event": {
+                                    "type": "Python Callback Exception",
+                                    "message": f"{type(exc).__name__}: {exc}",
+                                    "details": {
+                                        "messageType": message_type,
+                                        "exception": type(exc).__name__,
+                                        "traceback": tb,
+                                        "messageData": getattr(
+                                            message, "model_dump", lambda: str(message)
+                                        )(),
+                                    },
+                                },
                             }
-                        })
+                        )
                     except Exception as send_err:
                         logger.error(f"Failed to send debug error message: {send_err}")
                 if message_type in ("store_init", "navigate"):
                     from refast.components import Column, Heading, Icon, Text
 
                     error_component = Column(
-                        class_name="p-8 h-screen flex flex-col items-center justify-center space-y-4",
+                        class_name=(
+                            "p-8 h-screen flex flex-col items-center justify-center space-y-4"
+                        ),
                         align="center",
                         justify="center",
                         children=[
                             Icon("alert-circle", size=48, color="#ef4444"),
                             Heading("Error 500", class_name="text-4xl font-bold text-destructive"),
-                            Text("Internal Server Error", class_name="text-lg text-muted-foreground"),
+                            Text(
+                                "Internal Server Error", class_name="text-lg text-muted-foreground"
+                            ),
                         ],
                     )
                     component_data = (
@@ -645,18 +668,20 @@ class RefastRouter:
             await callback(ctx, **kwargs)
             await ctx.sync_store()
         elif self.app.debug:
-            await websocket.send_json({
-                "type": "debug_event",
-                "event": {
-                    "type": "Missing Python Callback",
-                    "message": f"Callback ID '{callback_id}' is not registered on the backend.",
-                    "details": {
-                        "callbackId": callback_id,
-                        "data": callback_data,
-                        "eventData": event_data_raw
-                    }
+            await websocket.send_json(
+                {
+                    "type": "debug_event",
+                    "event": {
+                        "type": "Missing Python Callback",
+                        "message": f"Callback ID '{callback_id}' is not registered on the backend.",
+                        "details": {
+                            "callbackId": callback_id,
+                            "data": callback_data,
+                            "eventData": event_data_raw,
+                        },
+                    },
                 }
-            })
+            )
 
     async def _on_store_init(
         self, ctx: "Context", websocket: WebSocket, message: "StoreInitMessage"

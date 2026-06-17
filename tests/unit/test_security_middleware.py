@@ -120,12 +120,56 @@ class TestSecurityMiddleware:
 
         client = TestClient(app)
         # First do a GET to establish session
-        client.get("/")
+        get_response = client.get("https://testserver/")
+        csrf_token = get_response.cookies.get("csrf_token")
 
         # POST should work but not set new cookie
-        response = client.post("/submit")
+        response = client.post("https://testserver/submit", headers={"X-CSRF-Token": csrf_token})
         # POST doesn't set a new CSRF cookie (only GET does)
         assert response.status_code == 200
+
+    def test_csrf_validation_blocks_post_without_token(self) -> None:
+        """Test that POST request is blocked without CSRF token when enabled."""
+        app = FastAPI()
+        app.add_middleware(
+            SecurityMiddleware,
+            secret_key="test-secret",
+            rate_limit_enabled=False,
+        )
+
+        @app.post("/submit")
+        async def submit() -> dict[str, str]:
+            return {"status": "ok"}
+
+        client = TestClient(app)
+        # GET to set the cookie first
+        client.get("https://testserver/")
+
+        # POST without X-CSRF-Token header should fail
+        response = client.post("https://testserver/submit")
+        assert response.status_code == 403
+        assert "CSRF validation failed" in response.text
+
+    def test_csrf_validation_blocks_post_with_mismatched_token(self) -> None:
+        """Test that POST request is blocked with mismatched CSRF token."""
+        app = FastAPI()
+        app.add_middleware(
+            SecurityMiddleware,
+            secret_key="test-secret",
+            rate_limit_enabled=False,
+        )
+
+        @app.post("/submit")
+        async def submit() -> dict[str, str]:
+            return {"status": "ok"}
+
+        client = TestClient(app)
+        client.get("https://testserver/")
+
+        # Send invalid/different token in header
+        response = client.post("https://testserver/submit", headers={"X-CSRF-Token": "some-random-invalid-token"})
+        assert response.status_code == 403
+        assert "CSRF validation failed" in response.text
 
 
 class TestSecurityMiddlewareRateLimiting:

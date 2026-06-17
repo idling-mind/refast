@@ -167,6 +167,14 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     },
                 )
 
+        # CSRF validation check
+        if self.csrf_enabled and self.csrf:
+            if not await self.csrf.validate_request(request):
+                return Response(
+                    content="CSRF validation failed",
+                    status_code=403,
+                )
+
         # Process request
         response = await call_next(request)
 

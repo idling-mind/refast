@@ -17,6 +17,7 @@ import { debounce, throttle, assertNever } from '../utils';
 import { propStore, PropStoreInterface } from '../state/PropStore';
 import { applySaveProp } from './propStoreUtils';
 import { refastJsHelper } from './refastJsHelper';
+import { refastBus } from './eventBus';
 
 // ---------------------------------------------------------------------------
 // Event manager interface
@@ -211,6 +212,14 @@ export function createSingleActionExecutor(
       } catch (error) {
         console.error('[Refast] Error executing JavaScript callback:', error);
         console.error('[Refast] Code:', jsFunction);
+        if (window.__REFAST_DEBUG__) {
+          refastBus.emit('refast:debug-error', {
+            type: 'JavaScript Callback Exception',
+            message: error instanceof Error ? error.message : String(error),
+            timestamp: Date.now(),
+            details: { code: jsFunction, stack: error instanceof Error ? error.stack : undefined }
+          });
+        }
       }
     };
     exec = applyTimingControls(exec, d, t) as typeof exec;
@@ -240,13 +249,37 @@ export function createSingleActionExecutor(
             }
           } else {
             console.warn(`[Refast] Method '${methodName}' not found on element '${targetId}'`);
+            if (window.__REFAST_DEBUG__) {
+              refastBus.emit('refast:debug-error', {
+                type: 'Missing Bound Method',
+                message: `Method '${methodName}' not found on element with ID '${targetId}'`,
+                timestamp: Date.now(),
+                details: { targetId, methodName }
+              });
+            }
           }
         } else {
           console.warn(`[Refast] Element with id '${targetId}' not found`);
+          if (window.__REFAST_DEBUG__) {
+            refastBus.emit('refast:debug-error', {
+              type: 'Missing Component ID',
+              message: `Element with ID '${targetId}' not found in the DOM`,
+              timestamp: Date.now(),
+              details: { targetId, methodName }
+            });
+          }
         }
       } catch (error) {
         console.error('[Refast] Error calling bound method:', error);
         console.error('[Refast] Target:', targetId, 'Method:', methodName);
+        if (window.__REFAST_DEBUG__) {
+          refastBus.emit('refast:debug-error', {
+            type: 'Bound Method Exception',
+            message: error instanceof Error ? error.message : String(error),
+            timestamp: Date.now(),
+            details: { targetId, methodName, stack: error instanceof Error ? error.stack : undefined }
+          });
+        }
       }
     };
     exec = applyTimingControls(exec, d, t) as typeof exec;

@@ -228,6 +228,7 @@ def render_html_shell(app: RefastApp) -> str:
         f"{json.dumps(extension_component_map)};"
         "window.__REFAST_EXTENSION_LOADED__ = "
         "window.__REFAST_EXTENSION_LOADED__ || {};"
+        f"window.__REFAST_DEBUG__ = {str(app.debug).lower()};"
         "</script>"
     )
 

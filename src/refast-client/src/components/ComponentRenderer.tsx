@@ -5,6 +5,7 @@ import { componentRegistry } from './registry';
 import { EventManagerInterface, createSingleActionExecutor } from '../utils/actionExecutor';
 import { transformProps } from '../utils/propTransformer';
 import { refastBus } from '../utils/eventBus';
+import { Popover, PopoverTrigger, PopoverContent } from './shadcn/overlay';
 
 /**
  * Error boundary that isolates render failures to a single component subtree.
@@ -27,6 +28,14 @@ class ComponentErrorBoundary extends Component<
 
   componentDidCatch(error: Error) {
     console.error(`[Refast] Error rendering <${this.props.componentType}>:`, error);
+    if (window.__REFAST_DEBUG__) {
+      refastBus.emit('refast:debug-error', {
+        type: 'React Render Error',
+        message: `Error rendering <${this.props.componentType}>: ${error.message}`,
+        timestamp: Date.now(),
+        details: { componentType: this.props.componentType, stack: error.stack }
+      });
+    }
   }
 
   render() {
@@ -235,7 +244,43 @@ function ComponentObjectRenderer({ tree, onUpdate, ref, ...rest }: ComponentRend
       return <LazyFallback />;
     }
     console.warn(`Unknown component type: ${type}`);
-    return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
+    if (window.__REFAST_DEBUG__) {
+      refastBus.emit('refast:debug-error', {
+        type: 'Missing Component Definition',
+        message: `Component type '${type}' is not registered in the client.`,
+        timestamp: Date.now(),
+        details: { componentType: type, componentId: id, tree }
+      });
+    }
+    if (!window.__REFAST_DEBUG__) {
+      return null;
+    }
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-destructive/30 bg-destructive/5 text-destructive text-xs font-mono cursor-pointer hover:bg-destructive/10 transition-colors"
+            data-unknown-type={type}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+            Unknown: {type}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent className="w-96 p-4">
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-foreground">Missing Component Definition</h4>
+            <p className="text-xs text-muted-foreground">
+              Component <code className="px-1 py-0.5 rounded bg-muted font-mono">{type}</code> is not registered on the client.
+            </p>
+            <div className="rounded bg-muted p-2 max-h-60 overflow-auto">
+              <pre className="text-[10px] font-mono whitespace-pre-wrap break-all">
+                {JSON.stringify(tree, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
   }
 
   // Handle parentStyle for wrapper div

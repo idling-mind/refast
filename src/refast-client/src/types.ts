@@ -102,8 +102,13 @@ export type AnyCallbackRef = AnyActionRef;
  * Update message from backend.
  */
 export interface UpdateMessage {
-  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call' | 'theme_update' | 'desktop_notification';
+  type: 'update' | 'state_update' | 'navigate' | 'toast' | 'event' | 'refresh' | 'store_update' | 'store_ready' | 'page_render' | 'js_exec' | 'resync_store' | 'bound_method_call' | 'theme_update' | 'desktop_notification' | 'debug_event';
   operation?: 'replace' | 'append' | 'prepend' | 'remove' | 'update_props' | 'update_children' | 'append_prop';
+  event?: {
+    type: string;
+    message: string;
+    details?: any;
+  };
   targetId?: string;
   component?: ComponentTree;
   props?: Record<string, unknown>;

@@ -15,7 +15,7 @@ from refast.components import (
     Tooltip,
 )
 
-ui = RefastApp(title="Hello World App")
+ui = RefastApp(title="Hello World App", debug=True)
 
 
 async def change_title(ctx: Context, input_name: str):

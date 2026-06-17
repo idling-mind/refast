@@ -13,7 +13,13 @@ logger = logging.getLogger(__name__)
 _VALIDATE_PROPS = os.environ.get("REFAST_VALIDATE_PROPS", "").lower() in ("1", "true", "yes")
 
 # Type alias for children
-ChildrenType = Union[list[Union["Component", str, None]], "Component", str, None]
+ChildrenType = Union[
+    list[Union["Component", str, dict[str, Any], None]],
+    "Component",
+    str,
+    dict[str, Any],
+    None,
+]
 
 
 def _has_camel_case(key: str) -> bool:
@@ -124,7 +130,7 @@ class Component(ABC):
     def _render_children(self) -> list[dict[str, Any] | str]:
         """Render all children to dicts, filtering out None values."""
         result = []
-        if isinstance(self._children, (str, Component)):
+        if isinstance(self._children, (str, Component, dict)):
             self._children = [self._children]
         elif self._children is None:
             self._children = []
@@ -133,6 +139,8 @@ class Component(ABC):
                 continue
             if isinstance(child, Component):
                 result.append(child.render())
+            elif isinstance(child, dict):
+                result.append(child)
             else:
                 result.append(str(child))
         return result

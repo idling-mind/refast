@@ -10,7 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, File, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 from refast.assets import (
@@ -535,7 +535,62 @@ class RefastRouter:
 
         handler = self._message_dispatch.get(message_type)
         if handler is not None:
-            await handler(ctx, websocket, message)
+            try:
+                await handler(ctx, websocket, message)
+            except HTTPException as exc:
+                if message_type in ("store_init", "navigate"):
+                    from refast.components import Column, Heading, Icon, Text
+
+                    icon_name = "alert-triangle" if 400 <= exc.status_code < 500 else "alert-circle"
+                    error_component = Column(
+                        class_name="p-8 h-screen flex flex-col items-center justify-center space-y-4",
+                        align="center",
+                        justify="center",
+                        children=[
+                            Icon(icon_name, size=48, color="#ef4444"),
+                            Heading(
+                                f"Error {exc.status_code}",
+                                class_name="text-4xl font-bold text-destructive",
+                            ),
+                            Text(
+                                exc.detail or "An error occurred",
+                                class_name="text-lg text-muted-foreground",
+                            ),
+                        ],
+                    )
+                    component_data = (
+                        error_component.render() if hasattr(error_component, "render") else {}
+                    )
+                    await websocket.send_json({"type": "page_render", "component": component_data})
+                elif message_type in ("callback", "event"):
+                    await ctx.show_toast(
+                        message=f"Error {exc.status_code}",
+                        description=str(exc.detail),
+                        variant="destructive",
+                    )
+            except Exception as exc:
+                logger.error(
+                    f"Unexpected error handling message {message_type}: {exc}", exc_info=True
+                )
+                if message_type in ("store_init", "navigate"):
+                    from refast.components import Column, Heading, Icon, Text
+
+                    error_component = Column(
+                        class_name="p-8 h-screen flex flex-col items-center justify-center space-y-4",
+                        align="center",
+                        justify="center",
+                        children=[
+                            Icon("alert-circle", size=48, color="#ef4444"),
+                            Heading("Error 500", class_name="text-4xl font-bold text-destructive"),
+                            Text("Internal Server Error", class_name="text-lg text-muted-foreground"),
+                        ],
+                    )
+                    component_data = (
+                        error_component.render() if hasattr(error_component, "render") else {}
+                    )
+                    await websocket.send_json({"type": "page_render", "component": component_data})
+                elif message_type in ("callback", "event"):
+                    await ctx.show_toast(message="Internal Server Error", variant="destructive")
 
     async def _on_callback(
         self, ctx: "Context", websocket: WebSocket, message: "CallbackMessage"

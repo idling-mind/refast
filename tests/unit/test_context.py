@@ -115,6 +115,34 @@ class TestContext:
         session2 = ctx.session
         assert session1 is session2
 
+    def test_context_with_request(self):
+        """Test context initialized with an explicit request."""
+        from unittest.mock import MagicMock
+        mock_request = MagicMock()
+        ctx = Context(request=mock_request)
+        assert ctx.request is mock_request
+        assert ctx._request is mock_request
+
+    def test_request_fallback_from_websocket(self):
+        """Test that request is constructed from websocket.scope if request is None."""
+        from unittest.mock import MagicMock
+        from fastapi import Request
+
+        mock_websocket = MagicMock()
+        mock_websocket.scope = {
+            "type": "websocket",
+            "headers": [(b"x-forwarded-for", b"203.0.113.195")],
+            "client": ("127.0.0.1", 54321),
+            "query_string": b"foo=bar",
+        }
+        ctx = Context(websocket=mock_websocket)
+
+        assert ctx.request is not None
+        assert isinstance(ctx.request, Request)
+        assert ctx._request is ctx.request
+        assert ctx.request.headers.get("x-forwarded-for") == "203.0.113.195"
+        assert ctx.request.client.host == "127.0.0.1"
+
 
 class TestContextCallback:
     """Tests for Context.callback() method."""

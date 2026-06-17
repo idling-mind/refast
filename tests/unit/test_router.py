@@ -171,3 +171,83 @@ class TestWebSocketEndpoint:
         with client.websocket_connect("/ui/ws") as websocket:  # noqa: F841
             # Just verify we can connect
             pass
+
+    def test_websocket_store_init_http_exception(self):
+        """Test that HTTPException raised during page init is caught and rendered."""
+        from fastapi import HTTPException
+        from refast.components import Text
+
+        app = FastAPI()
+        ui = RefastApp()
+
+        @ui.page("/")
+        def home(ctx):
+            raise HTTPException(status_code=429, detail="Rate limited")
+
+        app.include_router(ui.router, prefix="/ui")
+        client = TestClient(app)
+
+        with client.websocket_connect("/ui/ws") as websocket:
+            websocket.send_json({
+                "type": "store_init",
+                "path": "/",
+                "data": {}
+            })
+            response = websocket.receive_json()
+            assert response["type"] == "page_render"
+            assert "Rate limited" in str(response["component"])
+            assert "Error 429" in str(response["component"])
+
+    def test_websocket_callback_http_exception(self):
+        """Test that HTTPException raised in callback sends toast notification."""
+        from fastapi import HTTPException
+        from refast.components import Button
+
+        app = FastAPI()
+        ui = RefastApp()
+
+        async def action(ctx):
+            raise HTTPException(status_code=400, detail="Invalid action")
+
+        @ui.page("/")
+        def home(ctx):
+            return Button("Click", on_click=ctx.callback(action))
+
+        app.include_router(ui.router, prefix="/ui")
+        client = TestClient(app)
+
+        with client.websocket_connect("/ui/ws") as websocket:
+            # First initialize store to render and register callback
+            websocket.send_json({
+                "type": "store_init",
+                "path": "/",
+                "data": {}
+            })
+            render_resp = websocket.receive_json()
+            assert render_resp["type"] == "page_render"
+            
+            ready_resp = websocket.receive_json()
+            assert ready_resp["type"] == "store_ready"
+            
+            # Extract callback ID
+            import json
+            import re
+            serialized = json.dumps(render_resp["component"])
+            cb_ids = re.findall(r'"callbackId":\s*"([^"]+)"', serialized)
+            assert len(cb_ids) > 0
+            cb_id = cb_ids[0]
+
+            # Trigger the callback
+            websocket.send_json({
+                "type": "callback",
+                "callback_id": cb_id,
+                "data": {},
+                "event_data": {}
+            })
+            
+            # Wait for message response (should be the toast)
+            response = websocket.receive_json()
+            assert response["type"] == "toast"
+            assert response["message"] == "Error 400"
+            assert response["description"] == "Invalid action"
+            assert response["variant"] == "destructive"

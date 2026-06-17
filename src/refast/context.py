@@ -61,8 +61,22 @@ class Context(Generic[T]):
         websocket: WebSocket | None = None,
         app: "RefastApp | None" = None,
     ):
-        self._request = request
         self._websocket = websocket
+        self._request = request
+        if self._request is None and websocket is not None:
+            scope = getattr(websocket, "scope", None)
+            if isinstance(scope, dict):
+                scope_type = scope.get("type")
+                if scope_type in ("http", "websocket"):
+                    try:
+                        if scope_type == "websocket":
+                            http_scope = dict(scope)
+                            http_scope["type"] = "http"
+                        else:
+                            http_scope = scope
+                        self._request = Request(scope=http_scope)
+                    except Exception:
+                        pass
         self._app = app
         self._state: State = State()
         self._store: Store | None = None
@@ -74,6 +88,11 @@ class Context(Generic[T]):
         self._query_params: dict[str, str] = {}
         self._query_string: str = ""
         self._callbacks: dict[str, Callable[..., Any]] = {}
+
+    @property
+    def request(self) -> Request | None:
+        """The HTTP request or WebSocket handshake request."""
+        return self._request
 
     @property
     def path_params(self) -> dict[str, Any]:

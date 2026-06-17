@@ -195,6 +195,12 @@ class TestRenderChildren:
         assert len(rendered["children"]) == 1
         assert rendered["children"][0]["children"] == ["Always shown"]
 
+    def test_renders_dict_children(self):
+        """Test rendering dictionary children as-is."""
+        container = Container(children=[{"type": "CustomWidget", "props": {}}])
+        rendered = container.render()
+        assert rendered["children"] == [{"type": "CustomWidget", "props": {}}]
+
 
 class TestTimer:
     """Tests for the Timer component."""

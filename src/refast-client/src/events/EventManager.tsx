@@ -98,6 +98,7 @@ interface EventManagerContextValue {
     type: UpdateMessage['type'],
     handler: (msg: UpdateMessage) => void,
   ) => () => void;
+  websocket: WebSocket | null;
 }
 
 const EventManagerContext = createContext<EventManagerContextValue | null>(null);
@@ -164,6 +165,14 @@ export function EventManagerProvider({
         } catch (error) {
           console.error('[Refast] Error executing JavaScript from server:', error);
           console.error('[Refast] Code:', msg.code);
+          if (window.__REFAST_DEBUG__) {
+            refastBus.emit('refast:debug-error', {
+              type: 'Server JavaScript Execution Exception',
+              message: error instanceof Error ? error.message : String(error),
+              timestamp: Date.now(),
+              details: { code: msg.code, stack: error instanceof Error ? error.stack : undefined }
+            });
+          }
         }
       }),
     );
@@ -186,13 +195,37 @@ export function EventManagerProvider({
               else method.apply(element, allArgs);
             } else {
               console.warn(`[Refast] Method '${msg.methodName}' not found on element '${msg.targetId}'`);
+              if (window.__REFAST_DEBUG__) {
+                refastBus.emit('refast:debug-error', {
+                  type: 'Missing Bound Method',
+                  message: `Method '${msg.methodName}' not found on element with ID '${msg.targetId}'`,
+                  timestamp: Date.now(),
+                  details: { targetId: msg.targetId, methodName: msg.methodName }
+                });
+              }
             }
           } else {
             console.warn(`[Refast] Element with id '${msg.targetId}' not found`);
+            if (window.__REFAST_DEBUG__) {
+              refastBus.emit('refast:debug-error', {
+                type: 'Missing Component ID',
+                message: `Element with ID '${msg.targetId}' not found in the DOM`,
+                timestamp: Date.now(),
+                details: { targetId: msg.targetId, methodName: msg.methodName }
+              });
+            }
           }
         } catch (error) {
           console.error('[Refast] Error calling bound method:', error);
           console.error('[Refast] Target:', msg.targetId, 'Method:', msg.methodName);
+          if (window.__REFAST_DEBUG__) {
+            refastBus.emit('refast:debug-error', {
+              type: 'Bound Method Exception',
+              message: error instanceof Error ? error.message : String(error),
+              timestamp: Date.now(),
+              details: { targetId: msg.targetId, methodName: msg.methodName, stack: error instanceof Error ? error.stack : undefined }
+            });
+          }
         }
       }),
     );
@@ -285,6 +318,19 @@ export function EventManagerProvider({
       })
     );
 
+    unregister.push(
+      registerMessageHandler('debug_event', (msg) => {
+        if (msg.event && window.__REFAST_DEBUG__) {
+          refastBus.emit('refast:debug-error', {
+            type: msg.event.type,
+            message: msg.event.message,
+            timestamp: Date.now(),
+            details: msg.event.details,
+          });
+        }
+      })
+    );
+
     return () => unregister.forEach((f) => f());
   }, [registerMessageHandler]);
 
@@ -316,6 +362,19 @@ export function EventManagerProvider({
         messageHandlerRegistry.current.get(message.type)?.forEach((handler) => handler(message));
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
+      }
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'validation_error' && window.__REFAST_DEBUG__) {
+          refastBus.emit('refast:debug-error', {
+            type: 'Backend Validation Error',
+            message: 'WebSocket message validation failed on the backend.',
+            timestamp: Date.now(),
+            details: message.details
+          });
+        }
+      } catch {
+        // ignore
       }
     };
 
@@ -408,8 +467,9 @@ export function EventManagerProvider({
       unsubscribe,
       onUpdate,
       registerMessageHandler,
+      websocket,
     }),
-    [invokeCallback, emitEvent, subscribe, unsubscribe, onUpdate, registerMessageHandler]
+    [invokeCallback, emitEvent, subscribe, unsubscribe, onUpdate, registerMessageHandler, websocket]
   );
 
   return (

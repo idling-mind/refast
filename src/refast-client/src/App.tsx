@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback} from 'react';
+import React, { useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
 import { ComponentRenderer } from './components/ComponentRenderer';
 import { ToastManager } from './components/ToastManager';
 import { EventManagerProvider, useEventManager } from './events/EventManager';
@@ -8,6 +8,8 @@ import { persistentStateManager } from './state/PersistentStateManager';
 import { ComponentTree, UpdateMessage } from './types';
 import { refastBus } from './utils/eventBus';
 
+const DebugPanel = lazy(() => import('./components/DebugPanel'));
+
 // Extend Window interface for initial data
 declare global {
   interface Window {
@@ -16,6 +18,7 @@ declare global {
       wsUrl?: string;
       csrfToken?: string;
     };
+    __REFAST_DEBUG__?: boolean;
   }
 }
 
@@ -170,6 +173,11 @@ export function RefastApp({ initialTree, wsUrl, className }: RefastAppProps): Re
         onUpdate={handleUpdate}
         className={className}
       />
+      {window.__REFAST_DEBUG__ && (
+        <Suspense fallback={null}>
+          <DebugPanel />
+        </Suspense>
+      )}
     </EventManagerProvider>
   );
 }

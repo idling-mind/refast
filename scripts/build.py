@@ -35,6 +35,7 @@ def check_node() -> bool:
             ["node", "--version"],
             capture_output=True,
             text=True,
+            shell=sys.platform == "win32",
         )
         if result.returncode == 0:
             print(f"Node.js version: {result.stdout.strip()}")

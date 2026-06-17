@@ -27,6 +27,14 @@ class ComponentErrorBoundary extends Component<
 
   componentDidCatch(error: Error) {
     console.error(`[Refast] Error rendering <${this.props.componentType}>:`, error);
+    if (window.__REFAST_DEBUG__) {
+      refastBus.emit('refast:debug-error', {
+        type: 'React Render Error',
+        message: `Error rendering <${this.props.componentType}>: ${error.message}`,
+        timestamp: Date.now(),
+        details: { componentType: this.props.componentType, stack: error.stack }
+      });
+    }
   }
 
   render() {
@@ -235,6 +243,14 @@ function ComponentObjectRenderer({ tree, onUpdate, ref, ...rest }: ComponentRend
       return <LazyFallback />;
     }
     console.warn(`Unknown component type: ${type}`);
+    if (window.__REFAST_DEBUG__) {
+      refastBus.emit('refast:debug-error', {
+        type: 'Missing Component Definition',
+        message: `Component type '${type}' is not registered in the client.`,
+        timestamp: Date.now(),
+        details: { componentType: type, componentId: id, tree }
+      });
+    }
     return <div data-unknown-type={type}>{JSON.stringify(tree)}</div>;
   }
 

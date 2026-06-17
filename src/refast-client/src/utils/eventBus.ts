@@ -60,6 +60,10 @@ export interface RefastEventMap {
   'refast:extensions-ready': Record<string, never>;
   /** Signals that a single extension chunk has loaded and registered its components. */
   'refast:extension-loaded': { name?: string };
+  /** Log a WebSocket message (emitted by interceptor under debug mode). */
+  'refast:debug-message': { direction: 'in' | 'out'; message: any; timestamp: number };
+  /** Log a debug error (emitted by error boundary, JS client or python backend). */
+  'refast:debug-error': { type: string; message: string; timestamp: number; details?: any };
 }
 
 // ---------------------------------------------------------------------------

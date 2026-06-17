@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { WebSocketOptions, WebSocketState } from '../types';
+import { refastBus } from '../utils/eventBus';
 
 /**
  * WebSocket connection manager hook.
@@ -58,6 +59,31 @@ export function useWebSocket(options: WebSocketOptions) {
 
     try {
       const socket = new WebSocket(url);
+      
+      if (window.__REFAST_DEBUG__) {
+        const originalSend = socket.send;
+        socket.send = function (data: any) {
+          try {
+            if (typeof data === 'string') {
+              const parsed = JSON.parse(data);
+              refastBus.emit('refast:debug-message', { direction: 'out', message: parsed, timestamp: Date.now() });
+            }
+          } catch {
+            // ignore
+          }
+          return originalSend.call(this, data);
+        };
+
+        socket.addEventListener('message', (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            refastBus.emit('refast:debug-message', { direction: 'in', message, timestamp: Date.now() });
+          } catch {
+            // ignore
+          }
+        });
+      }
+
       socketRef.current = socket;
 
       socket.onopen = () => {
@@ -213,7 +239,32 @@ export class WebSocketClient {
       this.socket.close();
     }
 
-    this.socket = new WebSocket(this.url);
+    const socket = new WebSocket(this.url);
+    this.socket = socket;
+
+    if (window.__REFAST_DEBUG__) {
+      const originalSend = socket.send;
+      socket.send = function (data: any) {
+        try {
+          if (typeof data === 'string') {
+            const parsed = JSON.parse(data);
+            refastBus.emit('refast:debug-message', { direction: 'out', message: parsed, timestamp: Date.now() });
+          }
+        } catch {
+          // ignore
+        }
+        return originalSend.call(this, data);
+      };
+
+      socket.addEventListener('message', (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          refastBus.emit('refast:debug-message', { direction: 'in', message, timestamp: Date.now() });
+        } catch {
+          // ignore
+        }
+      });
+    }
 
     this.socket.onopen = () => {
       this.reconnectAttempts = 0;

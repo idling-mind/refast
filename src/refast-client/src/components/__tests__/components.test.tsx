@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, act } from '@testing-library/react';
 import { Container, Text, Fragment } from '../base';
 import { Button } from '../shadcn/button';
 import { Card, CardHeader, CardContent, CardTitle } from '../shadcn/card';
@@ -9,6 +9,7 @@ import { Slider } from '../shadcn/controls';
 import { Heading, Paragraph, Link } from '../shadcn/typography';
 import { Alert, Badge, Progress, Spinner } from '../shadcn/feedback';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar } from '../shadcn/data_display';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../shadcn/utility';
 
 describe('Base Components', () => {
   it('renders Container', () => {
@@ -218,5 +219,42 @@ describe('Data Display Components', () => {
   it('renders Avatar with fallback', () => {
     render(<Avatar alt="John Doe" />);
     expect(screen.getByText('J')).toBeInTheDocument();
+  });
+});
+
+describe('Collapsible Component', () => {
+  it('renders Collapsible and exposes bound callbacks', () => {
+    const { container } = render(
+      <Collapsible id="test-collapsible" defaultOpen={false}>
+        <CollapsibleTrigger><span>Toggle</span></CollapsibleTrigger>
+        <CollapsibleContent>Secret Content</CollapsibleContent>
+      </Collapsible>
+    );
+
+    const collapsibleEl = container.querySelector('#test-collapsible') as any;
+    expect(collapsibleEl).toBeInTheDocument();
+    
+    // Assert methods are bound
+    expect(typeof collapsibleEl.collapse).toBe('function');
+    expect(typeof collapsibleEl.expand).toBe('function');
+    expect(typeof collapsibleEl.toggle).toBe('function');
+
+    // Test expand
+    act(() => {
+      collapsibleEl.expand();
+    });
+    expect(screen.getByText('Secret Content')).toBeInTheDocument();
+
+    // Test collapse
+    act(() => {
+      collapsibleEl.collapse();
+    });
+    expect(screen.queryByText('Secret Content')).not.toBeInTheDocument();
+
+    // Test toggle
+    act(() => {
+      collapsibleEl.toggle();
+    });
+    expect(screen.getByText('Secret Content')).toBeInTheDocument();
   });
 });

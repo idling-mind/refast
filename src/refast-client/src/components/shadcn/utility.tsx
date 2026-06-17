@@ -167,7 +167,62 @@ export interface CollapsibleProps
   className?: string;
 }
 
-export const Collapsible = CollapsiblePrimitive.Root;
+export const Collapsible = React.forwardRef<
+  React.ComponentRef<typeof CollapsiblePrimitive.Root>,
+  CollapsibleProps
+>(({ id, open: openProp, defaultOpen, onOpenChange, children, ...props }, ref) => {
+  const isControlled = openProp !== undefined;
+  const [localOpen, setLocalOpen] = React.useState(defaultOpen ?? false);
+  const open = isControlled ? openProp : localOpen;
+
+  const openRef = React.useRef(open);
+  openRef.current = open;
+
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    if (!isControlled) {
+      setLocalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  }, [isControlled, onOpenChange]);
+
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(ref, () => wrapperRef.current!);
+
+  React.useEffect(() => {
+    if (!id) return;
+    const el = document.getElementById(id) || wrapperRef.current;
+    if (!el) return;
+
+    // Ensure the actual DOM id matches so that document.getElementById(id) works
+    if (el.id !== id) {
+      el.id = id;
+    }
+
+    (el as any).collapse = () => handleOpenChange(false);
+    (el as any).expand = () => handleOpenChange(true);
+    (el as any).toggle = () => handleOpenChange(!openRef.current);
+
+    return () => {
+      delete (el as any).collapse;
+      delete (el as any).expand;
+      delete (el as any).toggle;
+    };
+  }, [id, handleOpenChange]);
+
+  return (
+    <CollapsiblePrimitive.Root
+      ref={wrapperRef}
+      id={id}
+      open={open}
+      onOpenChange={handleOpenChange}
+      {...props}
+    >
+      {children}
+    </CollapsiblePrimitive.Root>
+  );
+});
+Collapsible.displayName = 'Collapsible';
 
 export interface CollapsibleTriggerProps
   extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {

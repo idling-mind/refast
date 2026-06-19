@@ -33,6 +33,11 @@ rc.Column(children=[
 ## 1. Base / Primitive Components
 
 ### `Container`
+
+**Signature:**
+```python
+rc.Container(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Generic `<div>` wrapper. Add Tailwind via `class_name`.
 ```python
 rc.Container(
@@ -44,12 +49,22 @@ rc.Container(
 ```
 
 ### `Text`
+
+**Signature:**
+```python
+rc.Text(content: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Inline text span.
 ```python
 rc.Text("Hello!", class_name="text-sm font-medium text-muted-foreground")
 ```
 
 ### `Fragment`
+
+**Signature:**
+```python
+rc.Fragment(children: ChildrenType = None)
+```
 Groups children with no DOM wrapper.
 ```python
 rc.Fragment([rc.Text("Line 1"), rc.Text("Line 2")])
@@ -60,6 +75,11 @@ rc.Fragment([rc.Text("Line 1"), rc.Text("Line 2")])
 ## 2. Layout Components
 
 ### `Row`
+
+**Signature:**
+```python
+rc.Row(children: ChildrenType = None, justify: Literal['start', 'end', 'center', 'between', 'around', 'evenly'] = 'start', align: Literal['start', 'end', 'center', 'stretch', 'baseline'] = 'start', gap: int = 2, wrap: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Horizontal flex container.
 ```python
 rc.Row(
@@ -73,6 +93,11 @@ rc.Row(
 ```
 
 ### `Column`
+
+**Signature:**
+```python
+rc.Column(children: ChildrenType = None, justify: Literal['start', 'end', 'center', 'between', 'around', 'evenly'] = 'start', align: Literal['start', 'end', 'center', 'stretch', 'baseline'] = 'stretch', gap: int = 2, wrap: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Vertical flex container. Same props as `Row`.
 ```python
 rc.Column(
@@ -83,6 +108,11 @@ rc.Column(
 ```
 
 ### `Grid`
+
+**Signature:**
+```python
+rc.Grid(children: ChildrenType = None, columns: int | str = 1, rows: int | str | None = None, gap: int = 4, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 CSS Grid container.
 ```python
 rc.Grid(
@@ -94,6 +124,11 @@ rc.Grid(
 ```
 
 ### `Flex`
+
+**Signature:**
+```python
+rc.Flex(children: ChildrenType = None, direction: Literal['row', 'column', 'row-reverse', 'column-reverse'] = 'row', justify: Literal['start', 'end', 'center', 'between', 'around', 'evenly'] = 'start', align: Literal['start', 'end', 'center', 'stretch', 'baseline'] = 'stretch', wrap: bool = False, gap: int = 2, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Full directional flexbox (row/column/reverse). Use `Row`/`Column` for most cases.
 ```python
 rc.Flex(
@@ -107,6 +142,11 @@ rc.Flex(
 ```
 
 ### `Center`
+
+**Signature:**
+```python
+rc.Center(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Centers children both horizontally and vertically.
 ```python
 rc.Center(
@@ -120,12 +160,22 @@ rc.Center(
 ## 3. Typography Components
 
 ### `Heading`
+
+**Signature:**
+```python
+rc.Heading(text: str, level: Literal[1, 2, 3, 4, 5, 6] = 1, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Heading("Welcome", level=1)            # level: 1–6
 rc.Heading("Section", level=2, class_name="text-blue-500")
 ```
 
 ### `Paragraph`
+
+**Signature:**
+```python
+rc.Paragraph(text: str, lead: bool = False, muted: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Paragraph("Regular text.")
 rc.Paragraph("Lead paragraph.", lead=True)     # larger/emphasized
@@ -133,23 +183,43 @@ rc.Paragraph("Muted note.", muted=True)        # muted-foreground color
 ```
 
 ### `Code`
+
+**Signature:**
+```python
+rc.Code(code: str, language: str | None = None, inline: bool = True, show_line_numbers: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Code(code="print('hello')", language="python", inline=False, show_line_numbers=True)
 rc.Code(code="x = 1", inline=True)   # inline code span
 ```
 
 ### `Link`
+
+**Signature:**
+```python
+rc.Link(text: str | None = None, href: str = '#', children: ChildrenType = None, variant: Literal['default', 'unstyled'] = 'default', target: Literal['_self', '_blank', '_parent', '_top'] = '_self', on_click: Any = None, external: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Link(text="Visit Docs", href="/docs", target="_self")
 rc.Link(text="GitHub", href="https://github.com", external=True, target="_blank")
 ```
 
 ### `BlockQuote`
+
+**Signature:**
+```python
+rc.BlockQuote(children: ChildrenType = None, cite: str | None = None, color: str = 'default', icon: str | None = None, icon_size: int = 20, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.BlockQuote(children=[rc.Text("The only way to do great work is to love what you do.")])
 ```
 
 ### `Markdown`
+
+**Signature:**
+```python
+rc.Markdown(content: str, allow_html: bool = False, enable_mermaid: bool = False, enable_latex: bool = False, custom_tags: dict[str, collections.abc.Callable[..., refast.components.base.Component]] | None = None, custom_components: dict[str, Any] | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Renders a Markdown string as rich HTML. Requires `preloaded_features=["markdown"]`.
 ```python
 rc.Markdown("# Hello\n\nThis is **bold** and _italic_.")
@@ -157,6 +227,11 @@ rc.Markdown(id="output", content="")   # start empty for streaming
 ```
 
 ### `Separator`
+
+**Signature:**
+```python
+rc.Separator(orientation: Literal['horizontal', 'vertical'] = 'horizontal', decorative: bool = True, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Separator()                              # horizontal divider
 rc.Separator(orientation="vertical", class_name="h-6")
@@ -167,6 +242,11 @@ rc.Separator(orientation="vertical", class_name="h-6")
 ## 4. Button Components
 
 ### `Button`
+
+**Signature:**
+```python
+rc.Button(label: str, variant: Literal['default', 'secondary', 'destructive', 'outline', 'ghost', 'link'] = 'default', size: Literal['xs', 'sm', 'md', 'lg', 'xl'] = 'md', icon: str | None = None, icon_position: Literal['left', 'right'] = 'left', disabled: bool = False, loading: bool = False, type: Literal['button', 'submit', 'reset'] = 'button', on_click: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Button(
     label="Click Me",
@@ -182,6 +262,11 @@ rc.Button(
 ```
 
 ### `IconButton`
+
+**Signature:**
+```python
+rc.IconButton(icon: str, variant: Literal['default', 'secondary', 'destructive', 'outline', 'ghost'] = 'ghost', size: Literal['xs', 'sm', 'md', 'lg', 'xl'] = 'md', disabled: bool = False, on_click: Any = None, aria_label: str | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Square icon-only button.
 ```python
 rc.IconButton(
@@ -199,6 +284,11 @@ rc.IconButton(
 ## 5. Input Components
 
 ### `Input`
+
+**Signature:**
+```python
+rc.Input(name: str | None = None, label: str | None = None, description: str | None = None, type: Literal['text', 'email', 'password', 'number', 'tel', 'url', 'search'] = 'text', placeholder: str = '', value: str | None = None, default_value: str | None = None, required: bool = False, disabled: bool = False, read_only: bool = False, error: str | None = None, debounce: int = 0, on_change: Any = None, on_blur: Any = None, on_focus: Any = None, on_keydown: Any = None, on_keyup: Any = None, on_input: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Input(
     name="email",
@@ -221,6 +311,11 @@ rc.Input(
 ```
 
 ### `Textarea`
+
+**Signature:**
+```python
+rc.Textarea(name: str | None = None, label: str | None = None, description: str | None = None, placeholder: str = '', value: str | None = None, default_value: str | None = None, rows: int = 3, required: bool = False, disabled: bool = False, error: str | None = None, debounce: int = 0, on_change: Any = None, on_blur: Any = None, on_focus: Any = None, on_keydown: Any = None, on_keyup: Any = None, on_input: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Textarea(
     name="bio",
@@ -233,6 +328,11 @@ rc.Textarea(
 ```
 
 ### `Select`
+
+**Signature:**
+```python
+rc.Select(options: list[dict[str, str]], name: str | None = None, label: str | None = None, description: str | None = None, value: str | None = None, default_value: str | None = None, placeholder: str = 'Select...', required: bool = False, disabled: bool = False, error: str | None = None, on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Select(
     name="country",
@@ -250,6 +350,11 @@ rc.Select(
 ```
 
 ### `Checkbox`
+
+**Signature:**
+```python
+rc.Checkbox(name: str | None = None, value: str | None = None, label: str | None = None, description: str | None = None, checked: bool = False, default_checked: bool = False, required: bool = False, disabled: bool = False, error: str | None = None, on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Checkbox(
     name="agree",
@@ -262,6 +367,11 @@ rc.Checkbox(
 ```
 
 ### `CheckboxGroup`
+
+**Signature:**
+```python
+rc.CheckboxGroup(name: str | None = None, children: ChildrenType = None, label: str | None = None, description: str | None = None, value: list[str] | None = None, default_value: list[str] | None = None, orientation: Literal['vertical', 'horizontal'] = 'vertical', required: bool = False, disabled: bool = False, error: str | None = None, on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.CheckboxGroup(
     name="fruits",
@@ -279,6 +389,13 @@ rc.CheckboxGroup(
 ```
 
 ### `RadioGroup` / `Radio`
+
+**Signatures:**
+```python
+rc.RadioGroup(name: str | None = None, children: ChildrenType = None, label: str | None = None, description: str | None = None, value: str | None = None, default_value: str | None = None, orientation: Literal['vertical', 'horizontal'] = 'vertical', required: bool = False, disabled: bool = False, error: str | None = None, on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.Radio(value: str, label: str | None = None, description: str | None = None, required: bool = False, disabled: bool = False, error: str | None = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.RadioGroup(
     name="plan",
@@ -298,6 +415,11 @@ rc.RadioGroup(
 ## 6. Form Components
 
 ### `Form`
+
+**Signature:**
+```python
+rc.Form(children: ChildrenType = None, on_submit: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Intercepts submit, routes to server via WebSocket:
 ```python
 rc.Form(
@@ -311,6 +433,11 @@ rc.Form(
 ```
 
 ### `FormField`
+
+**Signature:**
+```python
+rc.FormField(children: ChildrenType = None, label: str | None = None, error: str | None = None, hint: str | None = None, required: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.FormField(
     label="Password",
@@ -322,11 +449,21 @@ rc.FormField(
 ```
 
 ### `Label`
+
+**Signature:**
+```python
+rc.Label(text: str, html_for: str | None = None, required: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Label(text="API Key", html_for="api-key-input", required=True)
 ```
 
 ### `InputWrapper`
+
+**Signature:**
+```python
+rc.InputWrapper(label: str | None = None, description: str | None = None, required: bool = False, error: str | None = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Wraps any custom control with label/description/error chrome:
 ```python
 rc.InputWrapper(
@@ -343,6 +480,11 @@ rc.InputWrapper(
 ## 7. Advanced Controls
 
 ### `Switch`
+
+**Signature:**
+```python
+rc.Switch(checked: bool | None = None, default_checked: bool = False, disabled: bool = False, name: str | None = None, on_checked_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Switch(
     checked=True,
@@ -353,6 +495,11 @@ rc.Switch(
 ```
 
 ### `Slider`
+
+**Signature:**
+```python
+rc.Slider(value: list[float] | None = None, default_value: list[float] | None = None, min: float = 0, max: float = 100, step: float = 1, disabled: bool = False, orientation: Literal['horizontal', 'vertical'] = 'horizontal', label: str | None = None, description: str | None = None, show_value: bool = False, required: bool = False, error: str | None = None, on_value_change: Any = None, on_value_commit: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Slider(
     label="Volume",
@@ -366,6 +513,15 @@ rc.Slider(
 ```
 
 ### `Toggle` / `ToggleGroup`
+
+**Signatures:**
+```python
+rc.Toggle(label: str = '', icon: str | None = None, pressed: bool | None = None, default_pressed: bool = False, disabled: bool = False, variant: Literal['default', 'outline'] = 'default', size: Literal['sm', 'md', 'lg'] = 'md', on_pressed_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.ToggleGroup(type: Literal['single', 'multiple'] = 'single', value: str | list[str] | dict[str, bool] | None = None, default_value: str | list[str] | dict[str, bool] | None = None, disabled: bool = False, variant: Literal['default', 'outline'] = 'default', size: Literal['sm', 'md', 'lg'] = 'md', on_value_change: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.ToggleGroupItem(label: str = '', icon: str | None = None, value: str | None = None, name: str | None = None, disabled: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Toggle(
     label="Bold",
@@ -386,6 +542,13 @@ rc.ToggleGroup(
 ```
 
 ### `Calendar` / `DatePicker`
+
+**Signatures:**
+```python
+rc.Calendar(mode: Literal['single', 'multiple', 'range'] = 'single', caption_layout: Literal['label', 'dropdown', 'dropdown-months', 'dropdown-years'] = 'label', selected: Any = None, default_month: Any = None, disabled: bool = False, show_outside_days: bool = True, show_week_number: bool = False, min_date: Any = None, max_date: Any = None, number_of_months: int | None = None, on_select: Any = None, on_month_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DatePicker(value: Any = None, placeholder: str = 'Pick a date', disabled: bool = False, format: str = 'PPP', mode: Literal['single', 'multiple', 'range'] = 'single', caption_layout: Literal['label', 'dropdown', 'dropdown-months', 'dropdown-years'] = 'label', min_date: Any = None, max_date: Any = None, number_of_months: int | None = None, label: str | None = None, description: str | None = None, required: bool = False, error: str | None = None, on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 from datetime import date
 rc.Calendar(
@@ -402,6 +565,11 @@ rc.DatePicker(
 ```
 
 ### `Combobox`
+
+**Signature:**
+```python
+rc.Combobox(options: list[ComboboxOption] | None = None, value: str | list[str] | None = None, placeholder: str = 'Select...', search_placeholder: str = 'Search...', empty_text: str = 'No results found.', multiselect: bool = False, disabled: bool = False, label: str | None = None, description: str | None = None, required: bool = False, error: str | None = None, on_select: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Combobox(
     options=[{"value": "react", "label": "React"}, ...],
@@ -415,6 +583,21 @@ rc.Combobox(
 ---
 
 ## 8. Card Components
+
+**Signatures:**
+```python
+rc.Card(children: ChildrenType = None, title: str | None = None, description: str | None = None, on_click: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CardHeader(title: str | None = None, description: str | None = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CardContent(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CardFooter(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CardTitle(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CardDescription(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 
 ```python
 # Full composition:
@@ -445,6 +628,21 @@ Sub-components: `CardTitle`, `CardDescription`, `CardHeader`, `CardContent`, `Ca
 ## 9. Data Display Components
 
 ### `Table` (low-level, full control)
+
+**Signatures:**
+```python
+rc.Table(children: ChildrenType = None, id: str | None = None, class_name: str = '', striped: bool = False, hoverable: bool = True, style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TableHeader(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TableRow(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TableHead(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TableBody(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TableCell(children: ChildrenType = None, col_span: int | None = None, row_span: int | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Table(
     hoverable=True,
@@ -466,6 +664,11 @@ rc.Table(
 ```
 
 ### `DataTable` (batteries included — sorting, filtering, pagination)
+
+**Signature:**
+```python
+rc.DataTable(columns: list[dict[str, Any]], data: list[dict[str, Any]], sortable: bool = True, filterable: bool = True, paginated: bool = True, page_size: int = 10, loading: bool = False, empty_message: str = 'No data available', current_page: int | None = None, on_row_click: Any = None, on_sort_change: Any = None, on_filter_change: Any = None, on_page_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.DataTable(
     columns=[
@@ -493,6 +696,11 @@ rc.DataTable(
 ```
 
 ### `Badge`
+
+**Signature:**
+```python
+rc.Badge(children: ChildrenType = None, variant: Literal['default', 'secondary', 'destructive', 'outline', 'success', 'warning'] = 'default', icon: str | None = None, icon_position: Literal['left', 'right'] = 'left', size: Literal['xs', 'sm', 'md', 'lg', 'xl'] = 'md', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Badge("Active", variant="success")
 rc.Badge(children=["New"], icon="star", icon_position="left", size="md")
@@ -501,12 +709,22 @@ rc.Badge(children=["New"], icon="star", icon_position="left", size="md")
 ```
 
 ### `Avatar`
+
+**Signature:**
+```python
+rc.Avatar(src: str | None = None, alt: str = '', fallback: str | None = None, size: Literal['sm', 'md', 'lg'] = 'md', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Avatar(src="/avatars/alice.jpg", alt="Alice", size="lg")
 rc.Avatar(fallback="JD", size="md")   # initials fallback
 ```
 
 ### `Tooltip`
+
+**Signature:**
+```python
+rc.Tooltip(content: str, children: ChildrenType = None, side: Literal['top', 'right', 'bottom', 'left'] = 'top', side_offset: int | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Tooltip(
     content="This cannot be undone.",
@@ -516,6 +734,13 @@ rc.Tooltip(
 ```
 
 ### `Tabs` / `TabItem`
+
+**Signatures:**
+```python
+rc.Tabs(children: ChildrenType = None, default_value: str | None = None, value: str | None = None, on_value_change: Any = None, direction: Literal['horizontal', 'vertical'] = 'horizontal', size: Literal['xs', 'sm', 'md', 'lg', 'xl'] = 'md', gap: int | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.TabItem(value: str, label: str = '', icon: str | None = None, children: ChildrenType = None, disabled: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Tabs(
     default_value="overview",
@@ -533,6 +758,17 @@ rc.Tabs(
 ```
 
 ### `Accordion`
+
+**Signatures:**
+```python
+rc.Accordion(children: ChildrenType = None, type: Literal['single', 'multiple'] = 'single', collapsible: bool = True, default_value: str | list[str] | None = None, value: str | list[str] | None = None, on_value_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.AccordionItem(value: str, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.AccordionTrigger(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.AccordionContent(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Accordion(
     type="single",              # "single"|"multiple"
@@ -553,12 +789,22 @@ rc.Accordion(
 ```
 
 ### `List` / `ListItem`
+
+**Signature:**
+```python
+rc.List(children: ChildrenType = None, ordered: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.List(children=["Apples", "Bananas", "Cherries"])
 rc.List(ordered=True, children=["First step", "Second step"])
 ```
 
 ### `Image`
+
+**Signature:**
+```python
+rc.Image(src: str, alt: str = '', width: int | str | None = None, height: int | str | None = None, object_fit: Literal['contain', 'cover', 'fill', 'none', 'scale-down'] = 'cover', loading: bool = False, fallback_src: str | None = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Image(src="/path/to/image.jpg", alt="Description", width=400, height=300)
 ```
@@ -568,6 +814,11 @@ rc.Image(src="/path/to/image.jpg", alt="Description", width=400, height=300)
 ## 10. Feedback Components
 
 ### `Alert`
+
+**Signature:**
+```python
+rc.Alert(title: str | None = None, message: str | None = None, variant: Literal['default', 'success', 'warning', 'destructive', 'info'] = 'default', dismissible: bool = False, on_dismiss: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Alert(
     title="Heads up!",
@@ -579,6 +830,11 @@ rc.Alert(
 ```
 
 ### `Progress`
+
+**Signature:**
+```python
+rc.Progress(value: int = 0, max: int = 100, label: str | None = None, show_value: bool = False, foreground_color: Optional[Literal['primary', 'secondary', 'destructive', 'muted', 'accent', 'popover', 'card', 'background', 'foreground']] = None, track_color: str | None = None, striped: Optional[Literal['static', 'animated']] = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Progress(
     value=65,
@@ -591,17 +847,32 @@ rc.Progress(
 ```
 
 ### `Spinner`
+
+**Signature:**
+```python
+rc.Spinner(size: Literal['sm', 'md', 'lg'] = 'md', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Spinner(size="md")   # "sm"|"md"|"lg"
 ```
 
 ### `Skeleton`
+
+**Signature:**
+```python
+rc.Skeleton(width: str | int | None = None, height: str | int | None = None, variant: Literal['text', 'circular', 'rectangular'] = 'text', circle: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Skeleton(width="100%", height="1rem", variant="text")
 rc.Skeleton(width=40, height=40, circle=True)
 ```
 
 ### `ConnectionStatus`
+
+**Signature:**
+```python
+rc.ConnectionStatus(children_connected: ChildrenType = None, children_disconnected: ChildrenType = None, position: Literal['top-left', 'top-right', 'bottom-left', 'bottom-right', 'inline'] = 'bottom-right', on_disconnect: Any = None, on_reconnect: Any = None, js_on_disconnect: Any = None, js_on_reconnect: Any = None, debounce_ms: int = 500, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.ConnectionStatus(
     children_connected=[rc.Badge("Online", variant="success")],
@@ -618,6 +889,27 @@ rc.ConnectionStatus(
 ## 11. Overlay Components
 
 ### `Dialog`
+
+**Signatures:**
+```python
+rc.Dialog(open: bool | None = None, default_open: bool = False, on_open_change: Any = None, title: str | None = None, description: str | None = None, confirm_label: str = 'Continue', cancel_label: str = 'Cancel', on_confirm: Any = None, on_cancel: Any = None, trigger: Any = None, variant: Literal['default', 'destructive'] = 'default', children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogTrigger(children: ChildrenType = None, as_child: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogContent(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogHeader(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogTitle(title: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogDescription(description: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogFooter(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogAction(label: str, on_click: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DialogCancel(label: str = 'Cancel', on_click: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Dialog(
     open=ctx.state.get("dialog_open", False),
@@ -638,6 +930,25 @@ rc.Dialog(
 ```
 
 ### `Sheet`
+
+**Signatures:**
+```python
+rc.Sheet(open: bool | None = None, default_open: bool = False, on_open_change: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetTrigger(children: ChildrenType = None, as_child: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetContent(children: ChildrenType = None, side: Literal['top', 'right', 'bottom', 'left'] = 'right', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetHeader(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetTitle(title: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetDescription(description: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetFooter(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.SheetClose(children: ChildrenType = None, as_child: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 Slide-in panel from an edge:
 ```python
 rc.Sheet(
@@ -654,6 +965,15 @@ rc.Sheet(
 ```
 
 ### `Popover`
+
+**Signatures:**
+```python
+rc.Popover(open: bool | None = None, default_open: bool = False, on_open_change: Any = None, trigger: Any = None, side: Literal['top', 'right', 'bottom', 'left'] = 'bottom', align: Literal['start', 'center', 'end'] = 'center', children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.PopoverTrigger(children: ChildrenType = None, as_child: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.PopoverContent(children: ChildrenType = None, side: Literal['top', 'right', 'bottom', 'left'] = 'bottom', side_offset: int = 4, align: Literal['start', 'center', 'end'] = 'center', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.Popover(
     children=[
@@ -664,6 +984,33 @@ rc.Popover(
 ```
 
 ### `DropdownMenu`
+
+**Signatures:**
+```python
+rc.DropdownMenu(open: bool | None = None, default_open: bool = False, on_open_change: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuTrigger(children: ChildrenType = None, as_child: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuContent(children: ChildrenType = None, side: Literal['top', 'right', 'bottom', 'left'] = 'bottom', side_offset: int = 4, align: Literal['start', 'center', 'end'] = 'start', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuLabel(label: str, inset: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuSeparator(id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuItem(label: str, icon: str | None = None, shortcut: str | None = None, disabled: bool = False, on_select: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuCheckboxItem(label: str, checked: bool = False, on_checked_change: Any = None, disabled: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuRadioGroup(value: str = '', on_value_change: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuRadioItem(label: str, value: str = '', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuSub(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuSubTrigger(label: str, icon: str | None = None, inset: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.DropdownMenuSubContent(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 ```python
 rc.DropdownMenu(children=[
     rc.DropdownMenuTrigger(children=[rc.Button("Options")]),
@@ -680,6 +1027,13 @@ rc.DropdownMenu(children=[
 
 ## 12. Scroll Area
 
+**Signatures:**
+```python
+rc.ScrollArea(children: ChildrenType = None, type: Literal['auto', 'always', 'scroll', 'hover'] = 'hover', scroll_hide_delay: int = 600, dir: Optional[Literal['ltr', 'rtl']] = None, stick_to_bottom: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.ScrollBar(orientation: Literal['horizontal', 'vertical'] = 'vertical', id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
+
 ```python
 rc.ScrollArea(
     id="scroll-area",
@@ -695,6 +1049,15 @@ rc.ScrollArea(
 ---
 
 ## 13. Resizable Panels
+
+**Signatures:**
+```python
+rc.ResizablePanelGroup(direction: Literal['horizontal', 'vertical'] = 'horizontal', children: ChildrenType = None, on_layout: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.ResizablePanel(default_size: float = 50, min_size: float | None = None, max_size: float | None = None, collapsible: bool = False, collapsed_size: float | None = None, on_collapse: Any = None, on_expand: Any = None, on_resize: Any = None, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.ResizableHandle(with_handle: bool = False, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 
 ```python
 rc.ResizablePanelGroup(
@@ -717,6 +1080,15 @@ rc.ResizablePanelGroup(
 
 ## 14. Collapsible
 
+**Signatures:**
+```python
+rc.Collapsible(open: bool | None = None, default_open: bool = False, on_open_change: Any = None, disabled: bool = False, children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CollapsibleTrigger(children: ChildrenType = None, as_child: bool = True, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+
+rc.CollapsibleContent(children: ChildrenType = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
+
 ```python
 rc.Collapsible(
     default_open=True,
@@ -730,6 +1102,57 @@ rc.Collapsible(
 ```
 
 ---
+
+## 15. Utility & Interaction Components
+
+### `Slot`
+Placeholder component that can be replaced dynamically.
+**Signature:**
+```python
+rc.Slot(children: ChildrenType = None, id: str | None = None, class_name: str = '', fallback: Component | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `Kbd`
+Keyboard key display.
+**Signature:**
+```python
+rc.Kbd(key: str, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `LoadingOverlay`
+Global loading state overlay.
+**Signature:**
+```python
+rc.LoadingOverlay(loading: bool = False, text: str = 'Loading...', blur: bool = True, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `ThemeSwitcher`
+Theme switcher component for toggling between light and dark themes.
+**Signature:**
+```python
+rc.ThemeSwitcher(default_theme: Literal['light', 'dark', 'system'] = 'system', storage_key: str = 'refast-theme', show_system_option: bool = True, mode: Literal['toggle', 'dropdown'] = 'toggle', on_change: Any = None, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `Timer`
+An invisible component that repeatedly triggers a server callback at a
+**Signature:**
+```python
+rc.Timer(interval: int = 1000, enabled: bool = True, on_tick: Any = None, id: str | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `KeyboardShortcut`
+An invisible component that captures keyboard shortcuts and triggers callbacks.
+**Signature:**
+```python
+rc.KeyboardShortcut(shortcuts: dict[str, Any], priority: int = 0, bubble: bool = False, prevent_default: bool = True, enabled: bool = True, id: str | None = None, extra_props: dict[str, Any] | None = None)
+```
+
+### `Icon`
+Icon component that renders Lucide icons by name.
+**Signature:**
+```python
+rc.Icon(name: str, size: int = 16, color: str | None = None, stroke_width: float = 2, id: str | None = None, class_name: str = '', style: dict[str, Any] | None = None, parent_style: dict[str, Any] | None = None, extra_props: dict[str, Any] | None = None)
+```
 
 ## Lazy-Loading Feature Bundles
 

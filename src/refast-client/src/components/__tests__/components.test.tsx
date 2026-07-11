@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen, act } from '@testing-library/react';
 import { Container, Text, Fragment } from '../base';
-import { Button } from '../shadcn/button';
+import { Button, ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '../shadcn/button';
 import { Card, CardHeader, CardContent, CardTitle } from '../shadcn/card';
 import { Row, Column, Grid, Center } from '../shadcn/layout';
 import { Input, Checkbox } from '../shadcn/input';
@@ -256,5 +256,56 @@ describe('Collapsible Component', () => {
       collapsibleEl.toggle();
     });
     expect(screen.getByText('Secret Content')).toBeInTheDocument();
+  });
+});
+
+describe('ButtonGroup Components', () => {
+  it('renders ButtonGroup with horizontal orientation by default', () => {
+    render(
+      <ButtonGroup aria-label="Action buttons">
+        <Button>A</Button>
+        <Button>B</Button>
+      </ButtonGroup>
+    );
+    const groupEl = screen.getByRole('group', { name: 'Action buttons' });
+    expect(groupEl).toBeInTheDocument();
+    expect(groupEl).toHaveAttribute('aria-orientation', 'horizontal');
+    expect(groupEl).toHaveClass('flex-row');
+  });
+
+  it('renders ButtonGroup with vertical orientation', () => {
+    render(
+      <ButtonGroup aria-label="Action buttons" orientation="vertical">
+        <Button>A</Button>
+        <Button>B</Button>
+      </ButtonGroup>
+    );
+    const groupEl = screen.getByRole('group', { name: 'Action buttons' });
+    expect(groupEl).toHaveAttribute('aria-orientation', 'vertical');
+    expect(groupEl).toHaveClass('flex-col');
+  });
+
+  it('renders ButtonGroupSeparator', () => {
+    const { container } = render(<ButtonGroupSeparator data-testid="sep" />);
+    const sep = container.firstChild;
+    expect(sep).toHaveClass('bg-border');
+    expect(sep).toHaveClass('w-px');
+  });
+
+  it('renders ButtonGroupText', () => {
+    render(<ButtonGroupText>Muted text</ButtonGroupText>);
+    expect(screen.getByText('Muted text')).toBeInTheDocument();
+  });
+
+  it('renders ButtonGroupText asChild', () => {
+    render(
+      <ButtonGroupText asChild>
+        <label htmlFor="test-input">Test Label</label>
+      </ButtonGroupText>
+    );
+    const label = screen.getByText('Test Label');
+    expect(label.tagName).toBe('LABEL');
+    expect(label).toHaveAttribute('for', 'test-input');
+    expect(label).toHaveClass('text-muted-foreground');
   });
 });

@@ -1,7 +1,7 @@
 """Tests for button and card components."""
 
 from refast.components.base import Text
-from refast.components.shadcn.button import Button, IconButton
+from refast.components.shadcn.button import Button, IconButton, ButtonGroup, ButtonGroupSeparator, ButtonGroupText
 from refast.components.shadcn.card import Card, CardContent, CardFooter, CardHeader
 
 
@@ -165,3 +165,63 @@ class TestCardFooter:
         rendered = footer.render()
         assert rendered["type"] == "CardFooter"
         assert len(rendered["children"]) == 1
+
+
+class TestButtonGroup:
+    """Tests for ButtonGroup component."""
+
+    def test_button_group_renders(self):
+        """Test ButtonGroup renders correctly with children."""
+        group = ButtonGroup(
+            children=[
+                Button("Btn 1"),
+                Button("Btn 2"),
+            ]
+        )
+        rendered = group.render()
+        assert rendered["type"] == "ButtonGroup"
+        assert rendered["props"]["orientation"] == "horizontal"
+        assert len(rendered["children"]) == 2
+        assert rendered["children"][0]["type"] == "Button"
+        assert rendered["children"][1]["type"] == "Button"
+
+    def test_button_group_orientation(self):
+        """Test ButtonGroup orientation prop."""
+        group = ButtonGroup(orientation="vertical")
+        rendered = group.render()
+        assert rendered["props"]["orientation"] == "vertical"
+
+
+class TestButtonGroupSeparator:
+    """Tests for ButtonGroupSeparator component."""
+
+    def test_separator_renders(self):
+        """Test ButtonGroupSeparator renders correctly."""
+        sep = ButtonGroupSeparator()
+        rendered = sep.render()
+        assert rendered["type"] == "ButtonGroupSeparator"
+        assert rendered["props"]["orientation"] == "vertical"
+
+    def test_separator_orientation(self):
+        """Test ButtonGroupSeparator orientation prop."""
+        sep = ButtonGroupSeparator(orientation="horizontal")
+        rendered = sep.render()
+        assert rendered["props"]["orientation"] == "horizontal"
+
+
+class TestButtonGroupText:
+    """Tests for ButtonGroupText component."""
+
+    def test_text_renders(self):
+        """Test ButtonGroupText renders with text."""
+        txt = ButtonGroupText("Sample text")
+        rendered = txt.render()
+        assert rendered["type"] == "ButtonGroupText"
+        assert rendered["props"]["as_child"] is False
+        assert rendered["children"] == ["Sample text"]
+
+    def test_text_as_child(self):
+        """Test ButtonGroupText as_child prop."""
+        txt = ButtonGroupText("Sample", as_child=True)
+        rendered = txt.render()
+        assert rendered["props"]["as_child"] is True

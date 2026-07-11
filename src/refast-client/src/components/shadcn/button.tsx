@@ -185,3 +185,122 @@ export const buttonVariants = cva(
     },
   }
 )
+
+
+interface ButtonGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  orientation?: 'horizontal' | 'vertical';
+  children?: React.ReactNode;
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
+  'data-refast-id'?: string;
+  ref?: React.Ref<HTMLDivElement>;
+}
+
+export function ButtonGroup({
+  orientation = 'horizontal',
+  className,
+  children,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
+  'data-refast-id': dataRefastId,
+  ref,
+  ...props
+}: ButtonGroupProps) {
+  return (
+    <div
+      ref={ref}
+      role="group"
+      aria-orientation={orientation}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
+      data-refast-id={dataRefastId}
+      className={cn(
+        'inline-flex',
+        // Premium rounding and overlapping borders
+        orientation === 'vertical'
+          ? 'flex-col [&>*]:rounded-none first:[&>*]:rounded-t-md last:[&>*]:rounded-b-md [&>*]:-mt-px first:[&>*]:mt-0'
+          : 'flex-row [&>*]:rounded-none first:[&>*]:rounded-l-md last:[&>*]:rounded-r-md [&>*]:-ml-px first:[&>*]:ml-0',
+        // Hover/focus ring z-indexing overlay fix
+        '[&>*]:relative hover:[&>*]:z-10 focus-within:[&>*]:z-10',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+ButtonGroup.displayName = 'ButtonGroup';
+
+
+interface ButtonGroupSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
+  orientation?: 'horizontal' | 'vertical';
+  'data-refast-id'?: string;
+  ref?: React.Ref<HTMLDivElement>;
+}
+
+export function ButtonGroupSeparator({
+  orientation = 'vertical',
+  className,
+  'data-refast-id': dataRefastId,
+  ref,
+  ...props
+}: ButtonGroupSeparatorProps) {
+  return (
+    <div
+      ref={ref}
+      data-refast-id={dataRefastId}
+      className={cn(
+        'shrink-0 bg-border',
+        orientation === 'vertical' ? 'w-px h-auto self-stretch my-2' : 'h-px w-full mx-2',
+        className
+      )}
+      {...props}
+    />
+  );
+}
+ButtonGroupSeparator.displayName = 'ButtonGroupSeparator';
+
+
+interface ButtonGroupTextProps extends React.HTMLAttributes<HTMLSpanElement> {
+  asChild?: boolean;
+  children?: React.ReactNode;
+  'data-refast-id'?: string;
+  ref?: React.Ref<HTMLSpanElement>;
+}
+
+export function ButtonGroupText({
+  asChild = false,
+  children,
+  className,
+  'data-refast-id': dataRefastId,
+  ref,
+  ...props
+}: ButtonGroupTextProps) {
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      ...props,
+      'data-refast-id': dataRefastId,
+      className: cn(
+        'text-sm text-muted-foreground px-3 flex items-center justify-center',
+        className,
+        (children.props as any).className
+      ),
+    } as any);
+  }
+
+  return (
+    <span
+      ref={ref}
+      data-refast-id={dataRefastId}
+      className={cn(
+        'text-sm text-muted-foreground px-3 flex items-center justify-center',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+}
+ButtonGroupText.displayName = 'ButtonGroupText';

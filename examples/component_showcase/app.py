@@ -31,6 +31,9 @@ from refast.components import (
     BreadcrumbPage,
     BreadcrumbSeparator,
     Button,
+    ButtonGroup,
+    ButtonGroupSeparator,
+    ButtonGroupText,
     Calendar,
     Card,
     CardContent,
@@ -1306,6 +1309,85 @@ $$\\int_a^b f(x) \\,dx = F(b) - F(a)$$
                                                         ],
                                                     ),
                                                 ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            # Button Group Section
+            Card(
+                class_name="mb-6",
+                children=[
+                    CardHeader(
+                        children=[
+                            CardTitle("Button Group"),
+                            CardDescription("ButtonGroup, ButtonGroupSeparator, and ButtonGroupText"),
+                        ]
+                    ),
+                    CardContent(
+                        children=[
+                            Column(
+                                gap=6,
+                                children=[
+                                    # Horizontal orientation
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Horizontal Button Group"),
+                                            Text(
+                                                "Standard horizontal arrangement with double-border prevention",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            ButtonGroup(
+                                                children=[
+                                                    Button("First Action", variant="outline"),
+                                                    Button("Second Action", variant="outline"),
+                                                    Button("Third Action", variant="outline"),
+                                                ]
+                                            ),
+                                        ],
+                                    ),
+                                    # Horizontal orientation with text and separator
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Group with Text & Separators"),
+                                            Text(
+                                                "Interleaving buttons, separators, and label text inside a horizontal group",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            ButtonGroup(
+                                                children=[
+                                                    ButtonGroupText("Sort:"),
+                                                    Button("Name", variant="ghost"),
+                                                    ButtonGroupSeparator(),
+                                                    Button("Date", variant="ghost"),
+                                                    ButtonGroupSeparator(),
+                                                    Button("Size", variant="ghost"),
+                                                ]
+                                            ),
+                                        ],
+                                    ),
+                                    # Vertical orientation
+                                    Column(
+                                        gap=2,
+                                        children=[
+                                            Label("Vertical Button Group"),
+                                            Text(
+                                                "Vertical arrangement resetting top/bottom corner boundaries",
+                                                class_name="text-sm text-muted-foreground mb-2",
+                                            ),
+                                            ButtonGroup(
+                                                orientation="vertical",
+                                                children=[
+                                                    Button("Option A", variant="outline"),
+                                                    Button("Option B", variant="outline"),
+                                                    Button("Option C", variant="outline"),
+                                                ]
                                             ),
                                         ],
                                     ),

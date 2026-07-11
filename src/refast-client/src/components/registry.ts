@@ -7,7 +7,7 @@ import { Container, Text, Fragment } from './base';
 
 // Import shadcn components (core set – always loaded)
 import { Row, Column, Grid, Flex, Center } from './shadcn/layout';
-import { Button, IconButton } from './shadcn/button';
+import { Button, IconButton, ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from './shadcn/button';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './shadcn/card';
 import { Input, InputWrapper, Textarea, Select, SelectOption, Checkbox, Radio, RadioGroup, CheckboxGroup } from './shadcn/input';
 import { FileUploader } from './shadcn/file-uploader';
@@ -284,6 +284,9 @@ componentRegistry.register('Center', Center);
 // Button
 componentRegistry.register('Button', Button);
 componentRegistry.register('IconButton', IconButton);
+componentRegistry.register('ButtonGroup', ButtonGroup);
+componentRegistry.register('ButtonGroupSeparator', ButtonGroupSeparator);
+componentRegistry.register('ButtonGroupText', ButtonGroupText);
 
 // Card
 componentRegistry.register('Card', Card);

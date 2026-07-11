@@ -4,6 +4,7 @@ from refast.components.shadcn.controls import (
     Calendar,
     Combobox,
     DatePicker,
+    InputOTP,
     Slider,
     Switch,
     Toggle,
@@ -105,6 +106,12 @@ class TestSlider:
         rendered = slider.render()
         assert rendered["props"]["show_value"] is True
 
+    def test_slider_with_name(self):
+        """Test Slider with name argument."""
+        slider = Slider(label="test", name="volume_slider")
+        rendered = slider.render()
+        assert rendered["props"]["name"] == "volume_slider"
+
 
 class TestToggle:
     """Tests for Toggle component."""
@@ -147,6 +154,12 @@ class TestToggle:
         rendered = toggle.render()
         assert rendered["props"]["on_pressed_change"] == {"callbackId": "cb-123"}
 
+    def test_toggle_with_name(self):
+        """Test Toggle with name argument."""
+        toggle = Toggle(label="Test", name="toggle_bold")
+        rendered = toggle.render()
+        assert rendered["props"]["name"] == "toggle_bold"
+
 
 class TestToggleGroup:
     """Tests for ToggleGroup component."""
@@ -177,6 +190,12 @@ class TestToggleGroup:
         group = ToggleGroup(type="single", default_value="center")
         rendered = group.render()
         assert rendered["props"]["default_value"] == "center"
+
+    def test_toggle_group_with_name(self):
+        """Test ToggleGroup with name argument."""
+        group = ToggleGroup(type="single", name="alignment")
+        rendered = group.render()
+        assert rendered["props"]["name"] == "alignment"
 
 
 class TestToggleGroupItem:
@@ -250,6 +269,12 @@ class TestDatePicker:
         rendered = picker.render()
         assert rendered["props"]["value"] == ["2026-02-17", "2026-02-25"]
 
+    def test_date_picker_with_name(self):
+        """Test DatePicker with name argument."""
+        picker = DatePicker(label="test", name="start_date")
+        rendered = picker.render()
+        assert rendered["props"]["name"] == "start_date"
+
 
 class TestCalendar:
     """Tests for Calendar component."""
@@ -296,6 +321,12 @@ class TestCalendar:
         calendar = Calendar(on_select=cb)
         rendered = calendar.render()
         assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
+
+    def test_calendar_with_name(self):
+        """Test Calendar with name argument."""
+        calendar = Calendar(name="booking_calendar")
+        rendered = calendar.render()
+        assert rendered["props"]["name"] == "booking_calendar"
 
 
 class TestCombobox:
@@ -352,3 +383,27 @@ class TestCombobox:
         rendered = combobox.render()
 
         assert rendered["props"]["on_select"] == {"callbackId": "cb-123"}
+
+    def test_combobox_with_name(self):
+        """Test Combobox with name argument."""
+        combobox = Combobox(options=[{"value": "react", "label": "React"}], name="framework")
+        rendered = combobox.render()
+
+        assert rendered["props"]["name"] == "framework"
+
+
+class TestInputOTP:
+    """Tests for InputOTP component."""
+
+    def test_input_otp_renders(self):
+        """Test InputOTP renders correctly."""
+        otp = InputOTP(max_length=6)
+        rendered = otp.render()
+        assert rendered["type"] == "InputOTP"
+        assert rendered["props"]["max_length"] == 6
+
+    def test_input_otp_with_name(self):
+        """Test InputOTP with name argument."""
+        otp = InputOTP(max_length=6, name="otp_code")
+        rendered = otp.render()
+        assert rendered["props"]["name"] == "otp_code"

@@ -1,4 +1,3 @@
-import asyncio
 from fastapi import FastAPI, HTTPException
 
 from refast import Context, RefastApp
@@ -6,9 +5,7 @@ from refast.components import (
     Button,
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
-    CardTitle,
     Center,
     Column,
     Container,

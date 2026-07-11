@@ -91,6 +91,23 @@ class TestStateDictOperations:
         d["c"] = 3
         assert "c" not in state
 
+    def test_state_pop(self):
+        """Test State pop() method."""
+        state = State({"a": 1, "b": 2})
+
+        # Test basic popping of existing key
+        val = state.pop("a")
+        assert val == 1
+        assert "a" not in state
+
+        # Test popping with default for non-existing key
+        val_default = state.pop("missing", 42)
+        assert val_default == 42
+
+        # Test popping without default for non-existing key raises KeyError
+        with pytest.raises(KeyError):
+            state.pop("missing")
+
 
 class TestStateWithPydantic:
     """Tests for State with Pydantic models."""

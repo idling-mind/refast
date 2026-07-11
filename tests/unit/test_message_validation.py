@@ -6,15 +6,15 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from refast import RefastApp
-from refast.models.messages import (
-    client_message_adapter,
-    CallbackMessage,
-    StoreInitMessage,
-    NavigateMessage,
-    EventMessage,
-    StoreSyncMessage,
-)
 from refast.components import Button
+from refast.models.messages import (
+    CallbackMessage,
+    EventMessage,
+    NavigateMessage,
+    StoreInitMessage,
+    StoreSyncMessage,
+    client_message_adapter,
+)
 
 
 def test_valid_callback_message():

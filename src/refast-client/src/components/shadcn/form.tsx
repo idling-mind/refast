@@ -35,11 +35,21 @@ export function Form({
     event.preventDefault();
     if (onSubmit) {
       const formData = new FormData(event.currentTarget);
-      const data: Record<string, string> = {};
+      const data: Record<string, string | string[]> = {};
       formData.forEach((value, key) => {
-        data[key] = value.toString();
+        const valStr = value.toString();
+        if (key in data) {
+          const existing = data[key];
+          if (Array.isArray(existing)) {
+            existing.push(valStr);
+          } else {
+            data[key] = [existing, valStr];
+          }
+        } else {
+          data[key] = valStr;
+        }
       });
-      onSubmit(data);
+      onSubmit(data as Record<string, string>);
     }
   };
 

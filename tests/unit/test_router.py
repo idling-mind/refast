@@ -175,7 +175,7 @@ class TestWebSocketEndpoint:
     def test_websocket_store_init_http_exception(self):
         """Test that HTTPException raised during page init is caught and rendered."""
         from fastapi import HTTPException
-        from refast.components import Text
+
 
         app = FastAPI()
         ui = RefastApp()
@@ -201,6 +201,7 @@ class TestWebSocketEndpoint:
     def test_websocket_callback_http_exception(self):
         """Test that HTTPException raised in callback sends toast notification."""
         from fastapi import HTTPException
+
         from refast.components import Button
 
         app = FastAPI()
@@ -225,10 +226,10 @@ class TestWebSocketEndpoint:
             })
             render_resp = websocket.receive_json()
             assert render_resp["type"] == "page_render"
-            
+
             ready_resp = websocket.receive_json()
             assert ready_resp["type"] == "store_ready"
-            
+
             # Extract callback ID
             import json
             import re
@@ -244,7 +245,7 @@ class TestWebSocketEndpoint:
                 "data": {},
                 "event_data": {}
             })
-            
+
             # Wait for message response (should be the toast)
             response = websocket.receive_json()
             assert response["type"] == "toast"

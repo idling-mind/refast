@@ -5,7 +5,9 @@ callbacks during a real-time data streaming session.
 """
 
 import asyncio
+
 from fastapi import FastAPI
+
 from refast import Context, RefastApp
 from refast.components import (
     Badge,

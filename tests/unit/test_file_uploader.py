@@ -217,3 +217,7 @@ class TestFileUploaderCallbacks:
         fu = FileUploader(on_upload_complete=cb)
         props = fu.render()["props"]
         assert props["on_upload_complete"]["boundArgs"]["folder_id"] == 42
+
+    def test_file_uploader_name(self):
+        fu = FileUploader(name="attachments")
+        assert fu.render()["props"]["name"] == "attachments"

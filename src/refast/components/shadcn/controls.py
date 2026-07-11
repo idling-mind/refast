@@ -108,6 +108,7 @@ class Slider(Component):
         error: str | None = None,
         on_value_change: Any = None,
         on_value_commit: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -135,6 +136,7 @@ class Slider(Component):
         self.error = error
         self.on_value_change = on_value_change
         self.on_value_commit = on_value_commit
+        self.name = name
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -149,6 +151,7 @@ class Slider(Component):
             "show_value": self.show_value,
             "required": self.required,
             "error": self.error,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -197,6 +200,7 @@ class Toggle(Component):
         variant: Literal["default", "outline"] = "default",
         size: Literal["sm", "md", "lg"] = "md",
         on_pressed_change: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -218,6 +222,7 @@ class Toggle(Component):
         self.variant = variant
         self.size = size
         self.on_pressed_change = on_pressed_change
+        self.name = name
 
     def render(self) -> dict[str, Any]:
         props = {
@@ -226,6 +231,7 @@ class Toggle(Component):
             "disabled": self.disabled,
             "variant": self.variant,
             "size": self.size,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -275,6 +281,7 @@ class ToggleGroup(Component):
         size: Literal["sm", "md", "lg"] = "md",
         on_value_change: Any = None,
         children: ChildrenType = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -295,6 +302,7 @@ class ToggleGroup(Component):
         self.variant = variant
         self.size = size
         self.on_value_change = on_value_change
+        self.name = name
         self.add_children(children)
 
     def _convert_dict_to_list(self, val: dict[str, bool] | Any) -> list[str] | Any:
@@ -309,6 +317,7 @@ class ToggleGroup(Component):
             "disabled": self.disabled,
             "variant": self.variant,
             "size": self.size,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -443,6 +452,7 @@ class Calendar(Component):
         number_of_months: int | None = None,
         on_select: Any = None,
         on_month_change: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -468,6 +478,7 @@ class Calendar(Component):
         self.number_of_months = number_of_months
         self.on_select = on_select
         self.on_month_change = on_month_change
+        self.name = name
 
     def _serialize_date(self, d: Any) -> str | list[str] | dict[str, str] | None:
         """Serialize date objects to ISO strings."""
@@ -493,6 +504,7 @@ class Calendar(Component):
             "min_date": self._serialize_date(self.min_date),
             "max_date": self._serialize_date(self.max_date),
             "number_of_months": self.number_of_months,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -584,6 +596,7 @@ class DatePicker(Component):
         required: bool = False,
         error: str | None = None,
         on_change: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -611,6 +624,7 @@ class DatePicker(Component):
         self.required = required
         self.error = error
         self.on_change = on_change
+        self.name = name
 
     def _serialize_date_value(self, d: Any) -> str | list[str] | dict[str, str | None] | None:
         """Serialize date value to ISO string, list of ISO strings, or range object."""
@@ -651,6 +665,7 @@ class DatePicker(Component):
             "description": self.description,
             "required": self.required,
             "error": self.error,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -738,6 +753,7 @@ class Combobox(Component):
         required: Shows a required asterisk.
         error: Error message displayed below the combobox.
         on_select: Callback fired when the selection changes.
+        name: Name of the form control for form submission.
         id: Component ID (auto-generated if omitted).
         class_name: Additional Tailwind CSS classes.
     """
@@ -758,6 +774,7 @@ class Combobox(Component):
         required: bool = False,
         error: str | None = None,
         on_select: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -783,6 +800,7 @@ class Combobox(Component):
         self.required = required
         self.error = error
         self.on_select = on_select
+        self.name = name
 
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
@@ -797,6 +815,7 @@ class Combobox(Component):
             "description": self.description,
             "required": self.required,
             "error": self.error,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
@@ -885,6 +904,7 @@ class InputOTP(Component):
         on_change: Any = None,
         on_complete: Any = None,
         children: ChildrenType = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -908,6 +928,7 @@ class InputOTP(Component):
         self.error = error
         self.on_change = on_change
         self.on_complete = on_complete
+        self.name = name
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -920,6 +941,7 @@ class InputOTP(Component):
             "description": self.description,
             "required": self.required,
             "error": self.error,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

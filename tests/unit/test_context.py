@@ -126,6 +126,7 @@ class TestContext:
     def test_request_fallback_from_websocket(self):
         """Test that request is constructed from websocket.scope if request is None."""
         from unittest.mock import MagicMock
+
         from fastapi import Request
 
         mock_websocket = MagicMock()

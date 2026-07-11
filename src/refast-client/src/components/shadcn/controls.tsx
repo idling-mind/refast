@@ -86,6 +86,7 @@ interface SliderProps {
   step?: number;
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
+  name?: string;
   onValueChange?: (value: number[]) => void;
   onValueCommit?: (value: number[]) => void;
   'data-refast-id'?: string;
@@ -106,6 +107,7 @@ export function Slider({
   step = 1,
   disabled = false,
   orientation = 'horizontal',
+  name,
   onValueChange,
   onValueCommit,
   'data-refast-id': dataRefastId,
@@ -211,6 +213,7 @@ export function Slider({
       step={step}
       disabled={disabled}
       orientation={orientation}
+      name={name}
       onValueChange={handleValueChange}
       onValueCommit={handleValueCommit}
       className={cn(
@@ -300,6 +303,7 @@ interface ToggleProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   size?: 'sm' | 'md' | 'lg';
+  name?: string;
   onPressedChange?: (pressed: boolean) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -326,30 +330,49 @@ export function Toggle({
   disabled = false,
   variant = 'default',
   size = 'md',
+  name,
   onPressedChange,
   children,
   'data-refast-id': dataRefastId,
 }: ToggleProps): React.ReactElement<any> {
+  const isControlled = pressed !== undefined;
+  const [localPressed, setLocalPressed] = React.useState(isControlled ? pressed : (defaultPressed || false));
+  React.useEffect(() => {
+    if (isControlled) {
+      setLocalPressed(pressed);
+    }
+  }, [isControlled, pressed]);
+
+  const handlePressedChange = (p: boolean) => {
+    if (!isControlled) {
+      setLocalPressed(p);
+    }
+    onPressedChange?.(p);
+  };
+
   return (
-    <TogglePrimitive.Root
-      id={id}
-      pressed={pressed}
-      defaultPressed={defaultPressed}
-      disabled={disabled}
-      onPressedChange={onPressedChange}
-      className={cn(
-        'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors',
-        'hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
-        'focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-        'data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
-        toggleVariants[variant],
-        toggleSizes[size],
-        className
-      )}
-      data-refast-id={dataRefastId}
-    >
-      {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
-    </TogglePrimitive.Root>
+    <>
+      {name && <input type="hidden" name={name} value={localPressed ? 'true' : 'false'} />}
+      <TogglePrimitive.Root
+        id={id}
+        pressed={isControlled ? pressed : localPressed}
+        defaultPressed={isControlled ? undefined : defaultPressed}
+        disabled={disabled}
+        onPressedChange={handlePressedChange}
+        className={cn(
+          'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors',
+          'hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
+          'focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+          'data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
+          toggleVariants[variant],
+          toggleSizes[size],
+          className
+        )}
+        data-refast-id={dataRefastId}
+      >
+        {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
+      </TogglePrimitive.Root>
+    </>
   );
 }
 
@@ -366,6 +389,7 @@ interface ToggleGroupProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   size?: 'sm' | 'md' | 'lg';
+  name?: string;
   onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
@@ -380,6 +404,7 @@ export function ToggleGroup({
   disabled = false,
   variant = 'default',
   size = 'md',
+  name,
   onValueChange,
   children,
   'data-refast-id': dataRefastId,
@@ -393,8 +418,21 @@ export function ToggleGroup({
     ? (defaultValue as string[] | undefined)
     : (defaultValue as string | undefined);
 
+  const [localValue, setLocalValue] = React.useState<string | string[]>(() => {
+    if (value !== undefined) return value;
+    if (defaultValue !== undefined) return defaultValue;
+    return type === 'multiple' ? [] : '';
+  });
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
   if (type === 'multiple') {
     const handleValueChange = (newValues: string[]) => {
+      setLocalValue(newValues);
       if (!onValueChange) return;
 
       // Collect all possible values from children to construct the boolean map
@@ -435,6 +473,15 @@ export function ToggleGroup({
         )}
         data-refast-id={dataRefastId}
       >
+        {name && (
+          Array.isArray(localValue) ? (
+            localValue.map((val) => (
+              <input key={val} type="hidden" name={name} value={val} />
+            ))
+          ) : (
+            <input type="hidden" name={name} value={(localValue as string) || ''} />
+          )
+        )}
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child as React.ReactElement<{ variant?: string; size?: string }>, {
@@ -448,6 +495,13 @@ export function ToggleGroup({
     );
   }
 
+  const handleValueChangeSingle = (newValue: string) => {
+    setLocalValue(newValue);
+    if (onValueChange) {
+      (onValueChange as (value: string) => void)(newValue);
+    }
+  };
+
   return (
     <ToggleGroupPrimitive.Root
       id={id}
@@ -455,13 +509,14 @@ export function ToggleGroup({
       value={resolvedValue as string}
       defaultValue={resolvedDefaultValue as string}
       disabled={disabled}
-      onValueChange={onValueChange as (value: string) => void}
+      onValueChange={handleValueChangeSingle}
       className={cn(
         'inline-flex items-center justify-center gap-1',
         className
       )}
       data-refast-id={dataRefastId}
     >
+      {name && <input type="hidden" name={name} value={(localValue as string) || ''} />}
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<{ variant?: string; size?: string }>, {
@@ -606,6 +661,7 @@ interface CalendarProps {
   showOutsideDays?: boolean;
   showWeekNumber?: boolean;
   numberOfMonths?: number;
+  name?: string;
   // Callbacks that serialize dates to ISO strings for Python
   onSelect?: (date: Date | Date[] | { from: Date; to: Date } | undefined) => void;
   onMonthChange?: (month: Date) => void;
@@ -628,6 +684,7 @@ export function Calendar({
   minDate,
   maxDate,
   numberOfMonths,
+  name,
   onSelect,
   onMonthChange,
   showWeekNumber,
@@ -870,7 +927,23 @@ export function Calendar({
               ref={rootRef}
               className={cn(className)}
               {...props}
-            />
+            >
+              {name && (
+                mode === 'range' && localSelected && typeof localSelected === 'object' && 'from' in localSelected ? (
+                  <input type="hidden" name={name} value={JSON.stringify({
+                    from: localSelected.from ? toLocalISOString(localSelected.from) : undefined,
+                    to: localSelected.to ? toLocalISOString(localSelected.to) : undefined
+                  })} />
+                ) : mode === 'multiple' && Array.isArray(localSelected) ? (
+                  localSelected.map((d, idx) => (
+                    <input key={idx} type="hidden" name={name} value={toLocalISOString(d) || ''} />
+                  ))
+                ) : (
+                  <input type="hidden" name={name} value={localSelected ? toLocalISOString(localSelected as Date) || '' : ''} />
+                )
+              )}
+              {props.children}
+            </div>
           )
         },
         Chevron: ({ className, orientation, ...props }) => {
@@ -993,6 +1066,7 @@ interface DatePickerProps {
   minDate?: string;
   maxDate?: string;
   numberOfMonths?: number;
+  name?: string;
   // onChange sends ISO strings back to Python
   onChange?: (date: string | string[] | { from?: string; to?: string } | undefined) => void;
   'data-refast-id'?: string;
@@ -1035,6 +1109,7 @@ export function DatePicker({
   minDate,
   maxDate,
   numberOfMonths,
+  name,
   onChange,
   'data-refast-id': dataRefastId,
 }: DatePickerProps): React.ReactElement<any> {
@@ -1208,6 +1283,17 @@ export function DatePicker({
 
   const datePickerElement = (
     <div ref={containerRef} className={cn('relative', className)}>
+      {name && (
+        mode === 'range' ? (
+          <input type="hidden" name={name} value={selectedRange ? JSON.stringify({ from: toLocalISOString(selectedRange.from), to: toLocalISOString(selectedRange.to) }) : ''} />
+        ) : mode === 'multiple' ? (
+          selectedDates.map((d, idx) => (
+            <input key={idx} type="hidden" name={name} value={toLocalISOString(d) || ''} />
+          ))
+        ) : (
+          <input type="hidden" name={name} value={toLocalISOString(selectedDate) || ''} />
+        )
+      )}
       <button
         id={id}
         type="button"
@@ -1330,6 +1416,7 @@ interface ComboboxProps {
   emptyText?: string;
   multiselect?: boolean;
   disabled?: boolean;
+  name?: string;
   onSelect?: (value: string | string[]) => void;
   'data-refast-id'?: string;
 }
@@ -1348,6 +1435,7 @@ export function Combobox({
   emptyText = 'No results found.',
   multiselect = false,
   disabled = false,
+  name,
   onSelect,
   'data-refast-id': dataRefastId,
 }: ComboboxProps): React.ReactElement<any> {
@@ -1501,6 +1589,15 @@ export function Combobox({
       ref={containerRef}
       className={cn('relative', className)}
     >
+      {name && (
+        multiselect && Array.isArray(internalValue) ? (
+          internalValue.map((val) => (
+            <input key={val} type="hidden" name={name} value={val} />
+          ))
+        ) : (
+          <input type="hidden" name={name} value={(internalValue as string) || ''} />
+        )
+      )}
       <button
         id={id}
         type="button"
@@ -1712,6 +1809,7 @@ interface InputOTPProps {
   value?: string;
   disabled?: boolean;
   pattern?: string;
+  name?: string;
   onChange?: (value: string) => void;
   onComplete?: (value: string) => void;
   children?: React.ReactNode;
@@ -1729,6 +1827,7 @@ export function InputOTP({
   value,
   disabled = false,
   pattern,
+  name,
   onChange,
   onComplete,
   children,
@@ -1781,6 +1880,7 @@ export function InputOTP({
       id={id}
       className={cn('flex items-center gap-2', className)}
     >
+      {name && <input type="hidden" name={name} value={localValue} />}
       {children}
     </div>
   ) : (
@@ -1788,6 +1888,7 @@ export function InputOTP({
       id={id}
       className={cn('flex items-center gap-2', className)}
     >
+      {name && <input type="hidden" name={name} value={localValue} />}
       {Array.from({ length: maxLength }).map((_, index) => (
         <input
           key={index}

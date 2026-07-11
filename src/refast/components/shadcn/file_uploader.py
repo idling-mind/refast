@@ -94,6 +94,7 @@ class FileUploader(Component):
         on_upload_complete: Any = None,
         on_upload_error: Any = None,
         on_remove: Any = None,
+        name: str | None = None,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -124,6 +125,7 @@ class FileUploader(Component):
         self.on_upload_complete = on_upload_complete
         self.on_upload_error = on_upload_error
         self.on_remove = on_remove
+        self.name = name
 
     def render(self) -> dict[str, Any]:
         props: dict[str, Any] = {
@@ -136,6 +138,7 @@ class FileUploader(Component):
             "multiple": self.multiple,
             "drag_drop": self.drag_drop,
             "upload_url": self.upload_url,
+            "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

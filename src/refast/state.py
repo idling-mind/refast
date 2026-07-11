@@ -63,6 +63,10 @@ class State(Generic[T]):
         """Update multiple values."""
         self._data.update(data)
 
+    def pop(self, key: str, *args: Any) -> Any:
+        """Remove specified key and return the corresponding value."""
+        return self._data.pop(key, *args)
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return self._data.copy()

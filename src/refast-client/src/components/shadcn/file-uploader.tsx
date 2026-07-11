@@ -43,6 +43,7 @@ interface FileUploaderProps {
   dragDrop?: boolean;
   uploadUrl?: string;
   className?: string;
+  name?: string;
   onSelect?: (eventData: { files: PendingFileInfo[] }) => void;
   onUploadStart?: (eventData: { files: PendingFileInfo[] }) => void;
   onUploadComplete?: (eventData: { files: UploadedFileInfo[] }) => void;
@@ -189,6 +190,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   dragDrop = true,
   uploadUrl = '/api/upload',
   className,
+  name,
   onSelect,
   onUploadStart,
   onUploadComplete,
@@ -444,9 +446,21 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   // ── Render ───────────────────────────────────────────────────────────────
 
   const displayError = localError ?? serverError;
+  const completedEntries = entries.filter((e) => e.status === 'complete' && e.uploadedInfo?.id);
 
   return (
     <div className={cn('flex flex-col gap-2', className)} data-refast-id={dataRefastId}>
+      {name && (
+        multiple ? (
+          completedEntries.map((entry) => (
+            <input key={entry.uploadedInfo!.id} type="hidden" name={name} value={entry.uploadedInfo!.id} />
+          ))
+        ) : (
+          completedEntries.length > 0 && (
+            <input type="hidden" name={name} value={completedEntries[0].uploadedInfo!.id} />
+          )
+        )
+      )}
       {/* Hidden file input */}
       <input
         ref={inputRef}

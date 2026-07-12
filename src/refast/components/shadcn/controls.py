@@ -753,6 +753,7 @@ class Combobox(Component):
         required: Shows a required asterisk.
         error: Error message displayed below the combobox.
         on_select: Callback fired when the selection changes.
+        creatable: Allow dynamically creating new items that are not in the options list.
         name: Name of the form control for form submission.
         id: Component ID (auto-generated if omitted).
         class_name: Additional Tailwind CSS classes.
@@ -774,6 +775,7 @@ class Combobox(Component):
         required: bool = False,
         error: str | None = None,
         on_select: Any = None,
+        creatable: bool = False,
         name: str | None = None,
         id: str | None = None,
         class_name: str = "",
@@ -800,6 +802,7 @@ class Combobox(Component):
         self.required = required
         self.error = error
         self.on_select = on_select
+        self.creatable = creatable
         self.name = name
 
     def render(self) -> dict[str, Any]:
@@ -815,6 +818,7 @@ class Combobox(Component):
             "description": self.description,
             "required": self.required,
             "error": self.error,
+            "creatable": self.creatable,
             "name": self.name,
             "class_name": self.class_name,
             **self._serialize_extra_props(),

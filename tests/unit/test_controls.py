@@ -391,6 +391,14 @@ class TestCombobox:
 
         assert rendered["props"]["name"] == "framework"
 
+    def test_combobox_creatable(self):
+        """Test Combobox with creatable argument."""
+        combobox = Combobox(options=[{"value": "react", "label": "React"}], creatable=True)
+        rendered = combobox.render()
+
+        assert rendered["props"]["creatable"] is True
+
+
 
 class TestInputOTP:
     """Tests for InputOTP component."""

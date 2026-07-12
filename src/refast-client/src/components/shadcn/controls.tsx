@@ -1416,6 +1416,7 @@ interface ComboboxProps {
   emptyText?: string;
   multiselect?: boolean;
   disabled?: boolean;
+  creatable?: boolean;
   name?: string;
   onSelect?: (value: string | string[]) => void;
   'data-refast-id'?: string;
@@ -1435,6 +1436,7 @@ export function Combobox({
   emptyText = 'No results found.',
   multiselect = false,
   disabled = false,
+  creatable = false,
   name,
   onSelect,
   'data-refast-id': dataRefastId,
@@ -1442,6 +1444,7 @@ export function Combobox({
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [dropdownSide, setDropdownSide] = React.useState<DropdownSide>('bottom');
+  const [createdOptions, setCreatedOptions] = React.useState<ComboboxOption[]>([]);
 
   const [internalValue, setInternalValue] = React.useState<string | string[]>(
     value !== undefined ? value : (multiselect ? [] : '')
@@ -1449,6 +1452,10 @@ export function Combobox({
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const allOptions = React.useMemo(() => {
+    return [...options, ...createdOptions];
+  }, [options, createdOptions]);
 
   React.useEffect(() => {
     if (open) {
@@ -1493,6 +1500,25 @@ export function Combobox({
   }, [value]);
 
   React.useEffect(() => {
+    if (value !== undefined && value !== null) {
+      const valuesToEnsure = Array.isArray(value) ? value : [value];
+      const newOptionsToCreate: ComboboxOption[] = [];
+      valuesToEnsure.forEach((val) => {
+        if (typeof val === 'string' && val.trim() !== '') {
+          const inOptions = options.some((o) => o.value === val);
+          const inCreated = createdOptions.some((o) => o.value === val);
+          if (!inOptions && !inCreated) {
+            newOptionsToCreate.push({ value: val, label: val });
+          }
+        }
+      });
+      if (newOptionsToCreate.length > 0) {
+        setCreatedOptions((prev) => [...prev, ...newOptionsToCreate]);
+      }
+    }
+  }, [value, options]);
+
+  React.useEffect(() => {
     if (!open) return;
 
     const updateDropdownSide = () => {
@@ -1527,7 +1553,7 @@ export function Combobox({
 
   const normalizedSearch = search.trim().toLowerCase();
 
-  const filteredOptions = options.filter((option) => {
+  const filteredOptions = allOptions.filter((option) => {
     if (!option || typeof option.label !== 'string') return false;
     if (!normalizedSearch) return true;
 
@@ -1548,11 +1574,11 @@ export function Combobox({
 
   const selectedSingleOption =
     !multiselect && typeof internalValue === 'string'
-      ? options.find((option) => option.value === internalValue)
+      ? allOptions.find((option) => option.value === internalValue)
       : undefined;
 
   const handleSelect = (val: string) => {
-    const option = options.find((item) => item.value === val);
+    const option = allOptions.find((item) => item.value === val);
     if (option?.disabled) {
       return;
     }
@@ -1584,6 +1610,11 @@ export function Combobox({
     }
   };
 
+  const showCreateOption =
+    creatable &&
+    search.trim() !== '' &&
+    !allOptions.some((o) => o.label.toLowerCase() === search.trim().toLowerCase());
+
   const comboboxElement = (
     <div
       ref={containerRef}
@@ -1614,7 +1645,7 @@ export function Combobox({
         {multiselect && Array.isArray(internalValue) && internalValue.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {internalValue.map((val) => {
-              const optLabel = options.find((o) => o.value === val)?.label || val;
+              const optLabel = allOptions.find((o) => o.value === val)?.label || val;
               return (
                 <div
                   key={val}
@@ -1708,66 +1739,88 @@ export function Combobox({
             />
           </div>
           <div className="max-h-[300px] overflow-y-auto p-1">
-            {filteredOptions.length === 0 ? (
+            {filteredOptions.length === 0 && !showCreateOption ? (
               <div className="py-6 text-center text-sm text-muted-foreground">
                 {emptyText}
               </div>
             ) : (
-              filteredOptions.map((option) => {
-                const selected = isSelected(option.value);
-                return (
+              <>
+                {filteredOptions.map((option) => {
+                  const selected = isSelected(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleSelect(option.value)}
+                      disabled={option.disabled}
+                      className={cn(
+                        'relative flex w-full select-none items-center rounded-sm pr-2 pl-1.5 py-1.5 text-sm outline-none',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        selected && 'bg-accent text-accent-foreground',
+                        option.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent hover:text-inherit'
+                      )}
+                    >
+                      <span className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                        {option.icon ? (
+                          <Icon
+                            name={option.icon}
+                            className="h-4 w-4 shrink-0"
+                            color={option.color}
+                          />
+                        ) : null}
+                        <span className="flex min-w-0 flex-col">
+                          <span className="truncate">{option.label}</span>
+                          {option.description ? (
+                            <span className="truncate text-xs text-muted-foreground">
+                              {option.description}
+                            </span>
+                          ) : null}
+                        </span>
+                      </span>
+                      {multiselect ? (
+                        <span className="ml-2 flex h-4 w-4 shrink-0 items-center justify-center">
+                          {selected ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : null}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+                {showCreateOption && (
                   <button
-                    key={option.value}
                     type="button"
-                    onClick={() => handleSelect(option.value)}
-                    disabled={option.disabled}
+                    onClick={() => {
+                      const val = search.trim();
+                      const newOption: ComboboxOption = { value: val, label: val };
+                      setCreatedOptions((prev) => [...prev, newOption]);
+                      handleSelect(val);
+                      setSearch('');
+                    }}
                     className={cn(
                       'relative flex w-full select-none items-center rounded-sm pr-2 pl-1.5 py-1.5 text-sm outline-none',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      selected && 'bg-accent text-accent-foreground',
-                      option.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent hover:text-inherit'
+                      'hover:bg-accent hover:text-accent-foreground font-medium text-primary'
                     )}
                   >
                     <span className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                      {option.icon ? (
-                        <Icon
-                          name={option.icon}
-                          className="h-4 w-4 shrink-0"
-                          color={option.color}
-                        />
-                      ) : null}
-                      <span className="flex min-w-0 flex-col">
-                        <span className="truncate">{option.label}</span>
-                        {option.description ? (
-                          <span className="truncate text-xs text-muted-foreground">
-                            {option.description}
-                          </span>
-                        ) : null}
-                      </span>
+                      <span className="truncate">Create "{search.trim()}"</span>
                     </span>
-                    {multiselect ? (
-                      <span className="ml-2 flex h-4 w-4 shrink-0 items-center justify-center">
-                        {selected ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        ) : null}
-                      </span>
-                    ) : null}
                   </button>
-                );
-              })
+                )}
+              </>
             )}
           </div>
         </div>

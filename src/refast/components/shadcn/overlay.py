@@ -5,7 +5,49 @@ from typing import Any, Literal
 from refast.components.base import ChildrenType, Component
 
 
-class Dialog(Component):
+class OverlayComponent(Component):
+    """Base class for overlay components sharing common parameters and serialization."""
+
+    def __init__(
+        self,
+        open: bool | None = None,
+        default_open: bool = False,
+        on_open_change: Any = None,
+        backdrop: bool = True,
+        modal: bool | None = None,
+        id: str | None = None,
+        class_name: str = "",
+        style: dict[str, Any] | None = None,
+        parent_style: dict[str, Any] | None = None,
+        extra_props: dict[str, Any] | None = None,
+    ):
+        super().__init__(
+            id=id,
+            class_name=class_name,
+            style=style,
+            parent_style=parent_style,
+            extra_props=extra_props,
+        )
+        self.open = open
+        self.default_open = default_open
+        self.on_open_change = on_open_change
+        self.backdrop = backdrop
+        self.modal = modal
+
+    def _serialize_overlay_props(self, props: dict[str, Any]) -> dict[str, Any]:
+        props["default_open"] = self.default_open
+        if self.open is not None:
+            props["open"] = self.open
+        if self.on_open_change:
+            props["on_open_change"] = self.on_open_change.serialize()
+        if self.backdrop is not None:
+            props["backdrop"] = self.backdrop
+        if self.modal is not None:
+            props["modal"] = self.modal
+        return props
+
+
+class Dialog(OverlayComponent):
     """
     A modal dialog that interrupts the user with important content.
 
@@ -56,15 +98,17 @@ class Dialog(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(
+            open=open,
+            default_open=default_open,
+            on_open_change=on_open_change,
+            backdrop=backdrop,
+            modal=modal,
             id=id,
             class_name=class_name,
             style=style,
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.open = open
-        self.default_open = default_open
-        self.on_open_change = on_open_change
         self.title = title
         self.description = description
         self.confirm_label = confirm_label
@@ -73,24 +117,18 @@ class Dialog(Component):
         self.on_cancel = on_cancel
         self.trigger = trigger
         self.variant = variant
-        self.backdrop = backdrop
-        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
-            "default_open": self.default_open,
             "confirm_label": self.confirm_label,
             "cancel_label": self.cancel_label,
             "variant": self.variant,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+        self._serialize_overlay_props(props)
 
-        if self.open is not None:
-            props["open"] = self.open
-        if self.on_open_change:
-            props["on_open_change"] = self.on_open_change.serialize()
         if self.title is not None:
             props["title"] = self.title
         if self.description is not None:
@@ -103,10 +141,6 @@ class Dialog(Component):
             props["trigger"] = (
                 self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
             )
-        if self.backdrop is not None:
-            props["backdrop"] = self.backdrop
-        if self.modal is not None:
-            props["modal"] = self.modal
 
         return {
             "type": self.component_type,
@@ -413,7 +447,7 @@ class DialogCancel(Component):
         }
 
 
-class Sheet(Component):
+class Sheet(OverlayComponent):
     """
     A panel that slides out from the edge of the screen.
 
@@ -453,34 +487,25 @@ class Sheet(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(
+            open=open,
+            default_open=default_open,
+            on_open_change=on_open_change,
+            backdrop=backdrop,
+            modal=modal,
             id=id,
             class_name=class_name,
             style=style,
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.open = open
-        self.default_open = default_open
-        self.on_open_change = on_open_change
-        self.backdrop = backdrop
-        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
         props = {
-            "default_open": self.default_open,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
-
-        if self.open is not None:
-            props["open"] = self.open
-        if self.on_open_change:
-            props["on_open_change"] = self.on_open_change.serialize()
-        if self.backdrop is not None:
-            props["backdrop"] = self.backdrop
-        if self.modal is not None:
-            props["modal"] = self.modal
+        self._serialize_overlay_props(props)
 
         return {
             "type": self.component_type,
@@ -1833,7 +1858,7 @@ class ContextMenuCheckboxItem(Component):
         }
 
 
-class Drawer(Component):
+class Drawer(OverlayComponent):
     """
     A drawer component for mobile (using Vaul).
 
@@ -1859,6 +1884,7 @@ class Drawer(Component):
     def __init__(
         self,
         open: bool | None = None,
+        default_open: bool = False,
         on_open_change: Any = None,
         should_scale_background: bool = True,
         title: str | None = None,
@@ -1873,19 +1899,20 @@ class Drawer(Component):
         extra_props: dict[str, Any] | None = None,
     ):
         super().__init__(
+            open=open,
+            default_open=default_open,
+            on_open_change=on_open_change,
+            backdrop=backdrop,
+            modal=modal,
             id=id,
             class_name=class_name,
             style=style,
             parent_style=parent_style,
             extra_props=extra_props,
         )
-        self.open = open
-        self.on_open_change = on_open_change
         self.should_scale_background = should_scale_background
         self.title = title
         self.description = description
-        self.backdrop = backdrop
-        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1894,19 +1921,12 @@ class Drawer(Component):
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }
+        self._serialize_overlay_props(props)
 
-        if self.open is not None:
-            props["open"] = self.open
-        if self.on_open_change:
-            props["on_open_change"] = self.on_open_change.serialize()
         if self.title is not None:
             props["title"] = self.title
         if self.description is not None:
             props["description"] = self.description
-        if self.backdrop is not None:
-            props["backdrop"] = self.backdrop
-        if self.modal is not None:
-            props["modal"] = self.modal
 
         return {
             "type": self.component_type,

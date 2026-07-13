@@ -103,8 +103,6 @@ async def main_page(ctx: Context):
             # The overlay definitions (rendered in the page DOM structure, hidden by default)
             Dialog(
                 id=DIALOG_ID,
-                backdrop=False,
-                modal=False,
                 children=[
                     DialogContent(
                         children=[
@@ -132,6 +130,7 @@ async def main_page(ctx: Context):
 
             Sheet(
                 id=SHEET_ID,
+                backdrop=False,
                 children=[
                     SheetContent(
                         side="right",

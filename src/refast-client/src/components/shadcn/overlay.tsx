@@ -24,45 +24,22 @@ const OverlayContext = React.createContext<OverlayContextType>({ backdrop: true,
 
 
 // ============================================================================
-// Dialog
+// Hook for Overlay State & Dynamic Binding
 // ============================================================================
 
-export interface DialogProps extends BaseProps, ChildrenProp {
-  open?: boolean;
+export interface UseBoundOverlayProps {
+  id?: string;
+  openProp?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  title?: string;
-  description?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-  trigger?: React.ReactNode;
-  variant?: 'default' | 'destructive';
-  backdrop?: boolean;
-  modal?: boolean;
 }
 
-export function Dialog({
+export function useBoundOverlay({
   id,
-  open: openProp,
+  openProp,
   defaultOpen = false,
   onOpenChange,
-  title,
-  description,
-  confirmLabel = 'Continue',
-  cancelLabel = 'Cancel',
-  onConfirm,
-  onCancel,
-  trigger,
-  variant = 'default',
-  className,
-  style,
-  children,
-  backdrop = true,
-  modal,
-  ...props
-}: DialogProps) {
+}: UseBoundOverlayProps) {
   const isControlled = openProp !== undefined;
   const [localOpen, setLocalOpen] = React.useState(defaultOpen);
   const open = isControlled ? openProp : localOpen;
@@ -109,6 +86,61 @@ export function Dialog({
       delete (el as any).toggle;
     };
   }, [id, handleOpenChange]);
+
+  return {
+    open,
+    handleOpenChange,
+    wrapperRef,
+  };
+}
+
+
+// ============================================================================
+// Dialog
+// ============================================================================
+
+export interface DialogProps extends BaseProps, ChildrenProp {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  trigger?: React.ReactNode;
+  variant?: 'default' | 'destructive';
+  backdrop?: boolean;
+  modal?: boolean;
+}
+
+export function Dialog({
+  id,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel = 'Continue',
+  cancelLabel = 'Cancel',
+  onConfirm,
+  onCancel,
+  trigger,
+  variant = 'default',
+  className,
+  style,
+  children,
+  backdrop = true,
+  modal,
+  ...props
+}: DialogProps) {
+  const { open, handleOpenChange, wrapperRef } = useBoundOverlay({
+    id,
+    openProp,
+    defaultOpen,
+    onOpenChange,
+  });
 
   const handleConfirm = () => {
     onConfirm?.();
@@ -457,49 +489,12 @@ export function Sheet({
   modal,
   ...props
 }: SheetProps) {
-  const isControlled = openProp !== undefined;
-  const [localOpen, setLocalOpen] = React.useState(defaultOpen);
-  const open = isControlled ? openProp : localOpen;
-
-  const openRef = React.useRef(open);
-  openRef.current = open;
-
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    if (!isControlled) {
-      setLocalOpen(nextOpen);
-    }
-    onOpenChange?.(nextOpen);
-  }, [isControlled, onOpenChange]);
-
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!id) return;
-    const el = document.getElementById(id) || wrapperRef.current;
-    if (!el) return;
-
-    if (el.id !== id) {
-      el.id = id;
-    }
-
-    (el as any).open = () => handleOpenChange(true);
-    (el as any).show = () => handleOpenChange(true);
-    (el as any).expand = () => handleOpenChange(true);
-    (el as any).close = () => handleOpenChange(false);
-    (el as any).hide = () => handleOpenChange(false);
-    (el as any).collapse = () => handleOpenChange(false);
-    (el as any).toggle = () => handleOpenChange(!openRef.current);
-
-    return () => {
-      delete (el as any).open;
-      delete (el as any).show;
-      delete (el as any).expand;
-      delete (el as any).close;
-      delete (el as any).hide;
-      delete (el as any).collapse;
-      delete (el as any).toggle;
-    };
-  }, [id, handleOpenChange]);
+  const { open, handleOpenChange, wrapperRef } = useBoundOverlay({
+    id,
+    openProp,
+    defaultOpen,
+    onOpenChange,
+  });
 
   const isModal = modal ?? backdrop;
 
@@ -716,6 +711,7 @@ export function SheetDescription({
 
 export interface DrawerProps extends BaseProps, ChildrenProp {
   open?: boolean;
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
@@ -727,6 +723,7 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
 export function Drawer({
   id,
   open: openProp,
+  defaultOpen = false,
   onOpenChange,
   title,
   description,
@@ -738,49 +735,12 @@ export function Drawer({
   modal,
   ...props
 }: DrawerProps) {
-  const isControlled = openProp !== undefined;
-  const [localOpen, setLocalOpen] = React.useState(false);
-  const open = isControlled ? openProp : localOpen;
-
-  const openRef = React.useRef(open);
-  openRef.current = open;
-
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    if (!isControlled) {
-      setLocalOpen(nextOpen);
-    }
-    onOpenChange?.(nextOpen);
-  }, [isControlled, onOpenChange]);
-
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!id) return;
-    const el = document.getElementById(id) || wrapperRef.current;
-    if (!el) return;
-
-    if (el.id !== id) {
-      el.id = id;
-    }
-
-    (el as any).open = () => handleOpenChange(true);
-    (el as any).show = () => handleOpenChange(true);
-    (el as any).expand = () => handleOpenChange(true);
-    (el as any).close = () => handleOpenChange(false);
-    (el as any).hide = () => handleOpenChange(false);
-    (el as any).collapse = () => handleOpenChange(false);
-    (el as any).toggle = () => handleOpenChange(!openRef.current);
-
-    return () => {
-      delete (el as any).open;
-      delete (el as any).show;
-      delete (el as any).expand;
-      delete (el as any).close;
-      delete (el as any).hide;
-      delete (el as any).collapse;
-      delete (el as any).toggle;
-    };
-  }, [id, handleOpenChange]);
+  const { open, handleOpenChange, wrapperRef } = useBoundOverlay({
+    id,
+    openProp,
+    defaultOpen,
+    onOpenChange,
+  });
 
   const isModal = modal ?? backdrop;
 

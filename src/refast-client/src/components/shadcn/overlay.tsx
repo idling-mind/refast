@@ -12,6 +12,18 @@ import type { BaseProps, ChildrenProp } from './types';
 import { Icon } from './icon';
 
 // ============================================================================
+// Overlay Context
+// ============================================================================
+
+interface OverlayContextType {
+  backdrop?: boolean;
+  isModal?: boolean;
+}
+
+const OverlayContext = React.createContext<OverlayContextType>({ backdrop: true, isModal: true });
+
+
+// ============================================================================
 // Dialog
 // ============================================================================
 
@@ -27,10 +39,13 @@ export interface DialogProps extends BaseProps, ChildrenProp {
   onCancel?: () => void;
   trigger?: React.ReactNode;
   variant?: 'default' | 'destructive';
+  backdrop?: boolean;
+  modal?: boolean;
 }
 
 export function Dialog({
-  open,
+  id,
+  open: openProp,
   defaultOpen = false,
   onOpenChange,
   title,
@@ -42,105 +57,179 @@ export function Dialog({
   trigger,
   variant = 'default',
   className,
+  style,
   children,
+  backdrop = true,
+  modal,
   ...props
 }: DialogProps) {
-  // Compositional API usage (when trigger is not provided prop but likely in children)
-  if (!trigger && children && React.Children.count(children) > 0) {
-    return (
-      <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
-        {children}
-      </DialogPrimitive.Root>
-    );
-  }
+  const isControlled = openProp !== undefined;
+  const [localOpen, setLocalOpen] = React.useState(defaultOpen);
+  const open = isControlled ? openProp : localOpen;
 
-  // High-level API usage
+  const openRef = React.useRef(open);
+  openRef.current = open;
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setLocalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange]
+  );
+
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!id) return;
+    const el = document.getElementById(id) || wrapperRef.current;
+    if (!el) return;
+
+    if (el.id !== id) {
+      el.id = id;
+    }
+
+    (el as any).open = () => handleOpenChange(true);
+    (el as any).show = () => handleOpenChange(true);
+    (el as any).expand = () => handleOpenChange(true);
+    (el as any).close = () => handleOpenChange(false);
+    (el as any).hide = () => handleOpenChange(false);
+    (el as any).collapse = () => handleOpenChange(false);
+    (el as any).toggle = () => handleOpenChange(!openRef.current);
+
+    return () => {
+      delete (el as any).open;
+      delete (el as any).show;
+      delete (el as any).expand;
+      delete (el as any).close;
+      delete (el as any).hide;
+      delete (el as any).collapse;
+      delete (el as any).toggle;
+    };
+  }, [id, handleOpenChange]);
+
   const handleConfirm = () => {
     onConfirm?.();
-    onOpenChange?.(false);
+    handleOpenChange(false);
   };
 
   const handleCancel = () => {
     onCancel?.();
-    onOpenChange?.(false);
+    handleOpenChange(false);
+  };
+
+  const isModal = modal ?? backdrop;
+
+  const renderContent = () => {
+    if (!trigger && children && React.Children.count(children) > 0) {
+      return (
+        <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={handleOpenChange} modal={isModal}>
+          {children}
+        </DialogPrimitive.Root>
+      );
+    }
+
+    return (
+      <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={handleOpenChange} modal={isModal}>
+        {trigger && (
+          <DialogPrimitive.Trigger asChild>
+            {trigger}
+          </DialogPrimitive.Trigger>
+        )}
+        <DialogPrimitive.Portal>
+          {backdrop && (
+            <DialogPrimitive.Overlay
+              className={cn(
+                'fixed inset-0 z-50 bg-black/80',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out',
+                'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+              )}
+            />
+          )}
+          <DialogPrimitive.Content
+            className={cn(
+              'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4',
+              'border bg-background p-6 shadow-lg duration-200',
+              'data-[state=open]:animate-in data-[state=closed]:animate-out',
+              'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+              'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+              'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+              'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+              'sm:rounded-lg',
+              !backdrop && 'shadow-2xl border-2',
+              className
+            )}
+            style={style}
+            onPointerDownOutside={(e) => {
+              if (!isModal) {
+                e.preventDefault();
+              }
+            }}
+            onInteractOutside={(e) => {
+              if (!isModal) {
+                e.preventDefault();
+              }
+            }}
+            {...props}
+          >
+            <div className="flex flex-col space-y-2 text-center sm:text-left">
+              {title && (
+                <DialogPrimitive.Title className="text-lg font-semibold">
+                  {title}
+                </DialogPrimitive.Title>
+              )}
+              {description && (
+                <DialogPrimitive.Description className="text-sm text-muted-foreground">
+                  {description}
+                </DialogPrimitive.Description>
+              )}
+            </div>
+            {children}
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className={cn(
+                  'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
+                  'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+                  'text-sm font-medium ring-offset-background transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'disabled:pointer-events-none disabled:opacity-50',
+                  'mt-2 sm:mt-0'
+                )}
+              >
+                {cancelLabel}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                className={cn(
+                  'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
+                  'text-sm font-medium ring-offset-background transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'disabled:pointer-events-none disabled:opacity-50',
+                  variant === 'destructive'
+                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                )}
+              >
+                {confirmLabel}
+              </button>
+            </div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
+    );
   };
 
   return (
-    <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
-      {trigger && (
-        <DialogPrimitive.Trigger asChild>
-          {trigger}
-        </DialogPrimitive.Trigger>
-      )}
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className={cn(
-            'fixed inset-0 z-50 bg-black/80',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
-          )}
-        />
-        <DialogPrimitive.Content
-          className={cn(
-            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4',
-            'border bg-background p-6 shadow-lg duration-200',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-            'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
-            'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
-            'sm:rounded-lg',
-            className
-          )}
-          {...props}
-        >
-          <div className="flex flex-col space-y-2 text-center sm:text-left">
-            {title && (
-              <DialogPrimitive.Title className="text-lg font-semibold">
-                {title}
-              </DialogPrimitive.Title>
-            )}
-            {description && (
-              <DialogPrimitive.Description className="text-sm text-muted-foreground">
-                {description}
-              </DialogPrimitive.Description>
-            )}
-          </div>
-          {children}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className={cn(
-                'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
-                'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-                'text-sm font-medium ring-offset-background transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:pointer-events-none disabled:opacity-50',
-                'mt-2 sm:mt-0'
-              )}
-            >
-              {cancelLabel}
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              className={cn(
-                'inline-flex h-10 items-center justify-center rounded-md px-4 py-2',
-                'text-sm font-medium ring-offset-background transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:pointer-events-none disabled:opacity-50',
-                variant === 'destructive'
-                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              )}
-            >
-              {confirmLabel}
-            </button>
-          </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+    <div id={id} ref={wrapperRef} style={{ display: 'contents' }}>
+      <OverlayContext.Provider value={{ backdrop, isModal }}>
+        {renderContent()}
+      </OverlayContext.Provider>
+    </div>
   );
 }
 
@@ -177,15 +266,18 @@ export function DialogContent({
   className,
   children,
 }: DialogContentProps) {
+  const { backdrop, isModal } = React.useContext(OverlayContext);
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
-        className={cn(
-          'fixed inset-0 z-50 bg-black/80',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
-        )}
-      />
+      {backdrop && (
+        <DialogPrimitive.Overlay
+          className={cn(
+            'fixed inset-0 z-50 bg-black/80',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+          )}
+        />
+      )}
       <DialogPrimitive.Content
         className={cn(
           'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4',
@@ -196,8 +288,19 @@ export function DialogContent({
           'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
           'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
           'sm:rounded-lg',
+          !backdrop && 'shadow-2xl border-2',
           className
         )}
+        onPointerDownOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
       >
         {children}
       </DialogPrimitive.Content>
@@ -334,26 +437,85 @@ export function DialogCancel({
 
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 
-export interface SheetProps extends ChildrenProp {
+export interface SheetProps extends BaseProps, ChildrenProp {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  backdrop?: boolean;
+  modal?: boolean;
 }
 
 export function Sheet({
-  open,
+  id,
+  open: openProp,
   defaultOpen = false,
   onOpenChange,
+  className,
+  style,
   children,
+  backdrop = true,
+  modal,
+  ...props
 }: SheetProps) {
+  const isControlled = openProp !== undefined;
+  const [localOpen, setLocalOpen] = React.useState(defaultOpen);
+  const open = isControlled ? openProp : localOpen;
+
+  const openRef = React.useRef(open);
+  openRef.current = open;
+
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    if (!isControlled) {
+      setLocalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  }, [isControlled, onOpenChange]);
+
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!id) return;
+    const el = document.getElementById(id) || wrapperRef.current;
+    if (!el) return;
+
+    if (el.id !== id) {
+      el.id = id;
+    }
+
+    (el as any).open = () => handleOpenChange(true);
+    (el as any).show = () => handleOpenChange(true);
+    (el as any).expand = () => handleOpenChange(true);
+    (el as any).close = () => handleOpenChange(false);
+    (el as any).hide = () => handleOpenChange(false);
+    (el as any).collapse = () => handleOpenChange(false);
+    (el as any).toggle = () => handleOpenChange(!openRef.current);
+
+    return () => {
+      delete (el as any).open;
+      delete (el as any).show;
+      delete (el as any).expand;
+      delete (el as any).close;
+      delete (el as any).hide;
+      delete (el as any).collapse;
+      delete (el as any).toggle;
+    };
+  }, [id, handleOpenChange]);
+
+  const isModal = modal ?? backdrop;
+
   return (
-    <SheetPrimitive.Root
-      open={open ?? undefined}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange}
-    >
-      {children}
-    </SheetPrimitive.Root>
+    <div id={id} ref={wrapperRef} style={{ display: 'contents', ...style }} className={className} {...props}>
+      <OverlayContext.Provider value={{ backdrop, isModal }}>
+        <SheetPrimitive.Root
+          open={open}
+          defaultOpen={defaultOpen}
+          onOpenChange={handleOpenChange}
+          modal={isModal}
+        >
+          {children}
+        </SheetPrimitive.Root>
+      </OverlayContext.Provider>
+    </div>
   );
 }
 
@@ -415,6 +577,7 @@ export function SheetContent({
   className,
   children,
 }: SheetContentProps) {
+  const { backdrop, isModal } = React.useContext(OverlayContext);
   const sideClasses = {
     top: 'inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
     bottom: 'inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
@@ -424,21 +587,34 @@ export function SheetContent({
 
   return (
     <SheetPrimitive.Portal>
-      <SheetPrimitive.Overlay
-        className={cn(
-          'fixed inset-0 z-50 bg-black/80',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
-        )}
-      />
+      {backdrop && (
+        <SheetPrimitive.Overlay
+          className={cn(
+            'fixed inset-0 z-50 bg-black/80',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+          )}
+        />
+      )}
       <SheetPrimitive.Content
         className={cn(
           'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:duration-300 data-[state=open]:duration-500',
           sideClasses[side],
+          !backdrop && 'shadow-2xl border-2',
           className
         )}
+        onPointerDownOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
       >
         {children}
         <SheetPrimitive.Close
@@ -544,63 +720,138 @@ export interface DrawerProps extends BaseProps, ChildrenProp {
   title?: string;
   description?: string;
   shouldScaleBackground?: boolean;
+  backdrop?: boolean;
+  modal?: boolean;
 }
 
 export function Drawer({
-  open,
+  id,
+  open: openProp,
   onOpenChange,
   title,
   description,
   shouldScaleBackground = true,
   className,
+  style,
   children,
+  backdrop = true,
+  modal,
   ...props
 }: DrawerProps) {
-  // Compositional API usage: when children provided, render them inside the Root
-  if (children && React.Children.count(children) > 0) {
+  const isControlled = openProp !== undefined;
+  const [localOpen, setLocalOpen] = React.useState(false);
+  const open = isControlled ? openProp : localOpen;
+
+  const openRef = React.useRef(open);
+  openRef.current = open;
+
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    if (!isControlled) {
+      setLocalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  }, [isControlled, onOpenChange]);
+
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!id) return;
+    const el = document.getElementById(id) || wrapperRef.current;
+    if (!el) return;
+
+    if (el.id !== id) {
+      el.id = id;
+    }
+
+    (el as any).open = () => handleOpenChange(true);
+    (el as any).show = () => handleOpenChange(true);
+    (el as any).expand = () => handleOpenChange(true);
+    (el as any).close = () => handleOpenChange(false);
+    (el as any).hide = () => handleOpenChange(false);
+    (el as any).collapse = () => handleOpenChange(false);
+    (el as any).toggle = () => handleOpenChange(!openRef.current);
+
+    return () => {
+      delete (el as any).open;
+      delete (el as any).show;
+      delete (el as any).expand;
+      delete (el as any).close;
+      delete (el as any).hide;
+      delete (el as any).collapse;
+      delete (el as any).toggle;
+    };
+  }, [id, handleOpenChange]);
+
+  const isModal = modal ?? backdrop;
+
+  const renderContent = () => {
+    if (children && React.Children.count(children) > 0) {
+      return (
+        <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={isModal}>
+          {children}
+        </DialogPrimitive.Root>
+      );
+    }
     return (
-      <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-        {children}
+      <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={isModal}>
+        {/* Removed trigger usage as it is deprecated */}
+        <DialogPrimitive.Portal>
+          {backdrop && (
+            <DialogPrimitive.Overlay
+              className={cn(
+                'fixed inset-0 z-50 bg-black/80',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out',
+                'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+              )}
+            />
+          )}
+          <DialogPrimitive.Content
+            className={cn(
+              'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
+              'data-[state=open]:animate-in data-[state=closed]:animate-out',
+              'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+              !backdrop && 'shadow-2xl border-2',
+              className
+            )}
+            style={style}
+            onPointerDownOutside={(e) => {
+              if (!isModal) {
+                e.preventDefault();
+              }
+            }}
+            onInteractOutside={(e) => {
+              if (!isModal) {
+                e.preventDefault();
+              }
+            }}
+            {...props}
+          >
+            <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+            <div className="p-4">
+              {title && (
+                <DialogPrimitive.Title className="text-lg font-semibold text-foreground">
+                  {title}
+                </DialogPrimitive.Title>
+              )}
+              {description && (
+                <DialogPrimitive.Description className="text-sm text-muted-foreground">
+                  {description}
+                </DialogPrimitive.Description>
+              )}
+            </div>
+            <div className="p-4">{children}</div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
     );
-  }
+  };
+
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      {/* Removed trigger usage as it is deprecated */}
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className={cn(
-            'fixed inset-0 z-50 bg-black/80',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
-          )}
-        />
-        <DialogPrimitive.Content
-          className={cn(
-            'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
-            className
-          )}
-          {...props}
-        >
-          <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
-          <div className="p-4">
-            {title && (
-              <DialogPrimitive.Title className="text-lg font-semibold text-foreground">
-                {title}
-              </DialogPrimitive.Title>
-            )}
-            {description && (
-              <DialogPrimitive.Description className="text-sm text-muted-foreground">
-                {description}
-              </DialogPrimitive.Description>
-            )}
-          </div>
-          <div className="p-4">{children}</div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+    <div id={id} ref={wrapperRef} style={{ display: 'contents' }}>
+      <OverlayContext.Provider value={{ backdrop, isModal }}>
+        {renderContent()}
+      </OverlayContext.Provider>
+    </div>
   );
 }
 
@@ -634,22 +885,36 @@ export interface DrawerContentProps extends ChildrenProp {
 }
 
 export function DrawerContent({ className, children }: DrawerContentProps) {
+  const { backdrop, isModal } = React.useContext(OverlayContext);
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
-        className={cn(
-          'fixed inset-0 z-50 bg-black/80',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
-        )}
-      />
+      {backdrop && (
+        <DialogPrimitive.Overlay
+          className={cn(
+            'fixed inset-0 z-50 bg-black/80',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+          )}
+        />
+      )}
       <DialogPrimitive.Content
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+          !backdrop && 'shadow-2xl border-2',
           className
         )}
+        onPointerDownOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          if (!isModal) {
+            e.preventDefault();
+          }
+        }}
       >
         <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
         <div className="p-4">{children}</div>

@@ -46,6 +46,8 @@ class Dialog(Component):
         on_cancel: Any = None,
         trigger: Any = None,
         variant: Literal["default", "destructive"] = "default",
+        backdrop: bool = True,
+        modal: bool | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -71,6 +73,8 @@ class Dialog(Component):
         self.on_cancel = on_cancel
         self.trigger = trigger
         self.variant = variant
+        self.backdrop = backdrop
+        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -99,6 +103,10 @@ class Dialog(Component):
             props["trigger"] = (
                 self.trigger.render() if hasattr(self.trigger, "render") else self.trigger
             )
+        if self.backdrop is not None:
+            props["backdrop"] = self.backdrop
+        if self.modal is not None:
+            props["modal"] = self.modal
 
         return {
             "type": self.component_type,
@@ -435,6 +443,8 @@ class Sheet(Component):
         open: bool | None = None,
         default_open: bool = False,
         on_open_change: Any = None,
+        backdrop: bool = True,
+        modal: bool | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -452,6 +462,8 @@ class Sheet(Component):
         self.open = open
         self.default_open = default_open
         self.on_open_change = on_open_change
+        self.backdrop = backdrop
+        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -465,6 +477,10 @@ class Sheet(Component):
             props["open"] = self.open
         if self.on_open_change:
             props["on_open_change"] = self.on_open_change.serialize()
+        if self.backdrop is not None:
+            props["backdrop"] = self.backdrop
+        if self.modal is not None:
+            props["modal"] = self.modal
 
         return {
             "type": self.component_type,
@@ -1847,6 +1863,8 @@ class Drawer(Component):
         should_scale_background: bool = True,
         title: str | None = None,
         description: str | None = None,
+        backdrop: bool = True,
+        modal: bool | None = None,
         children: ChildrenType = None,
         id: str | None = None,
         class_name: str = "",
@@ -1866,6 +1884,8 @@ class Drawer(Component):
         self.should_scale_background = should_scale_background
         self.title = title
         self.description = description
+        self.backdrop = backdrop
+        self.modal = modal
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -1883,6 +1903,10 @@ class Drawer(Component):
             props["title"] = self.title
         if self.description is not None:
             props["description"] = self.description
+        if self.backdrop is not None:
+            props["backdrop"] = self.backdrop
+        if self.modal is not None:
+            props["modal"] = self.modal
 
         return {
             "type": self.component_type,

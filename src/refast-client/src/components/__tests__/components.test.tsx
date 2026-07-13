@@ -10,6 +10,9 @@ import { Heading, Paragraph, Link } from '../shadcn/typography';
 import { Alert, Badge, Progress, Spinner } from '../shadcn/feedback';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Avatar } from '../shadcn/data_display';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../shadcn/utility';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '../shadcn/overlay';
+import { Sheet, SheetTrigger, SheetContent } from '../shadcn/overlay';
+import { Drawer, DrawerTrigger, DrawerContent } from '../shadcn/overlay';
 
 describe('Base Components', () => {
   it('renders Container', () => {
@@ -309,3 +312,123 @@ describe('ButtonGroup Components', () => {
     expect(label).toHaveClass('text-muted-foreground');
   });
 });
+
+describe('Dialog Component bound methods', () => {
+  it('renders Dialog and exposes bound callbacks', () => {
+    const { container } = render(
+      <Dialog id="test-dialog" defaultOpen={false}>
+        <DialogTrigger><span>Open</span></DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog Description</DialogDescription>
+          Dialog Body Content
+        </DialogContent>
+      </Dialog>
+    );
+
+    const dialogEl = container.querySelector('#test-dialog') as any;
+    expect(dialogEl).toBeInTheDocument();
+    
+    // Assert methods are bound
+    expect(typeof dialogEl.open).toBe('function');
+    expect(typeof dialogEl.close).toBe('function');
+    expect(typeof dialogEl.toggle).toBe('function');
+
+    // Test open
+    act(() => {
+      dialogEl.open();
+    });
+    expect(screen.getByText('Dialog Body Content')).toBeInTheDocument();
+
+    // Test close
+    act(() => {
+      dialogEl.close();
+    });
+    expect(screen.queryByText('Dialog Body Content')).not.toBeInTheDocument();
+
+    // Test toggle
+    act(() => {
+      dialogEl.toggle();
+    });
+    expect(screen.getByText('Dialog Body Content')).toBeInTheDocument();
+  });
+});
+
+describe('Sheet Component bound methods', () => {
+  it('renders Sheet and exposes bound callbacks', () => {
+    const { container } = render(
+      <Sheet id="test-sheet" defaultOpen={false}>
+        <SheetTrigger><span>Open Sheet</span></SheetTrigger>
+        <SheetContent>
+          Sheet Body Content
+        </SheetContent>
+      </Sheet>
+    );
+
+    const sheetEl = container.querySelector('#test-sheet') as any;
+    expect(sheetEl).toBeInTheDocument();
+    
+    // Assert methods are bound
+    expect(typeof sheetEl.open).toBe('function');
+    expect(typeof sheetEl.close).toBe('function');
+    expect(typeof sheetEl.toggle).toBe('function');
+
+    // Test open
+    act(() => {
+      sheetEl.open();
+    });
+    expect(screen.getByText('Sheet Body Content')).toBeInTheDocument();
+
+    // Test close
+    act(() => {
+      sheetEl.close();
+    });
+    expect(screen.queryByText('Sheet Body Content')).not.toBeInTheDocument();
+
+    // Test toggle
+    act(() => {
+      sheetEl.toggle();
+    });
+    expect(screen.getByText('Sheet Body Content')).toBeInTheDocument();
+  });
+});
+
+describe('Drawer Component bound methods', () => {
+  it('renders Drawer and exposes bound callbacks', () => {
+    const { container } = render(
+      <Drawer id="test-drawer">
+        <DrawerTrigger><span>Open Drawer</span></DrawerTrigger>
+        <DrawerContent>
+          Drawer Body Content
+        </DrawerContent>
+      </Drawer>
+    );
+
+    const drawerEl = container.querySelector('#test-drawer') as any;
+    expect(drawerEl).toBeInTheDocument();
+    
+    // Assert methods are bound
+    expect(typeof drawerEl.open).toBe('function');
+    expect(typeof drawerEl.close).toBe('function');
+    expect(typeof drawerEl.toggle).toBe('function');
+
+    // Test open
+    act(() => {
+      drawerEl.open();
+    });
+    expect(screen.getByText('Drawer Body Content')).toBeInTheDocument();
+
+    // Test close
+    act(() => {
+      drawerEl.close();
+    });
+    expect(screen.queryByText('Drawer Body Content')).not.toBeInTheDocument();
+
+    // Test toggle
+    act(() => {
+      drawerEl.toggle();
+    });
+    expect(screen.getByText('Drawer Body Content')).toBeInTheDocument();
+  });
+});
+

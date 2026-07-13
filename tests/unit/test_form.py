@@ -20,6 +20,7 @@ class TestForm:
         rendered = form.render()
         assert rendered["type"] == "Form"
         assert len(rendered["children"]) == 1
+        assert rendered["props"]["include_disabled"] is True
 
     def test_form_accepts_input_without_name(self):
         """Form should render children even if an input omits name."""
@@ -34,6 +35,13 @@ class TestForm:
         form = Form(on_submit=cb)
         rendered = form.render()
         assert rendered["props"]["on_submit"] == {"callbackId": "cb-123"}
+        assert rendered["props"]["include_disabled"] is True
+
+    def test_form_with_include_disabled_false(self):
+        """Test Form with include_disabled=False."""
+        form = Form(include_disabled=False)
+        rendered = form.render()
+        assert rendered["props"]["include_disabled"] is False
 
 
 class TestFormField:

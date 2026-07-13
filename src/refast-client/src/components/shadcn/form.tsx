@@ -12,6 +12,8 @@ interface FormProps {
   onSubmit?: (data: Record<string, string>) => void;
   children?: React.ReactNode;
   'data-refast-id'?: string;
+  /** Whether to include disabled form input values in the payload. Defaults to true. */
+  includeDisabled?: boolean;
 }
 
 /**
@@ -28,6 +30,7 @@ export function Form({
   className,
   onSubmit,
   children,
+  includeDisabled = true,
   'data-refast-id': dataRefastId,
   ...props
 }: FormProps): React.ReactElement<any> {
@@ -35,6 +38,47 @@ export function Form({
     event.preventDefault();
     if (onSubmit) {
       const formData = new FormData(event.currentTarget);
+
+      if (includeDisabled) {
+        // Include disabled input fields' values in the form payload
+        const disabledElements = event.currentTarget.querySelectorAll<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >('input[name]:disabled, select[name]:disabled, textarea[name]:disabled');
+
+        disabledElements.forEach((el) => {
+          const name = el.name;
+          if (!name) return;
+
+          if (el instanceof HTMLInputElement) {
+            if (el.type === 'checkbox' || el.type === 'radio') {
+              if (el.checked) {
+                formData.append(name, el.value);
+              }
+            } else if (el.type === 'file') {
+              if (el.files) {
+                for (let i = 0; i < el.files.length; i++) {
+                  formData.append(name, el.files[i]);
+                }
+              }
+            } else {
+              formData.append(name, el.value);
+            }
+          } else if (el instanceof HTMLSelectElement) {
+            if (el.multiple) {
+              for (let i = 0; i < el.options.length; i++) {
+                if (el.options[i].selected) {
+                  formData.append(name, el.options[i].value);
+                }
+              }
+            } else {
+              formData.append(name, el.value);
+            }
+          } else if (el instanceof HTMLTextAreaElement) {
+            formData.append(name, el.value);
+          }
+        });
+      }
+
       const data: Record<string, string | string[]> = {};
       formData.forEach((value, key) => {
         const valStr = value.toString();

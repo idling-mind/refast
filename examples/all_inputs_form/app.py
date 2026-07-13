@@ -4,43 +4,44 @@ This includes basic inputs (Input, Textarea, Select, Checkbox, Switch, RadioGrou
 and the advanced inputs updated with name support (Slider, Toggle, ToggleGroup,
 Calendar, DatePicker, InputOTP, FileUploader).
 """
-
 import json
-from fastapi import FastAPI
+
 import uvicorn
+from fastapi import FastAPI
 
 from refast import Context, RefastApp
 from refast.components import (
+    Alert,
+    Button,
+    Calendar,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Checkbox,
+    Column,
+    Combobox,
+    Container,
+    DatePicker,
+    FileUploader,
     Form,
     FormField,
+    Heading,
     Input,
-    Textarea,
+    InputOTP,
+    Label,
+    Radio,
+    RadioGroup,
+    Row,
+    Select,
+    Slider,
     Switch,
+    Text,
+    Textarea,
     Toggle,
     ToggleGroup,
     ToggleGroupItem,
-    Checkbox,
-    RadioGroup,
-    Radio,
-    Select,
-    Combobox,
-    Slider,
-    Calendar,
-    DatePicker,
-    InputOTP,
-    FileUploader,
-    Button,
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-    Column,
-    Row,
-    Container,
-    Text,
-    Alert,
-    Heading, Label,
 )
 
 ui = RefastApp(title="Refast Form Controls Showcase")
@@ -77,6 +78,7 @@ def render_showcase(ctx: Context):
                     Form(
                         on_submit=ctx.callback(handle_submit),
                         class_name="space-y-6",
+                        include_disabled=True,
                         children=[
                             # Section 1: Standard Inputs
                             Column(
@@ -95,6 +97,18 @@ def render_showcase(ctx: Context):
                                                 name="username",
                                                 placeholder="enter your username",
                                                 required=True,
+                                            )
+                                        ],
+                                    ),
+                                    FormField(
+                                        label="Uneditable field",
+                                        required=True,
+                                        children=[
+                                            Input(
+                                                name="uneditable",
+                                                required=True,
+                                                value="uneditable",
+                                                disabled=True,
                                             )
                                         ],
                                     ),

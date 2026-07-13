@@ -44,6 +44,7 @@ class Form(Component):
         self,
         children: ChildrenType = None,
         on_submit: Any = None,
+        include_disabled: bool = True,
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -59,10 +60,12 @@ class Form(Component):
         )
         self.add_children(children)
         self.on_submit = on_submit
+        self.include_disabled = include_disabled
 
     def render(self) -> dict[str, Any]:
         props = {
             "class_name": self.class_name,
+            "include_disabled": self.include_disabled,
             **self._serialize_extra_props(),
         }
 

@@ -167,7 +167,9 @@ class TestSecurityMiddleware:
         client.get("https://testserver/")
 
         # Send invalid/different token in header
-        response = client.post("https://testserver/submit", headers={"X-CSRF-Token": "some-random-invalid-token"})
+        response = client.post(
+            "https://testserver/submit", headers={"X-CSRF-Token": "some-random-invalid-token"}
+        )
         assert response.status_code == 403
         assert "CSRF validation failed" in response.text
 

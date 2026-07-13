@@ -1,6 +1,5 @@
 """Tests for custom tags in Markdown component."""
 
-
 from typing import Any
 
 from refast.components.base import Component
@@ -75,7 +74,7 @@ class TestMarkdownCustomTags:
     def test_self_closing_tag_basic(self):
         """Test basic self-closing tag rendering and Pydantic validation."""
         custom_tags = {"MyButton": CustomButton}
-        content = "Click this button: <MyButton label=\"Submit\" count=\"5\" active=\"true\" />"
+        content = 'Click this button: <MyButton label="Submit" count="5" active="true" />'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -100,7 +99,7 @@ class TestMarkdownCustomTags:
     def test_boolean_attribute_shorthand(self):
         """Test shorthand boolean attributes (e.g. active instead of active="true")."""
         custom_tags = {"MyButton": CustomButton}
-        content = "Click <MyButton label=\"Shub\" active />"
+        content = 'Click <MyButton label="Shub" active />'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -113,7 +112,7 @@ class TestMarkdownCustomTags:
         """Test that if validation fails, the tag is left as plain text."""
         custom_tags = {"MyButton": CustomButton}
         # Missing required attribute 'label'
-        content = "Invalid: <MyButton count=\"abc\" />"
+        content = 'Invalid: <MyButton count="abc" />'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -124,7 +123,7 @@ class TestMarkdownCustomTags:
 
     def test_unregistered_tag_fallback(self):
         """Test that unregistered uppercase tags are left as is."""
-        content = "Unknown: <SomeWidget value=\"123\" />"
+        content = 'Unknown: <SomeWidget value="123" />'
         md = Markdown(content=content, custom_tags={})
         rendered = md.render()
         assert rendered["props"]["content"] == content
@@ -132,7 +131,7 @@ class TestMarkdownCustomTags:
     def test_container_tag_children(self):
         """Test container tag that receives children as components."""
         custom_tags = {"Section": CustomSection}
-        content = "<Section title=\"My Section\">Hello section text</Section>"
+        content = '<Section title="My Section">Hello section text</Section>'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -154,7 +153,7 @@ class TestMarkdownCustomTags:
         """Test container tag where parameter type is strictly string
         (so child fallback is used)."""
         custom_tags = {"TextOnly": CustomTextOnly}
-        content = "<TextOnly title=\"Doc\">Strict text here</TextOnly>"
+        content = '<TextOnly title="Doc">Strict text here</TextOnly>'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -172,7 +171,7 @@ class TestMarkdownCustomTags:
             "Section": CustomSection,
             "MyButton": CustomButton,
         }
-        content = "<Section title=\"Outer\">Click <MyButton label=\"Inner\" /> now</Section>"
+        content = '<Section title="Outer">Click <MyButton label="Inner" /> now</Section>'
 
         md = Markdown(content=content, custom_tags=custom_tags)
         rendered = md.render()
@@ -197,7 +196,7 @@ class TestMarkdownCustomTags:
     def test_child_traversal(self):
         """Test that custom components are returned in child traversal."""
         custom_tags = {"MyButton": CustomButton}
-        content = "Click <MyButton label=\"Submit\" />"
+        content = 'Click <MyButton label="Submit" />'
 
         md = Markdown(content=content, custom_tags=custom_tags)
 
@@ -229,7 +228,7 @@ class TestMarkdownCustomTags:
         custom_tags = {"Tag": make_tag}
 
         # Test valid variant "success"
-        content_success = "Success: <Tag label=\"Done!\" variant=\"success\" />"
+        content_success = 'Success: <Tag label="Done!" variant="success" />'
         md = Markdown(content=content_success, custom_tags=custom_tags)
         rendered = md.render()
         components = rendered["props"]["custom_components"]
@@ -239,10 +238,9 @@ class TestMarkdownCustomTags:
         assert comp_data["props"]["variant"] == "success"
 
         # Test invalid variant "invalid_variant"
-        content_invalid = "Invalid: <Tag label=\"Done!\" variant=\"invalid_variant\" />"
+        content_invalid = 'Invalid: <Tag label="Done!" variant="invalid_variant" />'
         md_invalid = Markdown(content=content_invalid, custom_tags=custom_tags)
         rendered_invalid = md_invalid.render()
         # Should fall back to raw text because validation failed
         assert rendered_invalid["props"]["content"] == content_invalid
         assert rendered_invalid["props"]["custom_components"] == {}
-

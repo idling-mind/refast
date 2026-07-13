@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import Component, ChildrenType
+from refast.components.base import ChildrenType, Component
 
 
 class Button(Component):

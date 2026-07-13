@@ -176,7 +176,6 @@ class TestWebSocketEndpoint:
         """Test that HTTPException raised during page init is caught and rendered."""
         from fastapi import HTTPException
 
-
         app = FastAPI()
         ui = RefastApp()
 
@@ -188,11 +187,7 @@ class TestWebSocketEndpoint:
         client = TestClient(app)
 
         with client.websocket_connect("/ui/ws") as websocket:
-            websocket.send_json({
-                "type": "store_init",
-                "path": "/",
-                "data": {}
-            })
+            websocket.send_json({"type": "store_init", "path": "/", "data": {}})
             response = websocket.receive_json()
             assert response["type"] == "page_render"
             assert "Rate limited" in str(response["component"])
@@ -219,11 +214,7 @@ class TestWebSocketEndpoint:
 
         with client.websocket_connect("/ui/ws") as websocket:
             # First initialize store to render and register callback
-            websocket.send_json({
-                "type": "store_init",
-                "path": "/",
-                "data": {}
-            })
+            websocket.send_json({"type": "store_init", "path": "/", "data": {}})
             render_resp = websocket.receive_json()
             assert render_resp["type"] == "page_render"
 
@@ -233,18 +224,16 @@ class TestWebSocketEndpoint:
             # Extract callback ID
             import json
             import re
+
             serialized = json.dumps(render_resp["component"])
             cb_ids = re.findall(r'"callbackId":\s*"([^"]+)"', serialized)
             assert len(cb_ids) > 0
             cb_id = cb_ids[0]
 
             # Trigger the callback
-            websocket.send_json({
-                "type": "callback",
-                "callback_id": cb_id,
-                "data": {},
-                "event_data": {}
-            })
+            websocket.send_json(
+                {"type": "callback", "callback_id": cb_id, "data": {}, "event_data": {}}
+            )
 
             # Wait for message response (should be the toast)
             response = websocket.receive_json()

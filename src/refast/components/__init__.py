@@ -239,6 +239,9 @@ __all__ = [
     "Center",
     # Button
     "Button",
+    "ButtonGroup",
+    "ButtonGroupSeparator",
+    "ButtonGroupText",
     "IconButton",
     # Icon
     "Icon",

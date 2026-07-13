@@ -126,10 +126,12 @@ def test_websocket_validation_error_response():
 
     with client.websocket_connect("/ws") as ws:
         # Send invalid message (missing callbackId)
-        ws.send_json({
-            "type": "callback",
-            "data": {},
-        })
+        ws.send_json(
+            {
+                "type": "callback",
+                "data": {},
+            }
+        )
         # Expect a validation_error response
         resp = ws.receive_json()
         assert resp["type"] == "validation_error"

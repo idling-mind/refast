@@ -118,6 +118,7 @@ class TestContext:
     def test_context_with_request(self):
         """Test context initialized with an explicit request."""
         from unittest.mock import MagicMock
+
         mock_request = MagicMock()
         ctx = Context(request=mock_request)
         assert ctx.request is mock_request

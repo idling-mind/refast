@@ -399,7 +399,6 @@ class TestCombobox:
         assert rendered["props"]["creatable"] is True
 
 
-
 class TestInputOTP:
     """Tests for InputOTP component."""
 

@@ -83,30 +83,40 @@ def _chunk_feature(file_name: str, entry: dict[str, Any]) -> str | None:
     return None
 
 
-def _get_chunk_files(manifest: dict[str, Any], preloaded_features: list[str] | None) -> list[str]:
+def _get_chunk_files(
+    manifest: dict[str, Any],
+    preloaded_features: list[str] | None,
+    client_mode: str = "full",
+) -> list[str]:
     """Derive the list of JS chunk filenames to include from the manifest.
 
     Args:
         manifest: Parsed Vite manifest.json contents.
         preloaded_features: Which feature chunks should be hinted with
             ``modulepreload``. ``None`` means no feature chunks are preloaded.
+        client_mode: Either "full" or "core".
 
     Returns:
         List of JS filenames (relative to /static/) in load order.
-        The entry chunk (``refast-client.js``) is always first.
+        The entry chunk is always first.
     """
+    entry_name = "refast-client" if client_mode == "full" else "refast-client-core"
+    default_entry_file = f"{entry_name}.js"
+
     if not manifest:
-        return ["refast-client.js"]
+        return [default_entry_file]
 
     allowed = set(preloaded_features or [])
 
     entry_key: str | None = None
-    entry_file = "refast-client.js"
+    entry_file = default_entry_file
     for key, entry in manifest.items():
         if entry.get("isEntry") is True:
-            entry_key = key
-            entry_file = str(entry.get("file", entry_file))
-            break
+            file_name = str(entry.get("file", ""))
+            if entry.get("name") == entry_name or file_name == default_entry_file:
+                entry_key = key
+                entry_file = file_name
+                break
 
     if entry_key is None:
         return [entry_file]
@@ -172,7 +182,7 @@ def render_html_shell(app: RefastApp) -> str:
     startup_features = sorted(
         set(app.preloaded_features or []) | (set(ALL_FEATURE_CHUNKS) - lazy_features)
     )
-    chunk_files = _get_chunk_files(manifest, startup_features)
+    chunk_files = _get_chunk_files(manifest, startup_features, app.client_mode)
 
     # Build script tags — entry is type="module", chunks are modulepreload
     client_css = (
@@ -182,9 +192,10 @@ def render_html_shell(app: RefastApp) -> str:
     # The entry module + feature chunks
     script_tags: list[str] = []
     preload_tags: list[str] = []
+    entry_js = "refast-client.js" if app.client_mode == "full" else "refast-client-core.js"
     for f in chunk_files:
         path = f"/static/{f}"
-        if f == "refast-client.js":
+        if f == entry_js:
             script_tags.append(f'<script type="module" src="{path}"></script>')
         else:
             preload_tags.append(f'<link rel="modulepreload" href="{path}">')

@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '../register-full';
 import { render, screen, waitFor, act } from '@testing-library/react';
 
 // We need a *fresh* registry for each test — import the class, not the singleton.

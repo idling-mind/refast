@@ -5,7 +5,6 @@ import { componentRegistry } from './registry';
 import { EventManagerInterface, createSingleActionExecutor } from '../utils/actionExecutor';
 import { transformProps } from '../utils/propTransformer';
 import { refastBus } from '../utils/eventBus';
-import { Popover, PopoverTrigger, PopoverContent } from './shadcn/overlay';
 
 /**
  * Error boundary that isolates render failures to a single component subtree.
@@ -256,30 +255,28 @@ function ComponentObjectRenderer({ tree, onUpdate, ref, ...rest }: ComponentRend
       return null;
     }
     return (
-      <Popover>
-        <PopoverTrigger asChild>
-          <span
-            className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-destructive/30 bg-destructive/5 text-destructive text-xs font-mono cursor-pointer hover:bg-destructive/10 transition-colors"
-            data-unknown-type={type}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
-            Unknown: {type}
-          </span>
-        </PopoverTrigger>
-        <PopoverContent className="w-96 p-4">
-          <div className="space-y-2">
-            <h4 className="font-semibold text-sm text-foreground">Missing Component Definition</h4>
-            <p className="text-xs text-muted-foreground">
+      <span
+        className="relative group inline-flex items-center gap-1.5 px-2 py-1 rounded border border-destructive/30 bg-destructive/5 text-destructive text-xs font-mono cursor-pointer hover:bg-destructive/10 transition-colors"
+        data-unknown-type={type}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+        Unknown: {type}
+        
+        {/* Simple hover popup tooltip */}
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-96 p-4 rounded-lg border border-border bg-popover text-popover-foreground shadow-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 z-50 pointer-events-auto text-left">
+          <span className="block space-y-2">
+            <span className="block font-semibold text-sm text-foreground">Missing Component Definition</span>
+            <span className="block text-xs text-muted-foreground">
               Component <code className="px-1 py-0.5 rounded bg-muted font-mono">{type}</code> is not registered on the client.
-            </p>
-            <div className="rounded bg-muted p-2 max-h-60 overflow-auto">
+            </span>
+            <span className="block rounded bg-muted p-2 max-h-60 overflow-auto">
               <pre className="text-[10px] font-mono whitespace-pre-wrap break-all">
                 {JSON.stringify(tree, null, 2)}
               </pre>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+            </span>
+          </span>
+        </span>
+      </span>
     );
   }
 

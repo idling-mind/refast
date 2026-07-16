@@ -108,7 +108,12 @@ class RefastApp:
         file_store: TempFileStore | None = None,
         max_upload_files: int = 20,
         max_upload_size: int | None = None,
+        client_mode: str = "full",
     ):
+        if client_mode not in ("full", "core"):
+            raise ValueError("client_mode must be 'full' or 'core'")
+        self.client_mode = client_mode
+
         self.title = title
         self.theme = theme
         self.secret_key = secret_key

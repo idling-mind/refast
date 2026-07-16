@@ -195,14 +195,17 @@ export default defineConfig(({ mode }) => {
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.tsx'),
+      entry: {
+        'refast-client': resolve(__dirname, 'src/index.tsx'),
+        'refast-client-core': resolve(__dirname, 'src/index-core.tsx'),
+      },
       // ESM format to enable code splitting via dynamic import()
       formats: ['es'],
     },
     rollupOptions: {
       output: {
         // Entry chunk keeps a stable name for the HTML shell
-        entryFileNames: 'refast-client.js',
+        entryFileNames: '[name].js',
         // Feature chunks get content-hashed names for cache-busting
         chunkFileNames: 'refast-[name]-[hash].js',
         // CSS keeps a stable name

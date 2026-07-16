@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { vi } from 'vitest';
 
+
 // jsdom does not implement ResizeObserver; polyfill it for component tests.
 (globalThis as typeof globalThis & { ResizeObserver: unknown }).ResizeObserver = class ResizeObserver {
   observe() {}

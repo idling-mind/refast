@@ -73,8 +73,9 @@ class FrontendBuildHook(BuildHookInterface):
     def _assets_exist(self) -> bool:
         """Return True if the compiled entry JS + CSS already exist in static/."""
         js = self._static_dir / "refast-client.js"
+        js_core = self._static_dir / "refast-client-core.js"
         css = self._static_dir / "refast-client.css"
-        return js.is_file() and css.is_file()
+        return js.is_file() and js_core.is_file() and css.is_file()
 
     def _copy_assets(self) -> None:
         """Copy runtime assets (JS, CSS, manifest) from dist/ → static/."""

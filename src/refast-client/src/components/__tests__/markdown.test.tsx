@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Markdown } from '../shadcn/typography';
+import '../register-full';
 import { EventManagerProvider } from '../../events/EventManager';
 
 describe('Markdown Component', () => {

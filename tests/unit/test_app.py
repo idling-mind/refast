@@ -39,6 +39,19 @@ class TestRefastApp:
         app = RefastApp(secret_key="my-secret-key")
         assert app.secret_key == "my-secret-key"
 
+    def test_create_with_client_mode(self):
+        """Test RefastApp can be created with a custom client mode."""
+        app_full = RefastApp(client_mode="full")
+        assert app_full.client_mode == "full"
+
+        app_core = RefastApp(client_mode="core")
+        assert app_core.client_mode == "core"
+
+    def test_create_with_invalid_client_mode(self):
+        """Test RefastApp raises ValueError for invalid client mode."""
+        with pytest.raises(ValueError, match="client_mode must be 'full' or 'core'"):
+            RefastApp(client_mode="invalid")
+
 
 class TestPageRegistration:
     """Tests for page registration."""

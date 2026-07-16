@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from refast import Context, RefastApp
 from refast.components import Text
 from refast.router import STATIC_DIR
+from refast.assets import render_html_shell
 
 
 class TestStaticFileServing:
@@ -79,3 +80,21 @@ class TestBuildScript:
 
         assert "def main(" in content
         assert "if __name__" in content
+
+
+class TestAssetShellRendering:
+    """Test asset shell rendering in different client modes."""
+
+    def test_render_shell_full_mode(self):
+        """Test HTML shell in full mode loads refast-client.js."""
+        app = RefastApp(client_mode="full")
+        html = render_html_shell(app)
+        assert 'src="/static/refast-client.js"' in html
+        assert 'src="/static/refast-client-core.js"' not in html
+
+    def test_render_shell_core_mode(self):
+        """Test HTML shell in core mode loads refast-client-core.js."""
+        app = RefastApp(client_mode="core")
+        html = render_html_shell(app)
+        assert 'src="/static/refast-client-core.js"' in html
+        assert 'src="/static/refast-client.js"' not in html

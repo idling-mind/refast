@@ -50,12 +50,14 @@ sources = ["src"]
 # Include the generated JS/CSS even though they are .gitignored
 artifacts = [
     "src/refast/static/refast-client.js",
+    "src/refast/static/refast-client-core.js",
     "src/refast/static/refast-client.css",
 ]
 
 [tool.hatch.build.targets.sdist]
 artifacts = [
     "src/refast/static/refast-client.js",
+    "src/refast/static/refast-client-core.js",
     "src/refast/static/refast-client.css",
 ]
 # Include the frontend source so sdist consumers can rebuild

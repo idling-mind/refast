@@ -14,78 +14,17 @@ export { ComponentRenderer } from './components/ComponentRenderer';
 export { componentRegistry } from './components/registry';
 export type { FeatureChunk, LazyChunkLoader, ComponentType } from './components/registry';
 import { componentRegistry } from './components/registry';
-import './components/register-full';
-
 
 // Base components
 export { Container, Text, Fragment } from './components/base';
+import { Container, Text, Fragment } from './components/base';
 
-// shadcn components
-export {
-  Row,
-  Column,
-  Grid,
-  Flex,
-  Center,
-} from './components/shadcn/layout';
-
-export { Button, IconButton } from './components/shadcn/button';
-
-export {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-} from './components/shadcn/card';
-
-export {
-  Input,
-  Textarea,
-  Select,
-  SelectOption,
-  Checkbox,
-  Radio,
-  RadioGroup,
-} from './components/shadcn/input';
-
+// slot
 export { Slot } from './components/shadcn/slot';
-
-export {
-  Heading,
-  Paragraph,
-  Link,
-  Code,
-  BlockQuote,
-  List,
-  ListItem,
-  Label,
-} from './components/shadcn/typography';
-
-export {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  Badge,
-  Progress,
-  Spinner,
-  Skeleton,
-} from './components/shadcn/feedback';
+import { Slot } from './components/shadcn/slot';
 
 export { ToastManager, toast, dismissToast, promiseToast } from './components/ToastManager';
-
-export {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Avatar,
-  Image,
-  Tooltip,
-} from './components/shadcn/data_display';
+import { Toaster } from './components/shadcn/toaster';
 
 // Events
 export {
@@ -174,11 +113,6 @@ async function initializeRefast(): Promise<void> {
   // Look for the refast-root element
   const rootElement = document.getElementById('refast-root');
 
-  // Mount unconditionally — components are delivered via WebSocket
-  // (store_init → page_render) after the connection is established.
-  // __REFAST_INITIAL_DATA__ is no longer set by the server; the initial
-  // content of #refast-root is a pure-HTML/CSS spinner that stays visible
-  // until React hydrates and the WebSocket delivers the first page_render.
   if (rootElement) {
     componentRegistry.configureLazyFeatures(getConfiguredLazyFeatures());
     await warmupPreloadedFeatures();
@@ -200,27 +134,6 @@ if (document.readyState === 'loading') {
 // Extension Support: Expose RefastClient on window for third-party extensions
 // =============================================================================
 
-/**
- * RefastClient global object for extension development.
- * 
- * Extensions can use this to:
- * - Register custom React components
- * - Access React and ReactDOM (avoid bundling duplicates)
- * - Use utility functions
- * 
- * Example usage in an extension's UMD bundle:
- * ```javascript
- * (function() {
- *   const { componentRegistry, React } = window.RefastClient;
- *   
- *   const MyComponent = (props) => {
- *     return React.createElement('div', { className: props.className }, props.children);
- *   };
- *   
- *   componentRegistry.register('MyComponent', MyComponent);
- * })();
- * ```
- */
 declare global {
   interface Window {
     __REFAST_PRELOADED_FEATURES__?: string[];
@@ -232,18 +145,12 @@ declare global {
     __REFAST_EXTENSION_LOADED__?: Record<string, boolean>;
     __REFAST_LOAD_EXTENSION__?: (name: string) => Promise<void>;
     RefastClient: {
-      /** Component registry for registering custom React components */
       componentRegistry: typeof componentRegistry;
-      /** React library - use this instead of bundling your own */
       React: typeof React;
-      /** ReactDOM library - use this instead of bundling your own */
       ReactDOM: typeof ReactDOM;
-      /** Version of the Refast client */
       version: string;
     };
-    /** React exposed globally for UMD extension bundles */
     React: typeof React;
-    /** ReactDOM exposed globally for UMD extension bundles */
     ReactDOM: typeof ReactDOM;
   }
 }
@@ -257,9 +164,15 @@ window.RefastClient = {
 };
 
 // Also expose React and ReactDOM globally for UMD extension bundles
-// This allows extensions to use `external: ['react', 'react-dom']` in their build
 window.React = React;
 window.ReactDOM = ReactDOM;
+
+// Register ONLY core primitives in the componentRegistry
+componentRegistry.register('Container', Container);
+componentRegistry.register('Text', Text);
+componentRegistry.register('Fragment', Fragment);
+componentRegistry.register('Slot', Slot);
+componentRegistry.register('Toast', Toaster);
 
 // Dispatch a custom event so extension scripts (loaded after the core ESM
 // module) know that RefastClient is ready.

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { componentRegistry } from '../registry';
+import '../register-full';
+
 
 describe('ComponentRegistry', () => {
   it('has base components registered', () => {

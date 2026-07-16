@@ -111,12 +111,10 @@ def _get_chunk_files(
     entry_key: str | None = None
     entry_file = default_entry_file
     for key, entry in manifest.items():
-        if entry.get("isEntry") is True:
-            file_name = str(entry.get("file", ""))
-            if entry.get("name") == entry_name or file_name == default_entry_file:
-                entry_key = key
-                entry_file = file_name
-                break
+        if entry.get("isEntry") is True and entry.get("name") == entry_name:
+            entry_key = key
+            entry_file = entry.get("file", default_entry_file)
+            break
 
     if entry_key is None:
         return [entry_file]

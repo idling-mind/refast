@@ -28,6 +28,7 @@ def sample_manifest() -> dict:
         "src/index.tsx": {
             "file": "refast-client.js",
             "isEntry": True,
+            "name": "refast-client",
             "src": "src/index.tsx",
             "imports": ["_shared", "_charts", "_icons"],
         },

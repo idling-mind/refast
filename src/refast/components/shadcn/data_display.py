@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import ChildrenType, Component
+from refast.components.base import ChildrenType, Component, ComponentSize
 
 
 class Table(Component):
@@ -724,7 +724,7 @@ class Badge(Component):
         ] = "default",
         icon: str | None = None,
         icon_position: Literal["left", "right"] = "left",
-        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
+        size: ComponentSize = "md",
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -782,8 +782,9 @@ class Avatar(Component):
             ``fallback`` is not supplied.
         fallback: Short string (one or two letters) shown when the image is
             unavailable. Defaults to the first character of ``alt``.
-        size: Avatar diameter. ``"sm"`` = 32 px, ``"md"`` = 40 px,
-            ``"lg"`` = 48 px. Defaults to ``"md"``.
+        size: Avatar diameter. ``"xs"`` = 24 px, ``"sm"`` = 32 px,
+            ``"md"`` = 40 px, ``"lg"`` = 48 px, ``"xl"`` = 64 px.
+            Defaults to ``"md"``.
         id: Optional HTML element id.
         class_name: Additional CSS class names.
     """
@@ -795,7 +796,7 @@ class Avatar(Component):
         src: str | None = None,
         alt: str = "",
         fallback: str | None = None,
-        size: Literal["sm", "md", "lg"] = "md",
+        size: ComponentSize = "md",
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -942,7 +943,7 @@ class Tabs(Component):
         value: str | None = None,
         on_value_change: Any = None,
         direction: Literal["horizontal", "vertical"] = "horizontal",
-        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
+        size: ComponentSize = "md",
         gap: int | None = None,
         id: str | None = None,
         class_name: str = "",

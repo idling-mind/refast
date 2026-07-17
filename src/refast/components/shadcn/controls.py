@@ -2,7 +2,7 @@
 
 from typing import Any, Literal, NotRequired, TypedDict
 
-from refast.components.base import ChildrenType, Component
+from refast.components.base import ChildrenType, Component, ComponentSize
 
 
 class Switch(Component):
@@ -198,7 +198,7 @@ class Toggle(Component):
         default_pressed: bool = False,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "md", "lg"] = "md",
+        size: ComponentSize = "md",
         on_pressed_change: Any = None,
         name: str | None = None,
         id: str | None = None,
@@ -278,7 +278,7 @@ class ToggleGroup(Component):
         default_value: str | list[str] | dict[str, bool] | None = None,
         disabled: bool = False,
         variant: Literal["default", "outline"] = "default",
-        size: Literal["sm", "md", "lg"] = "md",
+        size: ComponentSize = "md",
         on_value_change: Any = None,
         children: ChildrenType = None,
         name: str | None = None,

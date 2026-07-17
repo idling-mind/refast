@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { cn } from '../../utils';
+import { cn, ComponentSize } from '../../utils';
 import { X } from 'lucide-react';
 import { Icon } from './icon';
 
@@ -138,7 +138,7 @@ interface BadgeProps {
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';
   icon?: string;
   iconPosition?: 'left' | 'right';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: ComponentSize;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -173,7 +173,7 @@ export function Badge({
     xl: 'px-4 py-1.5 text-base gap-1.5',
   };
 
-  const iconSizes = { xs: 10, sm: 11, md: 12, lg: 14, xl: 16 };
+  const iconSizes: Record<ComponentSize, number> = { xs: 10, sm: 11, md: 12, lg: 14, xl: 16 };
   const iconEl = icon ? <Icon name={icon} size={iconSizes[size]} className="shrink-0" /> : null;
 
   return (
@@ -272,7 +272,7 @@ export function Progress({
 interface SpinnerProps {
   id?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: ComponentSize;
   'data-refast-id'?: string;
 }
 
@@ -286,9 +286,11 @@ export function Spinner({
   'data-refast-id': dataRefastId,
 }: SpinnerProps): React.ReactElement<any> {
   const sizeClasses = {
+    xs: 'h-3 w-3',
     sm: 'h-4 w-4',
     md: 'h-6 w-6',
     lg: 'h-8 w-8',
+    xl: 'h-12 w-12',
   };
 
   return (

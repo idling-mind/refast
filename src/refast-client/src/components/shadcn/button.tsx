@@ -1,11 +1,11 @@
 import React from 'react';
 import { cva } from 'class-variance-authority';
-import { cn } from '../../utils';
+import { cn, ComponentSize, getIconSize } from '../../utils';
 import { Icon } from './icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: ComponentSize;
   loading?: boolean;
   icon?: string;
   iconPosition?: 'left' | 'right';
@@ -48,8 +48,7 @@ export function Button({
     xl: 'h-12 px-10 text-xl',
   };
 
-  const iconSizeMap: Record<string, number> = { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 };
-  const iconSize = iconSizeMap[size ?? 'md'] ?? 16;
+  const iconSize = getIconSize(size, 16);
   const hasChildren = React.Children.count(children) > 0 || (typeof children === 'string' && children.length > 0);
 
   return (
@@ -87,7 +86,7 @@ interface IconButtonProps {
   className?: string;
   icon: string;
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: ComponentSize;
   disabled?: boolean;
   onClick?: () => void;
   ariaLabel?: string;
@@ -128,8 +127,6 @@ export function IconButton({
     xl: 'h-12 w-12',
   };
 
-  const iconSizeMap: Record<string, number> = { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 };
-
   return (
     <button
       ref={ref}
@@ -148,7 +145,7 @@ export function IconButton({
       )}
       {...props}
     >
-      <Icon name={icon} size={iconSizeMap[size] ?? 16} />
+      <Icon name={icon} size={getIconSize(size, 16)} />
     </button>
   );
 }

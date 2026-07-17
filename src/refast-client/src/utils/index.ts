@@ -103,3 +103,6 @@ export function deepMerge<
 export function assertNever(x: never, message?: string): never {
   throw new Error(message ?? `[Refast] Unhandled case: ${JSON.stringify(x)}`);
 }
+
+export * from './sizes';
+

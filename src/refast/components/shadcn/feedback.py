@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import ChildrenType, Component
+from refast.components.base import ChildrenType, Component, ComponentSize
 
 
 class Alert(Component):
@@ -77,7 +77,7 @@ class Spinner(Component):
 
     def __init__(
         self,
-        size: Literal["sm", "md", "lg"] = "md",
+        size: ComponentSize = "md",
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,

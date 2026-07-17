@@ -2,7 +2,7 @@ import React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, ComponentSize } from '../../utils';
 import { Icon } from './icon';
 import { ComponentRenderer } from '../ComponentRenderer';
 import type { ComponentTree } from '../../types';
@@ -677,7 +677,7 @@ interface AvatarProps {
   src?: string;
   alt?: string;
   fallback?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: ComponentSize;
   'data-refast-id'?: string;
 }
 
@@ -694,9 +694,11 @@ export function Avatar({
   'data-refast-id': dataRefastId,
 }: AvatarProps): React.ReactElement<any> {
   const sizeClasses = {
+    xs: 'h-6 w-6',
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
     lg: 'h-12 w-12',
+    xl: 'h-16 w-16',
   };
 
   const [imageError, setImageError] = React.useState(false);
@@ -913,14 +915,21 @@ export const TooltipContent = TooltipPrimitive.Content;
 export const TooltipProvider = TooltipPrimitive.Provider;
 
 // Tabs size configuration
-const TABS_SIZE_CONFIG = {
+const TABS_SIZE_CONFIG: Record<ComponentSize, {
+  iconSize: number;
+  textClass: string;
+  listPad: string;
+  btnPx: string;
+  btnPy: string;
+  squareSize: string;
+}> = {
   xs: { iconSize: 10, textClass: 'text-xs',   listPad: 'p-0.5', btnPx: 'px-2',   btnPy: 'py-0.5', squareSize: 'w-6 h-6'   },
   sm: { iconSize: 12, textClass: 'text-xs',   listPad: 'p-0.5', btnPx: 'px-2.5', btnPy: 'py-1',   squareSize: 'w-7 h-7'   },
   md: { iconSize: 14, textClass: 'text-sm',   listPad: 'p-1',   btnPx: 'px-3',   btnPy: 'py-1.5', squareSize: 'w-8 h-8'   },
   lg: { iconSize: 16, textClass: 'text-sm',   listPad: 'p-1.5', btnPx: 'px-4',   btnPy: 'py-2',   squareSize: 'w-9 h-9'   },
   xl: { iconSize: 18, textClass: 'text-base', listPad: 'p-2',   btnPx: 'px-5',   btnPy: 'py-2.5', squareSize: 'w-10 h-10' },
 } as const;
-type TabsSize = keyof typeof TABS_SIZE_CONFIG;
+type TabsSize = ComponentSize;
 
 // Tabs Context
 interface TabsContextValue {

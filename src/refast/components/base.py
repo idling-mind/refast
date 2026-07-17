@@ -5,7 +5,9 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Self, Union, cast
+from typing import Any, Literal, Self, Union, cast
+
+ComponentSize = Literal["xs", "sm", "md", "lg", "xl"]
 
 logger = logging.getLogger(__name__)
 

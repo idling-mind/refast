@@ -124,9 +124,8 @@ async def generic_callback(ctx: Context, msg=""):
 # Callback handlers
 async def on_switch_change(ctx: Context):
     """Handle switch toggle."""
-    current = ctx.state.get("notifications", False)
-    ctx.state.set("notifications", not current)
-    await ctx.update_text("switch-status", "ON" if not current else "OFF")
+    print("Switch changed", ctx.event_data)
+    await ctx.update_text("switch-status", "ON" if ctx.event_data.get("value", False) else "OFF")
 
 
 async def on_calendar_select(ctx: Context):
@@ -298,7 +297,6 @@ async def on_shortcut(ctx: Context, key: str = ""):
 @ui.page("/")
 def home(ctx: Context):
     """Component showcase home page."""
-    notifications = ctx.state.get("notifications", False)
     volume = ctx.state.get("volume", 50)
     current_page = ctx.state.get("current_page", 1)
 
@@ -443,12 +441,11 @@ def home(ctx: Context):
                                                 align="center",
                                                 children=[
                                                     Text(
-                                                        "ON" if notifications else "OFF",
+                                                        "OFF",
                                                         id="switch-status",
                                                         class_name="text-sm",
                                                     ),
                                                     Switch(
-                                                        default_checked=notifications,
                                                         on_checked_change=ctx.callback(on_switch_change),
                                                     ),
                                                 ],

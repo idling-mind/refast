@@ -10,7 +10,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react"
 import { Button, buttonVariants } from './button';
-import { cn } from '../../utils';
+import { cn, ComponentSize, getIconSize } from '../../utils';
 import { refastBus } from '../../utils/eventBus';
 import { Icon } from './icon';
 import { InputWrapper } from './input';
@@ -302,7 +302,7 @@ interface ToggleProps {
   defaultPressed?: boolean;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  size?: ComponentSize;
   name?: string;
   onPressedChange?: (pressed: boolean) => void;
   children?: React.ReactNode;
@@ -314,10 +314,12 @@ const toggleVariants = {
   outline: 'border border-input bg-transparent hover:bg-accent hover:text-accent-foreground',
 };
 
-const toggleSizes = {
+const toggleSizes: Record<string, string> = {
+  xs: 'h-7 px-2 text-xs',
   sm: 'h-9 px-2.5',
   md: 'h-10 px-3',
   lg: 'h-11 px-5',
+  xl: 'h-12 px-6 text-lg',
 };
 
 export function Toggle({
@@ -370,7 +372,7 @@ export function Toggle({
         )}
         data-refast-id={dataRefastId}
       >
-        {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
+        {children || (icon && <Icon name={icon} size={getIconSize(size, 16)} />) || label}
       </TogglePrimitive.Root>
     </>
   );
@@ -388,7 +390,7 @@ interface ToggleGroupProps {
   defaultValue?: string | string[];
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  size?: ComponentSize;
   name?: string;
   onValueChange?: (value: string | string[] | Record<string, boolean>) => void;
   children?: React.ReactNode;
@@ -538,7 +540,7 @@ interface ToggleGroupItemProps {
   value: string;
   disabled?: boolean;
   variant?: 'default' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  size?: ComponentSize;
   children?: React.ReactNode;
   'data-refast-id'?: string;
 }
@@ -571,7 +573,7 @@ export function ToggleGroupItem({
       )}
       data-refast-id={dataRefastId}
     >
-      {children || (icon && <Icon name={icon} size={size === 'lg' ? 20 : size === 'sm' ? 14 : 16} />) || label}
+      {children || (icon && <Icon name={icon} size={getIconSize(size, 16)} />) || label}
     </ToggleGroupPrimitive.Item>
   );
 }

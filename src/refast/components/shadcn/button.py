@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from refast.components.base import ChildrenType, Component
+from refast.components.base import ChildrenType, Component, ComponentSize
 
 
 class Button(Component):
@@ -44,7 +44,7 @@ class Button(Component):
         variant: Literal[
             "default", "secondary", "destructive", "outline", "ghost", "link"
         ] = "default",
-        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
+        size: ComponentSize = "md",
         icon: str | None = None,
         icon_position: Literal["left", "right"] = "left",
         disabled: bool = False,
@@ -124,7 +124,7 @@ class IconButton(Component):
         self,
         icon: str,
         variant: Literal["default", "secondary", "destructive", "outline", "ghost"] = "ghost",
-        size: Literal["xs", "sm", "md", "lg", "xl"] = "md",
+        size: ComponentSize = "md",
         disabled: bool = False,
         on_click: Any = None,
         aria_label: str | None = None,

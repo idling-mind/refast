@@ -1,6 +1,5 @@
 """Event manager for routing events."""
 
-import asyncio
 import logging
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
@@ -46,7 +45,6 @@ class EventManager:
         """
         self.app = app
         self._handlers: dict[str, list[EventHandler]] = defaultdict(list)
-        self._callbacks: dict[str, Callable[..., Any]] = {}
         self._middleware: list[Callable[..., Any]] = []
 
     def on(self, event_type: str) -> Callable[[EventHandler], EventHandler]:
@@ -99,28 +97,6 @@ class EventManager:
         """
         return list(self._handlers.get(event_type, []))
 
-    def register_callback(self, callback_id: str, func: Callable[..., Any]) -> None:
-        """
-        Register a callback function.
-
-        Args:
-            callback_id: Unique identifier for the callback
-            func: The callback function
-        """
-        self._callbacks[callback_id] = func
-
-    def get_callback(self, callback_id: str) -> Callable[..., Any] | None:
-        """
-        Get a registered callback.
-
-        Args:
-            callback_id: The callback ID
-
-        Returns:
-            The callback function or None
-        """
-        return self._callbacks.get(callback_id)
-
     def add_middleware(self, middleware: Callable[..., Awaitable[Any]]) -> None:
         """
         Add middleware that runs before event handlers.
@@ -167,48 +143,6 @@ class EventManager:
                 raise
 
         return results
-
-    async def invoke_callback(
-        self,
-        callback_id: str,
-        ctx: "Context",
-        event_data: dict[str, Any],
-    ) -> Any:
-        """
-        Invoke a registered callback.
-
-        Args:
-            callback_id: The callback ID
-            ctx: Request context
-            event_data: Data from the frontend event
-
-        Returns:
-            Result from the callback
-        """
-        callback = self._callbacks.get(callback_id)
-        if callback is None:
-            logger.warning(f"Callback not found: {callback_id}")
-            return None
-
-        # Extract bound args and call args
-        bound_args = event_data.get("boundArgs", {})
-        call_args = event_data.get("data", {})
-
-        # Merge args (call_args override bound_args)
-        merged_args = {**bound_args, **call_args}
-
-        # Set event_data on context so callbacks can access it via ctx.event_data
-        if hasattr(ctx, "set_event_data"):
-            ctx.set_event_data(merged_args)
-
-        try:
-            if asyncio.iscoroutinefunction(callback):
-                return await callback(ctx, **merged_args)
-            else:
-                return callback(ctx, **merged_args)
-        except Exception as e:
-            logger.error(f"Error invoking callback {callback_id}: {e}")
-            raise
 
     async def _run_with_middleware(
         self,

@@ -7,9 +7,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from refast import Context, RefastApp
+from refast.assets import render_html_shell
 from refast.components import Text
 from refast.router import STATIC_DIR
-from refast.assets import render_html_shell
 
 
 class TestStaticFileServing:

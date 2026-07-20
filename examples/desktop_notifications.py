@@ -224,7 +224,7 @@ def notification_demo_page(ctx: Context):
                                         children=[
                                             Checkbox(
                                                 id="chk-interact",
-                                                checked=ctx.store.local["notif_req_interact"],
+                                                checked=ctx.store.local.get("notif_req_interact"),
                                                 on_change=ctx.save_prop("notif_req_interact"),
                                             ),
                                             Text(

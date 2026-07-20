@@ -48,6 +48,8 @@ export interface ToastEventDetail {
 export interface RefastEventMap {
   /** Invoke a Python callback via WebSocket (emitted by refastJsHelper + ConnectionStatus). */
   'refast:callback': { callbackId: string; data: Record<string, unknown> };
+  /** Emit a custom event to the server (emitted by refast.emit). */
+  'refast:custom-event': { eventType: string; data: Record<string, unknown> };
   /** Show a toast notification (emitted by StateManager, consumed by ToastManager). */
   'refast:toast': ToastEventDetail;
   /** Client-side navigation event (emitted by StateManager). */

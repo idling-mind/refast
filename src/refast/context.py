@@ -88,6 +88,7 @@ class Context(Generic[T]):
         self._query_params: dict[str, str] = {}
         self._query_string: str = ""
         self._callbacks: dict[str, Callable[..., Any]] = {}
+        self._callback_error_handlers: dict[str, Callable[..., Any]] = {}
 
     @property
     def request(self) -> Request | None:
@@ -124,9 +125,14 @@ class Context(Generic[T]):
         """Look up a callback registered during this connection's last page render."""
         return self._callbacks.get(callback_id)
 
+    def get_callback_error_handler(self, callback_id: str) -> Callable[..., Any] | None:
+        """Look up an error handler registered for a callback."""
+        return self._callback_error_handlers.get(callback_id)
+
     def clear_callbacks(self) -> None:
         """Discard all callbacks from the previous render cycle."""
         self._callbacks.clear()
+        self._callback_error_handlers.clear()
 
     @property
     def state(self) -> State:
@@ -171,6 +177,7 @@ class Context(Generic[T]):
         props: list[str] | None = None,
         debounce: int = 0,
         throttle: int = 0,
+        on_error: Callable[..., Any] | None = None,
         **bound_args: Any,
     ) -> Callback:
         """
@@ -183,6 +190,8 @@ class Context(Generic[T]):
                 Supports regex patterns (e.g., "input_.*").
             debounce: Milliseconds to debounce the server call.
             throttle: Milliseconds to throttle the server call.
+            on_error: Optional error handler function called if validation
+                or execution fails. Signature: async def handle_error(ctx, error, **kwargs)
             **bound_args: Arguments to bind to the callback.
 
         Returns:
@@ -224,6 +233,8 @@ class Context(Generic[T]):
 
         # Register on this context (per-connection, auto-cleared on page render)
         self._callbacks[callback_id] = func
+        if on_error is not None:
+            self._callback_error_handlers[callback_id] = on_error
 
         return cb
 

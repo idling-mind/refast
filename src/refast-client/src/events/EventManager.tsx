@@ -334,9 +334,9 @@ export function EventManagerProvider({
     return () => unregister.forEach((f) => f());
   }, [registerMessageHandler]);
 
-  // Listen for refast:callback events dispatched by refastJsHelper and ConnectionStatus.
+  // Listen for refast:callback and refast:custom-event events dispatched by refastJsHelper.
   useEffect(() => {
-    return refastBus.on('refast:callback', ({ callbackId, data }) => {
+    const unsubCallback = refastBus.on('refast:callback', ({ callbackId, data }) => {
       if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
         websocketRef.current.send(
           JSON.stringify({ type: 'callback', callbackId, data }),
@@ -345,6 +345,21 @@ export function EventManagerProvider({
         console.warn('WebSocket not connected, cannot invoke callback');
       }
     });
+
+    const unsubEvent = refastBus.on('refast:custom-event', ({ eventType, data }) => {
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        websocketRef.current.send(
+          JSON.stringify({ type: 'event', eventType, data }),
+        );
+      } else {
+        console.warn('WebSocket not connected, cannot emit custom event');
+      }
+    });
+
+    return () => {
+      unsubCallback();
+      unsubEvent();
+    };
   }, []);
 
   // Handle incoming messages — route to update handlers then to the registry.

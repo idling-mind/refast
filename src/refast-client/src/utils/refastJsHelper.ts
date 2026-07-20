@@ -24,6 +24,7 @@
  */
 
 import { refastBus } from './eventBus';
+import { propStore } from '../state/PropStore';
 
 /**
  * Shape of a serialized callback reference passed as a bound arg.
@@ -58,11 +59,26 @@ export interface RefastJsHelper {
    * ```
    */
   invoke: (callback: SerializedCallback, data?: Record<string, unknown>) => void;
+
+  /**
+   * Emit a custom event to the backend EventManager from JavaScript.
+   *
+   * @param eventType - The type of event to emit (e.g. "search:query")
+   * @param data      - Event payload data dictionary
+   */
+  emit: (eventType: string, data?: Record<string, unknown>) => void;
+
+  /**
+   * Get a value from the frontend prop store.
+   *
+   * @param key - The key of the prop store value to retrieve
+   */
+  getProp: (key: string) => unknown;
 }
 
 /**
  * Singleton helper instance injected into all JS execution contexts.
- * Dispatches the `refast:callback` CustomEvent that EventManager listens for.
+ * Dispatches the `refast:callback` and `refast:custom-event` CustomEvents.
  */
 export const refastJsHelper: RefastJsHelper = {
   invoke(callback: SerializedCallback, data: Record<string, unknown> = {}) {
@@ -75,5 +91,13 @@ export const refastJsHelper: RefastJsHelper = {
       callbackId: callback.callbackId,
       data: { ...(callback.boundArgs || {}), ...data },
     });
+  },
+
+  emit(eventType: string, data: Record<string, unknown> = {}) {
+    refastBus.emit('refast:custom-event', { eventType, data });
+  },
+
+  getProp(key: string): unknown {
+    return propStore.get(key);
   },
 };

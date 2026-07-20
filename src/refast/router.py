@@ -72,7 +72,7 @@ def _parse_url(raw_path: str) -> tuple[str, dict[str, str], str]:
 
 
 def _filter_callback_kwargs(
-    sig: inspect.Signature,
+    callback: Callable[..., Any],
     event_data_raw: dict[str, Any],
     callback_data: dict[str, Any],
 ) -> dict[str, Any]:
@@ -86,12 +86,53 @@ def _filter_callback_kwargs(
     ``ctx`` is always excluded because the router passes it as the first
     positional argument.
     """
+    from pydantic import BaseModel
+    import inspect
+    import typing
+
+    sig = inspect.signature(callback)
     params = sig.parameters
-    has_var_keyword = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
-    if has_var_keyword:
-        return {**event_data_raw, **callback_data}
+    
+    try:
+        hints = typing.get_type_hints(callback)
+    except Exception:
+        hints = {}
+
     combined = {**event_data_raw, **callback_data}
-    return {k: v for k, v in combined.items() if k in params and k != "ctx"}
+    kwargs: dict[str, Any] = {}
+
+    for name, param in params.items():
+        if name == "ctx":
+            continue
+
+        # Get annotation
+        annotation = hints.get(name, param.annotation)
+        
+        # Check if annotation is a Pydantic BaseModel subclass
+        is_pydantic = False
+        try:
+            if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+                is_pydantic = True
+        except TypeError:
+            pass
+        
+        if is_pydantic:
+            # Validate the parameter value
+            # If name is in combined and is a dict, validate that sub-dict
+            if name in combined and isinstance(combined[name], dict):
+                kwargs[name] = annotation.model_validate(combined[name])
+            else:
+                # Validate the entire combined dict
+                kwargs[name] = annotation.model_validate(combined)
+        elif name in combined:
+            kwargs[name] = combined[name]
+        elif param.kind == inspect.Parameter.VAR_KEYWORD:
+            # For **kwargs, copy everything that isn't already assigned
+            for k, v in combined.items():
+                if k not in kwargs:
+                    kwargs[k] = v
+
+    return kwargs
 
 
 class RefastRouter:
@@ -600,6 +641,48 @@ class RefastRouter:
                         variant="destructive",
                     )
             except Exception as exc:
+                from pydantic import ValidationError
+
+                if isinstance(exc, ValidationError):
+                    logger.warning(f"Validation error handling message {message_type}: {exc}")
+                    errors = exc.errors(include_url=False)
+                    error_msgs = []
+                    for err in errors:
+                        loc = " -> ".join(str(x) for x in err["loc"])
+                        msg = err["msg"]
+                        error_msgs.append(f"{loc}: {msg}" if loc else msg)
+                    
+                    error_desc = "; ".join(error_msgs)
+                    
+                    if self.app.debug:
+                        try:
+                            await websocket.send_json(
+                                {
+                                    "type": "debug_event",
+                                    "event": {
+                                        "type": "Validation Error",
+                                        "message": f"Validation failed: {exc}",
+                                        "details": {
+                                            "messageType": message_type,
+                                            "errors": errors,
+                                            "messageData": getattr(
+                                                message, "model_dump", lambda: str(message)
+                                            )(),
+                                        },
+                                    },
+                                }
+                            )
+                        except Exception as send_err:
+                            logger.error(f"Failed to send validation debug message: {send_err}")
+                    
+                    if message_type in ("callback", "event"):
+                        await ctx.show_toast(
+                            message="Validation Error",
+                            description=error_desc,
+                            variant="destructive",
+                        )
+                    return
+
                 logger.error(
                     f"Unexpected error handling message {message_type}: {exc}", exc_info=True
                 )
@@ -662,11 +745,24 @@ class RefastRouter:
         callback = ctx.get_callback(callback_id)
         if callback:
             ctx.set_event_data(event_data_raw)
-            kwargs = _filter_callback_kwargs(
-                inspect.signature(callback), event_data_raw, callback_data
-            )
-            await callback(ctx, **kwargs)
-            await ctx.sync_store()
+            try:
+                kwargs = _filter_callback_kwargs(
+                    callback, event_data_raw, callback_data
+                )
+                await callback(ctx, **kwargs)
+                await ctx.sync_store()
+            except Exception as exc:
+                error_handler = ctx.get_callback_error_handler(callback_id)
+                if error_handler is not None:
+                    combined = {}
+                    if isinstance(event_data_raw, dict):
+                        combined.update(event_data_raw)
+                    if isinstance(callback_data, dict):
+                        combined.update(callback_data)
+                    await error_handler(ctx, exc, **combined)
+                    await ctx.sync_store()
+                else:
+                    raise
         elif self.app.debug:
             await websocket.send_json(
                 {
@@ -732,13 +828,7 @@ class RefastRouter:
         self, ctx: "Context", websocket: WebSocket, message: "EventMessage"
     ) -> None:
         """Handle a custom ``event`` message: invoke the registered event handler."""
-        event_type = message.event_type
-        handler = self.app._event_handlers.get(event_type)
-        if handler:
-            from refast.events.types import Event
-
-            event = Event(type=event_type, data=message.data)
-            await handler(ctx, event)
+        await self.app.events.emit(message.event_type, message.data, ctx=ctx)
 
     def _render_html_shell(self, component, ctx):
         """Render the HTML shell. Delegates to render_html_shell(self.app)."""

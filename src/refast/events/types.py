@@ -5,7 +5,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
     from refast.context import Context
@@ -31,8 +31,11 @@ class EventType(StrEnum):
     CUSTOM = "custom"
 
 
+T = TypeVar("T")
+
+
 @dataclass
-class Event:
+class Event(Generic[T]):
     """
     Represents an event in the system.
 
@@ -56,7 +59,7 @@ class Event:
     """
 
     type: str
-    data: dict[str, Any] = field(default_factory=dict)
+    data: T = field(default_factory=dict)  # type: ignore[assignment]
     timestamp: datetime = field(default_factory=_now_utc)
     source: str = "client"  # "client" or "server"
     session_id: str | None = None
@@ -66,7 +69,7 @@ class Event:
         """Convert to dictionary for serialization."""
         return {
             "type": self.type,
-            "data": self.data,
+            "data": self.data if not hasattr(self.data, "model_dump") else self.data.model_dump(),  # type: ignore[union-attr]
             "timestamp": self.timestamp.isoformat(),
             "source": self.source,
             "sessionId": self.session_id,
@@ -89,7 +92,7 @@ class Event:
 
 
 @dataclass
-class CallbackEvent(Event):
+class CallbackEvent(Event[Any]):
     """Event for invoking a callback."""
 
     type: str = field(default=EventType.CALLBACK)  # type: ignore[assignment]
@@ -99,3 +102,4 @@ class CallbackEvent(Event):
 
 # Type alias for event handlers
 EventHandler = Callable[["Context", Event], Awaitable[Any]]
+

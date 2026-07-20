@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 from fastapi import APIRouter
 
+from refast.events.manager import EventManager
 from refast.router import RefastRouter
 from refast.theme.theme import Theme
 from refast.utils.temp_file_store import MemoryFileStore, TempFileStore
@@ -145,7 +146,7 @@ class RefastApp:
         self._pages: dict[str, Callable] = {}
         # Entries: (compiled_pattern, param_types_dict, handler)
         self._page_patterns: list[tuple[re.Pattern[str], dict[str, type], Callable]] = []
-        self._event_handlers: dict[str, Callable] = {}
+        self.events = EventManager(app=self)
         self._router: RefastRouter | None = None
         self._extensions: dict[str, Extension] = {}
 
@@ -270,22 +271,50 @@ class RefastApp:
 
         return None, {}
 
-    def on_event(self, event_type: str) -> Callable[[Callable], Callable]:
+    def on(
+        self,
+        event_type: str,
+        on_error: Callable[..., Any] | None = None,
+    ) -> Callable[[Callable], Callable]:
         """
-        Decorator to register an event handler.
+        Decorator to register an event handler on the event manager.
 
         Args:
             event_type: The event type to handle (e.g., "user:click")
+            on_error: Optional error handler function called if validation
+                or execution fails.
 
         Returns:
             Decorator function
         """
+        return self.events.on(event_type, on_error=on_error)
 
-        def decorator(func: Callable) -> Callable:
-            self._event_handlers[event_type] = func
-            return func
+    def on_event(
+        self,
+        event_type: str,
+        on_error: Callable[..., Any] | None = None,
+    ) -> Callable[[Callable], Callable]:
+        """
+        Decorator to register an event handler on the event manager.
 
-        return decorator
+        Args:
+            event_type: The event type to handle (e.g., "user:click")
+            on_error: Optional error handler function called if validation
+                or execution fails.
+
+        Returns:
+            Decorator function
+        """
+        return self.events.on(event_type, on_error=on_error)
+
+    @property
+    def _event_handlers(self) -> dict[str, Callable]:
+        """Backward compatibility mapping of event types to first handler."""
+        return {
+            event_type: handlers[0]
+            for event_type, handlers in self.events._handlers.items()
+            if handlers
+        }
 
     # Extension methods
 

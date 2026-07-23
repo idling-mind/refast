@@ -135,6 +135,7 @@ class ScrollArea(Component):
         scroll_hide_delay: int = 600,
         dir: Literal["ltr", "rtl"] | None = None,
         stick_to_bottom: bool = False,
+        scroll_direction: Literal["both", "vertical", "horizontal"] = "both",
         id: str | None = None,
         class_name: str = "",
         style: dict[str, Any] | None = None,
@@ -156,6 +157,9 @@ class ScrollArea(Component):
                 bottom whenever content changes, unless the user has
                 scrolled upwards. Re-sticks when the user scrolls back
                 to the bottom. Defaults to ``False``.
+            scroll_direction: Scroll direction configuration. Can be
+                ``"both"``, ``"vertical"``, or ``"horizontal"``. Defaults
+                to ``"both"``.
             id: Optional unique element ID for targeted updates.
             class_name: Additional Tailwind CSS classes.
         """
@@ -170,6 +174,7 @@ class ScrollArea(Component):
         self.scroll_hide_delay = scroll_hide_delay
         self.dir = dir
         self.stick_to_bottom = stick_to_bottom
+        self.scroll_direction = scroll_direction
         self.add_children(children)
 
     def render(self) -> dict[str, Any]:
@@ -177,6 +182,7 @@ class ScrollArea(Component):
             "type": self.scroll_type,
             "scroll_hide_delay": self.scroll_hide_delay,
             "stick_to_bottom": self.stick_to_bottom,
+            "scroll_direction": self.scroll_direction,
             "class_name": self.class_name,
             **self._serialize_extra_props(),
         }

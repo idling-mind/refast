@@ -110,6 +110,24 @@ class TestScrollArea:
         rendered = area.render()
         assert rendered["props"]["scroll_hide_delay"] == 1000
 
+    def test_scroll_area_direction_default(self):
+        """Test ScrollArea with default scroll direction."""
+        area = ScrollArea()
+        rendered = area.render()
+        assert rendered["props"]["scroll_direction"] == "both"
+
+    def test_scroll_area_direction_vertical(self):
+        """Test ScrollArea with vertical scroll direction."""
+        area = ScrollArea(scroll_direction="vertical")
+        rendered = area.render()
+        assert rendered["props"]["scroll_direction"] == "vertical"
+
+    def test_scroll_area_direction_horizontal(self):
+        """Test ScrollArea with horizontal scroll direction."""
+        area = ScrollArea(scroll_direction="horizontal")
+        rendered = area.render()
+        assert rendered["props"]["scroll_direction"] == "horizontal"
+
 
 class TestCollapsible:
     """Tests for Collapsible component."""

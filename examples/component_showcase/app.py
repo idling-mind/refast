@@ -957,17 +957,85 @@ def home(ctx: Context):
                                     ),
                                     Separator(),
                                     Column(
-                                        gap=2,
+                                        gap=4,
                                         children=[
-                                            Label("Scroll Area Example"),
-                                            ScrollArea(
-                                                class_name="rounded-md border p-4",
-                                                style={"height": "200px"},
+                                            Label("Scroll Area Examples"),
+                                            Row(
+                                                gap=4,
+                                                class_name="w-full flex-wrap",
                                                 children=[
+                                                    # Vertical Only
                                                     Column(
                                                         gap=2,
+                                                        class_name="flex-1",
+                                                        style={"minWidth": "250px"},
                                                         children=[
-                                                            Text(f"Item {i}") for i in range(1, 21)
+                                                            Text("Vertical Only (forces content wrapping)", class_name="text-xs text-muted-foreground font-medium"),
+                                                            ScrollArea(
+                                                                scroll_direction="vertical",
+                                                                class_name="rounded-md border p-4 w-full",
+                                                                style={"height": "200px"},
+                                                                children=[
+                                                                    Column(
+                                                                        gap=2,
+                                                                        children=[
+                                                                            Text(
+                                                                                f"Item {i} - This is a long sentence that wraps instead of triggering horizontal scrolling.",
+                                                                                class_name="whitespace-normal break-words"
+                                                                            ) for i in range(1, 15)
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    # Horizontal Only
+                                                    Column(
+                                                        gap=2,
+                                                        class_name="flex-1",
+                                                        style={"minWidth":"250px"},
+                                                        children=[
+                                                            Text("Horizontal Only (scrolls wide list horizontally)", class_name="text-xs text-muted-foreground font-medium"),
+                                                            ScrollArea(
+                                                                scroll_direction="horizontal",
+                                                                class_name="rounded-md border p-4 w-full",
+                                                                style={"height": "200px"},
+                                                                children=[
+                                                                    Row(
+                                                                        gap=4,
+                                                                        class_name="w-max pb-2",
+                                                                        children=[
+                                                                            Container(
+                                                                                class_name="bg-accent p-4 rounded-md border flex items-center justify-center",
+                                                                                style={"width": "150px", "height": "140px"},
+                                                                                children=[Text(f"Card {i}")]
+                                                                            ) for i in range(1, 10)
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    # Both (Default)
+                                                    Column(
+                                                        gap=2,
+                                                        class_name="flex-1",
+                                                        style={"minWidth":"250px"},
+                                                        children=[
+                                                            Text("Both Directions (default)", class_name="text-xs text-muted-foreground font-medium"),
+                                                            ScrollArea(
+                                                                class_name="rounded-md border p-4 w-full",
+                                                                style={"height": "200px"},
+                                                                children=[
+                                                                    Column(
+                                                                        gap=2,
+                                                                        class_name="w-max",
+                                                                        children=[
+                                                                            Text(f"Item {i} - long text line that goes on and on and does not wrap and overflows", class_name="whitespace-nowrap") for i in range(1, 20)
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                            ),
                                                         ],
                                                     ),
                                                 ],

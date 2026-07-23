@@ -75,6 +75,7 @@ export interface ScrollAreaProps extends BaseProps {
   scrollHideDelay?: number;
   dir?: 'ltr' | 'rtl';
   stickToBottom?: boolean;
+  scrollDirection?: 'both' | 'vertical' | 'horizontal';
 }
 
 export function ScrollArea({
@@ -83,6 +84,7 @@ export function ScrollArea({
   className,
   children,
   stickToBottom = false,
+  scrollDirection = 'both',
   ...props
 }: ScrollAreaProps) {
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -113,43 +115,51 @@ export function ScrollArea({
       <ScrollAreaPrimitive.Viewport
         ref={viewportRef}
         onScroll={stickToBottom ? handleScroll : undefined}
-        className="h-full w-full rounded-[inherit]"
+        className={cn(
+          'h-full w-full rounded-[inherit]',
+          scrollDirection === 'vertical' && 'overflow-x-hidden [&>div]:!block',
+          scrollDirection === 'horizontal' && 'overflow-y-hidden'
+        )}
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollAreaPrimitive.Scrollbar
-        orientation="vertical"
-        className={cn(
-          'flex touch-none select-none transition-colors',
-          'h-full w-2.5 border-l border-l-transparent p-[1px]'
-        )}
-      >
-        <ScrollAreaPrimitive.Thumb
+      {(scrollDirection === 'both' || scrollDirection === 'vertical') && (
+        <ScrollAreaPrimitive.Scrollbar
+          orientation="vertical"
           className={cn(
-            'relative flex-1 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors',
-            'before:absolute before:left-1/2 before:top-1/2',
-            'before:h-full before:min-h-[44px] before:w-full before:min-w-[44px]',
-            'before:-translate-x-1/2 before:-translate-y-1/2 before:content-[""]'
+            'flex touch-none select-none transition-colors',
+            'h-full w-2.5 border-l border-l-transparent p-[1px]'
           )}
-        />
-      </ScrollAreaPrimitive.Scrollbar>
-      <ScrollAreaPrimitive.Scrollbar
-        orientation="horizontal"
-        className={cn(
-          'flex touch-none select-none transition-colors',
-          'h-2.5 flex-col border-t border-t-transparent p-[1px]'
-        )}
-      >
-        <ScrollAreaPrimitive.Thumb
+        >
+          <ScrollAreaPrimitive.Thumb
+            className={cn(
+              'relative flex-1 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors',
+              'before:absolute before:left-1/2 before:top-1/2',
+              'before:h-full before:min-h-[44px] before:w-full before:min-w-[44px]',
+              'before:-translate-x-1/2 before:-translate-y-1/2 before:content-[""]'
+            )}
+          />
+        </ScrollAreaPrimitive.Scrollbar>
+      )}
+      {(scrollDirection === 'both' || scrollDirection === 'horizontal') && (
+        <ScrollAreaPrimitive.Scrollbar
+          orientation="horizontal"
           className={cn(
-            'relative flex-1 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors',
-            'before:absolute before:left-1/2 before:top-1/2',
-            'before:h-full before:min-h-[44px] before:w-full before:min-w-[44px]',
-            'before:-translate-x-1/2 before:-translate-y-1/2 before:content-[""]'
+            'flex touch-none select-none transition-colors',
+            'h-2.5 flex-col border-t border-t-transparent p-[1px]'
           )}
-        />
-      </ScrollAreaPrimitive.Scrollbar>
-      <ScrollAreaPrimitive.Corner />
+        >
+          <ScrollAreaPrimitive.Thumb
+            className={cn(
+              'relative flex-1 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors',
+              'before:absolute before:left-1/2 before:top-1/2',
+              'before:h-full before:min-h-[44px] before:w-full before:min-w-[44px]',
+              'before:-translate-x-1/2 before:-translate-y-1/2 before:content-[""]'
+            )}
+          />
+        </ScrollAreaPrimitive.Scrollbar>
+      )}
+      {scrollDirection === 'both' && <ScrollAreaPrimitive.Corner />}
     </ScrollAreaPrimitive.Root>
   );
 }
